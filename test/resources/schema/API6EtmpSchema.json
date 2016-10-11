@@ -1,0 +1,2273 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Digital to ETMP Subscription Create (04AY)",
+  "description": "Digital to ETMP Subscription Update (04AY) - v4.0",
+  "type": "object",
+  "properties": {
+    "acknowledgmentReference": {
+      "type": "string",
+      "pattern": "^\\S{32}$"
+    },
+    "changeIndicators": {
+      "type": "object",
+      "properties": {
+        "businessDetailsChanged": {
+          "type": "boolean"
+        },
+        "businessAddressChanged": {
+          "type": "boolean"
+        },
+        "contactDetailsChanged": {
+          "type": "boolean"
+        },
+        "additionalBusinessInfoChanged": {
+          "type": "boolean"
+        },
+        "partnersChanged": {
+          "type": "boolean"
+        },
+        "coOfficialsChanged": {
+          "type": "boolean"
+        },
+        "premisesChanged": {
+          "type": "boolean"
+        },
+        "suppliersChanged": {
+          "type": "boolean"
+        },
+        "groupMembersChanged": {
+          "type": "boolean"
+        },
+        "declarationChanged": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "businessDetailsChanged",
+        "businessAddressChanged",
+        "contactDetailsChanged",
+        "additionalBusinessInfoChanged",
+        "partnersChanged",
+        "coOfficialsChanged",
+        "premisesChanged",
+        "suppliersChanged",
+        "groupMembersChanged",
+        "declarationChanged"
+      ],
+      "additionalProperties": false
+    },
+    "subscriptionType": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/newAWBusiness"
+        },
+        {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/soleProprietor"
+            },
+            {
+              "$ref": "#/definitions/limitedLiabilityPartnership"
+            },
+            {
+              "$ref": "#/definitions/partnership"
+            },
+            {
+              "$ref": "#/definitions/corporateBody"
+            },
+            {
+              "$ref": "#/definitions/unincorporatedBody"
+            }
+          ]
+        },
+        {
+          "$ref": "#/definitions/businessAddressForAwrsRef"
+        },
+        {
+          "$ref": "#/definitions/contactDetailsRef"
+        },
+        {
+          "$ref": "#/definitions/declarationRef"
+        }
+      ]
+    }
+  },
+  "required": [
+    "acknowledgmentReference",
+    "changeIndicators",
+    "subscriptionType"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "soleProprietor": {
+      "type": "object",
+      "properties": {
+        "legalEntity": {
+          "type": "string",
+          "enum": [
+            "Sole Trader"
+          ]
+        },
+        "businessDetails": {
+          "type": "object",
+          "properties": {
+            "soleProprietor": {
+              "type": "object",
+              "properties": {
+                "tradingName": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "identification": {
+                  "$ref": "#/definitions/individualIdNumbersType"
+                }
+              },
+              "required": [
+                "identification"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "soleProprietor"
+          ],
+          "additionalProperties": false
+        },
+        "additionalBusinessInfo": {
+          "type": "object",
+          "properties": {
+            "all": {
+              "$ref": "#/definitions/additionalBusinessInfoAll"
+            }
+          },
+          "required": [
+            "all"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "legalEntity",
+        "businessDetails",
+        "additionalBusinessInfo"
+      ]
+    },
+    "limitedLiabilityPartnership": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "legalEntity": {
+              "type": "string",
+              "enum": [
+                "Limited Liability Partnership"
+              ]
+            },
+            "additionalBusinessInfo": {
+              "type": "object",
+              "properties": {
+                "partnerCorporateBody": {
+                  "$ref": "#/definitions/additionalBusinessInfoPartnerCorporateBody"
+                },
+                "all": {
+                  "$ref": "#/definitions/additionalBusinessInfoAll"
+                }
+              },
+              "required": [
+                "partnerCorporateBody",
+                "all"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "legalEntity",
+            "additionalBusinessInfo"
+          ]
+        },
+        {
+          "$ref": "#/definitions/llpTypeRef"
+        }
+      ]
+    },
+    "partnership": {
+      "type": "object",
+      "properties": {
+        "legalEntity": {
+          "type": "string",
+          "enum": [
+            "Partnership"
+          ]
+        },
+        "businessDetails": {
+          "type": "object",
+          "properties": {
+            "nonProprietor": {
+              "$ref": "#/definitions/nonProprietor"
+            },
+            "partnership": {
+              "$ref": "#/definitions/llpPartnership"
+            }
+          },
+          "required": [
+            "nonProprietor",
+            "partnership"
+          ],
+          "additionalProperties": false
+        },
+        "additionalBusinessInfo": {
+          "type": "object",
+          "properties": {
+            "partnerCorporateBody": {
+              "$ref": "#/definitions/additionalBusinessInfoPartnerCorporateBody"
+            },
+            "all": {
+              "$ref": "#/definitions/additionalBusinessInfoAll"
+            }
+          },
+          "required": [
+            "partnerCorporateBody",
+            "all"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "legalEntity",
+        "businessDetails",
+        "additionalBusinessInfo"
+      ]
+    },
+    "corporateBody": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "legalEntity": {
+              "type": "string",
+              "enum": [
+                "Corporate Body"
+              ]
+            },
+            "additionalBusinessInfo": {
+              "type": "object",
+              "properties": {
+                "partnerCorporateBody": {
+                  "$ref": "#/definitions/additionalBusinessInfoPartnerCorporateBody"
+                },
+                "all": {
+                  "$ref": "#/definitions/additionalBusinessInfoAll"
+                }
+              },
+              "required": [
+                "partnerCorporateBody",
+                "all"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "legalEntity",
+            "additionalBusinessInfo"
+          ]
+        },
+        {
+          "$ref": "#/definitions/corpTypeRef"
+        }
+      ]
+    },
+    "unincorporatedBody": {
+      "type": "object",
+      "properties": {
+        "legalEntity": {
+          "type": "string",
+          "enum": [
+            "Unincorporated Body"
+          ]
+        },
+        "businessDetails": {
+          "type": "object",
+          "properties": {
+            "nonProprietor": {
+              "$ref": "#/definitions/nonProprietor"
+            }
+          },
+          "required": [
+            "nonProprietor"
+          ],
+          "additionalProperties": false
+        },
+        "additionalBusinessInfo": {
+          "type": "object",
+          "properties": {
+            "all": {
+              "$ref": "#/definitions/additionalBusinessInfoAll"
+            }
+          },
+          "required": [
+            "all"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "legalEntity",
+        "businessDetails",
+        "additionalBusinessInfo"
+      ]
+    },
+    "businessAddressForAwrsRef": {
+      "type": "object",
+      "properties": {
+        "businessAddressForAwrs": {
+          "$ref": "#/definitions/businessAddressForAwrs"
+        }
+      },
+      "required": [
+        "businessAddressForAwrs"
+      ]
+    },
+    "businessAddressForAwrs": {
+      "type": "object",
+      "properties": {
+        "currentAddress": {
+          "$ref": "#/definitions/address"
+        },
+        "communicationDetails": {
+          "$ref": "#/definitions/communicationDetails"
+        },
+        "operatingDuration": {
+          "type": "string",
+          "enum": [
+            "0 to 2 years",
+            "2 to 5 years",
+            "5 to 10 years",
+            "over 10 years"
+          ]
+        },
+        "differentOperatingAddresslnLast3Years": {
+          "type": "boolean",
+          "description": "Has your business operated from a different address in the last 3 years (Current year plus 2)?"
+        },
+        "previousAddress": {
+          "$ref": "#/definitions/address"
+        }
+      },
+      "required": [
+        "currentAddress",
+        "communicationDetails",
+        "operatingDuration",
+        "differentOperatingAddresslnLast3Years"
+      ],
+      "additionalProperties": false
+    },
+    "contactDetailsRef": {
+      "type": "object",
+      "properties": {
+        "contactDetails": {
+          "$ref": "#/definitions/contactDetails"
+        }
+      },
+      "required": [
+        "contactDetails"
+      ]
+    },
+    "contactDetails": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/name"
+            },
+            "useAlternateContactAddress": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            },
+            "address": {
+              "$ref": "#/definitions/address"
+            },
+            "communicationDetails": {
+              "$ref": "#/definitions/communicationDetails"
+            }
+          },
+          "required": [
+            "name",
+            "useAlternateContactAddress",
+            "address",
+            "communicationDetails"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/definitions/name"
+            },
+            "useAlternateContactAddress": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            },
+            "communicationDetails": {
+              "$ref": "#/definitions/communicationDetails"
+            }
+          },
+          "required": [
+            "name",
+            "useAlternateContactAddress",
+            "communicationDetails"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "additionalBusinessInfoPartnerCorporateBody": {
+      "type": "object",
+      "properties": {
+        "numberOfCoOfficials": {
+          "type": "string",
+          "pattern": "^[0-9]{1,10}$"
+        },
+        "coOfficialDetails": {
+          "type": "object",
+          "properties": {
+            "coOfficial": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "individual": {
+                        "$ref": "#/definitions/individualCoOfficial"
+                      }
+                    },
+                    "required": [
+                      "individual"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "company": {
+                        "$ref": "#/definitions/companyCoOfficial"
+                      }
+                    },
+                    "required": [
+                      "company"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "numberOfCoOfficials"
+      ],
+      "additionalProperties": false
+    },
+    "additionalBusinessInfoAll": {
+      "type": "object",
+      "properties": {
+        "typeOfWholesaler": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "cashAndCarry": {
+                  "type": "boolean"
+                },
+                "offTradeSupplierOnly": {
+                  "type": "boolean"
+                },
+                "onTradeSupplierOnly": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                },
+                "typeOfWholesalerOther": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "cashAndCarry",
+                "offTradeSupplierOnly",
+                "onTradeSupplierOnly",
+                "all",
+                "other",
+                "typeOfWholesalerOther"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "cashAndCarry": {
+                  "type": "boolean"
+                },
+                "offTradeSupplierOnly": {
+                  "type": "boolean"
+                },
+                "onTradeSupplierOnly": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                }
+              },
+              "required": [
+                "cashAndCarry",
+                "offTradeSupplierOnly",
+                "onTradeSupplierOnly",
+                "all",
+                "other"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "typeOfAlcoholOrders": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "onlineOnly": {
+                  "type": "boolean"
+                },
+                "onlineAndTel": {
+                  "type": "boolean"
+                },
+                "onlineTelAndPhysical": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                }
+              },
+              "required": [
+                "onlineOnly",
+                "onlineAndTel",
+                "onlineTelAndPhysical",
+                "all",
+                "other"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "onlineOnly": {
+                  "type": "boolean"
+                },
+                "onlineAndTel": {
+                  "type": "boolean"
+                },
+                "onlineTelAndPhysical": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                },
+                "typeOfOrderOther": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "onlineOnly",
+                "onlineAndTel",
+                "onlineTelAndPhysical",
+                "all",
+                "other",
+                "typeOfOrderOther"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "typeOfCustomers": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "pubs": {
+                  "type": "boolean"
+                },
+                "nightClubs": {
+                  "type": "boolean"
+                },
+                "privateClubs": {
+                  "type": "boolean"
+                },
+                "hotels": {
+                  "type": "boolean"
+                },
+                "hospitalityCatering": {
+                  "type": "boolean"
+                },
+                "restaurants": {
+                  "type": "boolean"
+                },
+                "indepRetailers": {
+                  "type": "boolean"
+                },
+                "nationalRetailers": {
+                  "type": "boolean"
+                },
+                "public": {
+                  "type": "boolean"
+                },
+                "otherWholesalers": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                },
+                "typeOfCustomerOther": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "pubs",
+                "nightClubs",
+                "privateClubs",
+                "hotels",
+                "hospitalityCatering",
+                "restaurants",
+                "indepRetailers",
+                "nationalRetailers",
+                "public",
+                "otherWholesalers",
+                "all",
+                "other",
+                "typeOfCustomerOther"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "pubs": {
+                  "type": "boolean"
+                },
+                "nightClubs": {
+                  "type": "boolean"
+                },
+                "privateClubs": {
+                  "type": "boolean"
+                },
+                "hotels": {
+                  "type": "boolean"
+                },
+                "hospitalityCatering": {
+                  "type": "boolean"
+                },
+                "restaurants": {
+                  "type": "boolean"
+                },
+                "indepRetailers": {
+                  "type": "boolean"
+                },
+                "nationalRetailers": {
+                  "type": "boolean"
+                },
+                "public": {
+                  "type": "boolean"
+                },
+                "otherWholesalers": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                }
+              },
+              "required": [
+                "pubs",
+                "nightClubs",
+                "privateClubs",
+                "hotels",
+                "hospitalityCatering",
+                "restaurants",
+                "indepRetailers",
+                "nationalRetailers",
+                "public",
+                "otherWholesalers",
+                "all",
+                "other"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "productsSold": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "beer": {
+                  "type": "boolean"
+                },
+                "wine": {
+                  "type": "boolean"
+                },
+                "spirits": {
+                  "type": "boolean"
+                },
+                "cider": {
+                  "type": "boolean"
+                },
+                "perry": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                },
+                "typeOfProductOther": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "beer",
+                "wine",
+                "spirits",
+                "cider",
+                "perry",
+                "all",
+                "other",
+                "typeOfProductOther"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "beer": {
+                  "type": "boolean"
+                },
+                "wine": {
+                  "type": "boolean"
+                },
+                "spirits": {
+                  "type": "boolean"
+                },
+                "cider": {
+                  "type": "boolean"
+                },
+                "perry": {
+                  "type": "boolean"
+                },
+                "all": {
+                  "type": "boolean"
+                },
+                "other": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                }
+              },
+              "required": [
+                "beer",
+                "wine",
+                "spirits",
+                "cider",
+                "perry",
+                "all",
+                "other"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "numberOfPremises": {
+          "type": "string",
+          "pattern": "^[0-9]{1,10}$"
+        },
+        "premiseAddress": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "address": {
+                "$ref": "#/definitions/address"
+              }
+            },
+            "required": [
+              "address"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "thirdPartyStorageUsed": {
+          "type": "boolean"
+        },
+        "suppliers": {
+          "type": "object",
+          "properties": {
+            "supplier": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 5,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 140
+                      },
+                      "isSupplierVatRegistered": {
+                        "type": "boolean",
+                        "enum": [
+                          true
+                        ]
+                      },
+                      "vrn": {
+                        "type": "string",
+                        "pattern": "^[0-9]{9}$"
+                      },
+                      "address": {
+                        "$ref": "#/definitions/address"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "isSupplierVatRegistered",
+                      "vrn",
+                      "address"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 140
+                      },
+                      "isSupplierVatRegistered": {
+                        "type": "boolean",
+                        "enum": [
+                          false
+                        ]
+                      },
+                      "address": {
+                        "$ref": "#/definitions/address"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "isSupplierVatRegistered",
+                      "address"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "supplier"
+          ],
+          "additionalProperties": false
+        },
+        "alcoholGoodsExported": {
+          "type": "boolean"
+        },
+        "euDispatches": {
+          "type": "boolean"
+        },
+        "alcoholGoodsImported": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "typeOfWholesaler",
+        "typeOfAlcoholOrders",
+        "typeOfCustomers",
+        "productsSold",
+        "numberOfPremises",
+        "premiseAddress",
+        "thirdPartyStorageUsed",
+        "alcoholGoodsExported",
+        "euDispatches",
+        "alcoholGoodsImported"
+      ],
+      "additionalProperties": false
+    },
+    "declarationRef": {
+      "type": "object",
+      "properties": {
+        "declaration": {
+          "$ref": "#/definitions/declaration"
+        }
+      },
+      "required": [
+        "declaration"
+      ]
+    },
+    "declaration": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "nameOfPerson": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140
+            },
+            "statusOfPerson": {
+              "type": "string",
+              "enum": [
+                "Director",
+                "Company Secretary",
+                "Director and Company Secretary",
+                "Authorised Signatory"
+              ]
+            },
+            "informationIsAccurateAndComplete": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "nameOfPerson",
+            "statusOfPerson",
+            "informationIsAccurateAndComplete"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "nameOfPerson": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140
+            },
+            "statusOfPerson": {
+              "type": "string",
+              "enum": [
+                "Other"
+              ]
+            },
+            "personStatusOther": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40
+            },
+            "informationIsAccurateAndComplete": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "nameOfPerson",
+            "statusOfPerson",
+            "personStatusOther",
+            "informationIsAccurateAndComplete"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "nonProprietor": {
+      "type": "object",
+      "properties": {
+        "tradingName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "identification": {
+          "$ref": "#/definitions/corpNumbersType"
+        }
+      },
+      "required": [
+        "identification"
+      ],
+      "additionalProperties": false
+    },
+    "name": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "middleName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "lastName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        }
+      },
+      "required": [
+        "firstName",
+        "lastName"
+      ],
+      "additionalProperties": false
+    },
+    "names": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "companyName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140
+            },
+            "tradingName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            }
+          },
+          "required": [
+            "companyName",
+            "tradingName"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tradingName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            }
+          },
+          "required": [
+            "tradingName"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "companyName": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 140
+            }
+          },
+          "required": [
+            "companyName"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "addressLine1": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "addressLine2": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "addressLine3": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "addressLine4": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 35
+        },
+        "postalCode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10
+        },
+        "countryCode": {
+          "enum": [
+            "AD",
+            "AE",
+            "AF",
+            "AG",
+            "AI",
+            "AL",
+            "AM",
+            "AN",
+            "AO",
+            "AQ",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "AW",
+            "AX",
+            "AZ",
+            "BA",
+            "BB",
+            "BD",
+            "BE",
+            "BF",
+            "BG",
+            "BH",
+            "BI",
+            "BJ",
+            "BM",
+            "BN",
+            "BO",
+            "BQ",
+            "BR",
+            "BS",
+            "BT",
+            "BV",
+            "BW",
+            "BY",
+            "BZ",
+            "CA",
+            "CC",
+            "CD",
+            "CF",
+            "CG",
+            "CH",
+            "CI",
+            "CK",
+            "CL",
+            "CM",
+            "CN",
+            "CO",
+            "CR",
+            "CS",
+            "CU",
+            "CV",
+            "CW",
+            "CX",
+            "CY",
+            "CZ",
+            "DE",
+            "DJ",
+            "DK",
+            "DM",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "EH",
+            "ER",
+            "ES",
+            "ET",
+            "EU",
+            "FI",
+            "FJ",
+            "FK",
+            "FM",
+            "FO",
+            "FR",
+            "GA",
+            "GB",
+            "GD",
+            "GE",
+            "GF",
+            "GG",
+            "GH",
+            "GI",
+            "GL",
+            "GM",
+            "GN",
+            "GP",
+            "GQ",
+            "GR",
+            "GS",
+            "GT",
+            "GU",
+            "GW",
+            "GY",
+            "HK",
+            "HM",
+            "HN",
+            "HR",
+            "HT",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IM",
+            "IN",
+            "IO",
+            "IQ",
+            "IR",
+            "IS",
+            "IT",
+            "JE",
+            "JM",
+            "JO",
+            "JP",
+            "KE",
+            "KG",
+            "KH",
+            "KI",
+            "KM",
+            "KN",
+            "KP",
+            "KR",
+            "KW",
+            "KY",
+            "KZ",
+            "LA",
+            "LB",
+            "LC",
+            "LI",
+            "LK",
+            "LR",
+            "LS",
+            "LT",
+            "LU",
+            "LV",
+            "LY",
+            "MA",
+            "MC",
+            "MD",
+            "ME",
+            "MF",
+            "MG",
+            "MH",
+            "MK",
+            "ML",
+            "MM",
+            "MN",
+            "MO",
+            "MP",
+            "MQ",
+            "MR",
+            "MS",
+            "MT",
+            "MU",
+            "MV",
+            "MW",
+            "MX",
+            "MY",
+            "MZ",
+            "NA",
+            "NC",
+            "NE",
+            "NF",
+            "NG",
+            "NI",
+            "NL",
+            "NO",
+            "NP",
+            "NR",
+            "NT",
+            "NU",
+            "NZ",
+            "OM",
+            "PA",
+            "PE",
+            "PF",
+            "PG",
+            "PH",
+            "PK",
+            "PL",
+            "PM",
+            "PN",
+            "PR",
+            "PS",
+            "PT",
+            "PW",
+            "PY",
+            "QA",
+            "RE",
+            "RO",
+            "RS",
+            "RU",
+            "RW",
+            "SA",
+            "SB",
+            "SC",
+            "SD",
+            "SE",
+            "SG",
+            "SH",
+            "SI",
+            "SJ",
+            "SK",
+            "SL",
+            "SM",
+            "SN",
+            "SO",
+            "SR",
+            "SS",
+            "ST",
+            "SV",
+            "SX",
+            "SY",
+            "SZ",
+            "TC",
+            "TD",
+            "TF",
+            "TG",
+            "TH",
+            "TJ",
+            "TK",
+            "TL",
+            "TM",
+            "TN",
+            "TO",
+            "TP",
+            "TR",
+            "TT",
+            "TV",
+            "TW",
+            "TZ",
+            "UA",
+            "UG",
+            "UM",
+            "UN",
+            "US",
+            "UY",
+            "UZ",
+            "VA",
+            "VC",
+            "VE",
+            "VG",
+            "VI",
+            "VN",
+            "VU",
+            "WF",
+            "WS",
+            "YE",
+            "YT",
+            "ZA",
+            "ZM",
+            "ZW"
+          ]
+        }
+      },
+      "required": [
+        "addressLine1",
+        "addressLine2",
+        "countryCode"
+      ],
+      "additionalProperties": false
+    },
+    "newAWBusiness": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "newAWBusiness": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            },
+            "proposedStartDate": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+              "description": "YYYY-MM-DD"
+            }
+          },
+          "required": [
+            "newAWBusiness",
+            "proposedStartDate"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "newAWBusiness": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            }
+          },
+          "required": [
+            "newAWBusiness"
+          ]
+        }
+      ]
+    },
+    "communicationDetails": {
+      "type": "object",
+      "properties": {
+        "telephone": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30,
+          "pattern": "^[A-Z0-9 )/(\\-*#]+$"
+        },
+        "mobileNo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 30,
+          "pattern": "^[A-Z0-9 )/(\\-*#]+$"
+        },
+        "email": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      },
+      "required": [
+        "email"
+      ],
+      "additionalProperties": false
+    },
+    "incorporationDetails": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "isBusinessIncorporated": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            },
+            "companyRegistrationNumber": {
+              "type": "string",
+              "pattern": "^[A-Z0-9]{8}$"
+            },
+            "dateOfIncorporation": {
+              "type": "string",
+              "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+              "description": "YYYY-MM-DD"
+            }
+          },
+          "required": [
+            "isBusinessIncorporated",
+            "companyRegistrationNumber",
+            "dateOfIncorporation"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "isBusinessIncorporated": {
+              "type": "boolean",
+              "enum": [
+                false
+              ]
+            }
+          },
+          "required": [
+            "isBusinessIncorporated"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "corpNumbersType": {
+      "type": "object",
+      "properties": {
+        "doYouHaveVRN": {
+          "type": "boolean"
+        },
+        "vrn": {
+          "type": "string",
+          "pattern": "^[0-9]{9}$"
+        },
+        "doYouHaveUTR": {
+          "type": "boolean"
+        },
+        "utr": {
+          "type": "string",
+          "pattern": "^[0-9]{10}$"
+        }
+      },
+      "required": [
+        "doYouHaveVRN",
+        "doYouHaveUTR"
+      ],
+      "additionalProperties": false
+    },
+    "corpNumbersWithCRNType": {
+      "type": "object",
+      "properties": {
+        "doYouHaveVRN": {
+          "type": "boolean"
+        },
+        "vrn": {
+          "type": "string",
+          "pattern": "^[0-9]{9}$"
+        },
+        "doYouHaveUTR": {
+          "type": "boolean"
+        },
+        "utr": {
+          "type": "string",
+          "pattern": "^[0-9]{10}$"
+        },
+        "doYouHaveCRN": {
+          "type": "boolean"
+        },
+        "companyRegNumber": {
+          "type": "string",
+          "pattern": "^[A-Z0-9]{8}$"
+        }
+      },
+      "required": [
+        "doYouHaveVRN",
+        "doYouHaveUTR",
+        "doYouHaveCRN"
+      ],
+      "additionalProperties": false
+    },
+    "individualIdNumbersType": {
+      "type": "object",
+      "properties": {
+        "doYouHaveNino": {
+          "type": "boolean"
+        },
+        "nino": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}[0-9]{6}[A-Z]$"
+        },
+        "doYouHaveVRN": {
+          "type": "boolean"
+        },
+        "vrn": {
+          "type": "string",
+          "pattern": "^[0-9]{9}$"
+        },
+        "doYouHaveUTR": {
+          "type": "boolean"
+        },
+        "utr": {
+          "type": "string",
+          "pattern": "^[0-9]{10}$"
+        }
+      },
+      "required": [
+        "doYouHaveNino",
+        "doYouHaveVRN",
+        "doYouHaveUTR"
+      ],
+      "additionalProperties": false
+    },
+    "coOfficialIdentificationType": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "passportNumber": {
+              "type": "string",
+              "pattern": "^[0-9A-Z]{1,20}$"
+            }
+          },
+          "required": [
+            "passportNumber"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "nationalIdNumber": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            }
+          },
+          "required": [
+            "nationalIdNumber"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "nino": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z][0-9]{6}[A-Z]$"
+            }
+          },
+          "required": [
+            "nino"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "passportNumber": {
+              "type": "string",
+              "pattern": "^[0-9A-Z]{1,20}$"
+            },
+            "nationalIdNumber": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            }
+          },
+          "required": [
+            "passportNumber",
+            "nationalIdNumber"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "passportNumber": {
+              "type": "string",
+              "pattern": "^[0-9A-Z]{1,20}$"
+            },
+            "nino": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z][0-9]{6}[A-Z]$"
+            }
+          },
+          "required": [
+            "passportNumber",
+            "nino"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "nationalIdNumber": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "nino": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z][0-9]{6}[A-Z]$"
+            }
+          },
+          "required": [
+            "nationalIdNumber",
+            "nino"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "passportNumber": {
+              "type": "string",
+              "pattern": "^[0-9A-Z]{1,20}$"
+            },
+            "nationalIdNumber": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "nino": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z][0-9]{6}[A-Z]$"
+            }
+          },
+          "required": [
+            "passportNumber",
+            "nationalIdNumber",
+            "nino"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "individualCoOfficial": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "Director",
+            "Company Secretary",
+            "Director and Company Secretary",
+            "Member"
+          ]
+        },
+        "name": {
+          "$ref": "#/definitions/name"
+        },
+        "identification": {
+          "$ref": "#/definitions/coOfficialIdentificationType"
+        }
+      },
+      "required": [
+        "status",
+        "name",
+        "identification"
+      ],
+      "additionalProperties": false
+    },
+    "companyCoOfficial": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "Director",
+            "Company Secretary",
+            "Director and Company Secretary",
+            "Member"
+          ]
+        },
+        "names": {
+          "$ref": "#/definitions/names"
+        },
+        "identification": {
+          "$ref": "#/definitions/corpNumbersWithCRNType"
+        }
+      },
+      "required": [
+        "status",
+        "names",
+        "identification"
+      ],
+      "additionalProperties": false
+    },
+    "llpPartnership": {
+      "type": "object",
+      "properties": {
+        "numberOfPartners": {
+          "type": "string",
+          "pattern": "^[0-9]{1,5}$"
+        },
+        "partnerDetails": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "properties": {
+                  "entityType": {
+                    "type": "string",
+                    "enum": [
+                      "Partnership",
+                      "Unicorporate Body"
+                    ]
+                  },
+                  "partnerAddress": {
+                    "$ref": "#/definitions/address"
+                  },
+                  "names": {
+                    "$ref": "#/definitions/names"
+                  },
+                  "identification": {
+                    "$ref": "#/definitions/corpNumbersType"
+                  }
+                },
+                "required": [
+                  "entityType",
+                  "partnerAddress",
+                  "names",
+                  "identification"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "properties": {
+                  "entityType": {
+                    "type": "string",
+                    "enum": [
+                      "Limited Liability Partnership",
+                      "Corporate Body"
+                    ]
+                  },
+                  "partnerAddress": {
+                    "$ref": "#/definitions/address"
+                  },
+                  "names": {
+                    "$ref": "#/definitions/names"
+                  },
+                  "identification": {
+                    "$ref": "#/definitions/corpNumbersType"
+                  },
+                  "incorporationDetails": {
+                    "$ref": "#/definitions/incorporationDetails"
+                  }
+                },
+                "required": [
+                  "entityType",
+                  "partnerAddress",
+                  "names",
+                  "identification",
+                  "incorporationDetails"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "allOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "entityType": {
+                            "type": "string",
+                            "enum": [
+                              "Individual"
+                            ]
+                          },
+                          "individual": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "$ref": "#/definitions/name"
+                              },
+                              "doYouHaveNino": {
+                                "type": "boolean"
+                              },
+                              "nino": {
+                                "type": "string",
+                                "pattern": "^[A-Z]{2}[0-9]{6}[A-Z]$"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "doYouHaveNino"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "entityType",
+                          "individual"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "entityType": {
+                            "type": "string",
+                            "enum": [
+                              "Sole Trader"
+                            ]
+                          },
+                          "soleProprietor": {
+                            "type": "object",
+                            "properties": {
+                              "tradingName": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 120
+                              },
+                              "name": {
+                                "$ref": "#/definitions/name"
+                              },
+                              "doYouHaveNino": {
+                                "type": "boolean"
+                              },
+                              "nino": {
+                                "type": "string",
+                                "pattern": "^[A-Z]{2}[0-9]{6}[A-Z]$"
+                              },
+                              "identification": {
+                                "$ref": "#/definitions/corpNumbersType"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "doYouHaveNino",
+                              "identification"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "required": [
+                          "entityType",
+                          "soleProprietor"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "properties": {
+                      "partnerAddress": {
+                        "$ref": "#/definitions/address"
+                      }
+                    },
+                    "required": [
+                      "partnerAddress"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "numberOfPartners",
+        "partnerDetails"
+      ],
+      "additionalProperties": false
+    },
+    "corpTypeRef": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "llpCorporateBody": {
+              "type": "object",
+              "properties": {
+                "creatingAGroup": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                },
+                "groupRepConfirmation": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "creatingAGroup",
+                "groupRepConfirmation"
+              ],
+              "additionalProperties": false
+            },
+            "businessDetails": {
+              "type": "object",
+              "properties": {
+                "nonProprietor": {
+                  "$ref": "#/definitions/nonProprietor"
+                },
+                "llpCorporateBody": {
+                  "type": "object",
+                  "properties": {
+                    "incorporationDetails": {
+                      "$ref": "#/definitions/incorporationDetails"
+                    },
+                    "dateGrpRepJoined": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+                      "description": "YYYY-MM-DD"
+                    }
+                  },
+                  "required": [
+                    "incorporationDetails",
+                    "dateGrpRepJoined"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "nonProprietor",
+                "llpCorporateBody"
+              ],
+              "additionalProperties": false
+            },
+            "groupMemberDetails": {
+              "$ref": "#/definitions/groupMemberDetails"
+            }
+          },
+          "required": [
+            "llpCorporateBody",
+            "businessDetails",
+            "groupMemberDetails"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "llpCorporateBody": {
+              "type": "object",
+              "properties": {
+                "creatingAGroup": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                },
+                "groupRepConfirmation": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "creatingAGroup",
+                "groupRepConfirmation"
+              ],
+              "additionalProperties": false
+            },
+            "businessDetails": {
+              "type": "object",
+              "properties": {
+                "nonProprietor": {
+                  "$ref": "#/definitions/nonProprietor"
+                },
+                "llpCorporateBody": {
+                  "type": "object",
+                  "properties": {
+                    "incorporationDetails": {
+                      "$ref": "#/definitions/incorporationDetails"
+                    }
+                  },
+                  "required": [
+                    "incorporationDetails"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "nonProprietor",
+                "llpCorporateBody"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "llpCorporateBody",
+            "businessDetails"
+          ]
+        }
+      ]
+    },
+    "llpTypeRef": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "llpCorporateBody": {
+              "type": "object",
+              "properties": {
+                "creatingAGroup": {
+                  "type": "boolean",
+                  "enum": [
+                    true
+                  ]
+                },
+                "groupRepConfirmation": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "creatingAGroup",
+                "groupRepConfirmation"
+              ],
+              "additionalProperties": false
+            },
+            "businessDetails": {
+              "type": "object",
+              "properties": {
+                "nonProprietor": {
+                  "$ref": "#/definitions/nonProprietor"
+                },
+                "partnership": {
+                  "$ref": "#/definitions/llpPartnership"
+                },
+                "llpCorporateBody": {
+                  "type": "object",
+                  "properties": {
+                    "incorporationDetails": {
+                      "$ref": "#/definitions/incorporationDetails"
+                    },
+                    "dateGrpRepJoined": {
+                      "type": "string",
+                      "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+                      "description": "YYYY-MM-DD"
+                    }
+                  },
+                  "required": [
+                    "incorporationDetails",
+                    "dateGrpRepJoined"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "nonProprietor",
+                "partnership",
+                "llpCorporateBody"
+              ],
+              "additionalProperties": false
+            },
+            "groupMemberDetails": {
+              "$ref": "#/definitions/groupMemberDetails"
+            }
+          },
+          "required": [
+            "llpCorporateBody",
+            "businessDetails",
+            "groupMemberDetails"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "llpCorporateBody": {
+              "type": "object",
+              "properties": {
+                "creatingAGroup": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ]
+                },
+                "groupRepConfirmation": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "creatingAGroup",
+                "groupRepConfirmation"
+              ],
+              "additionalProperties": false
+            },
+            "businessDetails": {
+              "type": "object",
+              "properties": {
+                "nonProprietor": {
+                  "$ref": "#/definitions/nonProprietor"
+                },
+                "partnership": {
+                  "$ref": "#/definitions/llpPartnership"
+                },
+                "llpCorporateBody": {
+                  "type": "object",
+                  "properties": {
+                    "incorporationDetails": {
+                      "$ref": "#/definitions/incorporationDetails"
+                    }
+                  },
+                  "required": [
+                    "incorporationDetails"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "nonProprietor",
+                "partnership",
+                "llpCorporateBody"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "llpCorporateBody",
+            "businessDetails"
+          ]
+        }
+      ]
+    },
+    "groupMemberDetails": {
+      "type": "object",
+      "properties": {
+        "numberOfGrpMembers": {
+          "type": "string",
+          "pattern": "^[0-9]{1,10}$"
+        },
+        "groupMember": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "names": {
+                "$ref": "#/definitions/names"
+              },
+              "incorporationDetails": {
+                "$ref": "#/definitions/incorporationDetails"
+              },
+              "identification": {
+                "$ref": "#/definitions/corpNumbersType"
+              },
+              "groupJoiningDate": {
+                "type": "string",
+                "pattern": "^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$",
+                "description": "YYYY-MM-DD"
+              },
+              "address": {
+                "$ref": "#/definitions/address"
+              }
+            },
+            "required": [
+              "names",
+              "incorporationDetails",
+              "identification",
+              "groupJoiningDate",
+              "address"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "numberOfGrpMembers",
+        "groupMember"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

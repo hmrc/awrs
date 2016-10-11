@@ -1,0 +1,146 @@
+{
+  "subscriptionTypeFrontEnd": {
+    "legalEntity": {
+      "legalEntity": "LTD"
+    },
+    "businessPartnerName": "BusinessPartner",
+    "businessCustomerDetails": {
+      "businessName": "sdfsdf",
+      "businessType": "Corporate Body",
+      "businessAddress": {
+        "line_1": "1 Example Street",
+        "line_2": "Exampe View",
+        "line_3": "Exampe Town",
+        "line_4": "Exampeshire",
+        "postcode": "AA1 1AA",
+        "country": "GB"
+      },
+      "sapNumber": "1234567890",
+      "safeId": "XE0001234567890",
+      "isAGroup": false,
+      "agentReferenceNumber": "JARN1234567"
+    },
+    "businessDetails": {
+      "legalEntity": "LTD",
+      "tradingName": "Trading name",
+      "newAWBusiness": {
+        "newAWBusiness": "Yes",
+        "proposedStartDate": "30/10/2016"
+      }
+    },
+    "businessRegistrationDetails": {
+      "isBusinessIncorporated": "Yes",
+      "companyRegDetails": {
+        "companyRegistrationNumber": "55555555",
+        "dateOfIncorporation": "01/01/2015"
+      },
+      "doYouHaveVRN": "Yes",
+      "vrn": "000000000",
+      "doYouHaveUTR": "Yes",
+      "utr": "$utr"
+    },
+    "businessContacts": {
+      "mainPlaceOfBusiness": "Yes",
+      "contactAddressSame": "Yes",
+      "placeOfBusinessLast3Years": "Yes",
+      "operatingDuration": "over 10 years",
+      "contactFirstName": "first name",
+      "contactLastName": "last name",
+      "emailReview": "Email@email.com",
+      "telephone": "07000111222"
+    },
+    "additionalPremises": {
+      "premises": [
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "150 Example Avenue",
+            "addressLine2": "Exampletown"
+          },
+          "addAnother": "No"
+        }
+      ]
+    },
+    "businessDirectors": [
+      {
+        "directorsAndCompanySecretaries": "Director",
+        "personOrCompany": "person",
+        "firstName": "sdfsd",
+        "lastName": "sdfsdfsd",
+        "doTheyHaveNationalInsurance": "Yes",
+        "nino": "$nino",
+        "otherDirectors": "Yes"
+      },
+      {
+        "directorsAndCompanySecretaries": "Director and Company Secretary",
+        "personOrCompany": "person",
+        "firstName": "Example",
+        "lastName": "Exampleson",
+        "doTheyHaveNationalInsurance": "Yes",
+        "nino": "$nino",
+        "otherDirectors": "No"
+      }
+    ],
+    "tradingActivity": {
+      "wholesalerType": [
+        "06",
+        "01",
+        "02",
+        "03",
+        "04",
+        "05"
+      ],
+      "typeOfAlcoholOrders": [
+        "01",
+        "02",
+        "03",
+        "04"
+      ],
+      "doesBusinessImportAlcohol": "Yes",
+      "doYouExportAlcohol": [
+        "euDispatches",
+        "outsideEU"
+      ]
+    },
+    "products": {
+      "mainCustomers": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08"
+      ],
+      "productType": [
+        "02",
+        "03",
+        "05",
+        "06",
+        "99"
+      ],
+      "otherProductType": "rwerwrwerew"
+    },
+    "suppliers": {
+      "suppliers": [
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "dfgdfgfd",
+          "vatRegistered": "No",
+          "supplierAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "150 Example Avenue",
+            "addressLine2": "Example Avenue"
+          },
+          "additionalSupplier": "No"
+        }
+      ]
+    },
+    "applicationDeclaration": {
+      "declarationName": "AWRS application",
+      "declarationRole": "AWRS application1"
+    }
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "nonProprietor": {
+    "tradingName": "Trading name",
+    "identification": {
+      "doYouHaveVRN": true,
+      "vrn": "000000000",
+      "doYouHaveUTR": true,
+      "utr": "$utr"
+    }
+  },
+  "partnership": {
+    "numberOfPartners": "3",
+    "partnerDetails": [
+      {
+        "entityType": "Individual",
+        "partnerAddress": {
+          "postalCode": "AA1 1AA",
+          "addressLine1": "Indv address Line 1",
+          "addressLine2": "Indv address Line 2",
+          "countryCode": "GB"
+        },
+        "individual": {
+          "name": {
+            "firstName": "indv first name",
+            "lastName": "indv last name"
+          },
+          "doYouHaveNino": true,
+          "nino": "$nino"
+        }
+      },
+      {
+        "entityType": "Corporate Body",
+        "partnerAddress": {
+          "postalCode": "AA1 1AA",
+          "addressLine1": "corporate address Line 1",
+          "addressLine2": "corporate address Line 2",
+          "countryCode": "GB"
+        },
+        "names": {
+          "companyName": "corporate company name",
+          "tradingName": "corporate trading name"
+        },
+        "identification": {
+          "doYouHaveVRN": true,
+          "vrn": "000000000",
+          "doYouHaveUTR": true,
+          "utr": "$utr"
+        },
+        "incorporationDetails": {
+          "isBusinessIncorporated": true,
+          "companyRegistrationNumber": "12345678",
+          "dateOfIncorporation": "2015-01-01"
+        }
+      },
+      {
+        "entityType": "Sole Trader",
+        "partnerAddress": {
+          "postalCode": "AA1 1AA",
+          "addressLine1": "sole trader address Line 1",
+          "addressLine2": "sole trader address Line 2",
+          "countryCode": "GB"
+        },
+        "soleProprietor": {
+          "tradingName": "sole trading name",
+          "name": {
+            "firstName": "sole first name",
+            "lastName": "sole last name"
+          },
+          "doYouHaveNino": true,
+          "nino": "$nino",
+          "identification": {
+            "doYouHaveVRN": true,
+            "vrn": "000000000",
+            "doYouHaveUTR": true,
+            "utr": "$utr"
+          }
+        }
+      }
+    ]
+  },
+  "llpCorporateBody": {
+    "incorporationDetails": {
+      "isBusinessIncorporated": true,
+      "companyRegistrationNumber": "55555555",
+      "dateOfIncorporation": "2015-01-01"
+    },
+    "dateGrpRepJoined": "2016-02-09"
+  }
+}

@@ -1,0 +1,232 @@
+{
+  "acknowledgmentReference": "5O3Ook5UjK76cNk6vb31052938168421",
+  "subscriptionType":{
+    "legalEntity":"Corporate Body",
+    "businessPartnerName": "BusinessPartner",
+    "newAWBusiness":true,
+    "proposedStartDate":"2016-10-30",
+    "businessDetails":{
+      "nonProprietor":{
+        "tradingName":"Example Ltd",
+        "identification":{
+          "doYouHaveVRN":true,
+          "vrn":"123456789",
+          "doYouHaveUTR":true,
+          "utr":"3600522978"
+        }
+      },
+      "llpCorporateBody":{
+        "incorporationDetails":{
+          "isBusinessIncorporated":true,
+          "companyRegistrationNumber":"12345678",
+          "dateOfIncorporation":"2010-10-30"
+        }
+      }
+    },
+    "businessAddressForAwrs":{
+      "currentAddress":{
+        "postalCode":"AA11AA",
+        "addressLine1":"Principle Address line 1",
+        "addressLine2":"Principle Address line 2",
+        "addressLine3":"Principle Address line 3",
+        "addressLine4":"Principle Address line 4",
+        "countryCode":"GB"
+      },
+      "communicationDetails":{
+        "email":"test@example.com",
+        "telephone":"07000111222"
+      },
+      "operatingDuration":"0 to 2 years",
+      "differentOperatingAddresslnLast3Years":true,
+      "previousAddress":{
+        "postalCode":"AA11AA",
+        "addressLine1":"Operating Address line 1",
+        "addressLine2":"Operating Address line 2",
+        "addressLine3":"Operating Address line 3",
+        "addressLine4":"Operating Address line 4",
+        "countryCode":"GB"
+      }
+    },
+    "contactDetails":{
+      "name":{
+        "firstName":"Test User",
+        "lastName":"Test User"
+      },
+      "useAlternateContactAddress":false,
+      "communicationDetails":{
+        "email":"test@example.com",
+        "telephone":"07000111222"
+      }
+    },
+    "additionalBusinessInfo":{
+      "partnerCorporateBody":{
+        "numberOfCoOfficials":"2",
+        "coOfficialDetails":{
+          "coOfficial":[
+            {
+              "individual":{
+                "status":"Director",
+                "name":{
+                  "firstName":"Example",
+                  "lastName":"Exampleson"
+                },
+                "identification":{
+                  "nino":"$nino"
+                }
+              }
+            },
+            {
+              "individual":{
+                "status":"Director and Company Secretary",
+                "name":{
+                  "firstName":"Example",
+                  "lastName":"Exampleson"
+                },
+                "identification":{
+                  "nino":"$nino"
+                }
+              }
+            },
+            {
+              "individual":{
+                "status":"Company Secretary",
+                "name":{
+                  "firstName":"Example",
+                  "lastName":"Exampleson"
+                },
+                "identification":{
+                  "nino":"$nino"
+                }
+              }
+            },
+            {
+              "company": {
+                "status": "Director",
+                "names": {
+                  "companyName": "Company name",
+                  "tradingName": "Trading name"
+                },
+                "identification": {
+                  "doYouHaveVRN": false,
+                  "doYouHaveUTR": true,
+                  "utr": "$utr",
+                  "doYouHaveCRN": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "all":{
+        "typeOfWholesaler":{
+          "cashAndCarry":true,
+          "offTradeSupplierOnly":false,
+          "onTradeSupplierOnly":false,
+          "all":false,
+          "other":false
+        },
+        "typeOfAlcoholOrders":{
+          "onlineOnly":false,
+          "onlineAndTel":true,
+          "onlineTelAndPhysical":false,
+          "all":false,
+          "other":false
+        },
+        "typeOfCustomers":{
+          "pubs":true,
+          "nightClubs":false,
+          "privateClubs":false,
+          "hotels":false,
+          "hospitalityCatering":false,
+          "restaurants":false,
+          "indepRetailers":false,
+          "nationalRetailers":false,
+          "public":false,
+          "otherWholesalers":false,
+          "all":false,
+          "other":false
+        },
+        "productsSold":{
+          "beer":true,
+          "wine":true,
+          "spirits":true,
+          "cider":true,
+          "perry":true,
+          "all":true,
+          "other":false
+        },
+        "numberOfPremises":"1",
+        "premiseAddress":[
+          {
+            "address":{
+              "postalCode":"AA1 1AA",
+              "addressLine1":"Principle Address line 1",
+              "addressLine2":"Principle Address line 2",
+              "addressLine3":"Principle Address line 3",
+              "addressLine4":"Principle Address line 4",
+              "countryCode":"GB"
+            }
+          },
+          {
+            "address":{
+              "postalCode":"BB1 1BB",
+              "addressLine1":"Address Line One 1",
+              "addressLine2":"Address Line Two 1",
+              "addressLine3":"Address Line Three 1",
+              "addressLine4":"Address Line Four 1",
+              "countryCode":"GB"
+            }
+          }
+        ],
+        "thirdPartyStorageUsed":false,
+        "alcoholGoodsExported":true,
+        "euDispatches":true,
+        "suppliers":{
+          "supplier":[
+            {
+              "name":"Example Ltd 1",
+              "isSupplierVatRegistered":false,
+              "address":{
+                "addressLine1":"Address Line 1",
+                "addressLine2":"Address Line 1",
+                "addressLine3":"Address Line 1",
+                "addressLine4":"Address Line 1",
+                "countryCode":"IN"
+              }
+            },
+            {
+              "name": "bbbbbbbb",
+              "isSupplierVatRegistered": false,
+              "address": {
+                "postalCode": "BB1 1BB",
+                "addressLine1": "150 Example Avenue",
+                "addressLine2": "Example Avenue",
+                "countryCode": "GB"
+              }
+            },
+            {
+              "name": "aaaaaaaa",
+              "isSupplierVatRegistered": false,
+              "address": {
+                "postalCode": "BB1 1BB",
+                "addressLine1": "Avenue",
+                "addressLine2": "Example Avenue",
+                "countryCode": "GB"
+              }
+            }
+          ]
+        },
+        "alcoholGoodsImported":true
+      }
+    },
+    "declaration":{
+      "nameOfPerson":"Mr Test User",
+      "statusOfPerson":"Director",
+      "informationIsAccurateAndComplete":true
+    },
+    "llpCorporateBody":{
+      "creatingAGroup":false,
+      "groupRepConfirmation":false
+    }
+  }
+}

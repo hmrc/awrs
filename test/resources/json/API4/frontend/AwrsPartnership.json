@@ -1,0 +1,177 @@
+{
+  "subscriptionTypeFrontEnd": {
+    "legalEntity": {
+      "legalEntity": "Partnership"
+    },
+    "businessPartnerName": "BusinessPartner",
+    "businessCustomerDetails": {
+      "businessName": "Example Wines",
+      "businessType": "partnership",
+      "businessAddress": {
+        "line_1": "1 Example Street",
+        "line_2": "Exampe View",
+        "line_3": "Exampe Town",
+        "line_4": "Exampeshire",
+        "postcode": "AA1 1AA",
+        "country": "GB"
+      },
+      "sapNumber": "1234567890",
+      "safeId": "XE0001234567890",
+      "isAGroup": false,
+      "agentReferenceNumber": "JARN1234567"
+    },
+    "businessDetails": {
+      "legalEntity": "Partnership",
+      "tradingName": "asddsad",
+      "newAWBusiness": {
+        "newAWBusiness": "No"
+      }
+    },
+    "businessRegistrationDetails": {
+      "doYouHaveVRN": "Yes",
+      "vrn": "000000000",
+      "doYouHaveUTR": "Yes",
+      "utr": "$utr"
+    },
+    "businessContacts": {
+      "mainPlaceOfBusiness": "Yes",
+      "contactAddressSame": "Yes",
+      "placeOfBusinessLast3Years": "Yes",
+      "operatingDuration": "over 10 years",
+      "contactFirstName": "Example",
+      "contactLastName": "Name",
+      "emailReview": "example@example.com",
+      "telephone": "07000111222"
+    },
+    "partnership": {
+      "partnerDetails": [
+        {
+          "entityType": "Individual",
+          "partnerAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "1 Example Street",
+            "addressLine2": "Exampe View",
+            "addressLine3": "Exampe Town",
+            "addressLine4": "Exampeshire",
+            "addressCountryCode": "GB"
+          },
+          "firstName": "example",
+          "lastName": "exampleson",
+          "doYouHaveNino": "Yes",
+          "nino": "$nino",
+          "otherPartners": "Yes"
+        },
+        {
+          "entityType": "Corporate Body",
+          "partnerAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "1 Example Street",
+            "addressLine2": "Exampe View",
+            "addressLine3": "Exampe Town",
+            "addressLine4": "Exampeshire",
+            "addressCountryCode": "GB"
+          },
+          "companyName": "company name",
+          "tradingName": "trading name",
+          "isBusinessIncorporated": "Yes",
+          "companyRegDetails": {
+            "companyRegistrationNumber": "55555555",
+            "dateOfIncorporation": "01/01/2015"
+          },
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveUTR": "Yes",
+          "utr": "$utr",
+          "otherPartners": "Yes"
+        },
+        {
+          "entityType": "Sole Trader",
+          "partnerAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "1 Example Street",
+            "addressLine2": "Exampe View",
+            "addressLine3": "Exampe Town",
+            "addressLine4": "Exampeshire",
+            "addressCountryCode": "GB"
+          },
+          "tradingName": "trading name",
+          "firstName": "example",
+          "lastName": "exampleson",
+          "doYouHaveNino": "Yes",
+          "nino": "$nino",
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveUTR": "Yes",
+          "utr": "$utr",
+          "otherPartners": "Yes"
+        }
+      ]
+    },
+    "additionalPremises": {
+      "premises": [
+        {
+          "additionalPremises": "No"
+        }
+      ]
+    },
+    "tradingActivity": {
+      "wholesalerType": [
+        "01"
+      ],
+      "typeOfAlcoholOrders": [
+        "02",
+        "03"
+      ],
+      "doesBusinessImportAlcohol": "No",
+      "doYouExportAlcohol": [
+        "euDispatches",
+        "outsideEU"
+      ]
+    },
+    "products": {
+      "mainCustomers": [
+        "13",
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12"
+      ],
+      "productType": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06"
+      ]
+    },
+    "suppliers": {
+      "suppliers": [
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "Example Name",
+          "vatRegistered": "Yes",
+          "vatNumber": "111111111",
+          "supplierAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "10 Example Apartments",
+            "addressLine2": "16 Example Crescent"
+          },
+          "additionalSupplier": "No"
+        }
+      ]
+    },
+    "applicationDeclaration": {
+      "declarationName": "Example Exampleson",
+      "declarationRole": "Director"
+    }
+  }
+}

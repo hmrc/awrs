@@ -1,0 +1,18 @@
+POST  /org/:orgRef/awrs/send-data                                    controllers.OrgSubscriptionController.subscribe(orgRef: String)
+POST  /sa/:utr/awrs/send-data                                        controllers.SaSubscriptionController.subscribe(utr: String)
+
+GET   /org/:orgRef/awrs/lookup/:awrsRefNo                            controllers.OrgSubscriptionController.lookupApplication(orgRef: String, awrsRefNo: String)
+GET   /sa/:utr/awrs/lookup/:awrsRefNo                                controllers.SaSubscriptionController.lookupApplication(utr: String, awrsRefNo: String)
+
+GET   /org/:orgRef/awrs/status/:awrsRefNo                            controllers.OrgSubscriptionController.checkStatus(orgRef: String, awrsRefNo: String)
+GET   /sa/:utr/awrs/status/:awrsRefNo                                controllers.SaSubscriptionController.checkStatus(utr: String, awrsRefNo: String)
+
+PUT   /org/:orgRef/awrs/update/:awrsRefNo                            controllers.OrgSubscriptionController.updateSubscription(orgRef: String, awrsRefNo: String)
+PUT   /sa/:utr/awrs/update/:awrsRefNo                                controllers.SaSubscriptionController.updateSubscription(utr: String, awrsRefNo: String)
+
+GET   /:busType/:utr/awrs/status-info/:awrsRefNo/:contactNumber      controllers.StatusInfoController.getStatusInfo(awrsRefNo: String, contactNumber:String,utr: String, busType:String)
+
+POST  /:busType/:utr/awrs/de-registration/:awrsRefNo                 controllers.DeRegistrationController.deRegistration(awrsRefNo:String, utr: String, busType:String)
+
+
+POST /:busType/:utr/awrs/withdrawal/:awrsRefNo                       controllers.WithdrawalController.withdrawal(awrsRefNo: String, utr: String, busType:String)

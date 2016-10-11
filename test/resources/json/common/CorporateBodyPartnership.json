@@ -1,0 +1,45 @@
+{
+  "nonProprietor": {
+    "tradingName": "Trading name",
+    "identification": {
+      "doYouHaveVRN": true,
+      "vrn": "000000000",
+      "doYouHaveUTR": true,
+      "utr": "$utr"
+    }
+  },
+  "partnership": {
+    "numberOfPartners": "1",
+    "partnerDetails": [
+      {
+        "entityType": "Corporate Body",
+        "partnerAddress": {
+          "postalCode": "AA1 1AA",
+          "addressLine1": "address line 1",
+          "addressLine2": "address line 2",
+          "addressLine3": "address line 3",
+          "addressLine4": "address line 4",
+          "countryCode": "GB"
+        },
+        "names": {
+          "companyName": "company Name",
+          "tradingName": "trading Name"
+        },
+        "identification": {
+          "doYouHaveVRN": false,
+          "doYouHaveUTR": false
+        },
+        "incorporationDetails": {
+          "isBusinessIncorporated": false
+        }
+      }
+    ]
+  },
+  "llpCorporateBody": {
+    "incorporationDetails": {
+      "isBusinessIncorporated": true,
+      "companyRegistrationNumber": "55555555",
+      "dateOfIncorporation": "2015-01-01"
+    }
+  }
+}

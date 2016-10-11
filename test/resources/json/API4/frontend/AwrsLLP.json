@@ -1,0 +1,196 @@
+{
+  "subscriptionTypeFrontEnd": {
+    "legalEntity": {
+      "legalEntity": "LLP"
+    },
+    "businessPartnerName": "BusinessPartner",
+    "businessCustomerDetails": {
+      "businessName": "sdfsdf",
+      "businessType": "Corporate Body",
+      "businessAddress": {
+        "line_1": "1 Example Street",
+        "line_2": "Exampe View",
+        "line_3": "Exampe Town",
+        "line_4": "Exampeshire",
+        "postcode": "AA1 1AA",
+        "country": "GB"
+      },
+      "sapNumber": "1234567890",
+      "safeId": "XE0001234567890",
+      "isAGroup": false,
+      "agentReferenceNumber": "JARN1234567"
+    },
+    "businessDetails": {
+      "legalEntity": "LLP",
+      "tradingName": "Trading name",
+      "newAWBusiness": {
+        "newAWBusiness": "No"
+      },
+      "dateGrpRepJoined": "2004-12-12"
+    },
+    "businessRegistrationDetails": {
+      "isBusinessIncorporated": "Yes",
+      "companyRegDetails": {
+        "companyRegistrationNumber": "55555555",
+        "dateOfIncorporation": "01/01/2015"
+      },
+      "doYouHaveVRN": "Yes",
+      "vrn": "000000000",
+      "doYouHaveUTR": "Yes",
+      "utr": "$utr"
+    },
+    "businessContacts": {
+      "mainPlaceOfBusiness": "Yes",
+      "contactAddressSame": "Yes",
+      "placeOfBusinessLast3Years": "Yes",
+      "operatingDuration": "over 10 years",
+      "contactFirstName": "first name",
+      "contactLastName": "last name",
+      "emailReview": "Email@email.com",
+      "telephone": "07000111222"
+    },
+    "partnership": {
+      "partnerDetails": [
+        {
+          "entityType": "Individual",
+          "partnerAddress": {
+            "addressLine1": "Indv address Line 1",
+            "addressLine2": "Indv address Line 2",
+            "postcode": "AA1 1AA",
+            "countryCode": "GB"
+          },
+          "firstName": "indv first name",
+          "lastName": "indv last name",
+          "doYouHaveNino": "Yes",
+          "nino": "$nino",
+          "otherPartners": "Yes"
+        },
+        {
+          "entityType": "Corporate Body",
+          "partnerAddress": {
+            "addressLine1": "corporate address Line 1",
+            "addressLine2": "corporate address Line 2",
+            "postcode": "AA1 1AA",
+            "countryCode": "GB"
+          },
+          "companyName": "corporate company name",
+          "isBusinessIncorporated": "Yes",
+          "companyRegDetails": {
+            "companyRegistrationNumber": "12345678",
+            "dateOfIncorporation": "01/01/2015"
+          },
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveUTR": "Yes",
+          "utr": "$utr",
+          "otherPartners": "Yes"
+        },
+        {
+          "entityType": "Sole Trader",
+          "partnerAddress": {
+            "addressLine1": "sole trader address Line 1",
+            "addressLine2": "sole trader address Line 2",
+            "postcode": "AA1 1AA",
+            "countryCode": "GB"
+          },
+          "tradingName": "sole trading name",
+          "firstName": "sole first name",
+          "lastName": "sole last name",
+          "doYouHaveNino": "Yes",
+          "nino": "$nino",
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveUTR": "Yes",
+          "utr": "$utr",
+          "otherPartners": "Yes"
+        }
+      ]
+    },
+    "groupMemberDetails": {
+      "numberOfGrpMembers": "1",
+      "members": [
+        {
+          "names": {
+            "companyName": "Company Name",
+            "tradingName": "Trading Name"
+          },
+          "companyRegDetails": {
+            "isBusinessIncorporated": true,
+            "companyRegistrationNumber": "12345678",
+            "dateOfIncorporation": "2012-01-28"
+          },
+          "groupJoiningDate": "2004-12-12",
+          "address": {
+            "addressLine1": "100, Example Street",
+            "addressLine2": "Exampleham",
+            "postalCode": "CC1 1CC",
+            "countryCode": "GB"
+          },
+          "identification": {
+            "doYouHaveVRN": true,
+            "vrn": "123456789",
+            "doYouHaveUTR": false
+          }
+        }
+      ]
+    },
+    "additionalPremises": {
+      "premises": [
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "150 Example Avenue",
+            "addressLine2": "Exampletown"
+          },
+          "addAnother": "No"
+        }
+      ]
+    },
+    "tradingActivity": {
+      "wholesalerType": [
+        "06",
+        "01",
+        "02",
+        "03",
+        "04",
+        "05"
+      ],
+      "typeOfAlcoholOrders": [
+        "01",
+        "02",
+        "03",
+        "04"
+      ],
+      "doesBusinessImportAlcohol": "Yes",
+      "doYouExportAlcohol": [
+        "euDispatches",
+        "outsideEU"
+      ]
+    },
+    "products": {
+      "mainCustomers": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08"
+      ],
+      "productType": [
+        "02",
+        "03",
+        "05",
+        "06",
+        "99"
+      ],
+      "otherProductType": "rwerwrwerew"
+    },
+    "applicationDeclaration": {
+      "declarationName": "AWRS application",
+      "declarationRole": "AWRS application1"
+    }
+  }
+}

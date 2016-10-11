@@ -1,0 +1,69 @@
+{
+  "coOfficial": [{
+    "individual": {
+      "status": "Company Secretary",
+      "name": {
+        "firstName": "sdfsd",
+        "lastName": "sdfsdfsd"
+      },
+      "identification": {
+        "nino": "$nino"
+      }
+    }
+  },
+    {
+      "company": {
+        "status": "Director",
+        "names": {
+          "companyName": "Example and Co"
+        },
+        "identification": {
+          "doYouHaveVRN": true,
+          "vrn": "123456789",
+          "doYouHaveUTR": true,
+          "utr": "$utr",
+          "doYouHaveCRN": false
+        }
+      }
+    },
+    {
+      "individual": {
+        "status": "Director and Company Secretary",
+        "name": {
+          "firstName": "sdfsd",
+          "lastName": "sdfsdfsd"
+        },
+        "identification": {
+          "nino": "$nino"
+        }
+      }
+    },
+    {
+      "company": {
+        "status": "Director",
+        "names": {
+          "companyName": "Example and Co",
+          "tradingName": "Example Bros"
+        },
+        "identification": {
+          "doYouHaveVRN": false,
+          "doYouHaveUTR": true,
+          "utr": "$utr",
+          "doYouHaveCRN": true,
+          "companyRegNumber": "55555555"
+        }
+      }
+    },
+    {
+      "individual": {
+        "status": "Director and Company Secretary",
+        "name": {
+          "firstName": "sdfsd",
+          "lastName": "sdfsdfsd"
+        },
+        "identification": {
+          "nino": "$nino"
+        }
+      }
+    }]
+}

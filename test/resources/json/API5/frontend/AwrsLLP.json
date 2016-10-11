@@ -1,0 +1,220 @@
+{
+  "subscriptionTypeFrontEnd": {
+    "legalEntity": {
+      "legalEntity": "LLP"
+    },
+    "businessPartnerName": "BusinessPartner",
+    "businessCustomerDetails": {
+      "businessName": "",
+      "businessAddress": {
+        "line_1": "",
+        "line_2": "",
+        "country": ""
+      },
+      "sapNumber": "",
+      "safeId": "",
+      "isAGroup": false
+    },
+    "businessDetails": {
+      "tradingName": "Trading name",
+      "newAWBusiness": {
+        "newAWBusiness": "No"
+      }
+    },
+    "businessRegistrationDetails": {
+      "legalEntity": "LLP",
+      "isBusinessIncorporated": "Yes",
+      "companyRegDetails": {
+        "companyRegistrationNumber": "12345678",
+        "dateOfIncorporation": "28/01/2012"
+      },
+      "doYouHaveVRN": "Yes",
+      "vrn": "123456789",
+      "doYouHaveUTR": "No"
+    },
+    "businessContacts": {
+      "mainPlaceOfBusiness": "Yes",
+      "mainAddress": {
+        "postcode": "AA1 1AA",
+        "addressLine1": "1 Example Street",
+        "addressLine2": "Exampe View",
+        "addressLine3": "Exampe Town",
+        "addressLine4": "Exampeshire"
+      },
+      "contactAddressSame": "Yes",
+      "placeOfBusinessLast3Years": "No",
+      "placeOfBusinessAddressLast3Years": {
+        "postcode": "AA11AA",
+        "addressLine1": "Operating Address line 1",
+        "addressLine2": "Operating Address line 2",
+        "addressLine3": "Operating Address line 3",
+        "addressLine4": "Operating Address line 4"
+      },
+      "operatingDuration": "over 10 years",
+      "contactFirstName": "Example",
+      "contactLastName": "Exampleson",
+      "emailReview": "Example@example.com",
+      "telephone": "07000111222"
+    },
+    "partnership": {
+      "partnerDetails": [
+        {
+          "entityType": "Individual",
+          "partnerAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "1 Example Street",
+            "addressLine2": "Exampletown"
+          },
+          "firstName": "example",
+          "lastName": "exampleson",
+          "doYouHaveNino": "Yes",
+          "nino": "$nino",
+          "otherPartners": "Yes"
+        },
+        {
+          "entityType": "Corporate Body",
+          "partnerAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "address line 1",
+            "addressLine2": "address line 2",
+            "addressLine3": "address line 3"
+          },
+          "companyName": "company name",
+          "tradingName": "trading name",
+          "isBusinessIncorporated": "Yes",
+          "companyRegDetails": {
+            "companyRegistrationNumber": "12345678",
+            "dateOfIncorporation": "30/10/2010"
+          },
+          "doYouHaveVRN": "No",
+          "doYouHaveUTR": "No",
+          "otherPartners": "Yes"
+        },
+        {
+          "entityType": "Sole Trader",
+          "partnerAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "2 Example Street",
+            "addressLine2": "Exampletown"
+          },
+          "firstName": "example",
+          "lastName": "exampleson",
+          "doYouHaveNino": "Yes",
+          "nino": "$nino",
+          "tradingName": "trading name",
+          "doYouHaveVRN": "No",
+          "doYouHaveUTR": "No",
+          "otherPartners": "No"
+        }
+      ]
+    },
+    "additionalPremises": {
+      "premises": [
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "1 Example Street",
+            "addressLine2": "Exampe View",
+            "addressLine3": "Exampe Town",
+            "addressLine4": "Exampeshire"
+          },
+          "addAnother": "Yes"
+        },
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "150 Example Avenue",
+            "addressLine2": "Exampletown"
+          },
+          "addAnother": "No"
+        }
+      ]
+    },
+    "tradingActivity": {
+      "wholesalerType": [
+        "01",
+        "02",
+        "03",
+        "06"
+      ],
+      "typeOfAlcoholOrders": [
+        "02",
+        "03",
+        "04",
+        "01"
+      ],
+      "doesBusinessImportAlcohol": "Yes",
+      "thirdPartyStorage": "No",
+      "doYouExportAlcohol": [
+        "euDispatches",
+        "outsideEU"
+      ]
+    },
+    "products": {
+      "mainCustomers": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08"
+      ],
+      "productType": [
+        "05",
+        "02",
+        "03",
+        "06",
+        "99"
+      ],
+      "otherProductType": "rwerwrwerew"
+    },
+    "suppliers": {
+      "suppliers": [
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "dfgdfgfd",
+          "vatRegistered": "No",
+          "supplierAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "150 Avenue",
+            "addressLine2": "Example Avenue"
+          },
+          "additionalSupplier": "Yes",
+          "ukSupplier": "Yes"
+        },
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "bbbbbbbb",
+          "vatRegistered": "No",
+          "supplierAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "150 Example Avenue",
+            "addressLine2": "Example Avenue"
+          },
+          "additionalSupplier": "Yes",
+          "ukSupplier": "Yes"
+        },
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "aaaaaaaa",
+          "vatRegistered": "No",
+          "supplierAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "Avenue",
+            "addressLine2": "Example Avenue"
+          },
+          "additionalSupplier": "No",
+          "ukSupplier": "Yes"
+        }
+      ]
+    },
+    "applicationDeclaration": {
+      "declarationName": "AWRS application",
+      "declarationRole": "Other"
+    }
+  }
+}

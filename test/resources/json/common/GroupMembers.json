@@ -1,0 +1,48 @@
+{
+"groupMember":[
+   {
+      "names":{
+         "tradingName":"Trading name"
+      },
+      "incorporationDetails":{
+         "isBusinessIncorporated": true,
+         "companyRegistrationNumber":"55555555",
+         "dateOfIncorporation":"2015-01-01"
+      },
+      "groupJoiningDate":"$grpJoinDate",
+      "address":{
+         "postalCode":"BB1 1BB",
+         "addressLine1":"150 Example Avenue",
+         "addressLine2":"Exampletown",
+         "countryCode":"GB"
+      },
+      "identification":{
+         "doYouHaveVRN":false,
+         "doYouHaveUTR":true,
+         "utr":"$utr"
+      }
+   },
+   {
+      "names":{
+         "companyName":"Example and Co"
+      },
+      "incorporationDetails":{
+         "isBusinessIncorporated": true,
+         "companyRegistrationNumber":"55555555",
+         "dateOfIncorporation":"2015-01-01"
+      },
+      "groupJoiningDate":"$grpJoinDate",
+      "address":{
+         "postalCode":"BB1 1BB",
+         "addressLine1":"150 Example Avenue",
+         "addressLine2":"Exampletown",
+         "countryCode":"GB"
+      },
+      "identification":{
+         "doYouHaveVRN":false,
+         "doYouHaveUTR":true,
+         "utr":"$utr"
+      }
+   }
+]
+}

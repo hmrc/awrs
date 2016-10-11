@@ -1,0 +1,166 @@
+{
+  "subscriptionTypeFrontEnd": {
+    "legalEntity": {
+      "legalEntity": "LLP_GRP"
+    },
+    "businessPartnerName": "BusinessPartner",
+    "groupDeclaration": {
+      "groupRepConfirmation": true
+    },
+    "businessCustomerDetails": {
+      "businessName": "",
+      "businessAddress": {
+        "line_1": "",
+        "line_2": "",
+        "country": ""
+      },
+      "sapNumber": "",
+      "safeId": "",
+      "isAGroup": false
+    },
+    "businessDetails": {
+      "tradingName": "Example",
+      "newAWBusiness": {
+        "newAWBusiness": "No"
+      }
+    },
+    "businessRegistrationDetails": {
+      "legalEntity": "LLP_GRP",
+      "isBusinessIncorporated": "No",
+      "doYouHaveVRN": "Yes",
+      "vrn": "000000000",
+      "doYouHaveUTR": "No"
+    },
+    "businessContacts": {
+      "mainPlaceOfBusiness": "Yes",
+      "mainAddress": {
+        "postcode": "AA1 1AA",
+        "addressLine1": "12 Example Road",
+        "addressLine2": "Exampleland"
+      },
+      "contactAddressSame": "Yes",
+      "placeOfBusinessLast3Years": "Yes",
+      "operatingDuration": "over 10 years",
+      "contactFirstName": "Example",
+      "contactLastName": "Exampleson",
+      "emailReview": "example@example.com",
+      "telephone": "07000111222"
+    },
+    "partnership": {
+      "partnerDetails": [
+        {
+          "entityType": "Individual",
+          "partnerAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "1 Example Street",
+            "addressLine2": "Exampleham"
+          },
+          "firstName": "example",
+          "lastName": "exampleson",
+          "doYouHaveNino": "Yes",
+          "nino": "$nino",
+          "otherPartners": "No"
+        }
+      ]
+    },
+    "groupMemberDetails": {
+      "members": [
+        {
+          "names": {
+            "companyName": "ExampleName",
+            "tradingName": "Example"
+          },
+          "isBusinessIncorporated": "No",
+          "address": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "16 Example Road",
+            "addressLine2": "Exampleland"
+          },
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveUTR": "No",
+          "addAnotherGrpMember": "Yes"
+        },
+        {
+          "names": {
+            "companyName": "Another Example",
+            "tradingName": "Example Trade"
+          },
+          "isBusinessIncorporated": "No",
+          "address": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "22 Example Road",
+            "addressLine2": "Exampleland"
+          },
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveUTR": "No",
+          "addAnotherGrpMember": "No"
+        }
+      ]
+    },
+    "additionalPremises": {
+      "premises": [
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "12 Example Road",
+            "addressLine2": "Exampleland"
+          },
+          "addAnother": "Yes"
+        },
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "CC1 1CC",
+            "addressLine1": "100, Example Street",
+            "addressLine2": "Exampleham"
+          },
+          "addAnother": "No"
+        }
+      ]
+    },
+    "tradingActivity": {
+      "wholesalerType": [
+        "01"
+      ],
+      "typeOfAlcoholOrders": [
+        "02"
+      ],
+      "doesBusinessImportAlcohol": "Yes",
+      "thirdPartyStorage": "No",
+      "doYouExportAlcohol": [
+        "euDispatches"
+      ]
+    },
+    "products": {
+      "mainCustomers": [
+        "01"
+      ],
+      "productType": [
+        "02"
+      ]
+    },
+    "suppliers": {
+      "suppliers": [
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "Example Supplier",
+          "vatRegistered": "No",
+          "supplierAddress": {
+            "postcode": "DD1 1DD",
+            "addressLine1": "101, Example Street",
+            "addressLine2": "Exampleham"
+          },
+          "additionalSupplier": "No",
+          "ukSupplier": "Yes"
+        }
+      ]
+    },
+    "applicationDeclaration": {
+      "declarationName": "Example Exampleson",
+      "declarationRole": "Authorised Signatory"
+    }
+  }
+}

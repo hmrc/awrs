@@ -1,0 +1,205 @@
+{
+  "acknowledgmentReference":"OxagaGLzTIUOML0rPJ25732308526216",
+  "subscriptionType":{
+    "legalEntity":"Corporate Body",
+    "businessPartnerName": "BusinessPartner",
+    "newAWBusiness":false,
+    "llpCorporateBody":{
+      "creatingAGroup":true,
+      "groupRepConfirmation":true
+    },
+    "businessDetails":{
+      "nonProprietor":{
+        "tradingName":"asddsad",
+        "identification":{
+          "doYouHaveVRN":true,
+          "vrn":"000000000",
+          "doYouHaveUTR":false
+        }
+      },
+      "llpCorporateBody":{
+        "incorporationDetails":{
+          "isBusinessIncorporated":false
+        },
+        "dateGrpRepJoined":"2015-12-09"
+      }
+    },
+    "groupMemberDetails":{
+      "numberOfGrpMembers":"2",
+      "groupMember":[
+        {
+          "names":{
+            "companyName":"ExampleName",
+            "tradingName":"Example"
+          },
+          "incorporationDetails":{
+            "isBusinessIncorporated":false
+          },
+          "groupJoiningDate":"2015-12-09",
+          "address":{
+            "postalCode":"AA1 1AA",
+            "addressLine1":"16 Example Road",
+            "addressLine2":"Exampleland",
+            "countryCode":"GB"
+          },
+          "identification":{
+            "doYouHaveVRN":true,
+            "vrn":"000000000",
+            "doYouHaveUTR":false
+          }
+        },
+        {
+          "names":{
+            "companyName":"Another Example",
+            "tradingName":"Example Trade"
+          },
+          "incorporationDetails":{
+            "isBusinessIncorporated":false
+          },
+          "groupJoiningDate":"2015-12-10",
+          "address":{
+            "postalCode":"AA1 1AA",
+            "addressLine1":"22 Example Road",
+            "addressLine2":"Exampleland",
+            "countryCode":"GB"
+          },
+          "identification":{
+            "doYouHaveVRN":true,
+            "vrn":"000000000",
+            "doYouHaveUTR":false
+          }
+        }
+      ]
+    },
+    "businessAddressForAwrs":{
+      "currentAddress":{
+        "postalCode":"AA1 1AA",
+        "addressLine1":"12 Example Road",
+        "addressLine2":"Exampleland",
+        "countryCode":"GB"
+      },
+      "communicationDetails":{
+        "email":"example@example.com",
+        "telephone":"07000111222"
+      },
+      "operatingDuration":"over 10 years",
+      "differentOperatingAddresslnLast3Years":false
+    },
+    "contactDetails":{
+      "name":{
+        "firstName":"Example",
+        "lastName":"Exampleson"
+      },
+      "useAlternateContactAddress":false,
+      "communicationDetails":{
+        "email":"example@example.com",
+        "telephone":"07000111222"
+      }
+    },
+    "additionalBusinessInfo":{
+      "partnerCorporateBody":{
+        "numberOfCoOfficials":"1",
+        "coOfficialDetails":{
+          "coOfficial":[
+            {
+              "company":{
+                "status":"Director",
+                "names":{
+                  "companyName":"Example Company",
+                  "tradingName":"Example Name"
+                },
+                "identification":{
+                  "doYouHaveVRN":true,
+                  "vrn":"000000000",
+                  "doYouHaveUTR":false,
+                  "doYouHaveCRN":false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "all":{
+        "typeOfWholesaler":{
+          "cashAndCarry":true,
+          "offTradeSupplierOnly":false,
+          "onTradeSupplierOnly":false,
+          "all":false,
+          "other":false
+        },
+        "typeOfAlcoholOrders":{
+          "onlineOnly":true,
+          "onlineAndTel":false,
+          "onlineTelAndPhysical":false,
+          "all":false,
+          "other":false
+        },
+        "typeOfCustomers":{
+          "pubs":true,
+          "nightClubs":false,
+          "privateClubs":false,
+          "hotels":false,
+          "hospitalityCatering":false,
+          "restaurants":false,
+          "indepRetailers":false,
+          "nationalRetailers":false,
+          "public":false,
+          "otherWholesalers":false,
+          "all":false,
+          "other":false
+        },
+        "productsSold":{
+          "beer":false,
+          "wine":true,
+          "spirits":false,
+          "cider":false,
+          "perry":false,
+          "all":false,
+          "other":false
+        },
+        "numberOfPremises":"1",
+        "premiseAddress":[
+          {
+            "address":{
+              "postalCode":"AA1 1AA",
+              "addressLine1":"12 Example Road",
+              "addressLine2":"Exampleland",
+              "countryCode":"GB"
+            }
+          },
+          {
+            "address":{
+              "postalCode":"CC1 1CC",
+              "addressLine1":"100, Example Street",
+              "addressLine2":"Exampleham",
+              "countryCode":"GB"
+            }
+          }
+        ],
+        "thirdPartyStorageUsed":false,
+        "alcoholGoodsExported":false,
+        "euDispatches":true,
+        "suppliers":{
+          "supplier":[
+            {
+              "name":"Example Supplier",
+              "isSupplierVatRegistered":false,
+              "address":{
+                "postalCode":"DD1 1DD",
+                "addressLine1":"101, Example Street",
+                "addressLine2":"Exampleham",
+                "countryCode":"GB"
+              }
+            }
+          ]
+        },
+        "alcoholGoodsImported":true
+      }
+    },
+    "declaration":{
+      "nameOfPerson":"Example Exampleson",
+      "statusOfPerson":"Authorised Signatory",
+      "informationIsAccurateAndComplete":true
+    }
+  }
+}

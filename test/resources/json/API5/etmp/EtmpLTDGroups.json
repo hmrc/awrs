@@ -1,0 +1,256 @@
+{
+  "legalEntity": "Corporate Body",
+  "newAWBusiness": false,
+  "llpCorporateBody": {
+    "creatingAGroup": true,
+    "groupRepConfirmation": true
+  },
+  "businessDetails": {
+    "nonProprietor": {
+      "tradingName": "Trading name",
+      "identification": {
+        "doYouHaveVRN": false,
+        "doYouHaveUTR": false
+      }
+    },
+    "llpCorporateBody": {
+      "incorporationDetails": {
+        "isBusinessIncorporated": true,
+        "companyRegistrationNumber": "55555555",
+        "dateOfIncorporation": "2015-01-01"
+      },
+      "dateGrpRepJoined": "2015-12-02"
+    }
+  },
+  "groupMemberDetails": {
+    "numberOfGrpMembers": "2",
+    "groupMember": [{
+      "names": {
+        "companyName": "Example and Co",
+        "tradingName": "Trading name"
+      },
+      "incorporationDetails": {
+        "isBusinessIncorporated": true,
+        "companyRegistrationNumber": "55555555",
+        "dateOfIncorporation": "2015-01-01"
+      },
+      "groupJoiningDate": "1901-01-01",
+      "address": {
+        "postalCode": "BB1 1BB",
+        "addressLine1": "150 Example Avenue",
+        "addressLine2": "Exampletown",
+        "countryCode": "GB"
+      },
+      "identification": {
+        "doYouHaveVRN": false,
+        "doYouHaveUTR": true,
+        "utr": "$utr"
+      }
+    },
+      {
+        "names": {
+          "companyName": "Example and Co",
+          "tradingName": "Trading name"
+        },
+        "incorporationDetails": {
+          "isBusinessIncorporated": true,
+          "companyRegistrationNumber": "55555555",
+          "dateOfIncorporation": "2015-01-01"
+        },
+        "groupJoiningDate": "1901-01-01",
+        "address": {
+          "postalCode": "BB1 1BB",
+          "addressLine1": "150 Example Avenue",
+          "addressLine2": "Exampletown",
+          "countryCode": "GB"
+        },
+        "identification": {
+          "doYouHaveVRN": false,
+          "doYouHaveUTR": true,
+          "utr": "$utr"
+        }
+      }]
+  },
+  "businessAddressForAwrs": {
+    "currentAddress": {
+      "postalCode": "AA1 1AA",
+      "addressLine1": "1 Example Street",
+      "addressLine2": "Exampe View",
+      "addressLine3": "Exampe Town",
+      "addressLine4": "Exampeshire",
+      "countryCode": "GB"
+    },
+    "communicationDetails": {
+      "email": "Email@email.com",
+      "telephone": "07000111222"
+    },
+    "operatingDuration": "over 10 years",
+    "differentOperatingAddresslnLast3Years": false
+  },
+  "contactDetails": {
+    "name": {
+      "firstName": "Contact",
+      "lastName": "name"
+    },
+    "useAlternateContactAddress": false,
+    "communicationDetails": {
+      "email": "Email@email.com",
+      "telephone": "07000111222"
+    }
+  },
+  "additionalBusinessInfo": {
+    "partnerCorporateBody": {
+      "numberOfCoOfficials": "5",
+      "coOfficialDetails": {
+        "coOfficial": [{
+          "individual": {
+            "status": "Company Secretary",
+            "name": {
+              "firstName": "sdfsd",
+              "lastName": "sdfsdfsd"
+            },
+            "identification": {
+              "nino": "$nino"
+            }
+          }
+        },
+          {
+            "company": {
+              "status": "Director",
+              "names": {
+                "companyName": "Example and Co",
+                "tradingName": "Example Bros"
+              },
+              "identification": {
+                "doYouHaveVRN": false,
+                "doYouHaveUTR": true,
+                "utr": "$utr",
+                "doYouHaveCRN": false
+              }
+            }
+          },
+          {
+            "individual": {
+              "status": "Director and Company Secretary",
+              "name": {
+                "firstName": "sdfsd",
+                "lastName": "sdfsdfsd"
+              },
+              "identification": {
+                "nino": "$nino"
+              }
+            }
+          },
+          {
+            "company": {
+              "status": "Director",
+              "names": {
+                "companyName": "Example and Co",
+                "tradingName": "Example Bros"
+              },
+              "identification": {
+                "doYouHaveVRN": false,
+                "doYouHaveUTR": true,
+                "utr": "$utr",
+                "doYouHaveCRN": true,
+                "companyRegNumber": "55555555"
+              }
+            }
+          },
+          {
+            "individual": {
+              "status": "Director and Company Secretary",
+              "name": {
+                "firstName": "sdfsd",
+                "lastName": "sdfsdfsd"
+              },
+              "identification": {
+                "nino": "$nino"
+              }
+            }
+          }]
+      }
+    },
+    "all": {
+      "typeOfWholesaler": {
+        "cashAndCarry": true,
+        "offTradeSupplierOnly": true,
+        "onTradeSupplierOnly": true,
+        "all": true,
+        "other": false
+      },
+      "typeOfAlcoholOrders": {
+        "onlineOnly": true,
+        "onlineAndTel": true,
+        "onlineTelAndPhysical": true,
+        "all": true,
+        "other": false
+      },
+      "typeOfCustomers": {
+        "pubs": true,
+        "nightClubs": true,
+        "privateClubs": true,
+        "hotels": true,
+        "hospitalityCatering": true,
+        "restaurants": true,
+        "indepRetailers": true,
+        "nationalRetailers": true,
+        "public": false,
+        "otherWholesalers": false,
+        "all": false,
+        "other": false
+      },
+      "productsSold": {
+        "beer": true,
+        "wine": true,
+        "spirits": true,
+        "cider": false,
+        "perry": true,
+        "all": false,
+        "other": true,
+        "typeOfProductOther": "rwerwrwerew"
+      },
+      "numberOfPremises": "1",
+      "premiseAddress": [{
+        "address": {
+          "postalCode": "AA1 1AA",
+          "addressLine1": "1 Example Street",
+          "addressLine2": "Exampe View",
+          "addressLine3": "Exampe Town",
+          "addressLine4": "Exampeshire",
+          "countryCode": "GB"
+        }
+      },
+        {
+          "address": {
+            "postalCode": "BB1 1BB",
+            "addressLine1": "150 Example Avenue",
+            "addressLine2": "Exampletown",
+            "countryCode": "GB"
+          }
+        }],
+      "thirdPartyStorageUsed": false,
+      "alcoholGoodsExported": true,
+      "euDispatches": true,
+      "suppliers": {
+        "supplier": [{
+          "name": "dfgdfgfd",
+          "isSupplierVatRegistered": false,
+          "address": {
+            "postalCode": "BB1 1BB",
+            "addressLine1": "150 Example Avenue",
+            "addressLine2": "Example Avenue",
+            "countryCode": "GB"
+          }
+        }]
+      },
+      "alcoholGoodsImported": true
+    }
+  },
+  "declaration": {
+    "nameOfPerson": "AWRS application",
+    "statusOfPerson": "Other",
+    "personStatusOther": "AWRS application1",
+    "informationIsAccurateAndComplete": true
+  }
+}
