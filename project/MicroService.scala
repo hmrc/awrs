@@ -55,7 +55,7 @@ trait MicroService {
       fork in Test := false,
       retrieveManaged := true
     )
-    .settings(Repositories.playPublishingSettings : _*)
+    .settings(publishingSettings: _*)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .configs(IntegrationTest)
     .settings(inConfig(TemplateItTest)(Defaults.itSettings): _*)
@@ -80,21 +80,4 @@ private object TestPhases {
     tests map {
       test => new Group(test.name, Seq(test), SubProcess(ForkOptions(runJVMOptions = Seq("-Dtest.name=" + test.name))))
     }
-}
-
-private object Repositories {
-
-  import uk.gov.hmrc._
-  import NexusPublishing._
-  import PublishingSettings._
-
-  lazy val playPublishingSettings : Seq[sbt.Setting[_]] = sbtrelease.ReleasePlugin.releaseSettings ++ Seq(
-
-    credentials += SbtCredentials,
-
-    publishArtifact in(Compile, packageDoc) := false,
-    publishArtifact in(Compile, packageSrc) := false
-   ) ++
-    publishAllArtefacts ++
-    nexusPublishingSettings
 }
