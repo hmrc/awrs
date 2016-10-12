@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import utils.AwrsTestJson.testRefNo
 
 class EtmpStatusServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar {
 
@@ -46,7 +47,7 @@ class EtmpStatusServiceTest extends UnitSpec with OneServerPerSuite with Mockito
     }
 
     "successfully lookup application status when passed a valid reference number" in {
-      val awrsRefNo = "XAAW00000123456"
+      val awrsRefNo = testRefNo
       when(mockEtmpConnector.checkStatus(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
       val result = TestEtmpStatusService.checkStatus(awrsRefNo)
       await(result).status shouldBe 200

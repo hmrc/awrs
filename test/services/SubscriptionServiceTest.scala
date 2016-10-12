@@ -32,6 +32,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
+import utils.AwrsTestJson.testRefNo
 
 class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
   val mockEtmpConnector = mock[EtmpConnector]
@@ -46,7 +47,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
   "Subscription Service" should {
     val inputJson = api4EtmpLTDJson
     val safeId = "XA0001234567890"
-    val successResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber":"XAAW00000123456"}""")
+    val successResponse = Json.parse( s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "$testRefNo"}""")
     val ggEnrolResponse = Json.parse( """{}""")
     val failureResponse = Json.parse( """{"Reason": "Resource not found"}""")
     implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
@@ -84,14 +85,14 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
 
     "respond with Ok, when a valid update subscription json is supplied" in {
       when(mockEtmpConnector.updateSubscription(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api6SuccessResponseJson))))
-      val result = TestSubscriptionService.updateSubcription(inputJson, "XAAW00000123456")
+      val result = TestSubscriptionService.updateSubcription(inputJson, testRefNo)
       val response = await(result)
       response.status shouldBe OK
     }
 
     "respond with BadRequest when update subscription json is invalid" in {
       when(mockEtmpConnector.updateSubscription(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.updateSubcription(inputJson, "XAAW00000123456")
+      val result = TestSubscriptionService.updateSubcription(inputJson, testRefNo)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
     }

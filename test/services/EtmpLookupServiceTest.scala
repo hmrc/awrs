@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.http.logging.SessionId
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import utils.AwrsTestJson.testRefNo
 
 class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar {
 
@@ -47,7 +48,7 @@ class EtmpLookupServiceTest extends UnitSpec with OneServerPerSuite with Mockito
     }
 
     "successfully lookup application when passed a valid reference number" in {
-      val awrsRefNo = "XAAW00000123456"
+      val awrsRefNo = testRefNo
       when(mockEtmpConnector.lookup(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
       val result = TestEtmpLookupService.lookupApplication(awrsRefNo)
       await(result).status shouldBe 200

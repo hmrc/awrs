@@ -33,6 +33,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
+import utils.AwrsTestJson.testRefNo
 
 class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]
@@ -63,7 +64,7 @@ class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with Mo
     }
 
     "subscribe" must {
-      val successResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber":"XAAW00000123456"}""")
+      val successResponse = Json.parse( s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "$testRefNo"}""")
       val registerSuccessResponse = HttpResponse(OK, responseJson = Some(successResponse))
       val matchFailure = Json.parse( """{"Reason": "Resource not found"}""")
       val matchFailureResponse = HttpResponse(NOT_FOUND, responseJson = Some(matchFailure))
@@ -123,7 +124,7 @@ class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with Mo
 
       "lookup submitted application from HODS when passed a valid awrs reference" in {
         when(mockEtmpLookupService.lookupApplication(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api4EtmpLTDJson))))
-        val result = TestSubscriptionController.lookupApplication("12345", "XAAW00000123456").apply(FakeRequest())
+        val result = TestSubscriptionController.lookupApplication("12345", testRefNo).apply(FakeRequest())
         status(result) shouldBe OK
       }
 
@@ -198,7 +199,7 @@ class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with Mo
 
         def checkStatus(json: JsValue, expected: FormBundleStatus): Unit = {
           when(mockEtmpStatusService.checkStatus(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(json))))
-          val result = TestSubscriptionController.checkStatus("12345", "XAAW00000123456").apply(FakeRequest())
+          val result = TestSubscriptionController.checkStatus("12345", testRefNo).apply(FakeRequest())
           status(result) shouldBe OK
           await(result)
           val r = contentAsString(result)

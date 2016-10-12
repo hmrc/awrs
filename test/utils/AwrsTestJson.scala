@@ -25,6 +25,7 @@ object AwrsTestJson extends AwrsTestJson {
   lazy val testNino = new Generator().nextNino.nino
   lazy val testUtr = new SaUtrGenerator().nextSaUtr.utr
   lazy val testGrpJoinDate = LocalDate.now().toString()
+  lazy val testRefNo = "DummmyRef"
 }
 
 trait AwrsTestJson extends AwrsPathConstants {

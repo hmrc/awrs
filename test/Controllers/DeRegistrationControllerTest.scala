@@ -31,6 +31,7 @@ import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
+import utils.AwrsTestJson.testRefNo
 
 import scala.concurrent.Future
 
@@ -53,7 +54,7 @@ class DeRegistrationControllerTest extends UnitSpec with OneServerPerSuite with 
 
     "check success response is transported correctly" in {
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api10SuccessfulResponseJson))))
-      val result = TestDeRegistrationControllerTest.deRegistration("XAAW00000123456", "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
+      val result = TestDeRegistrationControllerTest.deRegistration(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe OK
       await(result)
       val r = contentAsString(result)
@@ -62,7 +63,7 @@ class DeRegistrationControllerTest extends UnitSpec with OneServerPerSuite with 
 
     "check failure response is transported correctly" in {
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api10FailureResponseJson))))
-      val result = TestDeRegistrationControllerTest.deRegistration("XAAW00000123456", "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
+      val result = TestDeRegistrationControllerTest.deRegistration(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe OK
       await(result)
       val r = contentAsString(result)
@@ -72,7 +73,7 @@ class DeRegistrationControllerTest extends UnitSpec with OneServerPerSuite with 
     "check corrupt etmp response is not passed as OK" in {
       val failureResponse = Json.parse("false")
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(failureResponse))))
-      val result = TestDeRegistrationControllerTest.deRegistration("XAAW00000123456", "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
+      val result = TestDeRegistrationControllerTest.deRegistration(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
       await(result)
       val r = contentAsString(result)
@@ -81,25 +82,25 @@ class DeRegistrationControllerTest extends UnitSpec with OneServerPerSuite with 
 
     "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(api10FailureResponseJson))))
-      val result = TestDeRegistrationControllerTest.deRegistration("XAAW00000123456", "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
+      val result = TestDeRegistrationControllerTest.deRegistration(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe BAD_REQUEST
     }
 
     "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(api10FailureResponseJson))))
-      val result = TestDeRegistrationControllerTest.deRegistration("XAAW00000123456", "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
+      val result = TestDeRegistrationControllerTest.deRegistration(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe NOT_FOUND
     }
 
     "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(api10FailureResponseJson))))
-      val result = TestDeRegistrationControllerTest.deRegistration("XAAW00000123456", "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
+      val result = TestDeRegistrationControllerTest.deRegistration(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
     "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(api10FailureResponseJson))))
-      val result = TestDeRegistrationControllerTest.deRegistration("XAAW00000123456", "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
+      val result = TestDeRegistrationControllerTest.deRegistration(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
