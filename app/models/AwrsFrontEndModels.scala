@@ -1168,7 +1168,7 @@ object SubscriptionTypeFrontEnd {
           products = products,
           suppliers = hasSupplier(suppliers),
           applicationDeclaration = applicationDeclaration,
-          changeIndicators = None //TODO change indicator
+          changeIndicators = None
         )
       }
 
