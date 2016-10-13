@@ -49,8 +49,6 @@ trait WithdrawalController extends BaseController with LoggingUtils {
 
       val auditWithdrawalTxName: String = "AWRS ETMP Withdrawal"
       val auditMap: Map[String,String] = Map("AWRS Reference No" -> awrsRefNo)
-      val eventTypeSuccess: String = "AwrsSuccess"
-      val eventTypeFailure: String = "AwrsFailure"
 
       val timer = metrics.startTimer(apiType)
 
