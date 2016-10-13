@@ -37,7 +37,7 @@ trait LoggingUtils extends Auditable {
   final val auditAPI12DeleteTxName: String = "API12-Delete"
   final val auditSubscribeTxName: String = "AWRS ETMP Subscribe"
 
-  final val eventTypeSuccess: String = "Success"
+  final val eventTypeSuccess: String = "AwrsSuccess"
   final val eventTypeFailure: String = "AwrsFailure"
   final val eventTypeBadRequest: String = "BadRequest"
   final val eventTypeNotFound: String = "NotFound"
@@ -52,7 +52,7 @@ trait LoggingUtils extends Auditable {
   private def splunkFunction(transactionName: String, detail: Map[String, String], eventType: String)(implicit hc: HeaderCarrier) = {
     Logger.debug(splunkString + splunkToLogger(transactionName, detail, eventType))
     sendDataEvent(
-      transactionName = appName,
+      transactionName = transactionName,
       detail = detail,
       eventType = eventType
     )
