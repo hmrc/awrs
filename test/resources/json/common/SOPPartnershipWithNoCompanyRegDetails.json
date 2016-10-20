@@ -21,7 +21,6 @@
         "countryCode": "GB"
       },
       "soleProprietor": {
-        "tradingName": "trading name",
         "name": {
           "firstName": "sole first name",
           "lastName": "sole last name"
