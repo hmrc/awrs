@@ -678,7 +678,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
       etmpson should be(Json.parse(commonSOPPartnershipString).toString())
     }
 
-    "transform to correct ETMP Business Details JSON element with no Incorporation Details" in {
+    "transform to correct ETMP Business Details JSON element with no Incorporation Details and no trading name" in {
       val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "businessRegistrationDetails" \ "companyRegDetails", api4FrontendLLPString)
       val finalDeletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "businessRegistrationDetails" \ "isBusinessIncorporated", deletedJson)
       val updatedJson = updateJson(Json.
@@ -694,7 +694,6 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
                 .++(Json.obj("addressLine4" -> "address line 4"))
                 .++(Json.obj("countryCode" -> "GB"))
               ))
-              .++(Json.obj("tradingName" -> "trading name"))
               .++(Json.obj("firstName" -> "sole first name"))
               .++(Json.obj("lastName" -> "sole last name"))
               .++(Json.obj("doYouHaveNino" -> "No"))

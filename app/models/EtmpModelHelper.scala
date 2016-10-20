@@ -501,10 +501,10 @@ trait EtmpModelHelper {
     val name = ifExistsThenPopulate("firstName", partnerDetail.firstName) ++ ifExistsThenPopulate("lastName", partnerDetail.lastName)
     val identification = identificationCorpNumbersType(partnerDetail)
     val soleProprietor =
-      Json.obj(
-        "tradingName" -> partnerDetail.tradingName,
-        "name" -> name,
-        "doYouHaveNino" -> yestoTrue(partnerDetail.doYouHaveNino.fold("")(x => x)))
+      partnerDetail.tradingName.fold(Json.obj())(x => Json.obj("tradingName" -> x))
+        .++(Json.obj(
+          "name" -> name,
+          "doYouHaveNino" -> yestoTrue(partnerDetail.doYouHaveNino.fold("")(x => x))))
         .++(ifExistsThenPopulate("nino", partnerDetail.nino))
         .++(Json.obj("identification" -> identification))
 
