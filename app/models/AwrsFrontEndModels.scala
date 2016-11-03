@@ -845,7 +845,8 @@ case class Products(mainCustomers: List[String],
                     productType: List[String],
                     otherProductType: Option[String])
 
-case class BusinessDetails(tradingName: Option[String],
+case class BusinessDetails(doYouHaveTradingName: Option[String],
+                           tradingName: Option[String],
                            newAWBusiness: Option[NewAWBusiness])
 
 case class BusinessRegistrationDetails(legalEntity: Option[String],
@@ -902,6 +903,10 @@ object BusinessDetails {
         newAWBusiness <- (js \ "subscriptionType").validate[Option[NewAWBusiness]](Reads.optionNoError(NewAWBusiness.reader))
       } yield {
         BusinessDetails(
+          doYouHaveTradingName = tradingName match {
+            case Some(_) => Some("Yes")
+            case None => Some("No")
+          },
           tradingName = tradingName,
           newAWBusiness = newAWBusiness)
       }

@@ -25,6 +25,7 @@
     },
     "businessDetails": {
       "legalEntity": "LTD_GRP",
+      "doYouHaveTradingName": "Yes",
       "tradingName": "Trading name",
       "newAWBusiness": {
         "newAWBusiness": "No"

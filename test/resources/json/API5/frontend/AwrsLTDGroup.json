@@ -19,6 +19,7 @@
       "isAGroup": false
     },
     "businessDetails": {
+      "doYouHaveTradingName": "Yes",
       "tradingName": "asddsad",
       "newAWBusiness": {
         "newAWBusiness": "No"

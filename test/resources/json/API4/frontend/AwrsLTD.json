@@ -25,6 +25,7 @@
     },
     "businessDetails": {
       "legalEntity": "LTD",
+      "doYouHaveTradingName": "Yes",
       "tradingName": "Trading name",
       "newAWBusiness": {
         "newAWBusiness": "No"
