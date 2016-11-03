@@ -22,6 +22,7 @@
     },
     "businessDetails": {
       "legalEntity": "Partnership",
+      "doYouHaveTradingName": "Yes",
       "tradingName": "asddsad",
       "newAWBusiness": {
         "newAWBusiness": "No"
