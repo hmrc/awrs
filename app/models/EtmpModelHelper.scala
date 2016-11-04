@@ -149,8 +149,8 @@ trait EtmpModelHelper {
         case _ => Json.obj()
       }
     val nonProprietor =
+      ifExistsThenPopulate("tradingName", businessDetails.tradingName) ++
       Json.obj(
-        "tradingName" -> businessDetails.tradingName,
         "identification" -> identification)
 
     Json.obj(ProprietorType.nonProprietor -> nonProprietor)
