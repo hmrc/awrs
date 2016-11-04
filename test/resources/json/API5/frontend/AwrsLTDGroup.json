@@ -111,6 +111,7 @@
         "personOrCompany": "company",
         "otherDirectors": "No",
         "companyName": "Example Company",
+        "doYouHaveTradingName": "Yes",
         "tradingName": "Example Name",
         "doYouHaveVRN": "Yes",
         "vrn": "000000000",

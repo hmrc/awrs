@@ -61,6 +61,7 @@ case class BusinessDirectors(directorsAndCompanySecretaries: String,
                              nationalID: Option[String],
                              otherDirectors: Option[String],
                              companyName: Option[String],
+                             doYouHaveTradingName: Option[String],
                              tradingName: Option[String],
                              doYouHaveVRN: Option[String],
                              vrn: Option[String],
@@ -641,6 +642,10 @@ object BusinessDirectors {
           nationalID = nationalID,
           otherDirectors = Some("Yes"),
           companyName = companyName,
+          doYouHaveTradingName = tradingName match {
+            case Some(_) => Some("Yes")
+            case None => Some("No")
+          },
           tradingName = tradingName,
           doYouHaveVRN = if (companyStatus.nonEmpty) booleanToString(doYouHaveVRN.fold(false)(x => x)) else None,
           vrn = vrn,
