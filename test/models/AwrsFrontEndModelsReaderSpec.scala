@@ -312,30 +312,30 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform correctly to Business Directors Frontend Model " in {
-      val directors = api4EtmpLTDJson.as[List[BusinessDirectors]](BusinessDirectorsList.reader)
-      directors.head.directorsAndCompanySecretaries shouldBe "Director"
-      directors.head.personOrCompany shouldBe "person"
-      directors.head.firstName.get shouldBe "Example"
-      directors.head.lastName.get shouldBe "Exampleson"
-      directors.last.directorsAndCompanySecretaries shouldBe "Director"
-      directors.last.personOrCompany shouldBe "company"
-      directors.last.companyName.get shouldBe "Company name"
-      directors.last.tradingName.get shouldBe "Trading name"
-      directors.last.doYouHaveVRN.get shouldBe "No"
-      directors.last.doYouHaveUTR.get shouldBe "Yes"
-      directors.last.utr.get shouldBe testUtr
-      directors.last.doYouHaveCRN.get shouldBe "No"
+      val directors = api4EtmpLTDJson.as[BusinessDirectors](BusinessDirectors.reader)
+      directors.directors.head.directorsAndCompanySecretaries shouldBe "Director"
+      directors.directors.head.personOrCompany shouldBe "person"
+      directors.directors.head.firstName.get shouldBe "Example"
+      directors.directors.head.lastName.get shouldBe "Exampleson"
+      directors.directors.last.directorsAndCompanySecretaries shouldBe "Director"
+      directors.directors.last.personOrCompany shouldBe "company"
+      directors.directors.last.companyName.get shouldBe "Company name"
+      directors.directors.last.tradingName.get shouldBe "Trading name"
+      directors.directors.last.doYouHaveVRN.get shouldBe "No"
+      directors.directors.last.doYouHaveUTR.get shouldBe "Yes"
+      directors.directors.last.utr.get shouldBe testUtr
+      directors.directors.last.doYouHaveCRN.get shouldBe "No"
     }
 
     "transform correctly to Business Directors Frontend Model when coOfficial is of type company" in {
-      val directors = api4EtmpLTDJson.as[List[BusinessDirectors]](BusinessDirectorsList.reader)
-      val dl = directors.last
+      val directors = api4EtmpLTDJson.as[BusinessDirectors](BusinessDirectors.reader)
+      val dl = directors.directors.last
       dl.directorsAndCompanySecretaries shouldBe "Director"
       dl.personOrCompany shouldBe "company"
-      val d1 = directors(1)
+      val d1 = directors.directors(1)
       d1.directorsAndCompanySecretaries shouldBe "Director and Company Secretary"
       d1.personOrCompany shouldBe "person"
-      val d2 = directors(2)
+      val d2 = directors.directors(2)
       d2.directorsAndCompanySecretaries shouldBe "Company Secretary"
       d2.personOrCompany shouldBe "person"
     }
