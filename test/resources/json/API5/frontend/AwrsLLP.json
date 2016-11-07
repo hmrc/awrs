@@ -216,6 +216,7 @@
     "applicationDeclaration": {
       "declarationName": "AWRS application",
       "declarationRole": "Other"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

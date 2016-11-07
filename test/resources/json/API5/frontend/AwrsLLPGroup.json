@@ -162,6 +162,7 @@
     "applicationDeclaration": {
       "declarationName": "Example Exampleson",
       "declarationRole": "Authorised Signatory"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

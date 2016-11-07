@@ -188,6 +188,7 @@
     "applicationDeclaration": {
       "declarationName": "Example Exampleson",
       "declarationRole": "Director"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

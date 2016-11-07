@@ -105,20 +105,22 @@
         }
       ]
     },
-    "businessDirectors": [
-      {
-        "directorsAndCompanySecretaries": "Director",
-        "personOrCompany": "company",
-        "otherDirectors": "No",
-        "companyName": "Example Company",
-        "doYouHaveTradingName": "Yes",
-        "tradingName": "Example Name",
-        "doYouHaveVRN": "Yes",
-        "vrn": "000000000",
-        "doYouHaveCRN": "No",
-        "doYouHaveUTR": "No"
-      }
-    ],
+    "businessDirectors": {
+      "directors": [
+        {
+          "directorsAndCompanySecretaries": "Director",
+          "personOrCompany": "company",
+          "otherDirectors": "No",
+          "companyName": "Example Company",
+          "doYouHaveTradingName": "Yes",
+          "tradingName": "Example Name",
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveCRN": "No",
+          "doYouHaveUTR": "No"
+        }
+      ]
+    },
     "tradingActivity": {
       "wholesalerType": [
         "01"
@@ -159,6 +161,7 @@
     "applicationDeclaration": {
       "declarationName": "Example Exampleson",
       "declarationRole": "Authorised Signatory"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }
