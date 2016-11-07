@@ -23,6 +23,10 @@ import utils.Utility._
 
 import scala.util.{Failure, Success, Try}
 
+trait ModelVersionControl {
+  def modelVersion: String
+}
+
 sealed trait CorpNumbersType {
   def doYouHaveVRN: Option[String]
 
@@ -51,25 +55,26 @@ sealed trait IncorporationDetails {
   def companyRegDetails: Option[CompanyRegDetails]
 }
 
-case class BusinessDirectors(directorsAndCompanySecretaries: String,
-                             personOrCompany: String,
-                             firstName: Option[String],
-                             lastName: Option[String],
-                             doTheyHaveNationalInsurance: Option[String],
-                             nino: Option[String],
-                             passportNumber: Option[String],
-                             nationalID: Option[String],
-                             otherDirectors: Option[String],
-                             companyName: Option[String],
-                             doYouHaveTradingName: Option[String],
-                             tradingName: Option[String],
-                             doYouHaveVRN: Option[String],
-                             vrn: Option[String],
-                             doYouHaveCRN: Option[String],
-                             companyRegNumber: Option[String],
-                             doYouHaveUTR: Option[String],
-                             utr: Option[String]) extends CorpNumbersWithCRNType
+case class BusinessDirector(directorsAndCompanySecretaries: String,
+                            personOrCompany: String,
+                            firstName: Option[String],
+                            lastName: Option[String],
+                            doTheyHaveNationalInsurance: Option[String],
+                            nino: Option[String],
+                            passportNumber: Option[String],
+                            nationalID: Option[String],
+                            otherDirectors: Option[String],
+                            companyName: Option[String],
+                            doYouHaveTradingName: Option[String],
+                            tradingName: Option[String],
+                            doYouHaveVRN: Option[String],
+                            vrn: Option[String],
+                            doYouHaveCRN: Option[String],
+                            companyRegNumber: Option[String],
+                            doYouHaveUTR: Option[String],
+                            utr: Option[String]) extends CorpNumbersWithCRNType
 
+case class BusinessDirectors(directors: List[BusinessDirector])
 
 case class Supplier(alcoholSuppliers: Option[String],
                     supplierName: Option[String],
@@ -604,11 +609,11 @@ object PartnerDetail {
 
 }
 
-object BusinessDirectors {
+object BusinessDirector {
 
-  val reader = new Reads[BusinessDirectors] {
+  val reader = new Reads[BusinessDirector] {
 
-    def reads(js: JsValue): JsResult[BusinessDirectors] =
+    def reads(js: JsValue): JsResult[BusinessDirector] =
       for {
         individualStatus <- (js \ "individual" \ "status").validate[Option[String]]
         firstName <- (js \ "individual" \ "name" \ "firstName").validate[Option[String]]
@@ -631,7 +636,7 @@ object BusinessDirectors {
           case (_, Some(status)) => (status, "company")
           case _ => throw new RuntimeException("Etmp BusinessDirectors read error, neither individualStatus nor companyStatus are present")
         }
-        BusinessDirectors(
+        BusinessDirector(
           directorsAndCompanySecretaries = directorsAndCompanySecretaries,
           personOrCompany = personOrCompany,
           firstName = firstName, //to cater for when its none
@@ -657,26 +662,25 @@ object BusinessDirectors {
 
   }
 
-  implicit val formats: Format[BusinessDirectors] = Json.format[BusinessDirectors]
+  implicit val formats: Format[BusinessDirector] = Json.format[BusinessDirector]
 
 }
 
-case class BusinessDirectorsList(businessDirectors: List[BusinessDirectors])
 
-object BusinessDirectorsList {
+object BusinessDirectors {
 
-  val reader = new Reads[List[BusinessDirectors]] {
+  val reader = new Reads[BusinessDirectors] {
 
-    def reads(js: JsValue): JsResult[List[BusinessDirectors]] =
+    def reads(js: JsValue): JsResult[BusinessDirectors] =
       for {
-        businessDirectors <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "partnerCorporateBody" \ "coOfficialDetails" \ "coOfficial").validate[List[BusinessDirectors]](Reads.list(BusinessDirectors.reader))
+        businessDirectors <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "partnerCorporateBody" \ "coOfficialDetails" \ "coOfficial").validate[List[BusinessDirector]](Reads.list(BusinessDirector.reader))
       } yield {
-        businessDirectors
+        BusinessDirectors(businessDirectors)
       }
 
   }
 
-  implicit val formats = Json.format[BusinessDirectorsList]
+  implicit val formats = Json.format[BusinessDirectors]
 
 }
 
@@ -887,13 +891,14 @@ case class SubscriptionTypeFrontEnd(
                                      partnership: Option[PartnerDetails],
                                      groupMemberDetails: Option[GroupMemberDetails],
                                      additionalPremises: Option[AdditionalBusinessPremisesList],
-                                     businessDirectors: Option[List[BusinessDirectors]],
+                                     businessDirectors: Option[BusinessDirectors],
                                      tradingActivity: Option[TradingActivity],
                                      products: Option[Products],
                                      suppliers: Option[Suppliers],
                                      applicationDeclaration: Option[ApplicationDeclaration],
-                                     changeIndicators: Option[ChangeIndicators]
-                                   )
+                                     changeIndicators: Option[ChangeIndicators],
+                                     modelVersion: String = SubscriptionTypeFrontEnd.latestModelVersion
+                                   ) extends ModelVersionControl
 
 object BusinessDetails {
 
@@ -1142,6 +1147,8 @@ object Products {
 
 object SubscriptionTypeFrontEnd {
 
+  val latestModelVersion = "1.0"
+
   val reader = new Reads[SubscriptionTypeFrontEnd] {
 
     def reads(js: JsValue): JsResult[SubscriptionTypeFrontEnd] =
@@ -1155,7 +1162,7 @@ object SubscriptionTypeFrontEnd {
         businessContacts <- js.validate[Option[BusinessContacts]](Reads.optionNoError(BusinessContacts.reader))
         groupMemberDetails <- js.validate[Option[GroupMemberDetails]](Reads.optionNoError(GroupMemberDetails.reader))
         additionalPremises <- js.validate[Option[AdditionalBusinessPremisesList]](Reads.optionNoError(AdditionalBusinessPremisesList.reader))
-        businessDirectors <- js.validate[Option[List[BusinessDirectors]]](Reads.optionNoError(BusinessDirectorsList.reader))
+        businessDirectors <- js.validate[Option[BusinessDirectors]](Reads.optionNoError(BusinessDirectors.reader))
         partnership <- js.validate[Option[PartnerDetails]](Reads.optionNoError(PartnerDetails.reader))
         tradingActivity <- js.validate[Option[TradingActivity]](Reads.optionNoError(TradingActivity.reader))
         products <- js.validate[Option[Products]](Reads.optionNoError(Products.reader))
@@ -1178,17 +1185,18 @@ object SubscriptionTypeFrontEnd {
           products = products,
           suppliers = hasSupplier(suppliers),
           applicationDeclaration = applicationDeclaration,
-          changeIndicators = None
+          changeIndicators = None,
+          modelVersion = latestModelVersion
         )
       }
 
   }
 
-  def amendLastDirector(directors: List[BusinessDirectors]): List[BusinessDirectors] =
-    directors.zipWithIndex.map {
-      case (x, i) if i == (directors.size - 1) => x.copy(otherDirectors = Some("No"))
+  def amendLastDirector(businessDirectors: BusinessDirectors): BusinessDirectors =
+    BusinessDirectors(businessDirectors.directors.zipWithIndex.map {
+      case (x, i) if i == (businessDirectors.directors.size - 1) => x.copy(otherDirectors = Some("No"))
       case (x, i) => x
-    }
+    })
 
   def hasSupplier(suppliers: Option[Suppliers]): Option[Suppliers] =
     suppliers match {

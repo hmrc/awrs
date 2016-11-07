@@ -514,7 +514,7 @@ trait EtmpModelHelper {
       "soleProprietor" -> soleProprietor)
   }
 
-  def buildDirectorsArray(coOfficial: BusinessDirectors): JsValue =
+  def buildDirectorsArray(coOfficial: BusinessDirector): JsValue =
     coOfficial.personOrCompany match {
       case "company" => toEtmpCoOfficialCompanyDetails(coOfficial)
       case _ => toEtmpCoOfficialIndividualDetails(coOfficial)
@@ -539,13 +539,13 @@ trait EtmpModelHelper {
       .++(Json.obj("informationIsAccurateAndComplete" -> true))
   }
 
-  def toEtmpBusinessDirectors(businessDirectors: List[BusinessDirectors]): JsValue = {
-    val officials = businessDirectors map (x => buildDirectorsArray(x))
+  def toEtmpBusinessDirectors(businessDirectors: BusinessDirectors): JsValue = {
+    val officials = businessDirectors.directors map (x => buildDirectorsArray(x))
 
     Json.obj("coOfficial" -> JsArray(officials))
   }
 
-  def toEtmpCoOfficialIndividualDetails(coOfficial: BusinessDirectors): JsValue = {
+  def toEtmpCoOfficialIndividualDetails(coOfficial: BusinessDirector): JsValue = {
     val name = Json.obj("firstName" -> coOfficial.firstName, "lastName" -> coOfficial.lastName)
     val identification =
       ifExistsThenPopulate("nino", coOfficial.nino)
@@ -562,7 +562,7 @@ trait EtmpModelHelper {
     Json.obj("individual" -> individual)
   }
 
-  def toEtmpCoOfficialCompanyDetails(coOfficial: BusinessDirectors): JsValue = {
+  def toEtmpCoOfficialCompanyDetails(coOfficial: BusinessDirector): JsValue = {
     val names = ifExistsThenPopulate("companyName", coOfficial.companyName) ++ ifExistsThenPopulate("tradingName", coOfficial.tradingName)
     val identification = identificationCorpNumbersWithCRNType(coOfficial)
 
@@ -586,7 +586,7 @@ trait EtmpModelHelper {
       case _ =>
         val partnerCorporateBody =
           Json.obj(
-            "numberOfCoOfficials" -> businessDirectors.reduceLeft((x, y) => x).size.toString,
+            "numberOfCoOfficials" -> businessDirectors.reduceLeft((x, y) => x).directors.size.toString,
             "coOfficialDetails" -> toEtmpBusinessDirectors(businessDirectors.get))
 
         Json.obj("partnerCorporateBody" -> partnerCorporateBody)
