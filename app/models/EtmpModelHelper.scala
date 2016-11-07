@@ -131,8 +131,8 @@ trait EtmpModelHelper {
     val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, y) => x)
     val identification = identificationIndividualIdNumbersType(businessRegistrationDetails)
     val soleTrader =
+      ifExistsThenPopulate("tradingName", soleTraderBusinessDetails.tradingName) ++
       Json.obj(
-        "tradingName" -> soleTraderBusinessDetails.tradingName,
         "identification" -> identification)
 
     Json.obj(ProprietorType.soleTrader -> soleTrader)
