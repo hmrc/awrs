@@ -129,16 +129,19 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
-          obj("businessDirectors" -> Json.arr(Json.obj()
-            .++(Json.obj("directorsAndCompanySecretaries" -> "Director"))
-            .++(Json.obj("personOrCompany" -> "person"))
-            .++(Json.obj("firstName" -> "Example"))
-            .++(Json.obj("lastName" -> "Exampleson"))
-            .++(Json.obj("doTheyHaveNationalInsurance" -> "Yes"))
-            .++(Json.obj("nationalID" -> "1234567890"))
-            .++(Json.obj("otherDirectors" -> "No"))
-          ))),
+          obj("businessDirectors" ->
+            Json.obj("directors" -> Json.arr(Json.obj(
+              "directorsAndCompanySecretaries" -> "Director",
+              "personOrCompany" -> "person",
+              "firstName" -> "Example",
+              "lastName" -> "Exampleson",
+              "doTheyHaveNationalInsurance" -> "Yes",
+              "nationalID" -> "1234567890",
+              "otherDirectors" -> "No")))
+          )),
         deletedJson)
+
+      println(updatedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
@@ -156,14 +159,15 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
-          obj("businessDirectors" -> Json.arr(Json.obj()
-            .++(Json.obj("directorsAndCompanySecretaries" -> "Director"))
-            .++(Json.obj("personOrCompany" -> "person"))
-            .++(Json.obj("firstName" -> "Example"))
-            .++(Json.obj("lastName" -> "Exampleson"))
-            .++(Json.obj("doTheyHaveNationalInsurance" -> "Yes"))
-            .++(Json.obj("passportNumber" -> "0987654321"))
-            .++(Json.obj("otherDirectors" -> "No"))
+          obj("businessDirectors" ->
+            Json.obj("directors" -> Json.arr(Json.obj(
+            "directorsAndCompanySecretaries" -> "Director",
+            "personOrCompany" -> "person",
+             "firstName" -> "Example",
+              "lastName" -> "Exampleson",
+              "doTheyHaveNationalInsurance" -> "Yes",
+              "passportNumber" -> "0987654321",
+              "otherDirectors" -> "No"))
           ))),
         deletedJson)
 
@@ -183,13 +187,14 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
-          obj("businessDirectors" -> Json.arr(Json.obj()
-            .++(Json.obj("directorsAndCompanySecretaries" -> "Director"))
-            .++(Json.obj("personOrCompany" -> "person"))
-            .++(Json.obj("firstName" -> "Example"))
-            .++(Json.obj("lastName" -> "Exampleson"))
-            .++(Json.obj("doTheyHaveNationalInsurance" -> "Yes"))
-            .++(Json.obj("otherDirectors" -> "No"))
+          obj("businessDirectors" ->
+            Json.obj("directors" -> Json.arr(Json.obj(
+             "directorsAndCompanySecretaries" -> "Director",
+              "personOrCompany" -> "person",
+              "firstName" -> "Example",
+              "lastName" -> "Exampleson",
+              "doTheyHaveNationalInsurance" -> "Yes",
+              "otherDirectors" -> "No"))
           ))),
         deletedJson)
 
@@ -208,7 +213,8 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
-          obj("businessDirectors" -> Json.arr()
+          obj("businessDirectors" ->
+            Json.obj("directors" -> Json.arr())
           )),
         deletedJson)
 

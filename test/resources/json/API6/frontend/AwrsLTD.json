@@ -144,7 +144,7 @@
       "declarationName": "AWRS application",
       "declarationRole": "AWRS application1"
     },
-    "modelVerson": "1.0",
+    "modelVersion": "1.0",
     "changeIndicators": {
       "businessDetailsChanged": true,
       "businessAddressChanged": true,
