@@ -181,7 +181,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
   "toEtmpGroupMember method of EtmpModelHelper " should {
     "transform to correct JSON element and give correct group members" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.head).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head).toString()
       etmpJson should include("names")
       etmpJson should include("tradingName")
       etmpJson should include("incorporationDetails")
@@ -191,25 +191,25 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
       etmpJson should include("doYouHaveUTR")
     }
 
-    "transform to correct JSON element and give correct group members without trading name" in {
+    "transform to correct JSON element and give correct group members with trading name" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.head).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head).toString()
       etmpJson should include("names")
-      etmpJson should not include ("companyName")
+      etmpJson should include("companyName")
       etmpJson should include("tradingName")
     }
 
-    "transform to correct JSON element and give correct group members without company name" in {
+    "transform to correct JSON element and give correct group members without trading name" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.last).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.last).toString()
       etmpJson should include("names")
-      etmpJson should not include ("tradingName")
       etmpJson should include("companyName")
+      etmpJson should not include ("tradingName")
     }
 
     "transform to correct JSON element and give correct group members (actual output)" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.head).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head).toString()
 
       val updatedJson = updateJson(Json.
         obj("groupJoiningDate" -> LocalDate.now()), commonGroupMemberString)

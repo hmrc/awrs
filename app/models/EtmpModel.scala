@@ -102,7 +102,7 @@ object AWRSFEModel extends EtmpModelHelper {
 
   def isGroupMemberDetails(st: SubscriptionTypeFrontEnd): JsObject =
     st.legalEntity.get.legalEntity.get match {
-      case "LTD_GRP" | "LLP_GRP" => Json.obj("groupMembers" -> toEtmpGroupMemberDetails(st))
+      case "LTD_GRP" | "LLP_GRP" => Json.obj("groupMemberDetails" -> toEtmpGroupMemberDetails(st))
       case _ => Json.obj()
     }
 

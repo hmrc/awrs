@@ -92,7 +92,7 @@
       "dateGrpRepJoined": "$grpJoinDate"
     }
   },
-  "groupMembers": {
+  "groupMemberDetails": {
     "numberOfGrpMembers": "1",
     "groupMember": [{
       "names": {

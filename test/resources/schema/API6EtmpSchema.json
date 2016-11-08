@@ -2028,14 +2028,14 @@
               ],
               "additionalProperties": false
             },
-            "groupMembers": {
+            "groupMemberDetails": {
               "$ref": "#/definitions/groupMemberDetails"
             }
           },
           "required": [
             "llpCorporateBody",
             "businessDetails",
-            "groupMembers"
+            "groupMemberDetails"
           ]
         },
         {
@@ -2152,14 +2152,14 @@
               ],
               "additionalProperties": false
             },
-            "groupMembers": {
+            "groupMemberDetails": {
               "$ref": "#/definitions/groupMemberDetails"
             }
           },
           "required": [
             "llpCorporateBody",
             "businessDetails",
-            "groupMembers"
+            "groupMemberDetails"
           ]
         },
         {
@@ -2221,7 +2221,7 @@
         }
       ]
     },
-    "groupMembers": {
+    "groupMemberDetails": {
       "type": "object",
       "properties": {
         "numberOfGrpMembers": {

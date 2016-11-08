@@ -688,8 +688,10 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
       val awrsModel = api4FrontendLLPGRPJson.as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
 
-      etmpJson should include(Json.parse(api5EtmpLLPGroupString).toString())
-      TestUtil.validateJson(schemaPath, etmpJson) should be(true)
+      withClue(s"etmpJson:\n\n$etmpJson\n\n") {
+        etmpJson should include(Json.parse(api5EtmpLLPGroupString).toString())
+        TestUtil.validateJson(schemaPath, etmpJson) should be(true)
+      }
     }
   }
 

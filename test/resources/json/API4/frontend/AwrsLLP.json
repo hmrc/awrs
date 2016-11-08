@@ -133,7 +133,8 @@
             "doYouHaveUTR": false
           }
         }
-      ]
+      ],
+      "modelVersion": "1.0"
     },
     "additionalPremises": {
       "premises": [

@@ -69,6 +69,7 @@
         {
           "names": {
             "companyName": "ExampleName",
+            "doYouHaveTradingName":"Yes",
             "tradingName": "Example"
           },
           "isBusinessIncorporated": "No",
@@ -85,6 +86,7 @@
         {
           "names": {
             "companyName": "Another Example",
+            "doYouHaveTradingName":"Yes",
             "tradingName": "Example Trade"
           },
           "isBusinessIncorporated": "No",
@@ -98,7 +100,8 @@
           "doYouHaveUTR": "No",
           "addAnotherGrpMember": "No"
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "additionalPremises": {
       "premises": [

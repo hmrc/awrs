@@ -117,6 +117,7 @@
         {
           "names": {
             "companyName": "Company Name",
+            "doYouHaveTradingName":"Yes",
             "tradingName": "Trading Name"
           },
           "companyRegDetails": {
@@ -137,7 +138,8 @@
             "doYouHaveUTR": false
           }
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "additionalPremises": {
       "premises": [

@@ -165,14 +165,14 @@ trait EtmpModelHelper {
     }
 
   def toEtmpGroupMemberDetails(st: SubscriptionTypeFrontEnd): JsValue = {
-    val groupMembers = st.groupMemberDetails.reduceLeft((x, y) => x)
+    val groupMembers = st.groupMembers.reduceLeft((x, y) => x)
 
     Json.obj("numberOfGrpMembers" -> groupMembers.members.size.toString)
       .++(toEtmpGroupMembers(st))
   }
 
   def toEtmpGroupMembers(st: SubscriptionTypeFrontEnd): JsObject = {
-    val groupMembers = st.groupMemberDetails.reduceLeft((x, y) => x)
+    val groupMembers = st.groupMembers.reduceLeft((x, y) => x)
     val x =
       for {
         groupMembers <- groupMembers.members

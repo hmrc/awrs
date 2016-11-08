@@ -175,10 +175,12 @@ case class NewAWBusiness(newAWBusiness: String, proposedStartDate: Option[String
 
 case class GroupDeclaration(groupRepConfirmation: Boolean)
 
-case class GroupMembers(members : List[GroupMember],modelVersion : String = GroupMembers.latestModelVersion) extends ModelVersionControl
+case class GroupMembers(members: List[GroupMember],
+                        modelVersion: String = GroupMembers.latestModelVersion
+                       ) extends ModelVersionControl
 
 case class Names(companyName: Option[String],
-                 doYouHaveTradingName : Option[String],
+                 doYouHaveTradingName: Option[String],
                  tradingName: Option[String])
 
 case class GroupMember(names: Names,
@@ -894,7 +896,7 @@ case class SubscriptionTypeFrontEnd(
                                      businessRegistrationDetails: Option[BusinessRegistrationDetails],
                                      businessContacts: Option[BusinessContacts],
                                      partnership: Option[PartnerDetails],
-                                     groupMemberDetails: Option[GroupMembers],
+                                     groupMembers: Option[GroupMembers],
                                      additionalPremises: Option[AdditionalBusinessPremisesList],
                                      businessDirectors: Option[BusinessDirectors],
                                      tradingActivity: Option[TradingActivity],
@@ -1182,7 +1184,7 @@ object SubscriptionTypeFrontEnd {
           businessRegistrationDetails = businessRegistrationDetails,
           businessContacts = businessContacts,
           groupDeclaration = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupDeclaration else None,
-          groupMemberDetails = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupMemberDetails else None,
+          groupMembers = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupMemberDetails else None,
           partnership = partnership,
           additionalPremises = additionalPremises,
           businessDirectors = if (legalEntity.get.legalEntity.get == "LTD" | legalEntity.get.legalEntity.get == "LTD_GRP") Some(amendLastDirector(businessDirectors.reduce((x, y) => x))) else None,
