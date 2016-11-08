@@ -175,9 +175,10 @@ case class NewAWBusiness(newAWBusiness: String, proposedStartDate: Option[String
 
 case class GroupDeclaration(groupRepConfirmation: Boolean)
 
-case class GroupMemberDetails(members: List[GroupMember])
+case class GroupMembers(members : List[GroupMember],modelVersion : String = GroupMembers.latestModelVersion) extends ModelVersionControl
 
 case class Names(companyName: Option[String],
+                 doYouHaveTradingName : Option[String],
                  tradingName: Option[String])
 
 case class GroupMember(names: Names,
@@ -392,6 +393,10 @@ object Names {
       } yield {
         Names(
           companyName = companyName,
+          doYouHaveTradingName = tradingName match {
+            case Some(_) => Some("Yes")
+            case None => Some("No")
+          },
           tradingName = tradingName
         )
       }
@@ -438,15 +443,15 @@ object GroupMember {
 
 }
 
-object GroupMemberDetails {
+object GroupMembers {
+  val latestModelVersion = "1.0"
+  val reader = new Reads[GroupMembers] {
 
-  val reader = new Reads[GroupMemberDetails] {
-
-    def reads(js: JsValue): JsResult[GroupMemberDetails] =
+    def reads(js: JsValue): JsResult[GroupMembers] =
       for {
-        groupMembers <- (js \ "subscriptionType" \ "groupMemberDetails" \ "groupMember").validate[List[GroupMember]](Reads.list(GroupMember.reader))
+        groupMembers <- (js \ "subscriptionType" \ "groupMembers" \ "groupMember").validate[List[GroupMember]](Reads.list(GroupMember.reader))
       } yield {
-        GroupMemberDetails(members = addAnotherGroupMember(groupMembers))
+        GroupMembers(members = addAnotherGroupMember(groupMembers))
       }
 
   }
@@ -457,7 +462,7 @@ object GroupMemberDetails {
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[GroupMemberDetails]
+  implicit val formats = Json.format[GroupMembers]
 
 }
 
@@ -889,7 +894,7 @@ case class SubscriptionTypeFrontEnd(
                                      businessRegistrationDetails: Option[BusinessRegistrationDetails],
                                      businessContacts: Option[BusinessContacts],
                                      partnership: Option[PartnerDetails],
-                                     groupMemberDetails: Option[GroupMemberDetails],
+                                     groupMemberDetails: Option[GroupMembers],
                                      additionalPremises: Option[AdditionalBusinessPremisesList],
                                      businessDirectors: Option[BusinessDirectors],
                                      tradingActivity: Option[TradingActivity],
@@ -1160,7 +1165,7 @@ object SubscriptionTypeFrontEnd {
         businessDetails <- js.validate[Option[BusinessDetails]](Reads.optionNoError(BusinessDetails.reader(legalEntity.get.legalEntity.get)))
         businessRegistrationDetails <- js.validate[Option[BusinessRegistrationDetails]](Reads.optionNoError(BusinessRegistrationDetails.reader(legalEntity.get.legalEntity.get)))
         businessContacts <- js.validate[Option[BusinessContacts]](Reads.optionNoError(BusinessContacts.reader))
-        groupMemberDetails <- js.validate[Option[GroupMemberDetails]](Reads.optionNoError(GroupMemberDetails.reader))
+        groupMemberDetails <- js.validate[Option[GroupMembers]](Reads.optionNoError(GroupMembers.reader))
         additionalPremises <- js.validate[Option[AdditionalBusinessPremisesList]](Reads.optionNoError(AdditionalBusinessPremisesList.reader))
         businessDirectors <- js.validate[Option[BusinessDirectors]](Reads.optionNoError(BusinessDirectors.reader))
         partnership <- js.validate[Option[PartnerDetails]](Reads.optionNoError(PartnerDetails.reader))

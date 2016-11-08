@@ -813,13 +813,13 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "return a list of Group members with the last group member's add another member set to No " in {
-      val groupMember = api4EtmpLTDGRPJson.as[GroupMemberDetails](GroupMemberDetails.reader)
+      val groupMember = api4EtmpLTDGRPJson.as[GroupMembers](GroupMembers.reader)
 
       groupMember.members.last.addAnotherGrpMember.get shouldBe "No"
     }
 
     "transform correctly to Group members Frontend Model for business type 'LTD' " in {
-      val groupMember = api4EtmpLTDGRPJson.as[GroupMemberDetails](GroupMemberDetails.reader)
+      val groupMember = api4EtmpLTDGRPJson.as[GroupMembers](GroupMembers.reader)
       groupMember.members.head.names.companyName.get shouldBe "ExampleName"
       groupMember.members.head.names.tradingName.get shouldBe "Example"
       groupMember.members.head.address.get.addressLine1 shouldBe "16 Example Road"
@@ -842,7 +842,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform correctly to Group members Frontend Model for business type 'LLP' " in {
-      val groupMember = api4EtmpLLPGRPJson.as[GroupMemberDetails](GroupMemberDetails.reader)
+      val groupMember = api4EtmpLLPGRPJson.as[GroupMembers](GroupMembers.reader)
       groupMember.members.head.names.companyName.get shouldBe "ExampleName"
       groupMember.members.head.names.tradingName.get shouldBe "Example"
 
@@ -887,7 +887,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val awrsFEModel = api4EtmpSOPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
 
-      awrsFEJson should not include "groupMemberDetails"
+      awrsFEJson should not include "groupMembers"
       awrsFEJson should not include "groupRepBusinessDetails"
     }
 
@@ -895,7 +895,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val awrsFEModel = api4EtmpLTDJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
 
-      awrsFEJson should not include "groupMemberDetails"
+      awrsFEJson should not include "groupMembers"
       awrsFEJson should not include "groupRepBusinessDetails"
     }
 
