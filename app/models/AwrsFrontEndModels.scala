@@ -152,14 +152,6 @@ case class BCAddress(
 
 }
 
-case class Partners(partners: List[Partner])
-
-case class Partner(firstName: String,
-                   lastName: String,
-                   isNinoPresent: Option[String],
-                   nino: Option[String],
-                   additionalPartner: Option[String])
-
 case class ChangeIndicators(businessDetailsChanged: Boolean,
                             businessAddressChanged: Boolean,
                             contactDetailsChanged: Boolean,

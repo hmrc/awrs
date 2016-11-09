@@ -440,14 +440,6 @@ trait EtmpModelHelper {
 
   def toEtmpSuppliers(st: SubscriptionTypeFrontEnd) = Json.obj("suppliers" -> toEtmpSupplier(st))
 
-  def toEtmpPartnershipName(pt: Partner): JsValue = Json.obj("firstName" -> pt.firstName, "lastName" -> pt.lastName)
-
-  def toEtmpPartner(pt: Partner): JsValue =
-    Json.obj(
-      "name" -> toEtmpPartnershipName(pt),
-      "doYouHaveNino" -> yestoTrue(pt.isNinoPresent.fold("")(x => x)))
-      .++(ifExistsThenPopulate("nino", pt.nino))
-
   def toEtmpPartnership(st: SubscriptionTypeFrontEnd) = {
     val partners = st.partnership
 
