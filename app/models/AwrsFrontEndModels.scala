@@ -442,7 +442,7 @@ object GroupMembers {
 
     def reads(js: JsValue): JsResult[GroupMembers] =
       for {
-        groupMembers <- (js \ "subscriptionType" \ "groupMembers" \ "groupMember").validate[List[GroupMember]](Reads.list(GroupMember.reader))
+        groupMembers <- (js \ "subscriptionType" \ "groupMemberDetails" \ "groupMember").validate[List[GroupMember]](Reads.list(GroupMember.reader))
       } yield {
         GroupMembers(members = addAnotherGroupMember(groupMembers))
       }
