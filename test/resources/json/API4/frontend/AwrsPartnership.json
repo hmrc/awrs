@@ -45,7 +45,7 @@
       "telephone": "07000111222"
     },
     "partnership": {
-      "partnerDetails": [
+      "partners": [
         {
           "entityType": "Individual",
           "partnerAddress": {
@@ -72,8 +72,11 @@
             "addressLine4": "Exampeshire",
             "addressCountryCode": "GB"
           },
-          "companyName": "company name",
-          "tradingName": "trading name",
+          "companyNames": {
+            "businessName": "company name",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "trading name"
+          },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
             "companyRegistrationNumber": "55555555",
@@ -95,7 +98,10 @@
             "addressLine4": "Exampeshire",
             "addressCountryCode": "GB"
           },
-          "tradingName": "trading name",
+          "companyNames": {
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "trading name"
+          },
           "firstName": "example",
           "lastName": "exampleson",
           "doYouHaveNino": "Yes",
@@ -106,7 +112,8 @@
           "utr": "$utr",
           "otherPartners": "Yes"
         }
-      ]
+      ],
+      "modelVersion" : "1.0"
     },
     "additionalPremises": {
       "premises": [

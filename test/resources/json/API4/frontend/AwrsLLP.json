@@ -51,7 +51,7 @@
       "telephone": "07000111222"
     },
     "partnership": {
-      "partnerDetails": [
+      "partners": [
         {
           "entityType": "Individual",
           "partnerAddress": {
@@ -74,7 +74,10 @@
             "postcode": "AA1 1AA",
             "countryCode": "GB"
           },
-          "companyName": "corporate company name",
+          "companyNames": {
+            "businessName": "corporate company name",
+            "doYouHaveTradingName": "No"
+          },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
             "companyRegistrationNumber": "12345678",
@@ -94,7 +97,10 @@
             "postcode": "AA1 1AA",
             "countryCode": "GB"
           },
-          "tradingName": "sole trading name",
+          "companyNames": {
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "sole trading name"
+          },
           "firstName": "sole first name",
           "lastName": "sole last name",
           "doYouHaveNino": "Yes",
@@ -105,7 +111,8 @@
           "utr": "$utr",
           "otherPartners": "Yes"
         }
-      ]
+      ],
+      "modelVersion": "1.0"
     },
     "groupMembers": {
       "numberOfGrpMembers": "1",
@@ -113,6 +120,7 @@
         {
           "companyNames": {
             "businessName": "Company Name",
+            "doYouHaveTradingName": "Yes",
             "tradingName": "Trading Name"
           },
           "companyRegDetails": {

@@ -164,151 +164,151 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform correctly to Partner Details Frontend Model for Partnership" in {
-      val partners = api4EtmpPartnershipJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpPartnershipJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails.head.entityType.get shouldBe "Individual"
-      partners.partnerDetails.head.firstName.get shouldBe "example"
-      partners.partnerDetails.head.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.head.tradingName shouldBe None
-      partners.partnerDetails.head.companyName shouldBe None
-      partners.partnerDetails.head.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.head.nino.get shouldBe testNino
-      partners.partnerDetails.head.doYouHaveUTR shouldBe None
-      partners.partnerDetails.head.utr shouldBe None
-      partners.partnerDetails.head.doYouHaveVRN shouldBe None
-      partners.partnerDetails.head.vrn shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails.head.partnerAddress.get.addressLine2 shouldBe "Exampe View"
-      partners.partnerDetails.head.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
-      partners.partnerDetails.head.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
-      partners.partnerDetails.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.head.entityType.get shouldBe "Individual"
+      partners.partners.head.firstName.get shouldBe "example"
+      partners.partners.head.lastName.get shouldBe "exampleson"
+      partners.partners.head.companyNames.fold(None: Option[String])(x => x.tradingName) shouldBe None
+      partners.partners.head.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.head.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.head.nino.get shouldBe testNino
+      partners.partners.head.doYouHaveUTR shouldBe None
+      partners.partners.head.utr shouldBe None
+      partners.partners.head.doYouHaveVRN shouldBe None
+      partners.partners.head.vrn shouldBe None
+      partners.partners.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners.head.partnerAddress.get.addressLine2 shouldBe "Exampe View"
+      partners.partners.head.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
+      partners.partners.head.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
+      partners.partners.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
 
-      partners.partnerDetails.last.entityType.get shouldBe "Sole Trader"
-      partners.partnerDetails.last.firstName.get shouldBe "example"
-      partners.partnerDetails.last.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.last.tradingName.get shouldBe "trading name"
-      partners.partnerDetails.last.companyName shouldBe None
-      partners.partnerDetails.last.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.last.nino.get shouldBe testNino
-      partners.partnerDetails.last.doYouHaveUTR.get shouldBe "Yes"
-      partners.partnerDetails.last.utr.get shouldBe testUtr
-      partners.partnerDetails.last.doYouHaveVRN.get shouldBe "Yes"
-      partners.partnerDetails.last.vrn.get shouldBe "000000000"
-      partners.partnerDetails.last.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails.last.partnerAddress.get.addressLine2 shouldBe "Exampe View"
-      partners.partnerDetails.last.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
-      partners.partnerDetails.last.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
-      partners.partnerDetails.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.last.entityType.get shouldBe "Sole Trader"
+      partners.partners.last.firstName.get shouldBe "example"
+      partners.partners.last.lastName.get shouldBe "exampleson"
+      partners.partners.last.companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
+      partners.partners.last.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.last.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.last.nino.get shouldBe testNino
+      partners.partners.last.doYouHaveUTR.get shouldBe "Yes"
+      partners.partners.last.utr.get shouldBe testUtr
+      partners.partners.last.doYouHaveVRN.get shouldBe "Yes"
+      partners.partners.last.vrn.get shouldBe "000000000"
+      partners.partners.last.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners.last.partnerAddress.get.addressLine2 shouldBe "Exampe View"
+      partners.partners.last.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
+      partners.partners.last.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
+      partners.partners.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
     }
 
     "transform correctly to Partner Details Frontend Model for Partnership when Partner is of type Corporate Body" in {
-      val partners = api4EtmpPartnershipJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpPartnershipJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails(1).entityType.get shouldBe "Corporate Body"
-      partners.partnerDetails(1).companyName.get shouldBe "company name"
-      partners.partnerDetails(1).tradingName.get shouldBe "trading name"
-      partners.partnerDetails(1).firstName shouldBe None
-      partners.partnerDetails(1).lastName shouldBe None
-      partners.partnerDetails(1).doYouHaveNino shouldBe None
-      partners.partnerDetails(1).nino shouldBe None
-      partners.partnerDetails(1).doYouHaveVRN.get shouldBe "Yes"
-      partners.partnerDetails(1).vrn.get shouldBe "000000000"
-      partners.partnerDetails(1).doYouHaveUTR.get shouldBe "Yes"
-      partners.partnerDetails(1).utr.get shouldBe testUtr
-      partners.partnerDetails(1).isBusinessIncorporated.get shouldBe "Yes"
-      partners.partnerDetails(1).companyRegDetails.get.companyRegistrationNumber shouldBe "55555555"
-      partners.partnerDetails(1).companyRegDetails.get.dateOfIncorporation shouldBe "01/01/2015"
-      partners.partnerDetails(1).partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails(1).partnerAddress.get.addressLine2 shouldBe "Exampe View"
-      partners.partnerDetails(1).partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
-      partners.partnerDetails(1).partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
-      partners.partnerDetails(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners(1).entityType.get shouldBe "Corporate Body"
+      partners.partners(1).companyNames.fold(None: Option[String])(x => x.businessName).get shouldBe "company name"
+      partners.partners(1).companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
+      partners.partners(1).firstName shouldBe None
+      partners.partners(1).lastName shouldBe None
+      partners.partners(1).doYouHaveNino shouldBe None
+      partners.partners(1).nino shouldBe None
+      partners.partners(1).doYouHaveVRN.get shouldBe "Yes"
+      partners.partners(1).vrn.get shouldBe "000000000"
+      partners.partners(1).doYouHaveUTR.get shouldBe "Yes"
+      partners.partners(1).utr.get shouldBe testUtr
+      partners.partners(1).isBusinessIncorporated.get shouldBe "Yes"
+      partners.partners(1).companyRegDetails.get.companyRegistrationNumber shouldBe "55555555"
+      partners.partners(1).companyRegDetails.get.dateOfIncorporation shouldBe "01/01/2015"
+      partners.partners(1).partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners(1).partnerAddress.get.addressLine2 shouldBe "Exampe View"
+      partners.partners(1).partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
+      partners.partners(1).partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
+      partners.partners(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
     }
 
     "transform correctly to Partner Details Frontend Model for LLP" in {
-      val partners = api4EtmpLLPJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpLLPJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails.head.entityType.get shouldBe "Individual"
-      partners.partnerDetails.head.firstName.get shouldBe "example"
-      partners.partnerDetails.head.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.head.tradingName shouldBe None
-      partners.partnerDetails.head.companyName shouldBe None
-      partners.partnerDetails.head.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.head.nino.get shouldBe testNino
-      partners.partnerDetails.head.doYouHaveUTR shouldBe None
-      partners.partnerDetails.head.utr shouldBe None
-      partners.partnerDetails.head.doYouHaveVRN shouldBe None
-      partners.partnerDetails.head.vrn shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails.head.partnerAddress.get.addressLine2 shouldBe "Exampletown"
-      partners.partnerDetails.head.partnerAddress.get.addressLine3 shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.addressLine4 shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.head.entityType.get shouldBe "Individual"
+      partners.partners.head.firstName.get shouldBe "example"
+      partners.partners.head.lastName.get shouldBe "exampleson"
+      partners.partners.head.companyNames.fold(None: Option[String])(x => x.tradingName) shouldBe None
+      partners.partners.head.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.head.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.head.nino.get shouldBe testNino
+      partners.partners.head.doYouHaveUTR shouldBe None
+      partners.partners.head.utr shouldBe None
+      partners.partners.head.doYouHaveVRN shouldBe None
+      partners.partners.head.vrn shouldBe None
+      partners.partners.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners.head.partnerAddress.get.addressLine2 shouldBe "Exampletown"
+      partners.partners.head.partnerAddress.get.addressLine3 shouldBe None
+      partners.partners.head.partnerAddress.get.addressLine4 shouldBe None
+      partners.partners.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
 
-      partners.partnerDetails.last.entityType.get shouldBe "Sole Trader"
-      partners.partnerDetails.last.firstName.get shouldBe "example"
-      partners.partnerDetails.last.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.last.tradingName.get shouldBe "trading name"
-      partners.partnerDetails.last.companyName shouldBe None
-      partners.partnerDetails.last.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.last.nino.get shouldBe testNino
-      partners.partnerDetails.last.doYouHaveUTR.get shouldBe "No"
-      partners.partnerDetails.last.utr shouldBe None
-      partners.partnerDetails.last.doYouHaveVRN.get shouldBe "No"
-      partners.partnerDetails.last.vrn shouldBe None
-      partners.partnerDetails.last.partnerAddress.get.addressLine1 shouldBe "2 Example Street"
-      partners.partnerDetails.last.partnerAddress.get.addressLine2 shouldBe "Exampletown"
-      partners.partnerDetails.last.partnerAddress.get.addressLine3 shouldBe None
-      partners.partnerDetails.last.partnerAddress.get.addressLine4 shouldBe None
-      partners.partnerDetails.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.last.entityType.get shouldBe "Sole Trader"
+      partners.partners.last.firstName.get shouldBe "example"
+      partners.partners.last.lastName.get shouldBe "exampleson"
+      partners.partners.last.companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
+      partners.partners.last.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.last.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.last.nino.get shouldBe testNino
+      partners.partners.last.doYouHaveUTR.get shouldBe "No"
+      partners.partners.last.utr shouldBe None
+      partners.partners.last.doYouHaveVRN.get shouldBe "No"
+      partners.partners.last.vrn shouldBe None
+      partners.partners.last.partnerAddress.get.addressLine1 shouldBe "2 Example Street"
+      partners.partners.last.partnerAddress.get.addressLine2 shouldBe "Exampletown"
+      partners.partners.last.partnerAddress.get.addressLine3 shouldBe None
+      partners.partners.last.partnerAddress.get.addressLine4 shouldBe None
+      partners.partners.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
     }
 
     "transform correctly to Partner Details Frontend Model for LLP when Partner is of type Corporate Body" in {
-      val partners = api4EtmpLLPJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpLLPJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails(1).entityType.get shouldBe "Corporate Body"
-      partners.partnerDetails(1).companyName.get shouldBe "company name"
-      partners.partnerDetails(1).tradingName.get shouldBe "trading name"
-      partners.partnerDetails(1).firstName shouldBe None
-      partners.partnerDetails(1).lastName shouldBe None
-      partners.partnerDetails(1).doYouHaveNino shouldBe None
-      partners.partnerDetails(1).nino shouldBe None
-      partners.partnerDetails(1).doYouHaveVRN.get shouldBe "No"
-      partners.partnerDetails(1).vrn shouldBe None
-      partners.partnerDetails(1).doYouHaveUTR.get shouldBe "No"
-      partners.partnerDetails(1).utr shouldBe None
-      partners.partnerDetails(1).isBusinessIncorporated.get shouldBe "Yes"
-      partners.partnerDetails(1).companyRegDetails.get.companyRegistrationNumber shouldBe "12345678"
-      partners.partnerDetails(1).companyRegDetails.get.dateOfIncorporation shouldBe "30/10/2010"
-      partners.partnerDetails(1).partnerAddress.get.addressLine1 shouldBe "address line 1"
-      partners.partnerDetails(1).partnerAddress.get.addressLine2 shouldBe "address line 2"
-      partners.partnerDetails(1).partnerAddress.get.addressLine3.get shouldBe "address line 3"
-      partners.partnerDetails(1).partnerAddress.get.addressLine4 shouldBe None
-      partners.partnerDetails(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners(1).entityType.get shouldBe "Corporate Body"
+      partners.partners(1).companyNames.fold(None: Option[String])(x => x.businessName).get shouldBe "company name"
+      partners.partners(1).companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
+      partners.partners(1).firstName shouldBe None
+      partners.partners(1).lastName shouldBe None
+      partners.partners(1).doYouHaveNino shouldBe None
+      partners.partners(1).nino shouldBe None
+      partners.partners(1).doYouHaveVRN.get shouldBe "No"
+      partners.partners(1).vrn shouldBe None
+      partners.partners(1).doYouHaveUTR.get shouldBe "No"
+      partners.partners(1).utr shouldBe None
+      partners.partners(1).isBusinessIncorporated.get shouldBe "Yes"
+      partners.partners(1).companyRegDetails.get.companyRegistrationNumber shouldBe "12345678"
+      partners.partners(1).companyRegDetails.get.dateOfIncorporation shouldBe "30/10/2010"
+      partners.partners(1).partnerAddress.get.addressLine1 shouldBe "address line 1"
+      partners.partners(1).partnerAddress.get.addressLine2 shouldBe "address line 2"
+      partners.partners(1).partnerAddress.get.addressLine3.get shouldBe "address line 3"
+      partners.partners(1).partnerAddress.get.addressLine4 shouldBe None
+      partners.partners(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
     }
 
     "transform correctly to Business Directors Frontend Model " in {
@@ -681,15 +681,17 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "For LLP/LP transform correct Partnership Details JSON element to AWRS Partnership Details JSON element" in {
-      val awrsFEModel = api4EtmpLLPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val awrsFEJson = Json.toJson(awrsFEModel)
-      awrsFEJson shouldBe api5FrontendLLPJson
+      val modelFromEtmp = api4EtmpLLPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
+      val modelFromFE = api5FrontendLLPJson.as[AWRSFEModel]
+
+      Json.toJson(modelFromEtmp) shouldBe Json.toJson(modelFromFE)
     }
 
     "For Partnership transform correct Partnership Details JSON element to AWRS Partnership Details JSON element" in {
-      val awrsFEModel = api4EtmpPartnershipJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val awrsFEJson = Json.toJson(awrsFEModel)
-      awrsFEJson shouldBe api5FrontendPartnershipJson
+      val modelFromEtmp = api4EtmpPartnershipJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
+      val modelFromFE = api5FrontendPartnershipJson.as[AWRSFEModel]
+
+      Json.toJson(modelFromEtmp) shouldBe Json.toJson(modelFromFE)
     }
 
     "For Sole Trader transform correct declaration JSON element when useAlternateContactAddress -> true " in {

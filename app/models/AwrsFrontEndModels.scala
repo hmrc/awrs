@@ -93,21 +93,20 @@ case class AdditionalBusinessPremises(additionalPremises: Option[String],
 
 case class AdditionalBusinessPremisesList(premises: List[AdditionalBusinessPremises])
 
-case class PartnerDetail(entityType: Option[String],
-                         partnerAddress: Option[Address],
-                         firstName: Option[String],
-                         lastName: Option[String],
-                         doYouHaveNino: Option[String],
-                         nino: Option[String],
-                         companyName: Option[String],
-                         tradingName: Option[String],
-                         isBusinessIncorporated: Option[String],
-                         companyRegDetails: Option[CompanyRegDetails],
-                         doYouHaveVRN: Option[String],
-                         vrn: Option[String],
-                         doYouHaveUTR: Option[String],
-                         utr: Option[String],
-                         otherPartners: Option[String]) extends CorpNumbersType with IndividualIdNumbersType with IncorporationDetails
+case class Partner(entityType: Option[String],
+                   firstName: Option[String],
+                   lastName: Option[String],
+                   companyNames: Option[CompanyNames] = None,
+                   partnerAddress: Option[Address],
+                   doYouHaveNino: Option[String],
+                   nino: Option[String],
+                   doYouHaveUTR: Option[String],
+                   utr: Option[String],
+                   isBusinessIncorporated: Option[String],
+                   companyRegDetails: Option[CompanyRegDetails],
+                   doYouHaveVRN: Option[String],
+                   vrn: Option[String],
+                   otherPartners: Option[String]) extends CorpNumbersType with IndividualIdNumbersType with IncorporationDetails
 
 case class CompanyRegDetails(companyRegistrationNumber: String, dateOfIncorporation: String)
 
@@ -526,9 +525,9 @@ object AdditionalBusinessPremisesList {
 
 }
 
-object PartnerDetail {
+object Partner {
 
-  val reader = new Reads[PartnerDetail] {
+  val reader = new Reads[Partner] {
 
     def toPartnerDetail(entityType: Option[String],
                         partnerAddress: Option[Address],
@@ -545,15 +544,29 @@ object PartnerDetail {
                         doYouHaveUTR: Option[String],
                         utr: Option[String],
                         otherPartners: Option[String]) =
-      PartnerDetail(
+      Partner(
         entityType = entityType,
         partnerAddress = partnerAddress,
         firstName = firstName,
         lastName = lastName,
         doYouHaveNino = doYouHaveNino,
         nino = nino,
-        companyName = companyName,
-        tradingName = tradingName,
+        companyNames = {
+          (companyName, tradingName) match {
+            case (None, None) => None
+            case (cn, tn) =>
+              Some(
+                CompanyNames(
+                  cn,
+                  doYouHaveTradingName = tradingName match {
+                    case Some(_) => Some("Yes")
+                    case None => Some("No")
+                  },
+                  tn
+                )
+              )
+          }
+        },
         isBusinessIncorporated = isBusinessIncorporated,
         companyRegDetails = companyRegDetails,
         doYouHaveVRN = doYouHaveVRN,
@@ -563,7 +576,7 @@ object PartnerDetail {
         otherPartners = otherPartners
       )
 
-    def reads(js: JsValue): JsResult[PartnerDetail] =
+    def reads(js: JsValue): JsResult[Partner] =
       for {
         entityType <- (js \ "entityType").validate[Option[String]]
         partnerAddress <- (js \ "partnerAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
@@ -604,7 +617,7 @@ object PartnerDetail {
 
   }
 
-  implicit val formats: Format[PartnerDetail] = Json.format[PartnerDetail]
+  implicit val formats: Format[Partner] = Json.format[Partner]
 
 }
 
@@ -780,28 +793,32 @@ object BusinessType {
 
 }
 
-case class PartnerDetails(partnerDetails: List[PartnerDetail])
+case class Partners(partners: List[Partner],
+                    modelVersion: String = Partners.latestModelVersion
+                   ) extends ModelVersionControl
 
-object PartnerDetails {
+object Partners {
 
-  val reader = new Reads[PartnerDetails] {
+  val latestModelVersion = "1.0"
 
-    def reads(js: JsValue): JsResult[PartnerDetails] =
+  val reader = new Reads[Partners] {
+
+    def reads(js: JsValue): JsResult[Partners] =
       for {
-        partnerDetails <- (js \ "subscriptionType" \ "businessDetails" \ "partnership" \ "partnerDetails").validate[List[PartnerDetail]](Reads.list(PartnerDetail.reader))
+        partnerDetails <- (js \ "subscriptionType" \ "businessDetails" \ "partnership" \ "partnerDetails").validate[List[Partner]](Reads.list(Partner.reader))
       } yield {
-        PartnerDetails(partnerDetails = isAdditionalPartner(partnerDetails))
+        Partners(partners = isAdditionalPartner(partnerDetails))
       }
 
   }
 
-  def isAdditionalPartner(partnerDetails: List[PartnerDetail]): List[PartnerDetail] =
+  def isAdditionalPartner(partnerDetails: List[Partner]): List[Partner] =
     partnerDetails.zipWithIndex.map {
       case (x, i) if i == (partnerDetails.size - 1) => x.copy(otherPartners = Some("No"))
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[PartnerDetails]
+  implicit val formats = Json.format[Partners]
 
 }
 
@@ -887,7 +904,7 @@ case class SubscriptionTypeFrontEnd(
                                      businessDetails: Option[BusinessDetails],
                                      businessRegistrationDetails: Option[BusinessRegistrationDetails],
                                      businessContacts: Option[BusinessContacts],
-                                     partnership: Option[PartnerDetails],
+                                     partnership: Option[Partners],
                                      groupMembers: Option[GroupMembers],
                                      additionalPremises: Option[AdditionalBusinessPremisesList],
                                      businessDirectors: Option[BusinessDirectors],
@@ -1162,7 +1179,7 @@ object SubscriptionTypeFrontEnd {
         groupMemberDetails <- js.validate[Option[GroupMembers]](Reads.optionNoError(GroupMembers.reader))
         additionalPremises <- js.validate[Option[AdditionalBusinessPremisesList]](Reads.optionNoError(AdditionalBusinessPremisesList.reader))
         businessDirectors <- js.validate[Option[BusinessDirectors]](Reads.optionNoError(BusinessDirectors.reader))
-        partnership <- js.validate[Option[PartnerDetails]](Reads.optionNoError(PartnerDetails.reader))
+        partnership <- js.validate[Option[Partners]](Reads.optionNoError(Partners.reader))
         tradingActivity <- js.validate[Option[TradingActivity]](Reads.optionNoError(TradingActivity.reader))
         products <- js.validate[Option[Products]](Reads.optionNoError(Products.reader))
         suppliers <- js.validate[Option[Suppliers]](Reads.optionNoError(Suppliers.reader))

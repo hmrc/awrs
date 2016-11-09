@@ -161,14 +161,14 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("businessDirectors" ->
             Json.obj("directors" -> Json.arr(Json.obj(
-            "directorsAndCompanySecretaries" -> "Director",
-            "personOrCompany" -> "person",
-             "firstName" -> "Example",
+              "directorsAndCompanySecretaries" -> "Director",
+              "personOrCompany" -> "person",
+              "firstName" -> "Example",
               "lastName" -> "Exampleson",
               "doTheyHaveNationalInsurance" -> "Yes",
               "passportNumber" -> "0987654321",
               "otherDirectors" -> "No"))
-          ))),
+            ))),
         deletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
@@ -189,13 +189,13 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("businessDirectors" ->
             Json.obj("directors" -> Json.arr(Json.obj(
-             "directorsAndCompanySecretaries" -> "Director",
+              "directorsAndCompanySecretaries" -> "Director",
               "personOrCompany" -> "person",
               "firstName" -> "Example",
               "lastName" -> "Exampleson",
               "doTheyHaveNationalInsurance" -> "Yes",
               "otherDirectors" -> "No"))
-          ))),
+            ))),
         deletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
@@ -271,12 +271,12 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
     "transform correctly to valid SubscriptionType Object with nino not present for Individual partnership" in {
 
-      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partnerDetails", api4FrontendPartnershipString)
+      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partners", api4FrontendPartnershipString)
 
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("partnership" -> Json.
-            obj("partnerDetails" -> Json.arr(Json.obj()
+            obj("partners" -> Json.arr(Json.obj()
               .++(Json.obj("entityType" -> "Individual"))
               .++(Json.obj("partnerAddress" -> Json.
                 obj("postcode" -> "AA1 1AA")
@@ -301,12 +301,12 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
     "transform correctly to valid SubscriptionType Object with company Reg Details not present for Corporate Body partnership" in {
 
-      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partnerDetails", api4FrontendPartnershipString)
+      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partners", api4FrontendPartnershipString)
 
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("partnership" -> Json.
-            obj("partnerDetails" -> Json.arr(Json.obj()
+            obj("partners" -> Json.arr(Json.obj()
               .++(Json.obj("entityType" -> "Corporate Body"))
               .++(Json.obj("partnerAddress" -> Json.
                 obj("postcode" -> "AA1 1AA")
@@ -316,7 +316,12 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
                 .++(Json.obj("addressLine4" -> "address line 4"))
                 .++(Json.obj("countryCode" -> "GB"))
               ))
-              .++(Json.obj("companyName" -> "company Name"))
+              .++(Json.obj(
+                "companyNames" -> Json.obj(
+                  "businessName" -> "company Name",
+                  "doYouHaveTradingName" -> "Yes",
+                  "tradingName" -> "trading Name")
+              ))
               .++(Json.obj("tradingName" -> "trading Name"))
               .++(Json.obj("doYouHaveVRN" -> "No"))
               .++(Json.obj("doYouHaveUTR" -> "No"))

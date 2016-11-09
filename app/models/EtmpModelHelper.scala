@@ -132,8 +132,8 @@ trait EtmpModelHelper {
     val identification = identificationIndividualIdNumbersType(businessRegistrationDetails)
     val soleTrader =
       ifExistsThenPopulate("tradingName", soleTraderBusinessDetails.tradingName) ++
-      Json.obj(
-        "identification" -> identification)
+        Json.obj(
+          "identification" -> identification)
 
     Json.obj(ProprietorType.soleTrader -> soleTrader)
   }
@@ -150,8 +150,8 @@ trait EtmpModelHelper {
       }
     val nonProprietor =
       ifExistsThenPopulate("tradingName", businessDetails.tradingName) ++
-      Json.obj(
-        "identification" -> identification)
+        Json.obj(
+          "identification" -> identification)
 
     Json.obj(ProprietorType.nonProprietor -> nonProprietor)
       .++(partnership)
@@ -447,22 +447,22 @@ trait EtmpModelHelper {
       case None => Json.obj("numberOfPartners" -> "0")
       case _ =>
         Json.obj(
-          "numberOfPartners" -> partners.reduceLeft((x, y) => x).partnerDetails.size.toString,
-          "partnerDetails" -> toEtmpPartnerDetail(partners.get.partnerDetails))
+          "numberOfPartners" -> partners.reduceLeft((x, y) => x).partners.size.toString,
+          "partnerDetails" -> toEtmpPartnerDetail(partners.get.partners))
     }
   }
 
-  def toEtmpPartnerDetail(partnerDetail: List[PartnerDetail]): JsValue =
+  def toEtmpPartnerDetail(partnerDetail: List[Partner]): JsValue =
     JsArray(partnerDetail map (x => buildPartnersArray(x)))
 
-  def buildPartnersArray(partnerDetail: PartnerDetail): JsValue =
+  def buildPartnersArray(partnerDetail: Partner): JsValue =
     partnerDetail.entityType match {
       case Some("Individual") => toEtmpPartnerDetailsIndividual(partnerDetail)
       case Some("Corporate Body") => toEtmpPartnerDetailsCompany(partnerDetail)
       case Some("Sole Trader") => toEtmpPartnerDetailsSoleTrader(partnerDetail)
     }
 
-  def toEtmpPartnerDetailsIndividual(partnerDetail: PartnerDetail) = {
+  def toEtmpPartnerDetailsIndividual(partnerDetail: Partner) = {
     val name = Json.obj("firstName" -> partnerDetail.firstName, "lastName" -> partnerDetail.lastName)
     val individual =
       Json.obj(
@@ -476,8 +476,9 @@ trait EtmpModelHelper {
       "individual" -> individual)
   }
 
-  def toEtmpPartnerDetailsCompany(partnerDetail: PartnerDetail) = {
-    val names = ifExistsThenPopulate("companyName", partnerDetail.companyName) ++ ifExistsThenPopulate("tradingName", partnerDetail.tradingName)
+  def toEtmpPartnerDetailsCompany(partnerDetail: Partner) = {
+    val names = ifExistsThenPopulate("companyName", partnerDetail.companyNames.fold(None: Option[String])(x => x.businessName)) ++
+      ifExistsThenPopulate("tradingName", partnerDetail.companyNames.fold(None: Option[String])(x => x.tradingName))
     val incorporationDetails = identificationIncorporationDetails(partnerDetail)
     val identification = identificationCorpNumbersType(partnerDetail)
 
@@ -489,11 +490,11 @@ trait EtmpModelHelper {
       "incorporationDetails" -> incorporationDetails)
   }
 
-  def toEtmpPartnerDetailsSoleTrader(partnerDetail: PartnerDetail) = {
+  def toEtmpPartnerDetailsSoleTrader(partnerDetail: Partner) = {
     val name = ifExistsThenPopulate("firstName", partnerDetail.firstName) ++ ifExistsThenPopulate("lastName", partnerDetail.lastName)
     val identification = identificationCorpNumbersType(partnerDetail)
     val soleProprietor =
-      partnerDetail.tradingName.fold(Json.obj())(x => Json.obj("tradingName" -> x))
+      partnerDetail.companyNames.fold(Json.obj())(x => x.tradingName.fold(Json.obj())(y => Json.obj("tradingName" -> y)))
         .++(Json.obj(
           "name" -> name,
           "doYouHaveNino" -> yestoTrue(partnerDetail.doYouHaveNino.fold("")(x => x))))
