@@ -111,8 +111,8 @@
       "numberOfGrpMembers": "1",
       "members": [
         {
-          "names": {
-            "companyName": "Company Name",
+          "companyNames": {
+            "businessName": "Company Name",
             "tradingName": "Trading Name"
           },
           "companyRegDetails": {

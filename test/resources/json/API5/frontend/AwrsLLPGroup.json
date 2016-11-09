@@ -67,8 +67,8 @@
     "groupMembers": {
       "members": [
         {
-          "names": {
-            "companyName": "ExampleName",
+          "companyNames": {
+            "businessName": "ExampleName",
             "doYouHaveTradingName":"Yes",
             "tradingName": "Example"
           },
@@ -84,8 +84,8 @@
           "addAnotherGrpMember": "Yes"
         },
         {
-          "names": {
-            "companyName": "Another Example",
+          "companyNames": {
+            "businessName": "Another Example",
             "doYouHaveTradingName":"Yes",
             "tradingName": "Example Trade"
           },

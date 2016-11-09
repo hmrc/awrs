@@ -52,10 +52,10 @@
     "groupMembers": {
       "members": [
         {
-          "names": {
+          "companyNames": {
             "tradingName": "Trading name",
             "doYouHaveTradingName":"Yes",
-            "companyName": "Example and Co"
+            "businessName": "Example and Co"
           },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
@@ -73,8 +73,8 @@
           "utr": "$utr"
         },
         {
-          "names": {
-            "companyName": "Example and Co",
+          "companyNames": {
+            "businessName": "Example and Co",
             "doYouHaveTradingName":"No"
           },
           "isBusinessIncorporated": "Yes",

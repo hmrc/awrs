@@ -179,11 +179,11 @@ case class GroupMembers(members: List[GroupMember],
                         modelVersion: String = GroupMembers.latestModelVersion
                        ) extends ModelVersionControl
 
-case class Names(companyName: Option[String],
-                 doYouHaveTradingName: Option[String],
-                 tradingName: Option[String])
+case class CompanyNames(businessName: Option[String],
+                        doYouHaveTradingName: Option[String],
+                        tradingName: Option[String])
 
-case class GroupMember(names: Names,
+case class GroupMember(companyNames: CompanyNames,
                        isBusinessIncorporated: Option[String],
                        companyRegDetails: Option[CompanyRegDetails],
                        address: Option[Address],
@@ -384,17 +384,17 @@ object BusinessRegistrationDetails {
 
 }
 
-object Names {
+object CompanyNames {
 
-  val reader = new Reads[Names] {
+  val reader = new Reads[CompanyNames] {
 
-    def reads(js: JsValue): JsResult[Names] =
+    def reads(js: JsValue): JsResult[CompanyNames] =
       for {
         companyName <- (js \ "companyName").validate[Option[String]]
         tradingName <- (js \ "tradingName").validate[Option[String]]
       } yield {
-        Names(
-          companyName = companyName,
+        CompanyNames(
+          businessName = companyName,
           doYouHaveTradingName = tradingName match {
             case Some(_) => Some("Yes")
             case None => Some("No")
@@ -405,7 +405,7 @@ object Names {
 
   }
 
-  implicit val formats = Json.format[Names]
+  implicit val formats = Json.format[CompanyNames]
 
 }
 
@@ -415,7 +415,7 @@ object GroupMember {
 
     def reads(js: JsValue): JsResult[GroupMember] =
       for {
-        names <- (js \ "names").validate[Names](Names.reader)
+        names <- (js \ "names").validate[CompanyNames](CompanyNames.reader)
         isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validate[Option[Boolean]]
         companyRegDetails <- (js \ "incorporationDetails").validate[Option[CompanyRegDetails]](Reads.optionNoError(CompanyRegDetails.reader))
         groupJoiningDate <- (js \ "groupJoiningDate").validate[String]
@@ -426,7 +426,7 @@ object GroupMember {
         utr <- (js \ "identification" \ "utr").validate[Option[String]]
       } yield {
         GroupMember(
-          names = names,
+          companyNames = names,
           isBusinessIncorporated = booleanToString(isBusinessIncorporated.fold(false)(x => x)),
           companyRegDetails = companyRegDetails,
           address = address,

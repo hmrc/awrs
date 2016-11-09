@@ -820,8 +820,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
     "transform correctly to Group members Frontend Model for business type 'LTD' " in {
       val groupMember = api4EtmpLTDGRPJson.as[GroupMembers](GroupMembers.reader)
-      groupMember.members.head.names.companyName.get shouldBe "ExampleName"
-      groupMember.members.head.names.tradingName.get shouldBe "Example"
+      groupMember.members.head.companyNames.businessName.get shouldBe "ExampleName"
+      groupMember.members.head.companyNames.tradingName.get shouldBe "Example"
       groupMember.members.head.address.get.addressLine1 shouldBe "16 Example Road"
       groupMember.members.head.address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members.head.address.get.postcode.get shouldBe "AA1 1AA"
@@ -833,8 +833,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       groupMember.members.head.isBusinessIncorporated.get shouldBe "No"
 
-      groupMember.members(1).names.companyName.get shouldBe "Another Example"
-      groupMember.members(1).names.tradingName.get shouldBe "Example Trade"
+      groupMember.members(1).companyNames.businessName.get shouldBe "Another Example"
+      groupMember.members(1).companyNames.tradingName.get shouldBe "Example Trade"
       groupMember.members(1).address.get.addressLine1 shouldBe "22 Example Road"
       groupMember.members(1).address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members(1).address.get.postcode.get shouldBe "AA1 1AA"
@@ -843,8 +843,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
     "transform correctly to Group members Frontend Model for business type 'LLP' " in {
       val groupMember = api4EtmpLLPGRPJson.as[GroupMembers](GroupMembers.reader)
-      groupMember.members.head.names.companyName.get shouldBe "ExampleName"
-      groupMember.members.head.names.tradingName.get shouldBe "Example"
+      groupMember.members.head.companyNames.businessName.get shouldBe "ExampleName"
+      groupMember.members.head.companyNames.tradingName.get shouldBe "Example"
 
       groupMember.members.head.doYouHaveUTR.get shouldBe "No"
 
@@ -857,8 +857,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       groupMember.members.head.address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members.head.address.get.postcode.get shouldBe "AA1 1AA"
 
-      groupMember.members(1).names.companyName.get shouldBe "Another Example"
-      groupMember.members(1).names.tradingName.get shouldBe "Example Trade"
+      groupMember.members(1).companyNames.businessName.get shouldBe "Another Example"
+      groupMember.members(1).companyNames.tradingName.get shouldBe "Example Trade"
       groupMember.members(1).address.get.addressLine1 shouldBe "22 Example Road"
       groupMember.members(1).address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members(1).address.get.postcode.get shouldBe "AA1 1AA"

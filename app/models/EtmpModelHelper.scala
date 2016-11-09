@@ -186,7 +186,7 @@ trait EtmpModelHelper {
 
   def toEtmpGroupMember(groupMember: GroupMember): JsValue = {
     val names =
-      ifExistsThenPopulate("companyName", groupMember.names.companyName) ++ ifExistsThenPopulate("tradingName", groupMember.names.tradingName)
+      ifExistsThenPopulate("companyName", groupMember.companyNames.businessName) ++ ifExistsThenPopulate("tradingName", groupMember.companyNames.tradingName)
     val incorporationDetails = identificationIncorporationDetails(groupMember)
     val identification = identificationCorpNumbersType(groupMember)
 
