@@ -55,26 +55,27 @@ sealed trait IncorporationDetails {
   def companyRegDetails: Option[CompanyRegDetails]
 }
 
-case class BusinessDirector(directorsAndCompanySecretaries: String,
-                            personOrCompany: String,
-                            firstName: Option[String],
-                            lastName: Option[String],
-                            doTheyHaveNationalInsurance: Option[String],
-                            nino: Option[String],
-                            passportNumber: Option[String],
-                            nationalID: Option[String],
-                            otherDirectors: Option[String],
-                            companyName: Option[String],
-                            doYouHaveTradingName: Option[String],
-                            tradingName: Option[String],
-                            doYouHaveVRN: Option[String],
-                            vrn: Option[String],
-                            doYouHaveCRN: Option[String],
-                            companyRegNumber: Option[String],
-                            doYouHaveUTR: Option[String],
-                            utr: Option[String]) extends CorpNumbersWithCRNType
+case class BusinessDirector(personOrCompany: String,
+                            firstName: Option[String] = None,
+                            lastName: Option[String] = None,
+                            doTheyHaveNationalInsurance: Option[String] = None,
+                            nino: Option[String] = None,
+                            passportNumber: Option[String] = None,
+                            nationalID: Option[String] = None,
+                            companyNames: Option[CompanyNames] = None,
+                            doYouHaveUTR: Option[String] = None,
+                            utr: Option[String] = None,
+                            doYouHaveCRN: Option[String] = None,
+                            companyRegNumber: Option[String] = None,
+                            doYouHaveVRN: Option[String] = None,
+                            vrn: Option[String] = None,
+                            directorsAndCompanySecretaries: String,
+                            otherDirectors: Option[String] = None
+                           ) extends CorpNumbersWithCRNType
 
-case class BusinessDirectors(directors: List[BusinessDirector])
+case class BusinessDirectors(directors: List[BusinessDirector],
+                             modelVersion: String = BusinessDirectors.latestModelVersion
+                            ) extends ModelVersionControl
 
 case class Supplier(alcoholSuppliers: Option[String],
                     supplierName: Option[String],
@@ -555,8 +556,8 @@ object Partner {
           (companyName, tradingName) match {
             case (None, None) =>
               entityType match {
-                  // for sole traders only trading name is checked and it is an optional field
-                  // so return the inference of no based on its sole existence
+                // for sole traders only trading name is checked and it is an optional field
+                // so return the inference of no based on its sole existence
                 case Some(PartnerDetailType.Sole_Trader) =>
                   Some(
                     CompanyNames(
@@ -647,7 +648,7 @@ object BusinessDirector {
         passportNumber <- (js \ "individual" \ "identification" \ "passportNumber").validate[Option[String]]
         nationalID <- (js \ "individual" \ "identification" \ "nationalIdNumber").validate[Option[String]]
         companyStatus <- (js \ "company" \ "status").validate[Option[String]]
-        companyName <- (js \ "company" \ "names" \ "companyName").validate[Option[String]]
+        businessName <- (js \ "company" \ "names" \ "companyName").validate[Option[String]]
         tradingName <- (js \ "company" \ "names" \ "tradingName").validate[Option[String]]
         doYouHaveVRN <- (js \ "company" \ "identification" \ "doYouHaveVRN").validate[Option[Boolean]]
         vrn <- (js \ "company" \ "identification" \ "vrn").validate[Option[String]]
@@ -661,6 +662,21 @@ object BusinessDirector {
           case (_, Some(status)) => (status, "company")
           case _ => throw new RuntimeException("Etmp BusinessDirectors read error, neither individualStatus nor companyStatus are present")
         }
+        val companyNames =
+          (businessName, tradingName) match {
+            case (None, None) => None
+            case _ =>
+              Some(CompanyNames(
+                businessName = businessName,
+                doYouHaveTradingName = {
+                  tradingName match {
+                    case Some(_) => Some("Yes")
+                    case _ => Some("No")
+                  }
+                },
+                tradingName = tradingName))
+          }
+
         BusinessDirector(
           directorsAndCompanySecretaries = directorsAndCompanySecretaries,
           personOrCompany = personOrCompany,
@@ -671,12 +687,7 @@ object BusinessDirector {
           passportNumber = passportNumber,
           nationalID = nationalID,
           otherDirectors = Some("Yes"),
-          companyName = companyName,
-          doYouHaveTradingName = tradingName match {
-            case Some(_) => Some("Yes")
-            case None => Some("No")
-          },
-          tradingName = tradingName,
+          companyNames = companyNames,
           doYouHaveVRN = if (companyStatus.nonEmpty) booleanToString(doYouHaveVRN.fold(false)(x => x)) else None,
           vrn = vrn,
           doYouHaveCRN = if (companyStatus.nonEmpty) booleanToString(doYouHaveCRN.fold(false)(x => x)) else None,
@@ -693,6 +704,8 @@ object BusinessDirector {
 
 
 object BusinessDirectors {
+
+  val latestModelVersion = "1.0"
 
   val reader = new Reads[BusinessDirectors] {
 

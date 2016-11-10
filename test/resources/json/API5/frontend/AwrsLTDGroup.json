@@ -114,15 +114,18 @@
           "directorsAndCompanySecretaries": "Director",
           "personOrCompany": "company",
           "otherDirectors": "No",
-          "companyName": "Example Company",
-          "doYouHaveTradingName": "Yes",
-          "tradingName": "Example Name",
+          "companyNames": {
+            "businessName": "Example Company",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "Example Name"
+          },
           "doYouHaveVRN": "Yes",
           "vrn": "000000000",
           "doYouHaveCRN": "No",
           "doYouHaveUTR": "No"
         }
-      ]
+      ],
+      "modelVersion" : "1.0"
     },
     "tradingActivity": {
       "wholesalerType": [

@@ -556,7 +556,8 @@ trait EtmpModelHelper {
   }
 
   def toEtmpCoOfficialCompanyDetails(coOfficial: BusinessDirector): JsValue = {
-    val names = ifExistsThenPopulate("companyName", coOfficial.companyName) ++ ifExistsThenPopulate("tradingName", coOfficial.tradingName)
+    val names = ifExistsThenPopulate("companyName", coOfficial.companyNames.fold(None: Option[String])(x => x.businessName)) ++
+      ifExistsThenPopulate("tradingName", coOfficial.companyNames.fold(None: Option[String])(x => x.tradingName))
     val identification = identificationCorpNumbersWithCRNType(coOfficial)
 
     val company =

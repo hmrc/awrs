@@ -319,8 +319,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       directors.directors.head.lastName.get shouldBe "Exampleson"
       directors.directors.last.directorsAndCompanySecretaries shouldBe "Director"
       directors.directors.last.personOrCompany shouldBe "company"
-      directors.directors.last.companyName.get shouldBe "Company name"
-      directors.directors.last.tradingName.get shouldBe "Trading name"
+      directors.directors.last.companyNames.get.businessName.get shouldBe "Company name"
+      directors.directors.last.companyNames.get.tradingName.get shouldBe "Trading name"
       directors.directors.last.doYouHaveVRN.get shouldBe "No"
       directors.directors.last.doYouHaveUTR.get shouldBe "Yes"
       directors.directors.last.utr.get shouldBe testUtr
