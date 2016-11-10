@@ -181,7 +181,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
   "toEtmpGroupMember method of EtmpModelHelper " should {
     "transform to correct JSON element and give correct group members" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.head).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head).toString()
       etmpJson should include("names")
       etmpJson should include("tradingName")
       etmpJson should include("incorporationDetails")
@@ -191,25 +191,25 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
       etmpJson should include("doYouHaveUTR")
     }
 
-    "transform to correct JSON element and give correct group members without trading name" in {
+    "transform to correct JSON element and give correct group members with trading name" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.head).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head).toString()
       etmpJson should include("names")
-      etmpJson should not include ("companyName")
+      etmpJson should include("companyName")
       etmpJson should include("tradingName")
     }
 
-    "transform to correct JSON element and give correct group members without company name" in {
+    "transform to correct JSON element and give correct group members without trading name" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.last).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.last).toString()
       etmpJson should include("names")
-      etmpJson should not include ("tradingName")
       etmpJson should include("companyName")
+      etmpJson should not include ("tradingName")
     }
 
     "transform to correct JSON element and give correct group members (actual output)" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMemberDetails.get.members.head).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head).toString()
 
       val updatedJson = updateJson(Json.
         obj("groupJoiningDate" -> LocalDate.now()), commonGroupMemberString)
@@ -595,11 +595,11 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
 
     "transform to correct ETMP Business Details JSON element with only one partnershipDetail - Individual" in {
 
-      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partnerDetails", api4FrontendLLPString)
+      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partners", api4FrontendLLPString)
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("partnership" -> Json.
-            obj("partnerDetails" -> Json.arr(Json.obj()
+            obj("partners" -> Json.arr(Json.obj()
               .++(Json.obj("entityType" -> "Individual"))
               .++(Json.obj("partnerAddress" -> Json.
                 obj("postcode" -> "AA1 1AA")
@@ -621,25 +621,32 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform to correct ETMP Business Details JSON element with only one partnershipDetail - Corporate Body" in {
-      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partnerDetails", api4FrontendLLPString)
+      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "partnership" \ "partners", api4FrontendLLPString)
       val updatedJson = updateJson(Json.
-        obj("subscriptionTypeFrontEnd" -> Json.
-          obj("partnership" -> Json.
-            obj("partnerDetails" -> Json.arr(Json.obj()
-              .++(Json.obj("entityType" -> "Corporate Body"))
-              .++(Json.obj("partnerAddress" -> Json.
-                obj("postcode" -> "AA1 1AA")
-                .++(Json.obj("addressLine1" -> "address line 1"))
-                .++(Json.obj("addressLine2" -> "address line 2"))
-                .++(Json.obj("addressLine3" -> "address line 3"))
-                .++(Json.obj("addressLine4" -> "address line 4"))
-                .++(Json.obj("countryCode" -> "GB"))
-              ))
-              .++(Json.obj("companyName" -> "company Name"))
-              .++(Json.obj("tradingName" -> "trading Name"))
-              .++(Json.obj("doYouHaveVRN" -> "No"))
-              .++(Json.obj("doYouHaveUTR" -> "No"))
-            )))),
+        obj("subscriptionTypeFrontEnd" ->
+          Json.obj("partnership" ->
+            Json.obj("partners" ->
+              Json.arr(
+                Json.obj(
+                  "entityType" -> "Corporate Body",
+                  "partnerAddress" -> Json.obj(
+                    "postcode" -> "AA1 1AA",
+                    "addressLine1" -> "address line 1",
+                    "addressLine2" -> "address line 2",
+                    "addressLine3" -> "address line 3",
+                    "addressLine4" -> "address line 4",
+                    "countryCode" -> "GB"),
+                  "companyNames" -> Json.obj(
+                    "businessName" -> "company Name",
+                    "doYouHaveTradingName" -> "Yes",
+                    "tradingName" -> "trading Name"),
+                  "doYouHaveVRN" -> "No",
+                  "doYouHaveUTR" -> "No"
+                )
+              )
+            )
+          )
+        ),
         deletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
@@ -653,7 +660,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("partnership" -> Json.
-            obj("partnerDetails" -> Json.arr(Json.obj()
+            obj("partners" -> Json.arr(Json.obj()
               .++(Json.obj("entityType" -> "Sole Trader"))
               .++(Json.obj("partnerAddress" -> Json.
                 obj("postcode" -> "AA1 1AA")
@@ -663,7 +670,13 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
                 .++(Json.obj("addressLine4" -> "address line 4"))
                 .++(Json.obj("countryCode" -> "GB"))
               ))
-              .++(Json.obj("tradingName" -> "trading name"))
+              .++(
+                Json.obj(
+                  "companyNames" -> Json.obj(
+                    "doYouHaveTradingName" -> "Yes",
+                    "tradingName" -> "trading name")
+                )
+              )
               .++(Json.obj("firstName" -> "sole first name"))
               .++(Json.obj("lastName" -> "sole last name"))
               .++(Json.obj("doYouHaveNino" -> "No"))
@@ -684,7 +697,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("partnership" -> Json.
-            obj("partnerDetails" -> Json.arr(Json.obj()
+            obj("partners" -> Json.arr(Json.obj()
               .++(Json.obj("entityType" -> "Sole Trader"))
               .++(Json.obj("partnerAddress" -> Json.
                 obj("postcode" -> "AA1 1AA")
@@ -694,6 +707,12 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
                 .++(Json.obj("addressLine4" -> "address line 4"))
                 .++(Json.obj("countryCode" -> "GB"))
               ))
+              .++(
+                Json.obj(
+                  "companyNames" -> Json.obj(
+                    "doYouHaveTradingName" -> "No")
+                )
+              )
               .++(Json.obj("firstName" -> "sole first name"))
               .++(Json.obj("lastName" -> "sole last name"))
               .++(Json.obj("doYouHaveNino" -> "No"))

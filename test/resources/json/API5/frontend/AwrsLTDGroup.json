@@ -47,11 +47,12 @@
       "emailReview": "example@example.com",
       "telephone": "07000111222"
     },
-    "groupMemberDetails": {
+    "groupMembers": {
       "members": [
         {
-          "names": {
-            "companyName": "ExampleName",
+          "companyNames": {
+            "businessName": "ExampleName",
+            "doYouHaveTradingName":"Yes",
             "tradingName": "Example"
           },
           "isBusinessIncorporated": "No",
@@ -66,8 +67,9 @@
           "addAnotherGrpMember": "Yes"
         },
         {
-          "names": {
-            "companyName": "Another Example",
+          "companyNames": {
+            "businessName": "Another Example",
+            "doYouHaveTradingName":"Yes",
             "tradingName": "Example Trade"
           },
           "isBusinessIncorporated": "No",
@@ -81,7 +83,8 @@
           "doYouHaveUTR": "No",
           "addAnotherGrpMember": "No"
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -105,19 +108,22 @@
         }
       ]
     },
-    "businessDirectors": [
-      {
-        "directorsAndCompanySecretaries": "Director",
-        "personOrCompany": "company",
-        "otherDirectors": "No",
-        "companyName": "Example Company",
-        "tradingName": "Example Name",
-        "doYouHaveVRN": "Yes",
-        "vrn": "000000000",
-        "doYouHaveCRN": "No",
-        "doYouHaveUTR": "No"
-      }
-    ],
+    "businessDirectors": {
+      "directors": [
+        {
+          "directorsAndCompanySecretaries": "Director",
+          "personOrCompany": "company",
+          "otherDirectors": "No",
+          "companyName": "Example Company",
+          "doYouHaveTradingName": "Yes",
+          "tradingName": "Example Name",
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
+          "doYouHaveCRN": "No",
+          "doYouHaveUTR": "No"
+        }
+      ]
+    },
     "tradingActivity": {
       "wholesalerType": [
         "01"
@@ -158,6 +164,7 @@
     "applicationDeclaration": {
       "declarationName": "Example Exampleson",
       "declarationRole": "Authorised Signatory"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

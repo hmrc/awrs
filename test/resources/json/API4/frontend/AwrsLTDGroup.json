@@ -49,11 +49,13 @@
       "emailReview": "Email@email.com",
       "telephone": "07000111222"
     },
-    "groupMemberDetails": {
+    "groupMembers": {
       "members": [
         {
-          "names": {
-            "tradingName": "Trading name"
+          "companyNames": {
+            "tradingName": "Trading name",
+            "doYouHaveTradingName":"Yes",
+            "businessName": "Example and Co"
           },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
@@ -71,8 +73,9 @@
           "utr": "$utr"
         },
         {
-          "names": {
-            "companyName": "Example and Co"
+          "companyNames": {
+            "businessName": "Example and Co",
+            "doYouHaveTradingName":"No"
           },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
@@ -89,7 +92,8 @@
           "doYouHaveUTR": "Yes",
           "utr": "$utr"
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -104,56 +108,58 @@
         }
       ]
     },
-    "businessDirectors": [
-      {
-        "directorsAndCompanySecretaries": "Company Secretary",
-        "personOrCompany": "person",
-        "firstName": "sdfsd",
-        "lastName": "sdfsdfsd",
-        "doTheyHaveNationalInsurance": "Yes",
-        "nino": "$nino",
-        "otherDirectors": "Yes"
-      },
-      {
-        "directorsAndCompanySecretaries": "Director",
-        "personOrCompany": "company",
-        "companyName": "Example and Co",
-        "doYouHaveVRN": "Yes",
-        "vrn": "GB123456789",
-        "doYouHaveCRN": "No",
-        "doYouHaveUTR": "Yes",
-        "utr": "$utr"
-      },
-      {
-        "directorsAndCompanySecretaries": "Director and Company Secretary",
-        "personOrCompany": "person",
-        "firstName": "sdfsd",
-        "lastName": "sdfsdfsd",
-        "doTheyHaveNationalInsurance": "Yes",
-        "nino": "$nino",
-        "otherDirectors": "Yes"
-      },
-      {
-        "directorsAndCompanySecretaries": "Director",
-        "personOrCompany": "company",
-        "companyName": "Example and Co",
-        "tradingName": "Example Bros",
-        "doYouHaveVRN": "No",
-        "doYouHaveCRN": "Yes",
-        "companyRegNumber": "55555555",
-        "doYouHaveUTR": "Yes",
-        "utr": "$utr"
-      },
-      {
-        "directorsAndCompanySecretaries": "Director and Company Secretary",
-        "personOrCompany": "person",
-        "firstName": "sdfsd",
-        "lastName": "sdfsdfsd",
-        "doTheyHaveNationalInsurance": "Yes",
-        "nino": "$nino",
-        "otherDirectors": "Yes"
-      }
-    ],
+    "businessDirectors": {
+      "directors": [
+        {
+          "directorsAndCompanySecretaries": "Company Secretary",
+          "personOrCompany": "person",
+          "firstName": "sdfsd",
+          "lastName": "sdfsdfsd",
+          "doTheyHaveNationalInsurance": "Yes",
+          "nino": "$nino",
+          "otherDirectors": "Yes"
+        },
+        {
+          "directorsAndCompanySecretaries": "Director",
+          "personOrCompany": "company",
+          "companyName": "Example and Co",
+          "doYouHaveVRN": "Yes",
+          "vrn": "GB123456789",
+          "doYouHaveCRN": "No",
+          "doYouHaveUTR": "Yes",
+          "utr": "$utr"
+        },
+        {
+          "directorsAndCompanySecretaries": "Director and Company Secretary",
+          "personOrCompany": "person",
+          "firstName": "sdfsd",
+          "lastName": "sdfsdfsd",
+          "doTheyHaveNationalInsurance": "Yes",
+          "nino": "$nino",
+          "otherDirectors": "Yes"
+        },
+        {
+          "directorsAndCompanySecretaries": "Director",
+          "personOrCompany": "company",
+          "companyName": "Example and Co",
+          "tradingName": "Example Bros",
+          "doYouHaveVRN": "No",
+          "doYouHaveCRN": "Yes",
+          "companyRegNumber": "55555555",
+          "doYouHaveUTR": "Yes",
+          "utr": "$utr"
+        },
+        {
+          "directorsAndCompanySecretaries": "Director and Company Secretary",
+          "personOrCompany": "person",
+          "firstName": "sdfsd",
+          "lastName": "sdfsdfsd",
+          "doTheyHaveNationalInsurance": "Yes",
+          "nino": "$nino",
+          "otherDirectors": "Yes"
+        }
+      ]
+    },
     "tradingActivity": {
       "wholesalerType": [
         "06",
@@ -213,6 +219,7 @@
     "applicationDeclaration": {
       "declarationName": "AWRS application",
       "declarationRole": "AWRS application1"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }
