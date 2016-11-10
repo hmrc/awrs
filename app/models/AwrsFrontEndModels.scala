@@ -553,16 +553,29 @@ object Partner {
         nino = nino,
         companyNames = {
           (companyName, tradingName) match {
-            case (None, None) => None
+            case (None, None) =>
+              entityType match {
+                  // for sole traders only trading name is checked and it is an optional field
+                  // so return the inference of no based on its sole existence
+                case Some(PartnerDetailType.Sole_Trader) =>
+                  Some(
+                    CompanyNames(
+                      businessName = None,
+                      doYouHaveTradingName = Some("No"),
+                      tradingName = None
+                    )
+                  )
+                case _ => None
+              }
             case (cn, tn) =>
               Some(
                 CompanyNames(
-                  cn,
-                  doYouHaveTradingName = tradingName match {
+                  businessName = cn,
+                  doYouHaveTradingName = tn match {
                     case Some(_) => Some("Yes")
                     case None => Some("No")
                   },
-                  tn
+                  tradingName = tn
                 )
               )
           }
