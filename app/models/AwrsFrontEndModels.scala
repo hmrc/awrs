@@ -759,7 +759,7 @@ object BusinessType {
   }
 
   def convertLegalEntity(legalEntity: Option[String], creatingAGroup: Boolean): Option[String] =
-    (legalEntity.fold("")(x => x), creatingAGroup) match {
+    (legalEntity.fold("")(x => x), l) match {
       case (LegalEntityType.SOLE_TRADER, false) => Some("SOP")
       case (LegalEntityType.CORPORATE_BODY, false) => Some("LTD")
       case (LegalEntityType.CORPORATE_BODY, true) => Some("LTD_GRP")
