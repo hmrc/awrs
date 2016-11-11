@@ -171,8 +171,8 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
               "doTheyHaveNationalInsurance" -> "Yes",
               "passportNumber" -> "0987654321",
               "otherDirectors" -> "No")),
-              "modelVersion" -> "1.0")
-          )),
+              "modelVersion" -> s"${BusinessDirectors.latestModelVersion}")
+            )),
         deletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
