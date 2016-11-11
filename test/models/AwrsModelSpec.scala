@@ -130,15 +130,18 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("businessDirectors" ->
-            Json.obj("directors" -> Json.arr(Json.obj(
-              "directorsAndCompanySecretaries" -> "Director",
-              "personOrCompany" -> "person",
-              "firstName" -> "Example",
-              "lastName" -> "Exampleson",
-              "doTheyHaveNationalInsurance" -> "Yes",
-              "nationalID" -> "1234567890",
-              "otherDirectors" -> "No")))
-          )),
+            Json.obj("directors" ->
+              Json.arr(Json.obj(
+                "directorsAndCompanySecretaries" -> "Director",
+                "personOrCompany" -> "person",
+                "firstName" -> "Example",
+                "lastName" -> "Exampleson",
+                "doTheyHaveNationalInsurance" -> "Yes",
+                "nationalID" -> "1234567890",
+                "otherDirectors" -> "No"
+              )),
+              "modelVersion" -> s"${BusinessDirectors.latestModelVersion}"
+            ))),
         deletedJson)
 
       println(updatedJson)
@@ -167,8 +170,9 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
               "lastName" -> "Exampleson",
               "doTheyHaveNationalInsurance" -> "Yes",
               "passportNumber" -> "0987654321",
-              "otherDirectors" -> "No"))
-            ))),
+              "otherDirectors" -> "No")),
+              "modelVersion" -> s"${BusinessDirectors.latestModelVersion}")
+            )),
         deletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
@@ -194,7 +198,8 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
               "firstName" -> "Example",
               "lastName" -> "Exampleson",
               "doTheyHaveNationalInsurance" -> "Yes",
-              "otherDirectors" -> "No"))
+              "otherDirectors" -> "No")),
+              "modelVersion" -> s"${BusinessDirectors.latestModelVersion}"
             ))),
         deletedJson)
 
@@ -214,7 +219,10 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
       val updatedJson = updateJson(Json.
         obj("subscriptionTypeFrontEnd" -> Json.
           obj("businessDirectors" ->
-            Json.obj("directors" -> Json.arr())
+            Json.obj(
+              "directors" -> Json.arr(),
+              "modelVersion" -> s"${BusinessDirectors.latestModelVersion}"
+            )
           )),
         deletedJson)
 

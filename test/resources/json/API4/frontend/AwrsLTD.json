@@ -85,7 +85,8 @@
           "nino": "$nino",
           "otherDirectors": "No"
         }
-      ]
+      ],
+      "modelVersion" : "1.0"
     },
     "tradingActivity": {
       "wholesalerType": [

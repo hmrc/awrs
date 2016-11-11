@@ -122,7 +122,10 @@
         {
           "directorsAndCompanySecretaries": "Director",
           "personOrCompany": "company",
-          "companyName": "Example and Co",
+          "companyNames": {
+            "businessName": "Example and Co",
+            "doYouHaveTradingName": "No"
+          },
           "doYouHaveVRN": "Yes",
           "vrn": "GB123456789",
           "doYouHaveCRN": "No",
@@ -141,8 +144,11 @@
         {
           "directorsAndCompanySecretaries": "Director",
           "personOrCompany": "company",
-          "companyName": "Example and Co",
-          "tradingName": "Example Bros",
+          "companyNames": {
+            "businessName": "Example and Co",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "Example Bros"
+          },
           "doYouHaveVRN": "No",
           "doYouHaveCRN": "Yes",
           "companyRegNumber": "55555555",
@@ -158,7 +164,8 @@
           "nino": "$nino",
           "otherDirectors": "Yes"
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "tradingActivity": {
       "wholesalerType": [
