@@ -173,8 +173,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       partners.partners.head.entityType.get shouldBe "Individual"
       partners.partners.head.firstName.get shouldBe "example"
       partners.partners.head.lastName.get shouldBe "exampleson"
-      partners.partners.head.companyNames.fold(None: Option[String])(x => x.tradingName) shouldBe None
-      partners.partners.head.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.head.companyNames.tradingName shouldBe None
+      partners.partners.head.companyNames.businessName shouldBe None
       partners.partners.head.doYouHaveNino.get shouldBe "Yes"
       partners.partners.head.nino.get shouldBe testNino
       partners.partners.head.doYouHaveUTR shouldBe None
@@ -192,8 +192,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       partners.partners.last.entityType.get shouldBe "Sole Trader"
       partners.partners.last.firstName.get shouldBe "example"
       partners.partners.last.lastName.get shouldBe "exampleson"
-      partners.partners.last.companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
-      partners.partners.last.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.last.companyNames.tradingName.get shouldBe "trading name"
+      partners.partners.last.companyNames.businessName shouldBe None
       partners.partners.last.doYouHaveNino.get shouldBe "Yes"
       partners.partners.last.nino.get shouldBe testNino
       partners.partners.last.doYouHaveUTR.get shouldBe "Yes"
@@ -217,8 +217,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       partners.partners(2).otherPartners.get shouldBe "No"
 
       partners.partners(1).entityType.get shouldBe "Corporate Body"
-      partners.partners(1).companyNames.fold(None: Option[String])(x => x.businessName).get shouldBe "company name"
-      partners.partners(1).companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
+      partners.partners(1).companyNames.businessName.get shouldBe "company name"
+      partners.partners(1).companyNames.tradingName.get shouldBe "trading name"
       partners.partners(1).firstName shouldBe None
       partners.partners(1).lastName shouldBe None
       partners.partners(1).doYouHaveNino shouldBe None
@@ -247,8 +247,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       partners.partners.head.entityType.get shouldBe "Individual"
       partners.partners.head.firstName.get shouldBe "example"
       partners.partners.head.lastName.get shouldBe "exampleson"
-      partners.partners.head.companyNames.fold(None: Option[String])(x => x.tradingName) shouldBe None
-      partners.partners.head.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.head.companyNames.tradingName shouldBe None
+      partners.partners.head.companyNames.businessName shouldBe None
       partners.partners.head.doYouHaveNino.get shouldBe "Yes"
       partners.partners.head.nino.get shouldBe testNino
       partners.partners.head.doYouHaveUTR shouldBe None
@@ -266,8 +266,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       partners.partners.last.entityType.get shouldBe "Sole Trader"
       partners.partners.last.firstName.get shouldBe "example"
       partners.partners.last.lastName.get shouldBe "exampleson"
-      partners.partners.last.companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
-      partners.partners.last.companyNames.fold(None: Option[String])(x => x.businessName) shouldBe None
+      partners.partners.last.companyNames.tradingName.get shouldBe "trading name"
+      partners.partners.last.companyNames.businessName shouldBe None
       partners.partners.last.doYouHaveNino.get shouldBe "Yes"
       partners.partners.last.nino.get shouldBe testNino
       partners.partners.last.doYouHaveUTR.get shouldBe "No"
@@ -291,8 +291,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       partners.partners(2).otherPartners.get shouldBe "No"
 
       partners.partners(1).entityType.get shouldBe "Corporate Body"
-      partners.partners(1).companyNames.fold(None: Option[String])(x => x.businessName).get shouldBe "company name"
-      partners.partners(1).companyNames.fold(None: Option[String])(x => x.tradingName).get shouldBe "trading name"
+      partners.partners(1).companyNames.businessName.get shouldBe "company name"
+      partners.partners(1).companyNames.tradingName.get shouldBe "trading name"
       partners.partners(1).firstName shouldBe None
       partners.partners(1).lastName shouldBe None
       partners.partners(1).doYouHaveNino shouldBe None

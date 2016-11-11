@@ -399,6 +399,52 @@ object CompanyNames {
 
   implicit val formats = Json.format[CompanyNames]
 
+  implicit class CompanyNamesGetUtil(companyNames: Option[CompanyNames]) {
+    def businessName: Option[String] = companyNames.fold(None: Option[String])(_.businessName)
+
+    def tradingName: Option[String] = companyNames.fold(None: Option[String])(_.tradingName)
+  }
+
+}
+
+
+/*
+ *  This object is used as a utility factory for CompanyNames,
+ *  this object is required since the Json.format[T] in play 2.3 only works when a single def apply exists in
+ *  the companion object.
+*/
+object CompanyNamesFact {
+
+  /*
+  *  only specify an entityType if it can be a sole trader, since in that case doYouHaveTradingName needs to be populated
+  */
+  def apply(businessName: Option[String], tradingName: Option[String], entityType: Option[String] = None): Option[CompanyNames] =
+  (businessName, tradingName) match {
+    case (None, None) =>
+      entityType match {
+        // for sole traders only trading name is checked and it is an optional field
+        // so return the inference of no based on its sole existence
+        case Some(PartnerDetailType.Sole_Trader) =>
+          Some(
+            CompanyNames(
+              businessName = None,
+              doYouHaveTradingName = Some("No"),
+              tradingName = None
+            )
+          )
+        case _ => None
+      }
+    case _ => Some(
+      CompanyNames(
+        businessName = businessName,
+        doYouHaveTradingName = Some(tradingName match {
+          case Some(_) => "Yes"
+          case None => "No"
+        }),
+        tradingName = tradingName
+      )
+    )
+  }
 }
 
 object GroupMember {
@@ -552,35 +598,7 @@ object Partner {
         lastName = lastName,
         doYouHaveNino = doYouHaveNino,
         nino = nino,
-        companyNames = {
-          (companyName, tradingName) match {
-            case (None, None) =>
-              entityType match {
-                // for sole traders only trading name is checked and it is an optional field
-                // so return the inference of no based on its sole existence
-                case Some(PartnerDetailType.Sole_Trader) =>
-                  Some(
-                    CompanyNames(
-                      businessName = None,
-                      doYouHaveTradingName = Some("No"),
-                      tradingName = None
-                    )
-                  )
-                case _ => None
-              }
-            case (cn, tn) =>
-              Some(
-                CompanyNames(
-                  businessName = cn,
-                  doYouHaveTradingName = tn match {
-                    case Some(_) => Some("Yes")
-                    case None => Some("No")
-                  },
-                  tradingName = tn
-                )
-              )
-          }
-        },
+        companyNames = CompanyNamesFact(companyName, tradingName, entityType),
         isBusinessIncorporated = isBusinessIncorporated,
         companyRegDetails = companyRegDetails,
         doYouHaveVRN = doYouHaveVRN,
@@ -662,20 +680,7 @@ object BusinessDirector {
           case (_, Some(status)) => (status, "company")
           case _ => throw new RuntimeException("Etmp BusinessDirectors read error, neither individualStatus nor companyStatus are present")
         }
-        val companyNames =
-          (businessName, tradingName) match {
-            case (None, None) => None
-            case _ =>
-              Some(CompanyNames(
-                businessName = businessName,
-                doYouHaveTradingName = {
-                  tradingName match {
-                    case Some(_) => Some("Yes")
-                    case _ => Some("No")
-                  }
-                },
-                tradingName = tradingName))
-          }
+        val companyNames = CompanyNamesFact(businessName, tradingName)
 
         BusinessDirector(
           directorsAndCompanySecretaries = directorsAndCompanySecretaries,

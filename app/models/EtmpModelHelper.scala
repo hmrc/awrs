@@ -477,8 +477,8 @@ trait EtmpModelHelper {
   }
 
   def toEtmpPartnerDetailsCompany(partnerDetail: Partner) = {
-    val names = ifExistsThenPopulate("companyName", partnerDetail.companyNames.fold(None: Option[String])(x => x.businessName)) ++
-      ifExistsThenPopulate("tradingName", partnerDetail.companyNames.fold(None: Option[String])(x => x.tradingName))
+    val names = ifExistsThenPopulate("companyName", partnerDetail.companyNames.businessName) ++
+      ifExistsThenPopulate("tradingName", partnerDetail.companyNames.tradingName)
     val incorporationDetails = identificationIncorporationDetails(partnerDetail)
     val identification = identificationCorpNumbersType(partnerDetail)
 
@@ -556,8 +556,8 @@ trait EtmpModelHelper {
   }
 
   def toEtmpCoOfficialCompanyDetails(coOfficial: BusinessDirector): JsValue = {
-    val names = ifExistsThenPopulate("companyName", coOfficial.companyNames.fold(None: Option[String])(x => x.businessName)) ++
-      ifExistsThenPopulate("tradingName", coOfficial.companyNames.fold(None: Option[String])(x => x.tradingName))
+    val names = ifExistsThenPopulate("companyName", coOfficial.companyNames.businessName) ++
+      ifExistsThenPopulate("tradingName", coOfficial.companyNames.tradingName)
     val identification = identificationCorpNumbersWithCRNType(coOfficial)
 
     val company =
