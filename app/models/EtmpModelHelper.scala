@@ -200,17 +200,17 @@ trait EtmpModelHelper {
 
   def copyBusinessAddressToMainAddress(st: SubscriptionTypeFrontEnd): Address = {
 
-    val businessContacts = st.businessContacts.reduceLeft((x, y) => x)
-    yestoTrue(businessContacts.mainPlaceOfBusiness.fold("")(x => x)) match {
+    val placeOfBusiness = st.placeOfBusiness.reduceLeft((x, y) => x)
+    yestoTrue(placeOfBusiness.mainPlaceOfBusiness.fold("")(x => x)) match {
       case true =>
         val businessAndAddress = st.businessCustomerDetails.reduceLeft((x, y) => x).businessAddress
 
-        businessContacts.copy(mainAddress = Some(Address(postcode = businessAndAddress.postcode,
+        placeOfBusiness.copy(mainAddress = Some(Address(postcode = businessAndAddress.postcode,
           addressLine1 = businessAndAddress.line_1,
           addressLine2 = businessAndAddress.line_2,
           addressLine3 = businessAndAddress.line_3,
           addressLine4 = businessAndAddress.line_4))).mainAddress.reduceLeft((x, y) => y)
-      case false => businessContacts.mainAddress.reduceLeft((x, y) => y)
+      case false => placeOfBusiness.mainAddress.reduceLeft((x, y) => y)
     }
 
   }
@@ -219,7 +219,7 @@ trait EtmpModelHelper {
     val businessContacts = st.businessContacts.reduceLeft((x, y) => x)
 
     Json.obj(
-      "email" -> businessContacts.emailReview,
+      "email" -> businessContacts.email,
       "telephone" -> businessContacts.telephone)
   }
 
@@ -230,14 +230,14 @@ trait EtmpModelHelper {
     }
 
   def toEtmpBusinessAddressForAwrs(st: SubscriptionTypeFrontEnd): JsValue = {
-    val businessDetails = st.businessContacts.reduceLeft((x, y) => x)
+    val placeOfBusiness = st.placeOfBusiness.reduceLeft((x, y) => x)
     val (differentOperatingAddresslnLast3Years, previousAddress) =
-      getPlaceOfBusinessLast3Years(businessDetails.placeOfBusinessLast3Years.fold("")(x => x), businessDetails.placeOfBusinessAddressLast3Years)
+      getPlaceOfBusinessLast3Years(placeOfBusiness.placeOfBusinessLast3Years.fold("")(x => x), placeOfBusiness.placeOfBusinessAddressLast3Years)
 
     Json.obj(
       "currentAddress" -> toEtmpAddress(copyBusinessAddressToMainAddress(st)),
       "communicationDetails" -> toEtmpCommunicationDetails(st),
-      "operatingDuration" -> matchDuration(businessDetails.operatingDuration),
+      "operatingDuration" -> matchDuration(placeOfBusiness.operatingDuration),
       "differentOperatingAddresslnLast3Years" -> differentOperatingAddresslnLast3Years)
       .++(previousAddress)
   }

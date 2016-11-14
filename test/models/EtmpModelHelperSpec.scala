@@ -418,77 +418,77 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
   "toEtmpBusinessAddressForAwrs method of EtmpModelHelper " should {
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 0 to 2 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "0 to 2 years"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "0 to 2 years"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"0 to 2 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 2 to 5 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "2 to 5 years"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "2 to 5 years"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"2 to 5 years")
     }
 
     "transform to correct JSON element and count correct operatingDuration when placeOfBusinessLast3Years is Yes and operatingDuration is 5 to 10 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "5 to 10 years"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "5 to 10 years"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"5 to 10 years")
     }
 
     "transform to correct JSON element and count correct operatingDuration when placeOfBusinessLast3Years is Yes and operatingDuration is over 10 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "over 10 years"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "over 10 years"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"over 10 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 0 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "0"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "0"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"0 to 2 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 1 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "1"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "1"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"0 to 2 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 2 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "2"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "2"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"2 to 5 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 4 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "4"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "4"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"2 to 5 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 5 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "5"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "5"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"5 to 10 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 9 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "9"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "9"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"5 to 10 years")
     }
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is 20 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("operatingDuration" -> "20"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "20"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"over 10 years")

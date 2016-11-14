@@ -38,15 +38,19 @@
       "doYouHaveUTR": "Yes",
       "utr": "$utr"
     },
-    "businessContacts": {
+    "placeOfBusiness": {
       "mainPlaceOfBusiness": "Yes",
-      "contactAddressSame": "Yes",
       "placeOfBusinessLast3Years": "Yes",
       "operatingDuration": "2 to 5 years",
+      "modelVersion" : "1.0"
+    },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
       "contactFirstName": "Example",
       "contactLastName": "Exampleson",
-      "emailReview": "Example@gmail.com",
-      "telephone": "07945638956"
+      "email": "Example@gmail.com",
+      "telephone": "07945638956",
+      "modelVersion" : "1.0"
     },
     "additionalPremises": {
       "premises": [

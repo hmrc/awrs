@@ -32,20 +32,24 @@
       "vrn": "000000000",
       "doYouHaveUTR": "No"
     },
-    "businessContacts": {
+    "placeOfBusiness": {
       "mainPlaceOfBusiness": "Yes",
       "mainAddress": {
         "postcode": "AA1 1AA",
         "addressLine1": "12 Example Road",
         "addressLine2": "Exampleland"
       },
-      "contactAddressSame": "Yes",
       "placeOfBusinessLast3Years": "Yes",
       "operatingDuration": "over 10 years",
+      "modelVersion" : "1.0"
+    },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
       "contactFirstName": "Example",
       "contactLastName": "Exampleson",
-      "emailReview": "example@example.com",
-      "telephone": "07000111222"
+      "email": "example@example.com",
+      "telephone": "07000111222",
+      "modelVersion" : "1.0"
     },
     "groupMembers": {
       "members": [

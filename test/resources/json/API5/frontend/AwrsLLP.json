@@ -33,7 +33,7 @@
       "vrn": "123456789",
       "doYouHaveUTR": "No"
     },
-    "businessContacts": {
+    "placeOfBusiness": {
       "mainPlaceOfBusiness": "Yes",
       "mainAddress": {
         "postcode": "AA1 1AA",
@@ -42,7 +42,6 @@
         "addressLine3": "Exampe Town",
         "addressLine4": "Exampeshire"
       },
-      "contactAddressSame": "Yes",
       "placeOfBusinessLast3Years": "No",
       "placeOfBusinessAddressLast3Years": {
         "postcode": "AA11AA",
@@ -52,10 +51,15 @@
         "addressLine4": "Operating Address line 4"
       },
       "operatingDuration": "over 10 years",
+      "modelVersion" : "1.0"
+    },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
       "contactFirstName": "Example",
       "contactLastName": "Exampleson",
-      "emailReview": "Example@example.com",
-      "telephone": "07000111222"
+      "email": "Example@example.com",
+      "telephone": "07000111222",
+      "modelVersion" : "1.0"
     },
     "partnership": {
       "partners": [
