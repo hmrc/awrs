@@ -1003,6 +1003,7 @@ object BusinessContacts {
           contactFirstName = firstName,
           contactLastName = lastName,
           email = email,
+          confirmEmail = Some(email),
           telephone = telephone.fold("")(x => x)
         )
       }
