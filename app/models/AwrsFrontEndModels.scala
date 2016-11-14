@@ -747,7 +747,7 @@ object Supplier {
           additionalSupplier = Some("Yes"),
           ukSupplier = if (supplierAddress.get.addressCountryCode.isDefined) Some("No") else Some("Yes")
         )
-      }""
+      }
 
   }
 
