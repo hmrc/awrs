@@ -29,15 +29,15 @@
       }
     },
     "businessRegistrationDetails": {
-        "isBusinessIncorporated": "Yes",
-        "companyRegDetails": {
-          "companyRegistrationNumber": "55555555",
-          "dateOfIncorporation": "01/01/2015"
-        },
-        "doYouHaveVRN": "Yes",
-        "vrn": "000000000",
-        "doYouHaveUTR": "Yes",
-        "utr": "$utr"
+      "isBusinessIncorporated": "Yes",
+      "companyRegDetails": {
+        "companyRegistrationNumber": "55555555",
+        "dateOfIncorporation": "01/01/2015"
+      },
+      "doYouHaveVRN": "Yes",
+      "vrn": "000000000",
+      "doYouHaveUTR": "Yes",
+      "utr": "$utr"
     },
     "businessContacts": {
       "mainPlaceOfBusiness": "Yes",
@@ -50,7 +50,7 @@
       "telephone": "07000111222"
     },
     "partnership": {
-      "partnerDetails": [
+      "partners": [
         {
           "entityType": "Individual",
           "partnerAddress": {
@@ -73,8 +73,11 @@
             "postcode": "AA1 1AA",
             "countryCode": "GB"
           },
-          "companyName": "corporate company name",
-          "tradingName": "corporate trading name",
+          "companyNames": {
+            "businessName": "corporate company name",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "corporate trading name"
+          },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
             "companyRegistrationNumber": "12345678",
@@ -94,7 +97,10 @@
             "postcode": "AA1 1AA",
             "countryCode": "GB"
           },
-          "tradingName": "sole trading name",
+          "companyNames": {
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "sole trading name"
+          },
           "firstName": "sole first name",
           "lastName": "sole last name",
           "doYouHaveNino": "Yes",
@@ -105,7 +111,8 @@
           "utr": "$utr",
           "otherPartners": "Yes"
         }
-      ]
+      ],
+      "modelVersion": "1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -164,6 +171,7 @@
     "applicationDeclaration": {
       "declarationName": "AWRS application",
       "declarationRole": "AWRS application1"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

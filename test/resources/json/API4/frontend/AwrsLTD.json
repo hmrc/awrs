@@ -65,26 +65,29 @@
         }
       ]
     },
-    "businessDirectors": [
-      {
-        "directorsAndCompanySecretaries": "Director",
-        "personOrCompany": "person",
-        "firstName": "sdfsd",
-        "lastName": "sdfsdfsd",
-        "doTheyHaveNationalInsurance": "Yes",
-        "nino": "$nino",
-        "otherDirectors": "Yes"
-      },
-      {
-        "directorsAndCompanySecretaries": "Director and Company Secretary",
-        "personOrCompany": "person",
-        "firstName": "Example",
-        "lastName": "Exampleson",
-        "doTheyHaveNationalInsurance": "Yes",
-        "nino": "$nino",
-        "otherDirectors": "No"
-      }
-    ],
+    "businessDirectors": {
+      "directors": [
+        {
+          "directorsAndCompanySecretaries": "Director",
+          "personOrCompany": "person",
+          "firstName": "sdfsd",
+          "lastName": "sdfsdfsd",
+          "doTheyHaveNationalInsurance": "Yes",
+          "nino": "$nino",
+          "otherDirectors": "Yes"
+        },
+        {
+          "directorsAndCompanySecretaries": "Director and Company Secretary",
+          "personOrCompany": "person",
+          "firstName": "Example",
+          "lastName": "Exampleson",
+          "doTheyHaveNationalInsurance": "Yes",
+          "nino": "$nino",
+          "otherDirectors": "No"
+        }
+      ],
+      "modelVersion" : "1.0"
+    },
     "tradingActivity": {
       "wholesalerType": [
         "06",
@@ -145,6 +148,7 @@
     "applicationDeclaration": {
       "declarationName": "AWRS application",
       "declarationRole": "AWRS application1"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

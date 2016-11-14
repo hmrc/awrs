@@ -52,7 +52,7 @@
       "telephone": "07000111222"
     },
     "partnership": {
-      "partnerDetails": [
+      "partners": [
         {
           "entityType": "Individual",
           "partnerAddress": {
@@ -77,8 +77,11 @@
             "addressLine3": "Exampe Town",
             "addressLine4": "Exampeshire"
           },
-          "companyName": "company name",
-          "tradingName": "trading name",
+          "companyNames" : {
+            "businessName": "company name",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "trading name"
+          },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
             "companyRegistrationNumber": "55555555",
@@ -103,14 +106,18 @@
           "lastName": "exampleson",
           "doYouHaveNino": "Yes",
           "nino": "$nino",
-          "tradingName": "trading name",
+          "companyNames": {
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "trading name"
+          },
           "doYouHaveVRN": "Yes",
           "vrn": "000000000",
           "doYouHaveUTR": "Yes",
           "utr": "$utr",
           "otherPartners": "No"
         }
-      ]
+      ],
+      "modelVersion" : "1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -188,6 +195,7 @@
     "applicationDeclaration": {
       "declarationName": "Example Exampleson",
       "declarationRole": "Director"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

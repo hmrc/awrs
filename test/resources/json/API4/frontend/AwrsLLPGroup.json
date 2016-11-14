@@ -54,7 +54,7 @@
       "telephone": "07000111222"
     },
     "partnership": {
-      "partnerDetails": [
+      "partners": [
         {
           "entityType": "Individual",
           "partnerAddress": {
@@ -77,8 +77,11 @@
             "postcode": "AA1 1AA",
             "countryCode": "GB"
           },
-          "companyName": "corporate company name",
-          "tradingName": "corporate trading name",
+          "companyNames": {
+            "businessName": "corporate company name",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "corporate trading name"
+          },
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
             "companyRegistrationNumber": "12345678",
@@ -98,7 +101,10 @@
             "postcode": "AA1 1AA",
             "countryCode": "GB"
           },
-          "tradingName": "sole trading name",
+          "companyNames": {
+            "tradingName": "sole trading name",
+            "doYouHaveTradingName": "Yes"
+          },
           "firstName": "sole first name",
           "lastName": "sole last name",
           "doYouHaveNino": "Yes",
@@ -109,14 +115,16 @@
           "utr": "$utr",
           "otherPartners": "Yes"
         }
-      ]
+      ],
+      "modelVersion": "1.0"
     },
-    "groupMemberDetails": {
+    "groupMembers": {
       "numberOfGrpMembers": "1",
       "members": [
         {
-          "names": {
-            "companyName": "Company Name",
+          "companyNames": {
+            "businessName": "Company Name",
+            "doYouHaveTradingName": "Yes",
             "tradingName": "Trading Name"
           },
           "companyRegDetails": {
@@ -137,7 +145,8 @@
             "doYouHaveUTR": false
           }
         }
-      ]
+      ],
+      "modelVersion": "1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -196,6 +205,7 @@
     "applicationDeclaration": {
       "declarationName": "AWRS application",
       "declarationRole": "AWRS application1"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }

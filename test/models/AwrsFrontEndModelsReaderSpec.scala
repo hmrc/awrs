@@ -164,178 +164,178 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform correctly to Partner Details Frontend Model for Partnership" in {
-      val partners = api4EtmpPartnershipJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpPartnershipJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails.head.entityType.get shouldBe "Individual"
-      partners.partnerDetails.head.firstName.get shouldBe "example"
-      partners.partnerDetails.head.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.head.tradingName shouldBe None
-      partners.partnerDetails.head.companyName shouldBe None
-      partners.partnerDetails.head.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.head.nino.get shouldBe testNino
-      partners.partnerDetails.head.doYouHaveUTR shouldBe None
-      partners.partnerDetails.head.utr shouldBe None
-      partners.partnerDetails.head.doYouHaveVRN shouldBe None
-      partners.partnerDetails.head.vrn shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails.head.partnerAddress.get.addressLine2 shouldBe "Exampe View"
-      partners.partnerDetails.head.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
-      partners.partnerDetails.head.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
-      partners.partnerDetails.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.head.entityType.get shouldBe "Individual"
+      partners.partners.head.firstName.get shouldBe "example"
+      partners.partners.head.lastName.get shouldBe "exampleson"
+      partners.partners.head.companyNames.tradingName shouldBe None
+      partners.partners.head.companyNames.businessName shouldBe None
+      partners.partners.head.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.head.nino.get shouldBe testNino
+      partners.partners.head.doYouHaveUTR shouldBe None
+      partners.partners.head.utr shouldBe None
+      partners.partners.head.doYouHaveVRN shouldBe None
+      partners.partners.head.vrn shouldBe None
+      partners.partners.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners.head.partnerAddress.get.addressLine2 shouldBe "Exampe View"
+      partners.partners.head.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
+      partners.partners.head.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
+      partners.partners.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
 
-      partners.partnerDetails.last.entityType.get shouldBe "Sole Trader"
-      partners.partnerDetails.last.firstName.get shouldBe "example"
-      partners.partnerDetails.last.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.last.tradingName.get shouldBe "trading name"
-      partners.partnerDetails.last.companyName shouldBe None
-      partners.partnerDetails.last.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.last.nino.get shouldBe testNino
-      partners.partnerDetails.last.doYouHaveUTR.get shouldBe "Yes"
-      partners.partnerDetails.last.utr.get shouldBe testUtr
-      partners.partnerDetails.last.doYouHaveVRN.get shouldBe "Yes"
-      partners.partnerDetails.last.vrn.get shouldBe "000000000"
-      partners.partnerDetails.last.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails.last.partnerAddress.get.addressLine2 shouldBe "Exampe View"
-      partners.partnerDetails.last.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
-      partners.partnerDetails.last.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
-      partners.partnerDetails.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.last.entityType.get shouldBe "Sole Trader"
+      partners.partners.last.firstName.get shouldBe "example"
+      partners.partners.last.lastName.get shouldBe "exampleson"
+      partners.partners.last.companyNames.tradingName.get shouldBe "trading name"
+      partners.partners.last.companyNames.businessName shouldBe None
+      partners.partners.last.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.last.nino.get shouldBe testNino
+      partners.partners.last.doYouHaveUTR.get shouldBe "Yes"
+      partners.partners.last.utr.get shouldBe testUtr
+      partners.partners.last.doYouHaveVRN.get shouldBe "Yes"
+      partners.partners.last.vrn.get shouldBe "000000000"
+      partners.partners.last.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners.last.partnerAddress.get.addressLine2 shouldBe "Exampe View"
+      partners.partners.last.partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
+      partners.partners.last.partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
+      partners.partners.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
     }
 
     "transform correctly to Partner Details Frontend Model for Partnership when Partner is of type Corporate Body" in {
-      val partners = api4EtmpPartnershipJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpPartnershipJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails(1).entityType.get shouldBe "Corporate Body"
-      partners.partnerDetails(1).companyName.get shouldBe "company name"
-      partners.partnerDetails(1).tradingName.get shouldBe "trading name"
-      partners.partnerDetails(1).firstName shouldBe None
-      partners.partnerDetails(1).lastName shouldBe None
-      partners.partnerDetails(1).doYouHaveNino shouldBe None
-      partners.partnerDetails(1).nino shouldBe None
-      partners.partnerDetails(1).doYouHaveVRN.get shouldBe "Yes"
-      partners.partnerDetails(1).vrn.get shouldBe "000000000"
-      partners.partnerDetails(1).doYouHaveUTR.get shouldBe "Yes"
-      partners.partnerDetails(1).utr.get shouldBe testUtr
-      partners.partnerDetails(1).isBusinessIncorporated.get shouldBe "Yes"
-      partners.partnerDetails(1).companyRegDetails.get.companyRegistrationNumber shouldBe "55555555"
-      partners.partnerDetails(1).companyRegDetails.get.dateOfIncorporation shouldBe "01/01/2015"
-      partners.partnerDetails(1).partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails(1).partnerAddress.get.addressLine2 shouldBe "Exampe View"
-      partners.partnerDetails(1).partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
-      partners.partnerDetails(1).partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
-      partners.partnerDetails(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners(1).entityType.get shouldBe "Corporate Body"
+      partners.partners(1).companyNames.businessName.get shouldBe "company name"
+      partners.partners(1).companyNames.tradingName.get shouldBe "trading name"
+      partners.partners(1).firstName shouldBe None
+      partners.partners(1).lastName shouldBe None
+      partners.partners(1).doYouHaveNino shouldBe None
+      partners.partners(1).nino shouldBe None
+      partners.partners(1).doYouHaveVRN.get shouldBe "Yes"
+      partners.partners(1).vrn.get shouldBe "000000000"
+      partners.partners(1).doYouHaveUTR.get shouldBe "Yes"
+      partners.partners(1).utr.get shouldBe testUtr
+      partners.partners(1).isBusinessIncorporated.get shouldBe "Yes"
+      partners.partners(1).companyRegDetails.get.companyRegistrationNumber shouldBe "55555555"
+      partners.partners(1).companyRegDetails.get.dateOfIncorporation shouldBe "01/01/2015"
+      partners.partners(1).partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners(1).partnerAddress.get.addressLine2 shouldBe "Exampe View"
+      partners.partners(1).partnerAddress.get.addressLine3.get shouldBe "Exampe Town"
+      partners.partners(1).partnerAddress.get.addressLine4.get shouldBe "Exampeshire"
+      partners.partners(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
     }
 
     "transform correctly to Partner Details Frontend Model for LLP" in {
-      val partners = api4EtmpLLPJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpLLPJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails.head.entityType.get shouldBe "Individual"
-      partners.partnerDetails.head.firstName.get shouldBe "example"
-      partners.partnerDetails.head.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.head.tradingName shouldBe None
-      partners.partnerDetails.head.companyName shouldBe None
-      partners.partnerDetails.head.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.head.nino.get shouldBe testNino
-      partners.partnerDetails.head.doYouHaveUTR shouldBe None
-      partners.partnerDetails.head.utr shouldBe None
-      partners.partnerDetails.head.doYouHaveVRN shouldBe None
-      partners.partnerDetails.head.vrn shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
-      partners.partnerDetails.head.partnerAddress.get.addressLine2 shouldBe "Exampletown"
-      partners.partnerDetails.head.partnerAddress.get.addressLine3 shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.addressLine4 shouldBe None
-      partners.partnerDetails.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.head.entityType.get shouldBe "Individual"
+      partners.partners.head.firstName.get shouldBe "example"
+      partners.partners.head.lastName.get shouldBe "exampleson"
+      partners.partners.head.companyNames.tradingName shouldBe None
+      partners.partners.head.companyNames.businessName shouldBe None
+      partners.partners.head.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.head.nino.get shouldBe testNino
+      partners.partners.head.doYouHaveUTR shouldBe None
+      partners.partners.head.utr shouldBe None
+      partners.partners.head.doYouHaveVRN shouldBe None
+      partners.partners.head.vrn shouldBe None
+      partners.partners.head.partnerAddress.get.addressLine1 shouldBe "1 Example Street"
+      partners.partners.head.partnerAddress.get.addressLine2 shouldBe "Exampletown"
+      partners.partners.head.partnerAddress.get.addressLine3 shouldBe None
+      partners.partners.head.partnerAddress.get.addressLine4 shouldBe None
+      partners.partners.head.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
 
-      partners.partnerDetails.last.entityType.get shouldBe "Sole Trader"
-      partners.partnerDetails.last.firstName.get shouldBe "example"
-      partners.partnerDetails.last.lastName.get shouldBe "exampleson"
-      partners.partnerDetails.last.tradingName.get shouldBe "trading name"
-      partners.partnerDetails.last.companyName shouldBe None
-      partners.partnerDetails.last.doYouHaveNino.get shouldBe "Yes"
-      partners.partnerDetails.last.nino.get shouldBe testNino
-      partners.partnerDetails.last.doYouHaveUTR.get shouldBe "No"
-      partners.partnerDetails.last.utr shouldBe None
-      partners.partnerDetails.last.doYouHaveVRN.get shouldBe "No"
-      partners.partnerDetails.last.vrn shouldBe None
-      partners.partnerDetails.last.partnerAddress.get.addressLine1 shouldBe "2 Example Street"
-      partners.partnerDetails.last.partnerAddress.get.addressLine2 shouldBe "Exampletown"
-      partners.partnerDetails.last.partnerAddress.get.addressLine3 shouldBe None
-      partners.partnerDetails.last.partnerAddress.get.addressLine4 shouldBe None
-      partners.partnerDetails.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
-      partners.partnerDetails.head.isBusinessIncorporated shouldBe None
-      partners.partnerDetails.head.companyRegDetails shouldBe None
+      partners.partners.last.entityType.get shouldBe "Sole Trader"
+      partners.partners.last.firstName.get shouldBe "example"
+      partners.partners.last.lastName.get shouldBe "exampleson"
+      partners.partners.last.companyNames.tradingName.get shouldBe "trading name"
+      partners.partners.last.companyNames.businessName shouldBe None
+      partners.partners.last.doYouHaveNino.get shouldBe "Yes"
+      partners.partners.last.nino.get shouldBe testNino
+      partners.partners.last.doYouHaveUTR.get shouldBe "No"
+      partners.partners.last.utr shouldBe None
+      partners.partners.last.doYouHaveVRN.get shouldBe "No"
+      partners.partners.last.vrn shouldBe None
+      partners.partners.last.partnerAddress.get.addressLine1 shouldBe "2 Example Street"
+      partners.partners.last.partnerAddress.get.addressLine2 shouldBe "Exampletown"
+      partners.partners.last.partnerAddress.get.addressLine3 shouldBe None
+      partners.partners.last.partnerAddress.get.addressLine4 shouldBe None
+      partners.partners.last.partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners.head.isBusinessIncorporated shouldBe None
+      partners.partners.head.companyRegDetails shouldBe None
     }
 
     "transform correctly to Partner Details Frontend Model for LLP when Partner is of type Corporate Body" in {
-      val partners = api4EtmpLLPJson.as[PartnerDetails](PartnerDetails.reader)
-      partners shouldBe a[PartnerDetails]
-      partners.partnerDetails(0).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(1).otherPartners.get shouldBe "Yes"
-      partners.partnerDetails(2).otherPartners.get shouldBe "No"
+      val partners = api4EtmpLLPJson.as[Partners](Partners.reader)
+      partners shouldBe a[Partners]
+      partners.partners(0).otherPartners.get shouldBe "Yes"
+      partners.partners(1).otherPartners.get shouldBe "Yes"
+      partners.partners(2).otherPartners.get shouldBe "No"
 
-      partners.partnerDetails(1).entityType.get shouldBe "Corporate Body"
-      partners.partnerDetails(1).companyName.get shouldBe "company name"
-      partners.partnerDetails(1).tradingName.get shouldBe "trading name"
-      partners.partnerDetails(1).firstName shouldBe None
-      partners.partnerDetails(1).lastName shouldBe None
-      partners.partnerDetails(1).doYouHaveNino shouldBe None
-      partners.partnerDetails(1).nino shouldBe None
-      partners.partnerDetails(1).doYouHaveVRN.get shouldBe "No"
-      partners.partnerDetails(1).vrn shouldBe None
-      partners.partnerDetails(1).doYouHaveUTR.get shouldBe "No"
-      partners.partnerDetails(1).utr shouldBe None
-      partners.partnerDetails(1).isBusinessIncorporated.get shouldBe "Yes"
-      partners.partnerDetails(1).companyRegDetails.get.companyRegistrationNumber shouldBe "12345678"
-      partners.partnerDetails(1).companyRegDetails.get.dateOfIncorporation shouldBe "30/10/2010"
-      partners.partnerDetails(1).partnerAddress.get.addressLine1 shouldBe "address line 1"
-      partners.partnerDetails(1).partnerAddress.get.addressLine2 shouldBe "address line 2"
-      partners.partnerDetails(1).partnerAddress.get.addressLine3.get shouldBe "address line 3"
-      partners.partnerDetails(1).partnerAddress.get.addressLine4 shouldBe None
-      partners.partnerDetails(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
+      partners.partners(1).entityType.get shouldBe "Corporate Body"
+      partners.partners(1).companyNames.businessName.get shouldBe "company name"
+      partners.partners(1).companyNames.tradingName.get shouldBe "trading name"
+      partners.partners(1).firstName shouldBe None
+      partners.partners(1).lastName shouldBe None
+      partners.partners(1).doYouHaveNino shouldBe None
+      partners.partners(1).nino shouldBe None
+      partners.partners(1).doYouHaveVRN.get shouldBe "No"
+      partners.partners(1).vrn shouldBe None
+      partners.partners(1).doYouHaveUTR.get shouldBe "No"
+      partners.partners(1).utr shouldBe None
+      partners.partners(1).isBusinessIncorporated.get shouldBe "Yes"
+      partners.partners(1).companyRegDetails.get.companyRegistrationNumber shouldBe "12345678"
+      partners.partners(1).companyRegDetails.get.dateOfIncorporation shouldBe "30/10/2010"
+      partners.partners(1).partnerAddress.get.addressLine1 shouldBe "address line 1"
+      partners.partners(1).partnerAddress.get.addressLine2 shouldBe "address line 2"
+      partners.partners(1).partnerAddress.get.addressLine3.get shouldBe "address line 3"
+      partners.partners(1).partnerAddress.get.addressLine4 shouldBe None
+      partners.partners(1).partnerAddress.get.postcode.get shouldBe "AA1 1AA"
     }
 
     "transform correctly to Business Directors Frontend Model " in {
-      val directors = api4EtmpLTDJson.as[List[BusinessDirectors]](BusinessDirectorsList.reader)
-      directors.head.directorsAndCompanySecretaries shouldBe "Director"
-      directors.head.personOrCompany shouldBe "person"
-      directors.head.firstName.get shouldBe "Example"
-      directors.head.lastName.get shouldBe "Exampleson"
-      directors.last.directorsAndCompanySecretaries shouldBe "Director"
-      directors.last.personOrCompany shouldBe "company"
-      directors.last.companyName.get shouldBe "Company name"
-      directors.last.tradingName.get shouldBe "Trading name"
-      directors.last.doYouHaveVRN.get shouldBe "No"
-      directors.last.doYouHaveUTR.get shouldBe "Yes"
-      directors.last.utr.get shouldBe testUtr
-      directors.last.doYouHaveCRN.get shouldBe "No"
+      val directors = api4EtmpLTDJson.as[BusinessDirectors](BusinessDirectors.reader)
+      directors.directors.head.directorsAndCompanySecretaries shouldBe "Director"
+      directors.directors.head.personOrCompany shouldBe "person"
+      directors.directors.head.firstName.get shouldBe "Example"
+      directors.directors.head.lastName.get shouldBe "Exampleson"
+      directors.directors.last.directorsAndCompanySecretaries shouldBe "Director"
+      directors.directors.last.personOrCompany shouldBe "company"
+      directors.directors.last.companyNames.get.businessName.get shouldBe "Company name"
+      directors.directors.last.companyNames.get.tradingName.get shouldBe "Trading name"
+      directors.directors.last.doYouHaveVRN.get shouldBe "No"
+      directors.directors.last.doYouHaveUTR.get shouldBe "Yes"
+      directors.directors.last.utr.get shouldBe testUtr
+      directors.directors.last.doYouHaveCRN.get shouldBe "No"
     }
 
     "transform correctly to Business Directors Frontend Model when coOfficial is of type company" in {
-      val directors = api4EtmpLTDJson.as[List[BusinessDirectors]](BusinessDirectorsList.reader)
-      val dl = directors.last
+      val directors = api4EtmpLTDJson.as[BusinessDirectors](BusinessDirectors.reader)
+      val dl = directors.directors.last
       dl.directorsAndCompanySecretaries shouldBe "Director"
       dl.personOrCompany shouldBe "company"
-      val d1 = directors(1)
+      val d1 = directors.directors(1)
       d1.directorsAndCompanySecretaries shouldBe "Director and Company Secretary"
       d1.personOrCompany shouldBe "person"
-      val d2 = directors(2)
+      val d2 = directors.directors(2)
       d2.directorsAndCompanySecretaries shouldBe "Company Secretary"
       d2.personOrCompany shouldBe "person"
     }
@@ -681,15 +681,17 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "For LLP/LP transform correct Partnership Details JSON element to AWRS Partnership Details JSON element" in {
-      val awrsFEModel = api4EtmpLLPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val awrsFEJson = Json.toJson(awrsFEModel)
-      awrsFEJson shouldBe api5FrontendLLPJson
+      val modelFromEtmp = api4EtmpLLPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
+      val modelFromFE = api5FrontendLLPJson.as[AWRSFEModel]
+
+      Json.toJson(modelFromEtmp) shouldBe Json.toJson(modelFromFE)
     }
 
     "For Partnership transform correct Partnership Details JSON element to AWRS Partnership Details JSON element" in {
-      val awrsFEModel = api4EtmpPartnershipJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val awrsFEJson = Json.toJson(awrsFEModel)
-      awrsFEJson shouldBe api5FrontendPartnershipJson
+      val modelFromEtmp = api4EtmpPartnershipJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
+      val modelFromFE = api5FrontendPartnershipJson.as[AWRSFEModel]
+
+      Json.toJson(modelFromEtmp) shouldBe Json.toJson(modelFromFE)
     }
 
     "For Sole Trader transform correct declaration JSON element when useAlternateContactAddress -> true " in {
@@ -813,15 +815,15 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "return a list of Group members with the last group member's add another member set to No " in {
-      val groupMember = api4EtmpLTDGRPJson.as[GroupMemberDetails](GroupMemberDetails.reader)
+      val groupMember = api4EtmpLTDGRPJson.as[GroupMembers](GroupMembers.reader)
 
       groupMember.members.last.addAnotherGrpMember.get shouldBe "No"
     }
 
     "transform correctly to Group members Frontend Model for business type 'LTD' " in {
-      val groupMember = api4EtmpLTDGRPJson.as[GroupMemberDetails](GroupMemberDetails.reader)
-      groupMember.members.head.names.companyName.get shouldBe "ExampleName"
-      groupMember.members.head.names.tradingName.get shouldBe "Example"
+      val groupMember = api4EtmpLTDGRPJson.as[GroupMembers](GroupMembers.reader)
+      groupMember.members.head.companyNames.businessName.get shouldBe "ExampleName"
+      groupMember.members.head.companyNames.tradingName.get shouldBe "Example"
       groupMember.members.head.address.get.addressLine1 shouldBe "16 Example Road"
       groupMember.members.head.address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members.head.address.get.postcode.get shouldBe "AA1 1AA"
@@ -833,8 +835,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       groupMember.members.head.isBusinessIncorporated.get shouldBe "No"
 
-      groupMember.members(1).names.companyName.get shouldBe "Another Example"
-      groupMember.members(1).names.tradingName.get shouldBe "Example Trade"
+      groupMember.members(1).companyNames.businessName.get shouldBe "Another Example"
+      groupMember.members(1).companyNames.tradingName.get shouldBe "Example Trade"
       groupMember.members(1).address.get.addressLine1 shouldBe "22 Example Road"
       groupMember.members(1).address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members(1).address.get.postcode.get shouldBe "AA1 1AA"
@@ -842,9 +844,9 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform correctly to Group members Frontend Model for business type 'LLP' " in {
-      val groupMember = api4EtmpLLPGRPJson.as[GroupMemberDetails](GroupMemberDetails.reader)
-      groupMember.members.head.names.companyName.get shouldBe "ExampleName"
-      groupMember.members.head.names.tradingName.get shouldBe "Example"
+      val groupMember = api4EtmpLLPGRPJson.as[GroupMembers](GroupMembers.reader)
+      groupMember.members.head.companyNames.businessName.get shouldBe "ExampleName"
+      groupMember.members.head.companyNames.tradingName.get shouldBe "Example"
 
       groupMember.members.head.doYouHaveUTR.get shouldBe "No"
 
@@ -857,8 +859,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       groupMember.members.head.address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members.head.address.get.postcode.get shouldBe "AA1 1AA"
 
-      groupMember.members(1).names.companyName.get shouldBe "Another Example"
-      groupMember.members(1).names.tradingName.get shouldBe "Example Trade"
+      groupMember.members(1).companyNames.businessName.get shouldBe "Another Example"
+      groupMember.members(1).companyNames.tradingName.get shouldBe "Example Trade"
       groupMember.members(1).address.get.addressLine1 shouldBe "22 Example Road"
       groupMember.members(1).address.get.addressLine2 shouldBe "Exampleland"
       groupMember.members(1).address.get.postcode.get shouldBe "AA1 1AA"
@@ -887,7 +889,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val awrsFEModel = api4EtmpSOPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
 
-      awrsFEJson should not include "groupMemberDetails"
+      awrsFEJson should not include "groupMembers"
       awrsFEJson should not include "groupRepBusinessDetails"
     }
 
@@ -895,7 +897,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val awrsFEModel = api4EtmpLTDJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
 
-      awrsFEJson should not include "groupMemberDetails"
+      awrsFEJson should not include "groupMembers"
       awrsFEJson should not include "groupRepBusinessDetails"
     }
 

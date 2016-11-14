@@ -376,25 +376,75 @@ object BusinessRegistrationDetails {
 
 }
 
-object Names {
+object CompanyNames {
 
-  val reader = new Reads[Names] {
+  val reader = new Reads[CompanyNames] {
 
-    def reads(js: JsValue): JsResult[Names] =
+    def reads(js: JsValue): JsResult[CompanyNames] =
       for {
         companyName <- (js \ "companyName").validate[Option[String]]
         tradingName <- (js \ "tradingName").validate[Option[String]]
       } yield {
-        Names(
-          companyName = companyName,
+        CompanyNames(
+          businessName = companyName,
+          doYouHaveTradingName = tradingName match {
+            case Some(_) => Some("Yes")
+            case None => Some("No")
+          },
           tradingName = tradingName
         )
       }
 
   }
 
-  implicit val formats = Json.format[Names]
+  implicit val formats = Json.format[CompanyNames]
 
+  implicit class CompanyNamesGetUtil(companyNames: Option[CompanyNames]) {
+    def businessName: Option[String] = companyNames.fold(None: Option[String])(_.businessName)
+
+    def tradingName: Option[String] = companyNames.fold(None: Option[String])(_.tradingName)
+  }
+
+}
+
+
+/*
+ *  This object is used as a utility factory for CompanyNames,
+ *  this object is required since the Json.format[T] in play 2.3 only works when a single def apply exists in
+ *  the companion object.
+*/
+object CompanyNamesFact {
+
+  /*
+  *  only specify an entityType if it can be a sole trader, since in that case doYouHaveTradingName needs to be populated
+  */
+  def apply(businessName: Option[String], tradingName: Option[String], entityType: Option[String] = None): Option[CompanyNames] =
+  (businessName, tradingName) match {
+    case (None, None) =>
+      entityType match {
+        // for sole traders only trading name is checked and it is an optional field
+        // so return the inference of no based on its sole existence
+        case Some(PartnerDetailType.Sole_Trader) =>
+          Some(
+            CompanyNames(
+              businessName = None,
+              doYouHaveTradingName = Some("No"),
+              tradingName = None
+            )
+          )
+        case _ => None
+      }
+    case _ => Some(
+      CompanyNames(
+        businessName = businessName,
+        doYouHaveTradingName = Some(tradingName match {
+          case Some(_) => "Yes"
+          case None => "No"
+        }),
+        tradingName = tradingName
+      )
+    )
+  }
 }
 
 object GroupMember {
@@ -403,7 +453,7 @@ object GroupMember {
 
     def reads(js: JsValue): JsResult[GroupMember] =
       for {
-        names <- (js \ "names").validate[Names](Names.reader)
+        names <- (js \ "names").validate[CompanyNames](CompanyNames.reader)
         isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validate[Option[Boolean]]
         companyRegDetails <- (js \ "incorporationDetails").validate[Option[CompanyRegDetails]](Reads.optionNoError(CompanyRegDetails.reader))
         groupJoiningDate <- (js \ "groupJoiningDate").validate[String]
@@ -414,7 +464,7 @@ object GroupMember {
         utr <- (js \ "identification" \ "utr").validate[Option[String]]
       } yield {
         GroupMember(
-          names = names,
+          companyNames = names,
           isBusinessIncorporated = booleanToString(isBusinessIncorporated.fold(false)(x => x)),
           companyRegDetails = companyRegDetails,
           address = address,
@@ -433,15 +483,15 @@ object GroupMember {
 
 }
 
-object GroupMemberDetails {
+object GroupMembers {
+  val latestModelVersion = "1.0"
+  val reader = new Reads[GroupMembers] {
 
-  val reader = new Reads[GroupMemberDetails] {
-
-    def reads(js: JsValue): JsResult[GroupMemberDetails] =
+    def reads(js: JsValue): JsResult[GroupMembers] =
       for {
         groupMembers <- (js \ "subscriptionType" \ "groupMemberDetails" \ "groupMember").validate[List[GroupMember]](Reads.list(GroupMember.reader))
       } yield {
-        GroupMemberDetails(members = addAnotherGroupMember(groupMembers))
+        GroupMembers(members = addAnotherGroupMember(groupMembers))
       }
 
   }
@@ -452,7 +502,7 @@ object GroupMemberDetails {
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[GroupMemberDetails]
+  implicit val formats = Json.format[GroupMembers]
 
 }
 
@@ -522,9 +572,9 @@ object AdditionalBusinessPremisesList {
 
 }
 
-object PartnerDetail {
+object Partner {
 
-  val reader = new Reads[PartnerDetail] {
+  val reader = new Reads[Partner] {
 
     def toPartnerDetail(entityType: Option[String],
                         partnerAddress: Option[Address],
@@ -541,15 +591,14 @@ object PartnerDetail {
                         doYouHaveUTR: Option[String],
                         utr: Option[String],
                         otherPartners: Option[String]) =
-      PartnerDetail(
+      Partner(
         entityType = entityType,
         partnerAddress = partnerAddress,
         firstName = firstName,
         lastName = lastName,
         doYouHaveNino = doYouHaveNino,
         nino = nino,
-        companyName = companyName,
-        tradingName = tradingName,
+        companyNames = CompanyNamesFact(companyName, tradingName, entityType),
         isBusinessIncorporated = isBusinessIncorporated,
         companyRegDetails = companyRegDetails,
         doYouHaveVRN = doYouHaveVRN,
@@ -559,7 +608,7 @@ object PartnerDetail {
         otherPartners = otherPartners
       )
 
-    def reads(js: JsValue): JsResult[PartnerDetail] =
+    def reads(js: JsValue): JsResult[Partner] =
       for {
         entityType <- (js \ "entityType").validate[Option[String]]
         partnerAddress <- (js \ "partnerAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
@@ -600,15 +649,15 @@ object PartnerDetail {
 
   }
 
-  implicit val formats: Format[PartnerDetail] = Json.format[PartnerDetail]
+  implicit val formats: Format[Partner] = Json.format[Partner]
 
 }
 
-object BusinessDirectors {
+object BusinessDirector {
 
-  val reader = new Reads[BusinessDirectors] {
+  val reader = new Reads[BusinessDirector] {
 
-    def reads(js: JsValue): JsResult[BusinessDirectors] =
+    def reads(js: JsValue): JsResult[BusinessDirector] =
       for {
         individualStatus <- (js \ "individual" \ "status").validate[Option[String]]
         firstName <- (js \ "individual" \ "name" \ "firstName").validate[Option[String]]
@@ -617,7 +666,7 @@ object BusinessDirectors {
         passportNumber <- (js \ "individual" \ "identification" \ "passportNumber").validate[Option[String]]
         nationalID <- (js \ "individual" \ "identification" \ "nationalIdNumber").validate[Option[String]]
         companyStatus <- (js \ "company" \ "status").validate[Option[String]]
-        companyName <- (js \ "company" \ "names" \ "companyName").validate[Option[String]]
+        businessName <- (js \ "company" \ "names" \ "companyName").validate[Option[String]]
         tradingName <- (js \ "company" \ "names" \ "tradingName").validate[Option[String]]
         doYouHaveVRN <- (js \ "company" \ "identification" \ "doYouHaveVRN").validate[Option[Boolean]]
         vrn <- (js \ "company" \ "identification" \ "vrn").validate[Option[String]]
@@ -631,7 +680,9 @@ object BusinessDirectors {
           case (_, Some(status)) => (status, "company")
           case _ => throw new RuntimeException("Etmp BusinessDirectors read error, neither individualStatus nor companyStatus are present")
         }
-        BusinessDirectors(
+        val companyNames = CompanyNamesFact(businessName, tradingName)
+
+        BusinessDirector(
           directorsAndCompanySecretaries = directorsAndCompanySecretaries,
           personOrCompany = personOrCompany,
           firstName = firstName, //to cater for when its none
@@ -641,8 +692,7 @@ object BusinessDirectors {
           passportNumber = passportNumber,
           nationalID = nationalID,
           otherDirectors = Some("Yes"),
-          companyName = companyName,
-          tradingName = tradingName,
+          companyNames = companyNames,
           doYouHaveVRN = if (companyStatus.nonEmpty) booleanToString(doYouHaveVRN.fold(false)(x => x)) else None,
           vrn = vrn,
           doYouHaveCRN = if (companyStatus.nonEmpty) booleanToString(doYouHaveCRN.fold(false)(x => x)) else None,
@@ -653,26 +703,27 @@ object BusinessDirectors {
 
   }
 
-  implicit val formats: Format[BusinessDirectors] = Json.format[BusinessDirectors]
+  implicit val formats: Format[BusinessDirector] = Json.format[BusinessDirector]
 
 }
 
-case class BusinessDirectorsList(businessDirectors: List[BusinessDirectors])
 
-object BusinessDirectorsList {
+object BusinessDirectors {
 
-  val reader = new Reads[List[BusinessDirectors]] {
+  val latestModelVersion = "1.0"
 
-    def reads(js: JsValue): JsResult[List[BusinessDirectors]] =
+  val reader = new Reads[BusinessDirectors] {
+
+    def reads(js: JsValue): JsResult[BusinessDirectors] =
       for {
-        businessDirectors <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "partnerCorporateBody" \ "coOfficialDetails" \ "coOfficial").validate[List[BusinessDirectors]](Reads.list(BusinessDirectors.reader))
+        businessDirectors <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "partnerCorporateBody" \ "coOfficialDetails" \ "coOfficial").validate[List[BusinessDirector]](Reads.list(BusinessDirector.reader))
       } yield {
-        businessDirectors
+        BusinessDirectors(businessDirectors)
       }
 
   }
 
-  implicit val formats = Json.format[BusinessDirectorsList]
+  implicit val formats = Json.format[BusinessDirectors]
 
 }
 
@@ -773,28 +824,32 @@ object BusinessType {
 
 }
 
-case class PartnerDetails(partnerDetails: List[PartnerDetail])
+case class Partners(partners: List[Partner],
+                    modelVersion: String = Partners.latestModelVersion
+                   ) extends ModelVersionControl
 
-object PartnerDetails {
+object Partners {
 
-  val reader = new Reads[PartnerDetails] {
+  val latestModelVersion = "1.0"
 
-    def reads(js: JsValue): JsResult[PartnerDetails] =
+  val reader = new Reads[Partners] {
+
+    def reads(js: JsValue): JsResult[Partners] =
       for {
-        partnerDetails <- (js \ "subscriptionType" \ "businessDetails" \ "partnership" \ "partnerDetails").validate[List[PartnerDetail]](Reads.list(PartnerDetail.reader))
+        partnerDetails <- (js \ "subscriptionType" \ "businessDetails" \ "partnership" \ "partnerDetails").validate[List[Partner]](Reads.list(Partner.reader))
       } yield {
-        PartnerDetails(partnerDetails = isAdditionalPartner(partnerDetails))
+        Partners(partners = isAdditionalPartner(partnerDetails))
       }
 
   }
 
-  def isAdditionalPartner(partnerDetails: List[PartnerDetail]): List[PartnerDetail] =
+  def isAdditionalPartner(partnerDetails: List[Partner]): List[Partner] =
     partnerDetails.zipWithIndex.map {
       case (x, i) if i == (partnerDetails.size - 1) => x.copy(otherPartners = Some("No"))
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[PartnerDetails]
+  implicit val formats = Json.format[Partners]
 
 }
 
@@ -880,16 +935,17 @@ case class SubscriptionTypeFrontEnd(
                                      businessDetails: Option[BusinessDetails],
                                      businessRegistrationDetails: Option[BusinessRegistrationDetails],
                                      businessContacts: Option[BusinessContacts],
-                                     partnership: Option[PartnerDetails],
-                                     groupMemberDetails: Option[GroupMemberDetails],
+                                     partnership: Option[Partners],
+                                     groupMembers: Option[GroupMembers],
                                      additionalPremises: Option[AdditionalBusinessPremisesList],
-                                     businessDirectors: Option[List[BusinessDirectors]],
+                                     businessDirectors: Option[BusinessDirectors],
                                      tradingActivity: Option[TradingActivity],
                                      products: Option[Products],
                                      suppliers: Option[Suppliers],
                                      applicationDeclaration: Option[ApplicationDeclaration],
-                                     changeIndicators: Option[ChangeIndicators]
-                                   )
+                                     changeIndicators: Option[ChangeIndicators],
+                                     modelVersion: String = SubscriptionTypeFrontEnd.latestModelVersion
+                                   ) extends ModelVersionControl
 
 object BusinessDetails {
 
@@ -1138,6 +1194,8 @@ object Products {
 
 object SubscriptionTypeFrontEnd {
 
+  val latestModelVersion = "1.0"
+
   val reader = new Reads[SubscriptionTypeFrontEnd] {
 
     def reads(js: JsValue): JsResult[SubscriptionTypeFrontEnd] =
@@ -1149,10 +1207,10 @@ object SubscriptionTypeFrontEnd {
         businessDetails <- js.validate[Option[BusinessDetails]](Reads.optionNoError(BusinessDetails.reader(legalEntity.get.legalEntity.get)))
         businessRegistrationDetails <- js.validate[Option[BusinessRegistrationDetails]](Reads.optionNoError(BusinessRegistrationDetails.reader(legalEntity.get.legalEntity.get)))
         businessContacts <- js.validate[Option[BusinessContacts]](Reads.optionNoError(BusinessContacts.reader))
-        groupMemberDetails <- js.validate[Option[GroupMemberDetails]](Reads.optionNoError(GroupMemberDetails.reader))
+        groupMemberDetails <- js.validate[Option[GroupMembers]](Reads.optionNoError(GroupMembers.reader))
         additionalPremises <- js.validate[Option[AdditionalBusinessPremisesList]](Reads.optionNoError(AdditionalBusinessPremisesList.reader))
-        businessDirectors <- js.validate[Option[List[BusinessDirectors]]](Reads.optionNoError(BusinessDirectorsList.reader))
-        partnership <- js.validate[Option[PartnerDetails]](Reads.optionNoError(PartnerDetails.reader))
+        businessDirectors <- js.validate[Option[BusinessDirectors]](Reads.optionNoError(BusinessDirectors.reader))
+        partnership <- js.validate[Option[Partners]](Reads.optionNoError(Partners.reader))
         tradingActivity <- js.validate[Option[TradingActivity]](Reads.optionNoError(TradingActivity.reader))
         products <- js.validate[Option[Products]](Reads.optionNoError(Products.reader))
         suppliers <- js.validate[Option[Suppliers]](Reads.optionNoError(Suppliers.reader))
@@ -1166,7 +1224,7 @@ object SubscriptionTypeFrontEnd {
           businessRegistrationDetails = businessRegistrationDetails,
           businessContacts = businessContacts,
           groupDeclaration = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupDeclaration else None,
-          groupMemberDetails = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupMemberDetails else None,
+          groupMembers = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupMemberDetails else None,
           partnership = partnership,
           additionalPremises = additionalPremises,
           businessDirectors = if (legalEntity.get.legalEntity.get == "LTD" | legalEntity.get.legalEntity.get == "LTD_GRP") Some(amendLastDirector(businessDirectors.reduce((x, y) => x))) else None,
@@ -1174,17 +1232,18 @@ object SubscriptionTypeFrontEnd {
           products = products,
           suppliers = hasSupplier(suppliers),
           applicationDeclaration = applicationDeclaration,
-          changeIndicators = None
+          changeIndicators = None,
+          modelVersion = latestModelVersion
         )
       }
 
   }
 
-  def amendLastDirector(directors: List[BusinessDirectors]): List[BusinessDirectors] =
-    directors.zipWithIndex.map {
-      case (x, i) if i == (directors.size - 1) => x.copy(otherDirectors = Some("No"))
+  def amendLastDirector(businessDirectors: BusinessDirectors): BusinessDirectors =
+    BusinessDirectors(businessDirectors.directors.zipWithIndex.map {
+      case (x, i) if i == (businessDirectors.directors.size - 1) => x.copy(otherDirectors = Some("No"))
       case (x, i) => x
-    }
+    })
 
   def hasSupplier(suppliers: Option[Suppliers]): Option[Suppliers] =
     suppliers match {

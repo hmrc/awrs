@@ -132,6 +132,7 @@
     "applicationDeclaration": {
       "declarationName": "Example Exampleson",
       "declarationRole": "Other"
-    }
+    },
+    "modelVersion": "1.0"
   }
 }
