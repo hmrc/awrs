@@ -23,6 +23,10 @@ import utils.Utility._
 
 import scala.util.{Failure, Success, Try}
 
+trait ModelVersionControl {
+  def modelVersion: String
+}
+
 sealed trait CorpNumbersType {
   def doYouHaveVRN: Option[String]
 
@@ -51,24 +55,27 @@ sealed trait IncorporationDetails {
   def companyRegDetails: Option[CompanyRegDetails]
 }
 
-case class BusinessDirectors(directorsAndCompanySecretaries: String,
-                             personOrCompany: String,
-                             firstName: Option[String],
-                             lastName: Option[String],
-                             doTheyHaveNationalInsurance: Option[String],
-                             nino: Option[String],
-                             passportNumber: Option[String],
-                             nationalID: Option[String],
-                             otherDirectors: Option[String],
-                             companyName: Option[String],
-                             tradingName: Option[String],
-                             doYouHaveVRN: Option[String],
-                             vrn: Option[String],
-                             doYouHaveCRN: Option[String],
-                             companyRegNumber: Option[String],
-                             doYouHaveUTR: Option[String],
-                             utr: Option[String]) extends CorpNumbersWithCRNType
+case class BusinessDirector(personOrCompany: String,
+                            firstName: Option[String] = None,
+                            lastName: Option[String] = None,
+                            doTheyHaveNationalInsurance: Option[String] = None,
+                            nino: Option[String] = None,
+                            passportNumber: Option[String] = None,
+                            nationalID: Option[String] = None,
+                            companyNames: Option[CompanyNames] = None,
+                            doYouHaveUTR: Option[String] = None,
+                            utr: Option[String] = None,
+                            doYouHaveCRN: Option[String] = None,
+                            companyRegNumber: Option[String] = None,
+                            doYouHaveVRN: Option[String] = None,
+                            vrn: Option[String] = None,
+                            directorsAndCompanySecretaries: String,
+                            otherDirectors: Option[String] = None
+                           ) extends CorpNumbersWithCRNType
 
+case class BusinessDirectors(directors: List[BusinessDirector],
+                             modelVersion: String = BusinessDirectors.latestModelVersion
+                            ) extends ModelVersionControl
 
 case class Supplier(alcoholSuppliers: Option[String],
                     supplierName: Option[String],
@@ -87,21 +94,20 @@ case class AdditionalBusinessPremises(additionalPremises: Option[String],
 
 case class AdditionalBusinessPremisesList(premises: List[AdditionalBusinessPremises])
 
-case class PartnerDetail(entityType: Option[String],
-                         partnerAddress: Option[Address],
-                         firstName: Option[String],
-                         lastName: Option[String],
-                         doYouHaveNino: Option[String],
-                         nino: Option[String],
-                         companyName: Option[String],
-                         tradingName: Option[String],
-                         isBusinessIncorporated: Option[String],
-                         companyRegDetails: Option[CompanyRegDetails],
-                         doYouHaveVRN: Option[String],
-                         vrn: Option[String],
-                         doYouHaveUTR: Option[String],
-                         utr: Option[String],
-                         otherPartners: Option[String]) extends CorpNumbersType with IndividualIdNumbersType with IncorporationDetails
+case class Partner(entityType: Option[String],
+                   firstName: Option[String],
+                   lastName: Option[String],
+                   companyNames: Option[CompanyNames] = None,
+                   partnerAddress: Option[Address],
+                   doYouHaveNino: Option[String],
+                   nino: Option[String],
+                   doYouHaveUTR: Option[String],
+                   utr: Option[String],
+                   isBusinessIncorporated: Option[String],
+                   companyRegDetails: Option[CompanyRegDetails],
+                   doYouHaveVRN: Option[String],
+                   vrn: Option[String],
+                   otherPartners: Option[String]) extends CorpNumbersType with IndividualIdNumbersType with IncorporationDetails
 
 case class CompanyRegDetails(companyRegistrationNumber: String, dateOfIncorporation: String)
 
@@ -146,14 +152,6 @@ case class BCAddress(
 
 }
 
-case class Partners(partners: List[Partner])
-
-case class Partner(firstName: String,
-                   lastName: String,
-                   isNinoPresent: Option[String],
-                   nino: Option[String],
-                   additionalPartner: Option[String])
-
 case class ChangeIndicators(businessDetailsChanged: Boolean,
                             businessAddressChanged: Boolean,
                             contactDetailsChanged: Boolean,
@@ -169,12 +167,15 @@ case class NewAWBusiness(newAWBusiness: String, proposedStartDate: Option[String
 
 case class GroupDeclaration(groupRepConfirmation: Boolean)
 
-case class GroupMemberDetails(members: List[GroupMember])
+case class GroupMembers(members: List[GroupMember],
+                        modelVersion: String = GroupMembers.latestModelVersion
+                       ) extends ModelVersionControl
 
-case class Names(companyName: Option[String],
-                 tradingName: Option[String])
+case class CompanyNames(businessName: Option[String],
+                        doYouHaveTradingName: Option[String],
+                        tradingName: Option[String])
 
-case class GroupMember(names: Names,
+case class GroupMember(companyNames: CompanyNames,
                        isBusinessIncorporated: Option[String],
                        companyRegDetails: Option[CompanyRegDetails],
                        address: Option[Address],
@@ -695,7 +696,7 @@ object Supplier {
           additionalSupplier = Some("Yes"),
           ukSupplier = if (supplierAddress.get.addressCountryCode.isDefined) Some("No") else Some("Yes")
         )
-      }
+      }""
 
   }
 
@@ -759,7 +760,7 @@ object BusinessType {
   }
 
   def convertLegalEntity(legalEntity: Option[String], creatingAGroup: Boolean): Option[String] =
-    (legalEntity.fold("")(x => x), l) match {
+    (legalEntity.fold("")(x => x), creatingAGroup) match {
       case (LegalEntityType.SOLE_TRADER, false) => Some("SOP")
       case (LegalEntityType.CORPORATE_BODY, false) => Some("LTD")
       case (LegalEntityType.CORPORATE_BODY, true) => Some("LTD_GRP")

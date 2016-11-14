@@ -16,23 +16,19 @@
 
 package connectors
 
-import models.{EnrolRequest, GsoAdminEnrolCredentialIdentifierXmlInput, KnownFactsForService}
+import models.KnownFactsForService
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import config.WSHttp
-import play.api.http.HeaderNames._
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
-import play.api.libs.json._
-import play.api.http.ContentTypes.XML
+
 
 trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseReads{
 
   lazy val serviceURL = baseUrl("government-gateway-admin")
-  lazy val ggpServiceUrl: String = baseUrl("government-gateway-proxy")
-
-  val ggUri = "government-gateway-proxy"
 
   val addKnownFactsURI = "known-facts"
 
@@ -40,7 +36,6 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
 
   val http: HttpGet with HttpPost = WSHttp
 
-  def enrol(gsoAdminEnrolCredentialIdentifierXmlInput: GsoAdminEnrolCredentialIdentifierXmlInput)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = enrolAwrs(gsoAdminEnrolCredentialIdentifierXmlInput)
   def addKnownFacts(knownFacts : KnownFactsForService)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = postKnownFact(knownFacts, addKnownFactsURI)
 
   def postKnownFact(knownFacts: KnownFactsForService, destination: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
@@ -49,11 +44,6 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
     val postUrl = s"""$url/$AWRS/$destination"""
     http.POST[JsValue, HttpResponse](postUrl, jsonData)
   }
-
- def enrolAwrs(gsoAdminEnrolCredentialIdentifierXmlInput: GsoAdminEnrolCredentialIdentifierXmlInput): Future[HttpResponse]  = {
-   val ggEnrolUrl = ggpServiceUrl + s"/$ggUri/api/admin/GsoAdminEnrolCredentialIdentifier"
-   http.POSTString(ggEnrolUrl, gsoAdminEnrolCredentialIdentifierXmlInput.toXml.toString, Seq(CONTENT_TYPE -> XML))
- }
 }
 
 object GovernmentGatewayAdminConnector extends GovernmentGatewayAdminConnector

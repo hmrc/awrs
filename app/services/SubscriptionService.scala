@@ -18,11 +18,11 @@ package services
 
 import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.Metrics
-import models.{ApiType, EnrolRequest, KnownFact, KnownFactsForService}
+import models.{ApiType, KnownFact, KnownFactsForService}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
-import utils.GGConstants._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -37,15 +37,12 @@ trait SubscriptionService {
   val ggAdminConnector: GovernmentGatewayAdminConnector
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
   val metrics: Metrics
-  val enrolService: EnrolService
 
   def subscribe(data: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
     for {
       submitResponse <- etmpConnector.subscribe(data, safeId)
-      _ <- addKnownFacts(submitResponse, safeId)
-      ggResponse <- enrolService.enrolAWRS(submitResponse, safeId)
-
+      ggResponse <- addKnownFacts(submitResponse, safeId)
     } yield {
       ggResponse.status match {
         case OK =>
@@ -71,10 +68,11 @@ trait SubscriptionService {
     }
 
 
-
   private def createKnownFacts(response: HttpResponse, safeId: String) = {
     val json = response.json
     val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
+
+
     val knownFact1 = KnownFact("AWRSRefNumber", awrsRegistrationNumber)
     val knownFact2 = KnownFact("SAFEID", safeId)
     val knownFacts = List(knownFact1, knownFact2)

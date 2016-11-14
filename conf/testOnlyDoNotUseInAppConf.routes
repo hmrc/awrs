@@ -10,6 +10,8 @@
 # Failing to follow this rule may result in test routes deployed in production.
 
 # Add all the application routes to the prod.routes file
-/test-only
+POST  /org/:orgRef/awrs/test-only/send-data                                    controllers.spike.TestSpikeOrgSubscriptionController.subscribe(orgRef: String)
+POST  /sa/:utr/awrs/test-only/send-data                                        controllers.spike.TestSpikeSaSubscriptionController.subscribe(utr: String)
+
 ->         /                          prod.Routes
 

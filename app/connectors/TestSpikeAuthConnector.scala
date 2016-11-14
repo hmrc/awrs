@@ -16,6 +16,8 @@
 
 package connectors
 
+import models.GsoAdminEnrolCredentialIdentifierXmlInput
+import play.api.http.HeaderNames._
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
@@ -24,12 +26,23 @@ import play.api.http.Status._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import config.WSHttp
+import play.api.http.ContentTypes.XML
+import uk.gov.hmrc.play.http.HttpReads
 
-trait AuthConnector extends ServicesConfig with RawResponseReads {
+trait TestSpikeAuthConnector extends ServicesConfig with RawResponseReads {
 
+  // $COVERAGE-OFF$
   def serviceUrl:String = baseUrl("auth")
   def http: HttpGet with HttpPost with HttpPut
   val authorityUri: String = "auth/authority"
+  lazy val serviceURL = baseUrl("government-gateway-admin")
+  lazy val ggpServiceUrl: String = baseUrl("government-gateway-proxy")
+
+  val ggUri = "government-gateway-proxy"
+
+  val addKnownFactsURI = "known-facts"
+
+  val url = s"""$serviceURL/government-gateway-admin/service"""
 
   def getAuthority()(implicit hc: HeaderCarrier): Future[JsValue] = {
 
@@ -43,9 +56,19 @@ trait AuthConnector extends ServicesConfig with RawResponseReads {
       }
     }
   }
+
+  def enrol(gsoAdminEnrolCredentialIdentifierXmlInput: GsoAdminEnrolCredentialIdentifierXmlInput)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = enrolAwrs(gsoAdminEnrolCredentialIdentifierXmlInput)
+
+  def enrolAwrs(gsoAdminEnrolCredentialIdentifierXmlInput: GsoAdminEnrolCredentialIdentifierXmlInput)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse]  = {
+    val ggEnrolUrl = ggpServiceUrl + s"/$ggUri/api/admin/GsoAdminEnrolCredentialIdentifier"
+
+    println("gsoAdminEnrolCredentialIdentifierXmlInput.toXml" + gsoAdminEnrolCredentialIdentifierXmlInput.toXml)
+    http.POSTString(ggEnrolUrl, gsoAdminEnrolCredentialIdentifierXmlInput.toXml.toString, Seq(CONTENT_TYPE -> XML))
+  }
+  // $COVERAGE-ON$
 }
 
-object AuthConnector extends AuthConnector {
+object TestSpikeAuthConnector extends TestSpikeAuthConnector {
   // $COVERAGE-OFF$
   val http: HttpGet with HttpPost with HttpPut = WSHttp
   // $COVERAGE-ON$
