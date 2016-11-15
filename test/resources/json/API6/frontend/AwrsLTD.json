@@ -50,6 +50,7 @@
       "contactFirstName": "first name",
       "contactLastName": "last name",
       "email": "Email@email.com",
+      "confirmEmail": "Email@email.com",
       "telephone": "07000111222",
       "modelVersion" : "1.0"
     },

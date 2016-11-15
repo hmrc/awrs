@@ -58,6 +58,7 @@
       "contactFirstName": "Example",
       "contactLastName": "Exampleson",
       "email": "Example@example.com",
+      "confirmEmail": "Example@example.com",
       "telephone": "07000111222",
       "modelVersion" : "1.0"
     },

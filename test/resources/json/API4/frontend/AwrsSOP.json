@@ -49,6 +49,7 @@
       "contactFirstName": "Example",
       "contactLastName": "Exampleson",
       "email": "Example@gmail.com",
+      "confirmEmail": "Example@gmail.com",
       "telephone": "07945638956",
       "modelVersion" : "1.0"
     },
