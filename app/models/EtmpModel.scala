@@ -89,6 +89,12 @@ object LegalEntityType {
   val LIMITED_LIABILITY_PARTNERSHIP = "Limited Liability Partnership"
 }
 
+case class SuccessfulSubscriptionResponse(processingDate: String, awrsRegistrationNumber: String, etmpFormBundleNumber: String)
+
+object SuccessfulSubscriptionResponse {
+  implicit val formats = Json.format[SuccessfulSubscriptionResponse]
+}
+
 case class AWRSFEModel(subscriptionTypeFrontEnd: SubscriptionTypeFrontEnd)
 
 object AWRSFEModel extends EtmpModelHelper {
