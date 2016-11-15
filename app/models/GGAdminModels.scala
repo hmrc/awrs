@@ -17,7 +17,7 @@
 package models
 
 import play.api.libs.json.Json
-
+import scala.xml.Elem
 case class KnownFact(`type`: String, value:String)
 
 object KnownFact {
@@ -28,4 +28,41 @@ case class KnownFactsForService(facts: List[KnownFact])
 
 object KnownFactsForService {
   implicit val formats = Json.format[KnownFactsForService]
+}
+
+case class EnrolRequest(portalId: String, serviceName: String, friendlyName: String, knownFacts: Seq[String])
+
+object EnrolRequest {
+  implicit val formats = Json.format[EnrolRequest]
+}
+
+case class Identifier(`type`: String, value: String)
+
+object Identifier {
+  implicit val format = Json.format[Identifier]
+}
+
+case class GsoAdminEnrolCredentialIdentifierXmlInput(portalIdentifier : String,serviceName :String,friendlyName :String, identifiers: List[Identifier],
+                                                     credIdentifier :String,activated : Boolean = true) {
+
+  val toXml = {
+    <GsoAdminEnrolCredentialIdentifierXmlInput xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                   xmlns="urn:GSO-System-Services:external:2.10:GsoAdminEnrolCredentialIdentifierXmlInput">
+      <PortalIdentifier>{portalIdentifier}</PortalIdentifier>
+      <ServiceName>{serviceName}</ServiceName>
+      <EnrolmentFriendlyName>{friendlyName}</EnrolmentFriendlyName>
+      <Identifiers>
+        {
+        for (identifier <- identifiers) yield getIdentifier(identifier)
+        }
+      </Identifiers>
+      <CredentialIdentifier>{credIdentifier}</CredentialIdentifier>
+      <Activated>true</Activated>
+    </GsoAdminEnrolCredentialIdentifierXmlInput>
+  }
+
+  private def getIdentifier(identifier : Identifier):Elem = {
+    <Identifier IdentifierType={identifier.`type`}>{identifier.value}</Identifier>
+  }
 }
