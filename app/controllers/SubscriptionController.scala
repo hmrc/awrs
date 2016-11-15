@@ -18,7 +18,7 @@ package controllers
 
 import config.MicroserviceAuditConnector
 import metrics.Metrics
-import models.{AWRSFEModel, ApiType, SubscriptionStatusType}
+import models.{AWRSFEModel, ApiType, SubscriptionStatusType, SuccessfulSubscriptionResponse}
 import play.api.libs.json.Json
 import play.api.mvc.Action
 import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
@@ -71,10 +71,12 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
       subscriptionService.subscribe(convertedEtmpJson,safeId).map {
         registerData =>
+          val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
           warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " +  registerData.body)
           registerData.status match {
             case OK =>
               metrics.incrementSuccessCounter(ApiType.API4Subscribe)
+              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("AWRS Reference No" -> successfulSubscriptionResponse.awrsRegistrationNumber), eventType = eventTypeSuccess)
               Ok(registerData.body)
             case NOT_FOUND =>
               metrics.incrementFailedCounter(ApiType.API4Subscribe)
@@ -118,7 +120,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
       val legalEntityType = (feJson \ subscriptionTypeJSPath \ "legalEntity" \ "legalEntity").as[String]
       val changeIndicators = feJson \ subscriptionTypeJSPath \ "changeIndicators"
 
-      val auditUpdateSubscriptionTxName: String = "AWRS ETMP Update Subscription"
+
       val auditMap: Map[String,String] = Map("AWRS Reference No" -> awrsRefNo, "UserDetail"->userOrBusinessName, "legal-entity"->legalEntityType, "change-flags"-> changeIndicators.toString())
 
       val timer = metrics.startTimer(ApiType.API6UpdateSubscription)
