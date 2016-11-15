@@ -76,9 +76,12 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform correctly to SoleTraderBusinessDetails Frontend Model " in {
-      val businessDetails = api4EtmpSOPJson.as[BusinessDetails](BusinessDetails.reader("SOP"))
-      val businessRegistrationDetails = api4EtmpSOPJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("SOP"))
-      val businessContacts = api4EtmpSOPJson.as[BusinessContacts](BusinessContacts.reader)
+      val testJson = api4EtmpSOPJson
+
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("SOP"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("SOP"))
+      val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
+      val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
       businessDetails shouldBe a[BusinessDetails]
       businessDetails.tradingName.get shouldBe "Trading name"
@@ -89,14 +92,17 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       businessContacts shouldBe a[BusinessContacts]
       businessContacts.telephone shouldBe "07000111222"
-      businessContacts.emailReview shouldBe "example@example.com"
-      businessContacts.operatingDuration shouldBe "over 10 years"
+      businessContacts.email shouldBe "example@example.com"
+      placeOfBusiness.operatingDuration shouldBe "over 10 years"
     }
 
     "transform correctly to CorporateBodyBusinessDetails Frontend Model " in {
-      val businessDetails = api4EtmpLTDJson.as[BusinessDetails](BusinessDetails.reader("LTD"))
-      val businessRegistrationDetails = api4EtmpLTDJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LTD"))
-      val businessContacts = api4EtmpLTDJson.as[BusinessContacts](BusinessContacts.reader)
+      val testJson = api4EtmpLTDJson
+
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("LTD"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LTD"))
+      val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
+      val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
       businessDetails shouldBe a[BusinessDetails]
       businessDetails.tradingName.get shouldBe "Example Ltd"
@@ -106,14 +112,17 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       businessContacts shouldBe a[BusinessContacts]
       businessContacts.telephone shouldBe "07000111222"
-      businessContacts.emailReview shouldBe "test@example.com"
-      businessContacts.operatingDuration shouldBe "0 to 2 years"
+      businessContacts.email shouldBe "test@example.com"
+      placeOfBusiness.operatingDuration shouldBe "0 to 2 years"
     }
 
     "transform correctly to Partnership Business Details Frontend Model and create correct json" in {
-      val businessDetails = api4EtmpPartnershipJson.as[BusinessDetails](BusinessDetails.reader("Partnership"))
-      val businessRegistrationDetails = api4EtmpPartnershipJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("Partnership"))
-      val businessContacts = api4EtmpPartnershipJson.as[BusinessContacts](BusinessContacts.reader)
+      val testJson = api4EtmpPartnershipJson
+
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("Partnership"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("Partnership"))
+      val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
+      val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
       businessDetails shouldBe a[BusinessDetails]
       businessDetails.tradingName.get shouldBe "Trading name"
@@ -121,18 +130,21 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       businessRegistrationDetails.doYouHaveUTR shouldBe Some("No")
 
       businessContacts shouldBe a[BusinessContacts]
-      businessContacts.operatingDuration shouldBe "over 10 years"
+      placeOfBusiness.operatingDuration shouldBe "over 10 years"
       businessContacts.contactAddressSame shouldBe Some("Yes")
       businessContacts.contactFirstName shouldBe "Contact first name"
       businessContacts.contactLastName shouldBe "Contact last name"
       businessContacts.telephone shouldBe "07000111222"
-      businessContacts.placeOfBusinessLast3Years shouldBe Some("No")
+      placeOfBusiness.placeOfBusinessLast3Years shouldBe Some("No")
     }
 
     "transform correctly to GroupRepBusinessDetails Frontend Model " in {
-      val businessDetails = api4EtmpLLPGRPJson.as[BusinessDetails](BusinessDetails.reader("LLP_GRP"))
-      val businessRegistrationDetails = api4EtmpLLPGRPJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LLP_GRP"))
-      val businessContacts = api4EtmpLLPGRPJson.as[BusinessContacts](BusinessContacts.reader)
+      val testJson = api4EtmpLLPGRPJson
+
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("LLP_GRP"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LLP_GRP"))
+      val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
+      val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
       businessDetails shouldBe a[BusinessDetails]
       businessDetails.tradingName.get shouldBe "Example"
@@ -142,8 +154,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       businessContacts shouldBe a[BusinessContacts]
       businessContacts.telephone shouldBe "07000111222"
-      businessContacts.emailReview shouldBe "example@example.com"
-      businessContacts.operatingDuration shouldBe "over 10 years"
+      businessContacts.email shouldBe "example@example.com"
+      placeOfBusiness.operatingDuration shouldBe "over 10 years"
     }
 
     "transform correctly to Suppliers Frontend Model " in {

@@ -39,15 +39,20 @@
       "doYouHaveVRN": "No",
       "doYouHaveUTR": "No"
     },
-    "businessContacts": {
+    "placeOfBusiness": {
       "mainPlaceOfBusiness": "Yes",
-      "contactAddressSame": "Yes",
       "placeOfBusinessLast3Years": "Yes",
       "operatingDuration": "over 10 years",
+      "modelVersion" : "1.0"
+    },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
       "contactFirstName": "Contact",
       "contactLastName": "name",
-      "emailReview": "Email@email.com",
-      "telephone": "07000111222"
+      "email": "Email@email.com",
+      "confirmEmail": "Email@email.com",
+      "telephone": "07000111222",
+      "modelVersion" : "1.0"
     },
     "groupMembers": {
       "members": [

@@ -915,17 +915,23 @@ case class BusinessRegistrationDetails(legalEntity: Option[String],
                                        doYouHaveUTR: Option[String],
                                        utr: Option[String]) extends CorpNumbersType with IndividualIdNumbersType with IncorporationDetails
 
-case class BusinessContacts(mainPlaceOfBusiness: Option[String],
-                            mainAddress: Option[Address],
-                            contactAddressSame: Option[String],
+case class BusinessContacts(contactAddressSame: Option[String],
                             contactAddress: Option[Address],
-                            placeOfBusinessLast3Years: Option[String],
-                            placeOfBusinessAddressLast3Years: Option[Address],
-                            operatingDuration: String,
                             contactFirstName: String,
                             contactLastName: String,
-                            emailReview: String,
-                            telephone: String)
+                            email: String,
+                            confirmEmail: Option[String] = None,
+                            telephone: String,
+                            modelVersion: String = BusinessContacts.latestModelVersion
+                           ) extends ModelVersionControl
+
+case class PlaceOfBusiness(mainPlaceOfBusiness: Option[String] ,
+                           mainAddress: Option[Address] ,
+                           placeOfBusinessLast3Years: Option[String],
+                           placeOfBusinessAddressLast3Years: Option[Address],
+                           operatingDuration: String,
+                           modelVersion: String = PlaceOfBusiness.latestModelVersion
+                          ) extends ModelVersionControl
 
 case class SubscriptionTypeFrontEnd(
                                      legalEntity: Option[BusinessType],
@@ -935,6 +941,7 @@ case class SubscriptionTypeFrontEnd(
                                      businessDetails: Option[BusinessDetails],
                                      businessRegistrationDetails: Option[BusinessRegistrationDetails],
                                      businessContacts: Option[BusinessContacts],
+                                     placeOfBusiness: Option[PlaceOfBusiness],
                                      partnership: Option[Partners],
                                      groupMembers: Option[GroupMembers],
                                      additionalPremises: Option[AdditionalBusinessPremisesList],
@@ -977,33 +984,26 @@ object BusinessDetails {
 
 object BusinessContacts {
 
+  val latestModelVersion = "1.0"
+
   val reader = new Reads[BusinessContacts] {
 
     def reads(js: JsValue): JsResult[BusinessContacts] =
       for {
-        mainAddress <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
-        premiseFirstAddress <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
         contactAddressSame <- (js \ "subscriptionType" \ "contactDetails" \ "useAlternateContactAddress").validate[Option[Boolean]]
         contactAddress <- (js \ "subscriptionType" \ "contactDetails" \ "address").validate[Option[Address]](Reads.optionNoError(Address.reader))
-        placeOfBusinessLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "differentOperatingAddresslnLast3Years").validate[Option[Boolean]]
-        placeOfBusinessAddressLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
-        operatingDuration <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "operatingDuration").validate[String]
         firstName <- (js \ "subscriptionType" \ "contactDetails" \ "name" \ "firstName").validate[String]
         lastName <- (js \ "subscriptionType" \ "contactDetails" \ "name" \ "lastName").validate[String]
-        emailReview <- (js \ "subscriptionType" \ "contactDetails" \ "communicationDetails" \ "email").validate[String]
+        email <- (js \ "subscriptionType" \ "contactDetails" \ "communicationDetails" \ "email").validate[String]
         telephone <- (js \ "subscriptionType" \ "contactDetails" \ "communicationDetails" \ "telephone").validate[Option[String]]
       } yield {
         BusinessContacts(
-          mainPlaceOfBusiness = Some("Yes"),
-          mainAddress = mainAddress,
           contactAddressSame = trueToNoOrFalseToYes(contactAddressSame.fold(false)(x => x)),
           contactAddress = contactAddress,
-          placeOfBusinessLast3Years = trueToNoOrFalseToYes(placeOfBusinessLast3Years.fold(false)(x => x)),
-          placeOfBusinessAddressLast3Years = placeOfBusinessAddressLast3Years,
-          operatingDuration = operatingDuration,
           contactFirstName = firstName,
           contactLastName = lastName,
-          emailReview = emailReview,
+          email = email,
+          confirmEmail = Some(email),
           telephone = telephone.fold("")(x => x)
         )
       }
@@ -1011,6 +1011,35 @@ object BusinessContacts {
   }
 
   implicit val formats: Format[BusinessContacts] = Json.format[BusinessContacts]
+
+}
+
+object PlaceOfBusiness {
+
+  val latestModelVersion = "1.0"
+
+  val reader = new Reads[PlaceOfBusiness] {
+
+    def reads(js: JsValue): JsResult[PlaceOfBusiness] =
+      for {
+        mainAddress <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
+        premiseFirstAddress <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
+        placeOfBusinessLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "differentOperatingAddresslnLast3Years").validate[Option[Boolean]]
+        placeOfBusinessAddressLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
+        operatingDuration <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "operatingDuration").validate[String]
+      } yield {
+        PlaceOfBusiness(
+          mainPlaceOfBusiness = Some("Yes"),
+          mainAddress = mainAddress,
+          placeOfBusinessLast3Years = trueToNoOrFalseToYes(placeOfBusinessLast3Years.fold(false)(x => x)),
+          placeOfBusinessAddressLast3Years = placeOfBusinessAddressLast3Years,
+          operatingDuration = operatingDuration
+        )
+      }
+
+  }
+
+  implicit val formats: Format[PlaceOfBusiness] = Json.format[PlaceOfBusiness]
 
 }
 
@@ -1207,6 +1236,7 @@ object SubscriptionTypeFrontEnd {
         businessDetails <- js.validate[Option[BusinessDetails]](Reads.optionNoError(BusinessDetails.reader(legalEntity.get.legalEntity.get)))
         businessRegistrationDetails <- js.validate[Option[BusinessRegistrationDetails]](Reads.optionNoError(BusinessRegistrationDetails.reader(legalEntity.get.legalEntity.get)))
         businessContacts <- js.validate[Option[BusinessContacts]](Reads.optionNoError(BusinessContacts.reader))
+        placeOfBusiness <- js.validate[Option[PlaceOfBusiness]](Reads.optionNoError(PlaceOfBusiness.reader))
         groupMemberDetails <- js.validate[Option[GroupMembers]](Reads.optionNoError(GroupMembers.reader))
         additionalPremises <- js.validate[Option[AdditionalBusinessPremisesList]](Reads.optionNoError(AdditionalBusinessPremisesList.reader))
         businessDirectors <- js.validate[Option[BusinessDirectors]](Reads.optionNoError(BusinessDirectors.reader))
@@ -1223,6 +1253,7 @@ object SubscriptionTypeFrontEnd {
           businessDetails = businessDetails,
           businessRegistrationDetails = businessRegistrationDetails,
           businessContacts = businessContacts,
+          placeOfBusiness = placeOfBusiness,
           groupDeclaration = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupDeclaration else None,
           groupMembers = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupMemberDetails else None,
           partnership = partnership,
