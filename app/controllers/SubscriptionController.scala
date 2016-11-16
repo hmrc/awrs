@@ -71,10 +71,10 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
       subscriptionService.subscribe(convertedEtmpJson,safeId).map {
         registerData =>
-          val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
           warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " +  registerData.body)
           registerData.status match {
             case OK =>
+              val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
               metrics.incrementSuccessCounter(ApiType.API4Subscribe)
               audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("AWRS Reference No" -> successfulSubscriptionResponse.awrsRegistrationNumber), eventType = eventTypeSuccess)
               Ok(registerData.body)
