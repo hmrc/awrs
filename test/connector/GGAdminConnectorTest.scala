@@ -17,6 +17,7 @@
 package connector
 
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 import connectors.GovernmentGatewayAdminConnector
 import models.{KnownFact, KnownFactsForService}
@@ -26,19 +27,21 @@ import org.scalatest.BeforeAndAfter
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.Play
+import play.api.http.Status._
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.http.logging.SessionId
 import uk.gov.hmrc.play.http.ws.{WSGet, WSPost}
+import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
+import utils.AwrsTestJson.testRefNo
 
 import scala.concurrent.Future
-import utils.AwrsTestJson.testRefNo
+import scala.concurrent.duration.FiniteDuration
 
 class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
 
@@ -65,13 +68,38 @@ class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoS
   }
 
   "GGAdminConnector" should {
-    "for a successful submission, return 200 response" in {
+    "for a successful submission, return OK response" in {
 
       val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO", testRefNo)))
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = None)))
+      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = None)))
       val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
-      await(result).status shouldBe 200
+      await(result).status shouldBe OK
+    }
+
+    "for a successful submission, if the first GG call fails, retry and if 2nd succeeds return OK response" in {
+
+      val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO", testRefNo)))
+      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, responseJson = None)))
+        .thenReturn(Future.successful(HttpResponse(OK, responseJson = None)))
+      val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
+      await(result).status shouldBe OK
+      // verify that the call is made 2 times, i.e. the first failed call plus 1 successful retry
+      verify(mockWSHttp, times(2)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())
+    }
+
+    "for a successful submission, if the first GG call fails, and all retries fail, return INTERNAL_SERVER_ERROR response" in {
+
+      val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO", testRefNo)))
+      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, responseJson = None)))
+      val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
+      await(result)(FiniteDuration(10, TimeUnit.SECONDS)).status shouldBe INTERNAL_SERVER_ERROR
+      // verify that the call is made 6 times, i.e. the first failed call plus 5 failed retries
+      verify(mockWSHttp, times(6)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())
     }
 
   }
