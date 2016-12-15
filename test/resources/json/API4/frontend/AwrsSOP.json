@@ -23,7 +23,6 @@
       "lastName": "Exampleson"
     },
     "businessDetails": {
-      "legalEntity": "SOP",
       "doYouHaveTradingName": "Yes",
       "tradingName": "Example Trading",
       "newAWBusiness": {
@@ -31,6 +30,7 @@
       }
     },
     "businessRegistrationDetails": {
+      "legalEntity": "SOP",
       "doYouHaveNino": "Yes",
       "nino": "$nino",
       "doYouHaveVRN": "Yes",

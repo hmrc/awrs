@@ -21,7 +21,6 @@
       "agentReferenceNumber": "JARN1234567"
     },
     "businessDetails": {
-      "legalEntity": "LTD",
       "doYouHaveTradingName": "Yes",
       "tradingName": "Trading name",
       "newAWBusiness": {
@@ -30,6 +29,7 @@
       }
     },
     "businessRegistrationDetails": {
+      "legalEntity": "LTD",
       "isBusinessIncorporated": "Yes",
       "companyRegDetails": {
         "companyRegistrationNumber": "55555555",

@@ -21,7 +21,6 @@
       "agentReferenceNumber": "JARN1234567"
     },
     "businessDetails": {
-      "legalEntity": "Partnership",
       "doYouHaveTradingName": "Yes",
       "tradingName": "asddsad",
       "newAWBusiness": {
@@ -29,6 +28,7 @@
       }
     },
     "businessRegistrationDetails": {
+      "legalEntity": "Partnership",
       "doYouHaveVRN": "Yes",
       "vrn": "000000000",
       "doYouHaveUTR": "Yes",
