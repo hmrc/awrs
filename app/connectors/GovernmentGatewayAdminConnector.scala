@@ -53,11 +53,12 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
           f.status match {
             case 200 => Future.successful(f)
             case _ if tries < retryLimit => Future {
-              warn(s"Retrying GG Admin Add Known Facts for $awrsRegistrationNumber: String - call number: $tries")
+              warn(s"Retrying GG Admin Add Known Facts - call number: $tries")
               Thread.sleep(retryWait)
             }.flatMap(_ => trySend(tries + 1))
             case _ =>
-              warn(s"Retrying GG Admin Add Known Facts for $awrsRegistrationNumber - retry limit exceeded")
+              audit(ggAdminTxName, Map("awrsRef" -> awrsRegistrationNumber), eventTypeFailure)
+              warn(s"Retrying GG Admin Add Known Facts - retry limit exceeded")
               Future.successful(f)
           }
       }
