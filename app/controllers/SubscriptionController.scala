@@ -68,8 +68,10 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
       val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
       val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
-
-      subscriptionService.subscribe(convertedEtmpJson,safeId).map {
+      val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
+      val utr = businessReg.utr
+      val businessType = businessReg.legalEntity.get
+      subscriptionService.subscribe(convertedEtmpJson,safeId, utr, businessType).map {
         registerData =>
           warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " +  registerData.body)
           registerData.status match {

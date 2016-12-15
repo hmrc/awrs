@@ -24,13 +24,13 @@
       "agentReferenceNumber": "JARN1234567"
     },
     "businessDetails": {
-      "legalEntity": "LTD_GRP",
       "doYouHaveTradingName": "No",
       "newAWBusiness": {
         "newAWBusiness": "No"
       }
     },
     "businessRegistrationDetails": {
+      "legalEntity": "LTD_GRP",
       "isBusinessIncorporated": "Yes",
       "companyRegDetails": {
         "companyRegistrationNumber": "55555555",

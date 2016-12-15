@@ -24,7 +24,6 @@
       "agentReferenceNumber": "JARN1234567"
     },
     "businessDetails": {
-      "legalEntity": "LLP_GRP",
       "doYouHaveTradingName": "Yes",
       "tradingName": "Trading name",
       "newAWBusiness": {
@@ -33,6 +32,7 @@
       "dateGrpRepJoined": "12/12/2004"
     },
     "businessRegistrationDetails": {
+      "legalEntity": "LLP_GRP",
       "isBusinessIncorporated": "Yes",
       "companyRegDetails": {
         "companyRegistrationNumber": "55555555",

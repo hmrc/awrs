@@ -38,11 +38,11 @@ trait SubscriptionService {
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
   val metrics: Metrics
 
-  def subscribe(data: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def subscribe(data: JsValue, safeId: String, utr: Option[String], businessType: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
     for {
       submitResponse <- etmpConnector.subscribe(data, safeId)
-      ggResponse <- addKnownFacts(submitResponse, safeId)
+      ggResponse <- addKnownFacts(submitResponse, safeId, utr, businessType)
     } yield {
       ggResponse.status match {
         case OK =>
@@ -60,22 +60,26 @@ trait SubscriptionService {
   def updateSubcription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.updateSubscription(inputJson, awrsRefNo)
 
-
-  private def addKnownFacts(response: HttpResponse, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  private def addKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     response.status match {
-      case OK => ggAdminConnector.addKnownFacts(createKnownFacts(response, safeId))
+      case OK => ggAdminConnector.addKnownFacts(createKnownFacts(response, safeId, utr, businessType))
       case _ => Future.successful(response)
     }
 
-
-  private def createKnownFacts(response: HttpResponse, safeId: String) = {
+  private def createKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String) = {
     val json = response.json
     val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
-
-
     val knownFact1 = KnownFact("AWRSRefNumber", awrsRegistrationNumber)
     val knownFact2 = KnownFact("SAFEID", safeId)
-    val knownFacts = List(knownFact1, knownFact2)
+    val knownFacts = utr match {
+      case Some(someUtr) =>
+        val knownFact3 = businessType match {
+          case "SOP" => KnownFact("SAUTR", someUtr)
+          case _ => KnownFact("CTUTR", someUtr)
+        }
+        List(knownFact1, knownFact2, knownFact3)
+      case _ => List(knownFact1, knownFact2)
+    }
     KnownFactsForService(knownFacts)
   }
 

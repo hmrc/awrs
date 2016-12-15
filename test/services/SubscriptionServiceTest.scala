@@ -32,7 +32,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
-import utils.AwrsTestJson.testRefNo
+import utils.AwrsTestJson._
 
 class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
   val mockEtmpConnector = mock[EtmpConnector]
@@ -60,7 +60,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "subscribe when we are passed valid json" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockggAdminConnector.addKnownFacts(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId)
+      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP")
       val response = await(result)
       response.status shouldBe OK
       response.json shouldBe successResponse
@@ -68,7 +68,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
 
     "respond with BadRequest, when subscription request fails with a Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId)
+      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP")
       val response = await(result)
       response.status shouldBe BAD_REQUEST
       response.json shouldBe failureResponse
@@ -77,7 +77,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "respond with BadRequest, when subscription works but gg admin request fails with a Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockggAdminConnector.addKnownFacts(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId)
+      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP")
       val response = await(result)
       response.status shouldBe BAD_REQUEST
       response.json shouldBe failureResponse
