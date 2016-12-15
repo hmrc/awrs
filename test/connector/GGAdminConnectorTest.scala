@@ -46,9 +46,11 @@ class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoS
     override lazy val auditingConfig = LoadAuditingConfig("auditing")
   }
 
-  class MockHttp extends WSGet with WSPost with HttpAuditing{
+  class MockHttp extends WSGet with WSPost with HttpAuditing {
     override val hooks = Seq(AuditingHook)
+
     override def auditConnector: AuditConnector = TestAuditConnector
+
     override def appName = Play.configuration.getString("appName").getOrElse("awrs")
   }
 
@@ -65,10 +67,10 @@ class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoS
   "GGAdminConnector" should {
     "for a successful submission, return 200 response" in {
 
-      val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO",testRefNo)))
+      val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO", testRefNo)))
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = None)))
-      val result = TestGGAdminConnector.addKnownFacts(knownFact)
+      val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
       await(result).status shouldBe 200
     }
 

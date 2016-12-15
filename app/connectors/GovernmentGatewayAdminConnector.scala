@@ -22,27 +22,47 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import config.WSHttp
 import uk.gov.hmrc.play.http._
+import utils.LoggingUtils
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
-
-trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseReads{
+trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
 
   lazy val serviceURL = baseUrl("government-gateway-admin")
 
   val addKnownFactsURI = "known-facts"
 
+  val retryLimit = 5
+  val retryWait = 1000 // milliseconds
+
   val url = s"""$serviceURL/government-gateway-admin/service"""
 
   val http: HttpGet with HttpPost = WSHttp
 
-  def addKnownFacts(knownFacts : KnownFactsForService)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = postKnownFact(knownFacts, addKnownFactsURI)
+  def addKnownFacts(knownFacts: KnownFactsForService, awrsRegistrationNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = postKnownFact(knownFacts, addKnownFactsURI, awrsRegistrationNumber)
 
-  def postKnownFact(knownFacts: KnownFactsForService, destination: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def postKnownFact(knownFacts: KnownFactsForService, destination: String, awrsRegistrationNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val AWRS = "HMRC-AWRS-ORG"
     val jsonData = Json.toJson(knownFacts)
     val postUrl = s"""$url/$AWRS/$destination"""
-    http.POST[JsValue, HttpResponse](postUrl, jsonData)
+
+    def trySend(tries: Int): Future[HttpResponse] = {
+      http.POST[JsValue, HttpResponse](postUrl, jsonData).flatMap {
+        f =>
+          f.status match {
+            case 200 => Future.successful(f)
+            case _ if tries < retryLimit => Future {
+              warn(s"Retrying GG Admin Add Known Facts for $awrsRegistrationNumber: String - call number: $tries")
+              Thread.sleep(retryWait)
+            }.flatMap(_ => trySend(tries + 1))
+            case _ =>
+              warn(s"Retrying GG Admin Add Known Facts for $awrsRegistrationNumber - retry limit exceeded")
+              Future.successful(f)
+          }
+      }
+    }
+    trySend(0)
   }
 }
 
