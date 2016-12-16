@@ -23,6 +23,7 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import config.WSHttp
 import uk.gov.hmrc.play.http._
 import utils.LoggingUtils
+import play.api.http.Status._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,9 +50,9 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
 
     def trySend(tries: Int): Future[HttpResponse] = {
       http.POST[JsValue, HttpResponse](postUrl, jsonData).flatMap {
-        f =>
-          f.status match {
-            case 200 => Future.successful(f)
+        response =>
+          response.status match {
+            case OK => Future.successful(response)
             case _ if tries < retryLimit => Future {
               warn(s"Retrying GG Admin Add Known Facts - call number: $tries")
               Thread.sleep(retryWait)
@@ -59,7 +60,7 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
             case _ =>
               audit(ggAdminTxName, Map("awrsRef" -> awrsRegistrationNumber), eventTypeFailure)
               warn(s"Retrying GG Admin Add Known Facts - retry limit exceeded")
-              Future.successful(f)
+              Future.successful(response)
           }
       }
     }
