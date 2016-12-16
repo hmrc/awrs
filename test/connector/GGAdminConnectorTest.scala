@@ -61,6 +61,7 @@ class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoS
 
   object TestGGAdminConnector extends GovernmentGatewayAdminConnector {
     override val http = mockWSHttp
+    override val retryWait = 1 // override the retryWait as the wait time is irrelevant to the meaning of the test and reducing it speeds up the tests
   }
 
   before {
