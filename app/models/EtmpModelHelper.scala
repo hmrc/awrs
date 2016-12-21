@@ -414,8 +414,8 @@ trait EtmpModelHelper {
       "numberOfPremises" -> numberOfPremises,
       "premiseAddress" -> toEtmpPremises(st),
       "thirdPartyStorageUsed" -> yestoTrue(tradingActivity.thirdPartyStorage.fold("")(x => x)),
-      "alcoholGoodsExported" -> tradingActivity.doYouExportAlcohol.contains("outsideEU"),
-      "euDispatches" -> tradingActivity.doYouExportAlcohol.contains("euDispatches"))
+      "alcoholGoodsExported" -> tradingActivity.exportLocation.fold(List(""))(x => x).contains("outsideEU"),
+      "euDispatches" -> tradingActivity.exportLocation.fold(List(""))(x => x).contains("euDispatches"))
       .++(createEtmpSupplierJson(st))
       .++(Json.obj("alcoholGoodsImported" -> yestoTrue(tradingActivity.doesBusinessImportAlcohol.fold("")(x => x))))
 

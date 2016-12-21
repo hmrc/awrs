@@ -894,7 +894,8 @@ case class TradingActivity(wholesalerType: List[String],
                            otherTypeOfAlcoholOrders: Option[String],
                            doesBusinessImportAlcohol: Option[String],
                            thirdPartyStorage: Option[String],
-                           doYouExportAlcohol: List[String])
+                           doYouExportAlcohol: Option[String],
+                           exportLocation: Option[List[String]])
 
 case class Products(mainCustomers: List[String],
                     otherMainCustomers: Option[String],
@@ -1055,6 +1056,7 @@ object TradingActivity {
         otherTypeOfAlcoholOrders <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "typeOfOrderOther").validate[Option[String]]
         doesBusinessImportAlcohol <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsImported").validate[Option[Boolean]]
         doYouExportAlcohol <- doYouExportAlcohol(js)
+        exportLocation <- exportLocation(js)
         thirdPartyStorage <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "thirdPartyStorageUsed").validate[Option[Boolean]]
       } yield {
         TradingActivity(wholesalerType = wholesalerType,
@@ -1063,7 +1065,8 @@ object TradingActivity {
           otherTypeOfAlcoholOrders = otherTypeOfAlcoholOrders,
           doesBusinessImportAlcohol = booleanToString(doesBusinessImportAlcohol.fold(false)(x => x)),
           thirdPartyStorage = booleanToString(thirdPartyStorage.fold(false)(x => x)),
-          doYouExportAlcohol = doYouExportAlcohol
+          doYouExportAlcohol = doYouExportAlcohol,
+          exportLocation = exportLocation
         )
       }
 
@@ -1074,15 +1077,26 @@ object TradingActivity {
       alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validate[Option[Boolean]]
       euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validate[Option[Boolean]]
     } yield {
+      (alcoholGoodsExported, euDispatches) match {
+        case (Some(false), Some(false)) => Some("No")
+        case _ => Some("Yes")
+      }
+    }
+
+  def exportLocation(js: JsValue) =
+    for {
+      alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validate[Option[Boolean]]
+      euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validate[Option[Boolean]]
+    } yield {
       typeOfExports(alcoholGoodsExported, euDispatches)
     }
 
   def typeOfExports(alcoholGoodsExported: Option[Boolean], euDispatches: Option[Boolean]) =
     (alcoholGoodsExported, euDispatches) match {
-      case (Some(true), Some(true)) => List("euDispatches", "outsideEU")
-      case (Some(true), Some(false)) => List("outsideEU")
-      case (Some(false), Some(true)) => List("euDispatches")
-      case (Some(false), Some(false)) => List("no")
+      case (Some(true), Some(true)) => Some(List("euDispatches", "outsideEU"))
+      case (Some(true), Some(false)) => Some(List("outsideEU"))
+      case (Some(false), Some(true)) => Some(List("euDispatches"))
+      case (Some(false), Some(false)) => None
     }
 
   def typeOfWholeSaler(js: JsValue) =

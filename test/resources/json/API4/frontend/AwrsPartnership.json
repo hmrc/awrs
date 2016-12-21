@@ -136,7 +136,8 @@
         "03"
       ],
       "doesBusinessImportAlcohol": "No",
-      "doYouExportAlcohol": [
+      "doYouExportAlcohol": "Yes",
+      "exportLocation": [
         "euDispatches",
         "outsideEU"
       ]
