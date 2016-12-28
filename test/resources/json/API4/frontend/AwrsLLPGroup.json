@@ -183,7 +183,8 @@
         "04"
       ],
       "doesBusinessImportAlcohol": "Yes",
-      "doYouExportAlcohol": [
+      "doYouExportAlcohol": "Yes",
+      "exportLocation": [
         "euDispatches",
         "outsideEU"
       ]

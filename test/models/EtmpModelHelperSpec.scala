@@ -325,8 +325,10 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform doYouExportAlcohol(No)to alcoholGoodsExported=false and EUdispatches=false " in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("doYouExportAlcohol" -> List("no")))), api4FrontendSOPString)
-      val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("doYouExportAlcohol" -> Some("No")))), api4FrontendSOPString)
+      val afterDeleteJson =  deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "tradingActivity" \ "exportLocation", updatedJson)
+
+      val awrsModel = Json.parse(afterDeleteJson).as[AWRSFEModel]
 
       val etmpJson = TestEtmpModelHelper.toEtmpAdditionalBusinessInfo(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("all")
@@ -336,8 +338,8 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
 
     }
 
-    "transform doYouExportAlcohol(euDispatches)to alcoholGoodsExported=false and EUdispatches=true " in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("doYouExportAlcohol" -> List("euDispatches")))), api4FrontendSOPString)
+    "transform exportLocation(euDispatches)to alcoholGoodsExported=false and EUdispatches=true " in {
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("exportLocation" -> List("euDispatches")))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
 
       val etmpJson = TestEtmpModelHelper.toEtmpAdditionalBusinessInfo(awrsModel.subscriptionTypeFrontEnd).toString()
@@ -349,7 +351,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform doYouExportAlcohol(outsideEU)to alcoholGoodsExported=true and EUdispatches=false " in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("doYouExportAlcohol" -> List("outsideEU")))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("exportLocation" -> List("outsideEU")))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
 
       val etmpJson = TestEtmpModelHelper.toEtmpAdditionalBusinessInfo(awrsModel.subscriptionTypeFrontEnd).toString()
@@ -361,7 +363,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
     }
 
     "transform doYouExportAlcohol(outsideEU, euDispatches)to alcoholGoodsExported=true and EUdispatches=true " in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("doYouExportAlcohol" -> List("outsideEU", "euDispatches")))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("tradingActivity" -> Json.obj("exportLocation" -> List("outsideEU", "euDispatches")))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
 
       val etmpJson = TestEtmpModelHelper.toEtmpAdditionalBusinessInfo(awrsModel.subscriptionTypeFrontEnd).toString()

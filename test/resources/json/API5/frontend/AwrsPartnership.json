@@ -152,7 +152,8 @@
       ],
       "doesBusinessImportAlcohol": "No",
       "thirdPartyStorage": "No",
-      "doYouExportAlcohol": [
+      "doYouExportAlcohol": "Yes",
+      "exportLocation": [
         "euDispatches",
         "outsideEU"
       ]

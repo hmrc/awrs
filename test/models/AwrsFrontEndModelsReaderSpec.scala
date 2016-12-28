@@ -431,7 +431,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
-      awrsFEJson should include("\"doYouExportAlcohol\":[\"euDispatches\",\"outsideEU\"]")
+      awrsFEJson should include("\"exportLocation\":[\"euDispatches\",\"outsideEU\"]")
 
     }
 
@@ -446,7 +446,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
-      awrsFEJson should include("\"doYouExportAlcohol\":[\"outsideEU\"]")
+      awrsFEJson should include("\"exportLocation\":[\"outsideEU\"]")
 
     }
 
@@ -461,7 +461,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
-      awrsFEJson should include("\"doYouExportAlcohol\":[\"euDispatches\"]")
+      awrsFEJson should include("\"exportLocation\":[\"euDispatches\"]")
 
     }
 
@@ -476,7 +476,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
       val awrsFEJson = Json.toJson(awrsFEModel).toString()
-      awrsFEJson should include("\"doYouExportAlcohol\":[\"no\"]")
+      awrsFEJson should include("\"doYouExportAlcohol\":\"No\"")
 
     }
 
