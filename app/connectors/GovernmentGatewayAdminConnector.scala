@@ -57,10 +57,10 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
               warn(s"Retrying GG Admin Add Known Facts - call number: $tries")
               Thread.sleep(retryWait)
             }.flatMap(_ => trySend(tries + 1))
-            case _ =>
+            case status@_ =>
               // The GG failure will need to be sorted out manually until an automated service is introduced (currently in the pipeline).
               // The manual process will take place after the GG failure is picked up in Splunk.
-              audit(ggAdminTxName, Map("awrsRef" -> awrsRegistrationNumber), eventTypeFailure)
+              audit(ggAdminTxName, Map("awrsRef" -> awrsRegistrationNumber, "FailureStatusCode" -> status.toString), eventTypeFailure)
               warn(s"Retrying GG Admin Add Known Facts - retry limit exceeded")
               Future.successful(response)
           }

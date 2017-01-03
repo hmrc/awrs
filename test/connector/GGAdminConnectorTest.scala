@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,9 @@ class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoS
     override val retryWait = 1 // override the retryWait as the wait time is irrelevant to the meaning of the test and reducing it speeds up the tests
   }
 
+  // verification value that equals the amount of gg admin calls made, i.e. the first failed call plus 7 failed retries
+  lazy val retries = TestGGAdminConnector.retryLimit + 1
+
   before {
     reset(mockWSHttp)
   }
@@ -99,8 +102,8 @@ class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoS
         .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, responseJson = None)))
       val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
       await(result)(FiniteDuration(10, TimeUnit.SECONDS)).status shouldBe INTERNAL_SERVER_ERROR
-      // verify that the call is made 6 times, i.e. the first failed call plus 5 failed retries
-      verify(mockWSHttp, times(6)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())
+      // verify that the correct amount of retry calls are made, i.e. the first failed call plus the specified amount of failed retries
+      verify(mockWSHttp, times(retries)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())
     }
 
   }
