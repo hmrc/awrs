@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
 
   val addKnownFactsURI = "known-facts"
 
-  val retryLimit = 5
+  val retryLimit = 7
   val retryWait = 1000 // milliseconds
 
   val url = s"""$serviceURL/government-gateway-admin/service"""
@@ -58,6 +58,8 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
               Thread.sleep(retryWait)
             }.flatMap(_ => trySend(tries + 1))
             case _ =>
+              // The GG failure will need to be sorted out manually until an automated service is introduced (currently in the pipeline).
+              // The manual process will take place after the GG failure is picked up in Splunk.
               audit(ggAdminTxName, Map("awrsRef" -> awrsRegistrationNumber), eventTypeFailure)
               warn(s"Retrying GG Admin Add Known Facts - retry limit exceeded")
               Future.successful(response)
