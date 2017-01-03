@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,10 @@ trait SubscriptionService {
         case _ =>
           timer.stop()
           metrics.incrementFailedCounter(ApiType.API4AddKnownFacts)
-          ggResponse
+          // Code changed to always return the etmp response even if there is a GG failure.
+          // The GG failure will need to be sorted out manually and there is nothing the user can do at the time.
+          // The manual process will take place after the GG failure is picked up in Splunk.
+          submitResponse
       }
     }
   }

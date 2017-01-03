@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,13 +74,13 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
       response.json shouldBe failureResponse
     }
 
-    "respond with BadRequest, when subscription works but gg admin request fails with a Bad request" in {
+    "respond with Ok, when subscription works but gg admin request fails with a Bad request but audit the Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockggAdminConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP")
       val response = await(result)
-      response.status shouldBe BAD_REQUEST
-      response.json shouldBe failureResponse
+      response.status shouldBe OK
+      response.json shouldBe successResponse
     }
 
     "respond with Ok, when a valid update subscription json is supplied" in {
