@@ -85,8 +85,8 @@ object DeRegistrationType {
 
     def reads(js: JsValue): JsResult[DeRegistrationType] = {
       for {
-        successResponse <- js.validate[Option[DeRegistrationSuccessResponseType]]
-        failureResponse <- js.validate[Option[DeRegistrationFailureResponseType]]
+        successResponse <- js.validateOpt[DeRegistrationSuccessResponseType]
+        failureResponse <- js.validateOpt[DeRegistrationFailureResponseType]
       } yield {
         (successResponse, failureResponse) match {
           case (r@Some(_), None) => DeRegistrationType(r)

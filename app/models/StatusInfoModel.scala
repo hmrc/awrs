@@ -80,8 +80,8 @@ object StatusInfoType {
 
     def reads(js: JsValue): JsResult[StatusInfoType] = {
       for {
-        successResponse <- js.validate[Option[StatusInfoSuccessResponseType]]
-        failureResponse <- js.validate[Option[StatusInfoFailureResponseType]]
+        successResponse <- js.validateOpt[StatusInfoSuccessResponseType]
+        failureResponse <- js.validateOpt[StatusInfoFailureResponseType]
       } yield {
         (successResponse, failureResponse) match {
           case (r@Some(_), None) => StatusInfoType(r)
