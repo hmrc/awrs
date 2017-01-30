@@ -66,7 +66,7 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope,
         "org.jsoup" % "jsoup" % "1.7.3" % scope,
         "org.json4s" %% "json4s-jackson" % "3.2.10",
         "com.github.fge" % "json-schema-validator" % "2.2.6",
