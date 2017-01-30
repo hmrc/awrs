@@ -34,16 +34,16 @@ import uk.gov.hmrc.play.audit.http.HttpAuditing
 
 class HttpTimeoutSpec extends WordSpecLike with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterAll {
 
+  val fakeApplication = FakeApplication(additionalConfiguration = Map("ws.timeout.request" -> "45000"))
 
   override def beforeAll() {
     super.beforeAll()
-    val fakeApplication = FakeApplication(additionalConfiguration = Map("ws.timeout.request" -> "45000"))
     Play.start(fakeApplication)
   }
 
   override def afterAll() {
     super.afterAll()
-    Play.stop()
+    Play.stop(fakeApplication)
   }
 
 

@@ -70,7 +70,8 @@ private object AppDependencies {
         "org.jsoup" % "jsoup" % "1.7.3" % scope,
         "org.json4s" %% "json4s-jackson" % "3.2.10",
         "com.github.fge" % "json-schema-validator" % "2.2.6",
-        "org.json4s" %% "json4s-native" % "3.2.10"
+        "org.json4s" %% "json4s-native" % "3.2.10",
+        "org.mockito" % "mockito-all" % "1.9.5"
       )
     }.test
   }
