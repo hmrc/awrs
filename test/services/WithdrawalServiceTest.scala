@@ -19,7 +19,7 @@ package services
 import java.util.UUID
 
 import connectors.EtmpConnector
-import metrics.Metrics
+import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -37,7 +37,7 @@ class WithdrawalServiceTest extends UnitSpec with OneServerPerSuite with Mockito
 
   object TestWithdrawalService extends WithdrawalService {
     override val etmpConnector = mockEtmpConnector
-    override val metrics = Metrics
+    override val metrics = AwrsMetrics
   }
 
   "Withdrawal Service" should {

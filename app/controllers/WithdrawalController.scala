@@ -17,7 +17,7 @@
 package controllers
 
 import config.MicroserviceAuditConnector
-import metrics.Metrics
+import metrics.AwrsMetrics
 import models.{ApiType, WithdrawalRequest}
 import play.api.libs.json._
 import play.api.mvc.Action
@@ -34,12 +34,12 @@ object WithdrawalController extends WithdrawalController {
   override val appName: String = AppName.appName
   override val audit: Audit = new Audit(AppName.appName, MicroserviceAuditConnector)
   val withdrawalService: WithdrawalService = WithdrawalService
-  override val metrics = Metrics
+  override val metrics = AwrsMetrics
 }
 
 trait WithdrawalController extends BaseController with LoggingUtils {
   val withdrawalService: WithdrawalService
-  val metrics: Metrics
+  val metrics: AwrsMetrics
 
   // utr & busType are used to authenticate the request but are ignored by this function
   def withdrawal(awrsRefNo : String, utr: String, busType: String) = Action.async {

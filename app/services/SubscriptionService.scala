@@ -17,7 +17,7 @@
 package services
 
 import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
-import metrics.Metrics
+import metrics.AwrsMetrics
 import models.{ApiType, KnownFact, KnownFactsForService}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
@@ -29,14 +29,14 @@ import scala.concurrent.Future
 object SubscriptionService extends SubscriptionService {
   val etmpConnector: EtmpConnector = EtmpConnector
   val ggAdminConnector: GovernmentGatewayAdminConnector = GovernmentGatewayAdminConnector
-  override val metrics = Metrics
+  override val metrics = AwrsMetrics
 }
 
 trait SubscriptionService {
   val etmpConnector: EtmpConnector
   val ggAdminConnector: GovernmentGatewayAdminConnector
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
-  val metrics: Metrics
+  val metrics: AwrsMetrics
 
   def subscribe(data: JsValue, safeId: String, utr: Option[String], businessType: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)

@@ -17,7 +17,7 @@
 package controllers
 
 import config.MicroserviceAuditConnector
-import metrics.Metrics
+import metrics.AwrsMetrics
 import models.{ApiType, DeRegistration, DeRegistrationType}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Action
@@ -33,12 +33,12 @@ object DeRegistrationController extends DeRegistrationController {
   override val appName: String = AppName.appName
   override val audit: Audit = new Audit(AppName.appName, MicroserviceAuditConnector)
   val deRegistrationService: EtmpDeRegistrationService = EtmpDeRegistrationService
-  override val metrics = Metrics
+  override val metrics = AwrsMetrics
 }
 
 trait DeRegistrationController extends BaseController with LoggingUtils {
   val deRegistrationService: EtmpDeRegistrationService
-  val metrics: Metrics
+  val metrics: AwrsMetrics
 
   // utr & busType are used to authenticate the request but are ignored by this function
   def deRegistration(awrsRef: String, utr: String, busType: String) = Action.async {

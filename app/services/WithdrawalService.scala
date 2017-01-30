@@ -17,7 +17,7 @@
 package services
 
 import connectors.EtmpConnector
-import metrics.Metrics
+import metrics.AwrsMetrics
 import models.ApiType
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
@@ -26,12 +26,12 @@ import scala.concurrent.Future
 
 object WithdrawalService extends WithdrawalService {
   val etmpConnector: EtmpConnector = EtmpConnector
-  override val metrics = Metrics
+  override val metrics = AwrsMetrics
 }
 
 trait WithdrawalService {
   val etmpConnector: EtmpConnector
-  val metrics: Metrics
+  val metrics: AwrsMetrics
 
   def withdrawal(data: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API8Withdrawal)

@@ -18,7 +18,7 @@ package Controllers
 
 import audit.TestAudit
 import controllers.StatusInfoController
-import metrics.Metrics
+import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -43,7 +43,7 @@ class StatusInfoControllerTest extends UnitSpec with OneServerPerSuite with Mock
     override val appName: String = "awrs"
     val statusInfoService: EtmpStatusInfoService = mockEtmpStatusInfoService
     override val audit: Audit = new TestAudit
-    override val metrics = Metrics
+    override val metrics = AwrsMetrics
   }
 
   "For API 11, Status Info Controller " should {

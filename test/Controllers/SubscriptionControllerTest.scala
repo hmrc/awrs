@@ -17,7 +17,7 @@
 package controllers
 
 import audit.TestAudit
-import metrics.Metrics
+import metrics.AwrsMetrics
 import models.{DeRegistered, FormBundleStatus, Pending, SubscriptionStatusType}
 import org.mockito.Matchers
 import org.mockito.Mockito._
@@ -54,7 +54,7 @@ class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with Mo
     val lookupService: EtmpLookupService = mockEtmpLookupService
     val statusService: EtmpStatusService = mockEtmpStatusService
     override val audit: Audit = new TestAudit
-    override val metrics = Metrics
+    override val metrics = AwrsMetrics
   }
 
   "SubscriptionController" must {

@@ -16,7 +16,10 @@ import sbt._
 
 object MicroServiceBuild extends Build with MicroService {
 
+  import scala.util.Properties.envOrElse
+
   val appName = "awrs"
+  val appVersion = envOrElse(appName.toUpperCase + "_VERSION", "999-SNAPSHOT")
 
   override lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 }
@@ -32,6 +35,7 @@ private object AppDependencies {
   private val playUrlBindersVersion = "2.0.0"
   private val playConfigVersion = "3.0.0"
   private val domainVersion = "4.0.0"
+  private val playGraphiteVersion = "3.1.0"
   private val hmrcTestVersion = "2.1.0"
   private val scalaTestVersion = "2.2.6"
   private val pegdownVersion = "1.6.0"
@@ -45,10 +49,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-config" % playConfigVersion,
     "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
-
-    "com.kenshoo" %% "metrics-play" % "2.3.0_0.1.8",
-    "com.codahale.metrics" % "metrics-graphite" % "3.0.2",
-
+    "uk.gov.hmrc" %% "play-graphite" % playGraphiteVersion,
     "org.json4s" %% "json4s-jackson" % "3.2.10",
     "com.github.fge" % "json-schema-validator" % "2.2.6",
     "org.json4s" %% "json4s-native" % "3.2.10"
