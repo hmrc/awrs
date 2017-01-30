@@ -315,9 +315,9 @@ object CompanyRegDetails {
 
 object BusinessRegistrationDetails {
 
-  val reader = (legalEntity: String) => new Reads[BusinessRegistrationDetails] {
+  val reader = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
 
-    def toBusinessRegistrationDetails(legalEntity: String,
+    def toBusinessRegistrationDetails(legalEntity: Option[String],
                                       doYouHaveNino: Option[String],
                                       nino: Option[String],
                                       isBusinessIncorporated: Option[String],
@@ -326,7 +326,7 @@ object BusinessRegistrationDetails {
                                       vrn: Option[String],
                                       doYouHaveUTR: Option[String],
                                       utr: Option[String]) = {
-      BusinessRegistrationDetails(legalEntity = Some(legalEntity),
+      BusinessRegistrationDetails(legalEntity = legalEntity,
         doYouHaveNino = doYouHaveNino,
         nino = nino,
         isBusinessIncorporated = isBusinessIncorporated,
@@ -455,7 +455,7 @@ object GroupMember {
       for {
         names <- (js \ "names").validate[CompanyNames](CompanyNames.reader)
         isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
-        companyRegDetails <- (js \ "incorporationDetails").validateOpt[CompanyRegDetails]
+        companyRegDetails <- (js \ "incorporationDetails").validateOpt[CompanyRegDetails](CompanyRegDetails.reader)
         groupJoiningDate <- (js \ "groupJoiningDate").validate[String]
         address <- (js \ "address").validateOpt[Address]
         doYouHaveVRN <- (js \ "identification" \ "doYouHaveVRN").validateOpt[Boolean]
@@ -623,7 +623,7 @@ object Partner {
         doYouHaveUTR <- (js \ "identification" \ "doYouHaveUTR").validateOpt[Boolean]
         utr <- (js \ "identification" \ "utr").validateOpt[String]
         isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
-        companyRegDetails <- (js \ "incorporationDetails").validateOpt[CompanyRegDetails]
+        companyRegDetails <- (js \ "incorporationDetails").validateOpt[CompanyRegDetails](CompanyRegDetails.reader)
         dateOfIncorporation <- (js \ "incorporationDetails" \ "dateOfIncorporation").validateOpt[String]
         solTradingName <- (js \ "soleProprietor" \ "tradingName").validateOpt[String]
         solFirstName <- (js \ "soleProprietor" \ "name" \ "firstName").validateOpt[String]
@@ -1245,16 +1245,16 @@ object SubscriptionTypeFrontEnd {
       for {
         legalEntity <- js.validateOpt[BusinessType]
         businessPartnerName <- (js \ "subscriptionType" \ "businessPartnerName").validate[String]
-        groupDeclaration <- js.validateOpt[GroupDeclaration]
-        businessCustomerDetails <- js.validateOpt[BusinessCustomerDetails]
+        groupDeclaration <- js.validate(Reads.optionWithNull[GroupDeclaration])
+        businessCustomerDetails <- js.validateOpt[BusinessCustomerDetails](BusinessCustomerDetails.reader)
         businessDetails <- js.validateOpt[BusinessDetails]
-        businessRegistrationDetails <- js.validateOpt[BusinessRegistrationDetails]
-        businessContacts <- js.validateOpt[BusinessContacts]
-        placeOfBusiness <- js.validateOpt[PlaceOfBusiness]
-        groupMemberDetails <- js.validateOpt[GroupMembers]
+        businessRegistrationDetails <- js.validateOpt[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(legalEntity.get.legalEntity))
+        businessContacts <- js.validateOpt[BusinessContacts](BusinessContacts.reader)
+        placeOfBusiness <- js.validateOpt[PlaceOfBusiness](PlaceOfBusiness.reader)
+        groupMemberDetails <- js.validate(Reads.optionWithNull[GroupMembers])
         additionalPremises <- js.validateOpt[AdditionalBusinessPremisesList]
-        businessDirectors <- js.validateOpt[BusinessDirectors]
-        partnership <- js.validateOpt[Partners]
+        businessDirectors <- js.validate(Reads.optionWithNull[BusinessDirectors])
+        partnership <- js.validate(Reads.optionWithNull[Partners])
         tradingActivity <- js.validateOpt[TradingActivity]
         products <- js.validateOpt[Products]
         suppliers <- js.validateOpt[Suppliers]

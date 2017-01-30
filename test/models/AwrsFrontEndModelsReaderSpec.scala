@@ -79,7 +79,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val testJson = api4EtmpSOPJson
 
       val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("SOP"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("SOP"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("SOP")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
@@ -100,7 +100,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val testJson = api4EtmpLTDJson
 
       val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("LTD"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LTD"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("LTD")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
@@ -120,7 +120,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val testJson = api4EtmpPartnershipJson
 
       val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("Partnership"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("Partnership"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("Partnership")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
@@ -142,7 +142,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       val testJson = api4EtmpLLPGRPJson
 
       val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("LLP_GRP"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LLP_GRP"))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("LLP_GRP")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
