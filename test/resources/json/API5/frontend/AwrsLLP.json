@@ -33,6 +33,15 @@
       "vrn": "123456789",
       "doYouHaveUTR": "No"
     },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
+      "contactFirstName": "Example",
+      "contactLastName": "Exampleson",
+      "email": "Example@example.com",
+      "confirmEmail": "Example@example.com",
+      "telephone": "07000111222",
+      "modelVersion" : "1.0"
+    },
     "placeOfBusiness": {
       "mainPlaceOfBusiness": "Yes",
       "mainAddress": {
@@ -53,73 +62,63 @@
       "operatingDuration": "over 10 years",
       "modelVersion" : "1.0"
     },
-    "businessContacts": {
-      "contactAddressSame": "Yes",
-      "contactFirstName": "Example",
-      "contactLastName": "Exampleson",
-      "email": "Example@example.com",
-      "confirmEmail": "Example@example.com",
-      "telephone": "07000111222",
-      "modelVersion" : "1.0"
-    },
     "partnership": {
       "partners": [
         {
           "entityType": "Individual",
+          "firstName": "example",
+          "lastName": "exampleson",
           "partnerAddress": {
             "postcode": "AA1 1AA",
             "addressLine1": "1 Example Street",
             "addressLine2": "Exampletown"
           },
-          "firstName": "example",
-          "lastName": "exampleson",
           "doYouHaveNino": "Yes",
           "nino": "$nino",
           "otherPartners": "Yes"
         },
         {
           "entityType": "Corporate Body",
+          "companyNames": {
+            "businessName": "company name",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "trading name"
+          },
           "partnerAddress": {
             "postcode": "AA1 1AA",
             "addressLine1": "address line 1",
             "addressLine2": "address line 2",
             "addressLine3": "address line 3"
           },
-          "companyNames": {
-            "businessName": "company name",
-            "doYouHaveTradingName": "Yes",
-            "tradingName": "trading name"
-          },
+          "doYouHaveUTR": "No",
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
             "companyRegistrationNumber": "12345678",
             "dateOfIncorporation": "30/10/2010"
           },
           "doYouHaveVRN": "No",
-          "doYouHaveUTR": "No",
           "otherPartners": "Yes"
         },
         {
           "entityType": "Sole Trader",
+          "firstName": "example",
+          "lastName": "exampleson",
+          "companyNames": {
+            "doYouHaveTradingName": "Yes",
+            "tradingName":"trading name"
+          },
           "partnerAddress": {
             "postcode": "AA1 1AA",
             "addressLine1": "2 Example Street",
             "addressLine2": "Exampletown"
           },
-          "companyNames": {
-            "doYouHaveTradingName": "Yes",
-            "tradingName":"trading name"
-          },
-          "firstName": "example",
-          "lastName": "exampleson",
           "doYouHaveNino": "Yes",
           "nino": "$nino",
-          "doYouHaveVRN": "No",
           "doYouHaveUTR": "No",
+          "doYouHaveVRN": "No",
           "otherPartners": "No"
         }
-      ],
-      "modelVersion" : "1.0"
+      ]
     },
     "additionalPremises": {
       "premises": [
@@ -217,9 +216,9 @@
           "supplierName": "aaaaaaaa",
           "vatRegistered": "No",
           "supplierAddress": {
-            "postcode": "BB1 1BB",
             "addressLine1": "Avenue",
-            "addressLine2": "Example Avenue"
+            "addressLine2": "Example Avenue",
+            "postcode": "BB1 1BB"
           },
           "additionalSupplier": "No",
           "ukSupplier": "Yes"

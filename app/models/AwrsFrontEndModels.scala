@@ -455,9 +455,9 @@ object GroupMember {
       for {
         names <- (js \ "names").validate[CompanyNames](CompanyNames.reader)
         isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
-        companyRegDetails <- (js \ "incorporationDetails").validateOpt[CompanyRegDetails](CompanyRegDetails.reader)
+        companyRegDetails <- JsSuccess((js \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
         groupJoiningDate <- (js \ "groupJoiningDate").validate[String]
-        address <- (js \ "address").validateOpt[Address]
+        address <- (js \ "address").validateOpt[Address](Address.reader)
         doYouHaveVRN <- (js \ "identification" \ "doYouHaveVRN").validateOpt[Boolean]
         vrn <- (js \ "identification" \ "vrn").validateOpt[String]
         doYouHaveUTR <- (js \ "identification" \ "doYouHaveUTR").validateOpt[Boolean]
@@ -736,7 +736,7 @@ object Supplier {
         supplierName <- (js \ "name").validateOpt[String]
         isSupplierVatRegistered <- (js \ "isSupplierVatRegistered").validateOpt[Boolean]
         vatNumber <- (js \ "vrn").validateOpt[String]
-        supplierAddress <- (js \ "address").validateOpt[Address]
+        supplierAddress <- (js \ "address").validateOpt[Address](Address.reader)
       } yield {
         Supplier(
           alcoholSuppliers = Some("Yes"),
@@ -850,10 +850,8 @@ object Partners {
     }
 
   implicit val writer = new Writes[Partners] {
-    def writes(partners: Partners): JsValue = Json.toJson(partners.partners)
+    def writes(partners: Partners): JsValue = Json.obj("partners" -> Json.toJson(partners.partners))
   }
-
-  //implicit val formats = Json.format[Partners]
 
 }
 
@@ -961,15 +959,15 @@ case class SubscriptionTypeFrontEnd(
 
 object BusinessDetails {
 
-  implicit val reader = (legalEntity: String) => new Reads[BusinessDetails] {
+  implicit val reader = (legalEntity: Option[String]) => new Reads[BusinessDetails] {
 
     def reads(js: JsValue): JsResult[BusinessDetails] =
       for {
         tradingName <- legalEntity match {
-          case "SOP" => (js \ "subscriptionType" \ "businessDetails" \ "soleProprietor" \ "tradingName").validateOpt[String]
+          case Some("SOP") => (js \ "subscriptionType" \ "businessDetails" \ "soleProprietor" \ "tradingName").validateOpt[String]
           case _ => (js \ "subscriptionType" \ "businessDetails" \ "nonProprietor" \ "tradingName").validateOpt[String]
         }
-        newAWBusiness <- JsSuccess((js \ "subscriptionType").asOpt[NewAWBusiness])
+        newAWBusiness <- JsSuccess((js \ "subscriptionType").asOpt[NewAWBusiness](NewAWBusiness.reader))
       } yield {
         BusinessDetails(
           doYouHaveTradingName = tradingName match {
@@ -1247,22 +1245,22 @@ object SubscriptionTypeFrontEnd {
 
     def reads(js: JsValue): JsResult[SubscriptionTypeFrontEnd] =
       for {
-        legalEntity <- js.validateOpt[BusinessType]
+        legalEntity <- js.validateOpt[BusinessType](BusinessType.reader)
         businessPartnerName <- (js \ "subscriptionType" \ "businessPartnerName").validate[String]
-        groupDeclaration <- JsSuccess(js.asOpt[GroupDeclaration])
+        groupDeclaration <- JsSuccess(js.asOpt[GroupDeclaration](GroupDeclaration.reader))
         businessCustomerDetails <- js.validateOpt[BusinessCustomerDetails](BusinessCustomerDetails.reader)
-        businessDetails <- js.validateOpt[BusinessDetails]
+        businessDetails <- js.validateOpt[BusinessDetails](BusinessDetails.reader(legalEntity.get.legalEntity))
         businessRegistrationDetails <- js.validateOpt[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(legalEntity.get.legalEntity))
         businessContacts <- js.validateOpt[BusinessContacts](BusinessContacts.reader)
         placeOfBusiness <- js.validateOpt[PlaceOfBusiness](PlaceOfBusiness.reader)
-        groupMemberDetails <- JsSuccess(js.asOpt[GroupMembers])
+        groupMemberDetails <- JsSuccess(js.asOpt[GroupMembers](GroupMembers.reader))
         additionalPremises <- js.validateOpt[AdditionalBusinessPremisesList](AdditionalBusinessPremisesList.reader)
-        businessDirectors <- JsSuccess(js.asOpt[BusinessDirectors])
-        partnership <- JsSuccess(js.asOpt[Partners])
+        businessDirectors <- JsSuccess(js.asOpt[BusinessDirectors](BusinessDirectors.reader))
+        partnership <- JsSuccess(js.asOpt[Partners](Partners.reader))
         tradingActivity <- js.validateOpt[TradingActivity](TradingActivity.reader)
         products <- js.validateOpt[Products](Products.reader)
-        suppliers <- JsSuccess(js.asOpt[Suppliers])
-        applicationDeclaration <- js.validateOpt[ApplicationDeclaration]
+        suppliers <- JsSuccess(js.asOpt[Suppliers](Suppliers.reader))
+        applicationDeclaration <- js.validateOpt[ApplicationDeclaration](ApplicationDeclaration.reader)
       } yield {
         SubscriptionTypeFrontEnd(
           legalEntity = legalEntity,
@@ -1274,17 +1272,17 @@ object SubscriptionTypeFrontEnd {
           placeOfBusiness = placeOfBusiness,
           groupDeclaration = legalEntity.get.legalEntity match {
             case Some("LTD_GRP" | "LLP_GRP") => groupDeclaration
-            case None => None
+            case _ => None
           },
           groupMembers = legalEntity.get.legalEntity match {
             case Some("LTD_GRP" | "LLP_GRP") => groupMemberDetails
-            case None => None
+            case _ => None
           },
           partnership = partnership,
           additionalPremises = additionalPremises,
           businessDirectors = legalEntity.get.legalEntity match {
             case Some("LTD" | "LTD_GRP") => Some(amendLastDirector(businessDirectors.reduce((x, y) => x)))
-            case None => None
+            case _ => None
           },
           tradingActivity = tradingActivity,
           products = products,

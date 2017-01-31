@@ -32,6 +32,15 @@
       "vrn": "000000000",
       "doYouHaveUTR": "No"
     },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
+      "contactFirstName": "Example",
+      "contactLastName": "Exampleson",
+      "email": "example@example.com",
+      "confirmEmail": "example@example.com",
+      "telephone": "07000111222",
+      "modelVersion" : "1.0"
+    },
     "placeOfBusiness": {
       "mainPlaceOfBusiness": "Yes",
       "mainAddress": {
@@ -43,32 +52,22 @@
       "operatingDuration": "over 10 years",
       "modelVersion" : "1.0"
     },
-    "businessContacts": {
-      "contactAddressSame": "Yes",
-      "contactFirstName": "Example",
-      "contactLastName": "Exampleson",
-      "email": "example@example.com",
-      "confirmEmail": "example@example.com",
-      "telephone": "07000111222",
-      "modelVersion" : "1.0"
-    },
     "partnership": {
       "partners": [
         {
           "entityType": "Individual",
+          "firstName": "example",
+          "lastName": "exampleson",
           "partnerAddress": {
             "postcode": "AA1 1AA",
             "addressLine1": "1 Example Street",
             "addressLine2": "Exampleham"
           },
-          "firstName": "example",
-          "lastName": "exampleson",
           "doYouHaveNino": "Yes",
           "nino": "$nino",
           "otherPartners": "No"
         }
-      ],
-      "modelVersion" : "1.0"
+      ]
     },
     "groupMembers": {
       "members": [
