@@ -849,7 +849,12 @@ object Partners {
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[Partners]
+  implicit val writer = new Writes[Partners] {
+    def writes(partners: Partners): JsValue = Json.toJson(partners.partners)
+  }
+
+  //implicit val formats = Json.format[Partners]
+
 }
 
 object ChangeIndicators {
@@ -1022,10 +1027,10 @@ object PlaceOfBusiness {
 
     def reads(js: JsValue): JsResult[PlaceOfBusiness] =
       for {
-        mainAddress <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").validateOpt[Address]
+        mainAddress <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").validateOpt[Address](Address.reader)
         premiseFirstAddress <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
         placeOfBusinessLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "differentOperatingAddresslnLast3Years").validateOpt[Boolean]
-        placeOfBusinessAddressLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").validateOpt[Address]
+        placeOfBusinessAddressLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").validateOpt[Address](Address.reader)
         operatingDuration <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "operatingDuration").validate[String]
       } yield {
         PlaceOfBusiness(
