@@ -351,7 +351,7 @@ object BusinessRegistrationDetails {
         doYouHaveNino <- (identification.get \ "doYouHaveNino").validateOpt[Boolean]
         nino <- (identification.get \ "nino").validateOpt[String]
         isBusinessIncorporated <- (jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
-        companyRegDetails <- JsSuccess((jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails").asOpt[CompanyRegDetails])
+        companyRegDetails <- JsSuccess((jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
         doYouHaveVRN <- (identification.get \ "doYouHaveVRN").validateOpt[Boolean]
         vrn <- (identification.get \ "vrn").validateOpt[String]
         doYouHaveUTR <- (identification.get \ "doYouHaveUTR").validateOpt[Boolean]
@@ -849,7 +849,7 @@ object Partners {
       case (x, i) => x
     }
 
-  //implicit val formats = Json.format[Partners]
+  implicit val formats = Json.format[Partners]
 }
 
 object ChangeIndicators {
@@ -1304,6 +1304,6 @@ object SubscriptionTypeFrontEnd {
       case _ => Some(Suppliers(List(Supplier(alcoholSuppliers = Some("No"), None, None, None, None, None, None))))
     }
 
-  //implicit val formats = Json.format[SubscriptionTypeFrontEnd]
+  implicit val formats = Json.format[SubscriptionTypeFrontEnd]
 
 }

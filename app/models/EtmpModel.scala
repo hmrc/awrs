@@ -156,6 +156,6 @@ object AWRSFEModel extends EtmpModelHelper {
 
   }
 
-  //implicit val formats = Json.format[AWRSFEModel]
+  implicit val formats = Json.format[AWRSFEModel]
 
 }
