@@ -188,7 +188,7 @@ case class GroupMember(companyNames: CompanyNames,
 
 object BCAddress {
 
-  val reader = new Reads[BCAddress] {
+  implicit val reader = new Reads[BCAddress] {
 
     def reads(js: JsValue): JsResult[BCAddress] =
       for {
@@ -220,7 +220,7 @@ case class BusinessCustomerDetails(businessName: String,
 
 object BusinessCustomerDetails {
 
-  val reader = new Reads[BusinessCustomerDetails] {
+  implicit val reader = new Reads[BusinessCustomerDetails] {
 
     def reads(js: JsValue): JsResult[BusinessCustomerDetails] =
       JsSuccess(BusinessCustomerDetails(businessName = "", businessType = None, businessAddress = BCAddress("", "", None, None, None, ""),
@@ -234,7 +234,7 @@ object BusinessCustomerDetails {
 
 object EtmpAddress {
 
-  val reader = new Reads[EtmpAddress] {
+  implicit val reader = new Reads[EtmpAddress] {
 
     def reads(js: JsValue): JsResult[EtmpAddress] =
       for {
@@ -251,7 +251,7 @@ object EtmpAddress {
 
 object Address {
 
-  val reader = new Reads[Address] {
+  implicit val reader = new Reads[Address] {
 
     def reads(js: JsValue): JsResult[Address] =
       for {
@@ -274,7 +274,7 @@ object Address {
 
 object NewAWBusiness {
 
-  val reader = new Reads[NewAWBusiness] {
+  implicit val reader = new Reads[NewAWBusiness] {
 
     def reads(js: JsValue): JsResult[NewAWBusiness] =
       for {
@@ -287,7 +287,7 @@ object NewAWBusiness {
           case Some("") => None
           case _ => proposedStartDate
         }
-        NewAWBusiness(newAWBusiness = booleanToString(newAWBusiness.fold(false)(x => x)).get, proposedStartDate = etmpToMdtpDateFormatterOrNone(parsedProposedStartDate))
+        NewAWBusiness(newAWBusiness = booleanToString(newAWBusiness.fold(false)(x => x)).get, proposedStartDate = etmpToAwrsDateFormatterOrNone(parsedProposedStartDate))
       }
 
   }
@@ -298,14 +298,14 @@ object NewAWBusiness {
 
 object CompanyRegDetails {
 
-  val reader = new Reads[CompanyRegDetails] {
+  implicit val reader = new Reads[CompanyRegDetails] {
 
     def reads(js: JsValue): JsResult[CompanyRegDetails] =
       for {
         companyRegistrationNumber <- (js \ "companyRegistrationNumber").validate[String]
         dateOfIncorporation <- (js \ "dateOfIncorporation").validate[String]
       } yield {
-        CompanyRegDetails(companyRegistrationNumber = companyRegistrationNumber, dateOfIncorporation = etmpToMdtpDateFormatter(dateOfIncorporation))
+        CompanyRegDetails(companyRegistrationNumber = companyRegistrationNumber, dateOfIncorporation = etmpToAwrsDateFormatter(dateOfIncorporation))
       }
 
   }
@@ -315,7 +315,7 @@ object CompanyRegDetails {
 
 object BusinessRegistrationDetails {
 
-  val reader = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
+  implicit val reader = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
 
     def toBusinessRegistrationDetails(legalEntity: Option[String],
                                       doYouHaveNino: Option[String],
@@ -351,7 +351,7 @@ object BusinessRegistrationDetails {
         doYouHaveNino <- (identification.get \ "doYouHaveNino").validateOpt[Boolean]
         nino <- (identification.get \ "nino").validateOpt[String]
         isBusinessIncorporated <- (jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
-        companyRegDetails <- (jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails").validateOpt[CompanyRegDetails]
+        companyRegDetails <- JsSuccess((jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails").asOpt[CompanyRegDetails])
         doYouHaveVRN <- (identification.get \ "doYouHaveVRN").validateOpt[Boolean]
         vrn <- (identification.get \ "vrn").validateOpt[String]
         doYouHaveUTR <- (identification.get \ "doYouHaveUTR").validateOpt[Boolean]
@@ -378,7 +378,7 @@ object BusinessRegistrationDetails {
 
 object CompanyNames {
 
-  val reader = new Reads[CompanyNames] {
+  implicit val reader = new Reads[CompanyNames] {
 
     def reads(js: JsValue): JsResult[CompanyNames] =
       for {
@@ -449,7 +449,7 @@ object CompanyNamesFact {
 
 object GroupMember {
 
-  val reader = new Reads[GroupMember] {
+  implicit val reader = new Reads[GroupMember] {
 
     def reads(js: JsValue): JsResult[GroupMember] =
       for {
@@ -485,7 +485,7 @@ object GroupMember {
 
 object GroupMembers {
   val latestModelVersion = "1.0"
-  val reader = new Reads[GroupMembers] {
+  implicit val reader = new Reads[GroupMembers] {
 
     def reads(js: JsValue): JsResult[GroupMembers] =
       for {
@@ -508,7 +508,7 @@ object GroupMembers {
 
 object GroupDeclaration {
 
-  val reader = new Reads[GroupDeclaration] {
+  implicit val reader = new Reads[GroupDeclaration] {
 
     def reads(js: JsValue): JsResult[GroupDeclaration] =
       for {
@@ -525,11 +525,11 @@ object GroupDeclaration {
 
 object AdditionalBusinessPremises {
 
-  val reader = new Reads[AdditionalBusinessPremises] {
+  implicit val reader = new Reads[AdditionalBusinessPremises] {
 
     def reads(js: JsValue): JsResult[AdditionalBusinessPremises] =
       for {
-        additionalAddress <- (js \ "address").validateOpt[Address]
+        additionalAddress <- (js \ "address").validateOpt[Address](Address.reader)
       } yield {
         AdditionalBusinessPremises(
           additionalPremises = Some("Yes"),
@@ -546,7 +546,7 @@ object AdditionalBusinessPremises {
 
 object AdditionalBusinessPremisesList {
 
-  val reader = new Reads[AdditionalBusinessPremisesList] {
+  implicit val reader = new Reads[AdditionalBusinessPremisesList] {
 
     def reads(js: JsValue): JsResult[AdditionalBusinessPremisesList] =
       for {
@@ -574,7 +574,7 @@ object AdditionalBusinessPremisesList {
 
 object Partner {
 
-  val reader = new Reads[Partner] {
+  implicit val reader = new Reads[Partner] {
 
     def toPartnerDetail(entityType: Option[String],
                         partnerAddress: Option[Address],
@@ -611,7 +611,7 @@ object Partner {
     def reads(js: JsValue): JsResult[Partner] =
       for {
         entityType <- (js \ "entityType").validateOpt[String]
-        partnerAddress <- (js \ "partnerAddress").validateOpt[Address]
+        partnerAddress <- (js \ "partnerAddress").validateOpt[Address](Address.reader)
         firstName <- (js \ "individual" \ "name" \ "firstName").validateOpt[String]
         lastName <- (js \ "individual" \ "name" \ "lastName").validateOpt[String]
         doYouHaveNino <- (js \ "individual" \ "doYouHaveNino").validateOpt[Boolean]
@@ -655,7 +655,7 @@ object Partner {
 
 object BusinessDirector {
 
-  val reader = new Reads[BusinessDirector] {
+  implicit val reader = new Reads[BusinessDirector] {
 
     def reads(js: JsValue): JsResult[BusinessDirector] =
       for {
@@ -712,7 +712,7 @@ object BusinessDirectors {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[BusinessDirectors] {
+  implicit val reader = new Reads[BusinessDirectors] {
 
     def reads(js: JsValue): JsResult[BusinessDirectors] =
       for {
@@ -729,7 +729,7 @@ object BusinessDirectors {
 
 object Supplier {
 
-  val reader = new Reads[Supplier] {
+  implicit val reader = new Reads[Supplier] {
 
     def reads(js: JsValue): JsResult[Supplier] =
       for {
@@ -757,7 +757,7 @@ object Supplier {
 
 object Suppliers {
 
-  val reader = new Reads[Suppliers] {
+  implicit val reader = new Reads[Suppliers] {
 
     def reads(js: JsValue): JsResult[Suppliers] =
       for {
@@ -780,7 +780,7 @@ object Suppliers {
 
 object ApplicationDeclaration {
 
-  val reader = new Reads[ApplicationDeclaration] {
+  implicit val reader = new Reads[ApplicationDeclaration] {
 
     def reads(js: JsValue): JsResult[ApplicationDeclaration] =
       for {
@@ -798,7 +798,7 @@ object ApplicationDeclaration {
 
 object BusinessType {
 
-  val reader = new Reads[BusinessType] {
+  implicit val reader = new Reads[BusinessType] {
 
     def reads(js: JsValue): JsResult[BusinessType] =
       for {
@@ -832,7 +832,7 @@ object Partners {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[Partners] {
+  implicit val reader = new Reads[Partners] {
 
     def reads(js: JsValue): JsResult[Partners] =
       for {
@@ -849,8 +849,7 @@ object Partners {
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[Partners]
-
+  //implicit val formats = Json.format[Partners]
 }
 
 object ChangeIndicators {
@@ -957,7 +956,7 @@ case class SubscriptionTypeFrontEnd(
 
 object BusinessDetails {
 
-  val reader = (legalEntity: String) => new Reads[BusinessDetails] {
+  implicit val reader = (legalEntity: String) => new Reads[BusinessDetails] {
 
     def reads(js: JsValue): JsResult[BusinessDetails] =
       for {
@@ -965,7 +964,7 @@ object BusinessDetails {
           case "SOP" => (js \ "subscriptionType" \ "businessDetails" \ "soleProprietor" \ "tradingName").validateOpt[String]
           case _ => (js \ "subscriptionType" \ "businessDetails" \ "nonProprietor" \ "tradingName").validateOpt[String]
         }
-        newAWBusiness <- (js \ "subscriptionType").validateOpt[NewAWBusiness]
+        newAWBusiness <- JsSuccess((js \ "subscriptionType").asOpt[NewAWBusiness])
       } yield {
         BusinessDetails(
           doYouHaveTradingName = tradingName match {
@@ -987,7 +986,7 @@ object BusinessContacts {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[BusinessContacts] {
+  implicit val reader = new Reads[BusinessContacts] {
 
     def reads(js: JsValue): JsResult[BusinessContacts] =
       for {
@@ -1019,7 +1018,7 @@ object PlaceOfBusiness {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[PlaceOfBusiness] {
+  implicit val reader = new Reads[PlaceOfBusiness] {
 
     def reads(js: JsValue): JsResult[PlaceOfBusiness] =
       for {
@@ -1046,7 +1045,7 @@ object PlaceOfBusiness {
 
 object TradingActivity {
 
-  val reader = new Reads[TradingActivity] {
+  implicit val reader = new Reads[TradingActivity] {
 
     def reads(js: JsValue): JsResult[TradingActivity] =
       for {
@@ -1057,7 +1056,7 @@ object TradingActivity {
         doesBusinessImportAlcohol <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsImported").validateOpt[Boolean]
         doYouExportAlcohol <- doYouExportAlcohol(js)
         exportLocation <- exportLocation(js)
-        thirdPartyStorage <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "thirdPartyStorageUsed").validateOpt[Boolean]
+        thirdPartyStorage <- JsSuccess((js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "thirdPartyStorageUsed").asOpt[Boolean])
       } yield {
         TradingActivity(wholesalerType = wholesalerType,
           otherWholesaler = otherwholeSalerType,
@@ -1072,7 +1071,7 @@ object TradingActivity {
 
   }
 
-  def doYouExportAlcohol(js: JsValue) =
+  def doYouExportAlcohol(js: JsValue): JsResult[Option[String]] =
     for {
       alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validateOpt[Boolean]
       euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validateOpt[Boolean]
@@ -1083,7 +1082,7 @@ object TradingActivity {
       }
     }
 
-  def exportLocation(js: JsValue) =
+  def exportLocation(js: JsValue): JsResult[Option[List[String]]] =
     for {
       alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validateOpt[Boolean]
       euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validateOpt[Boolean]
@@ -1099,7 +1098,7 @@ object TradingActivity {
       case (Some(false), Some(false)) => None
     }
 
-  def typeOfWholeSaler(js: JsValue) =
+  def typeOfWholeSaler(js: JsValue): JsResult[List[String]] =
     for {
       cashAndCarry <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "cashAndCarry").validate[Boolean]
       offTradeSupplierOnly <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "offTradeSupplierOnly").validate[Boolean]
@@ -1114,7 +1113,7 @@ object TradingActivity {
         other ? WholesalerType.other | "").filter(_ != "")
     }
 
-  def typeOfAlcoholOrders(js: JsValue) =
+  def typeOfAlcoholOrders(js: JsValue): JsResult[List[String]] =
     for {
       onlineOnly <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "onlineOnly").validate[Boolean]
       onlineAndTel <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "onlineAndTel").validate[Boolean]
@@ -1164,7 +1163,7 @@ object TradingActivity {
 
 object Products {
 
-  val reader = new Reads[Products] {
+  implicit val reader = new Reads[Products] {
 
     def reads(js: JsValue): JsResult[Products] =
       for {
@@ -1183,7 +1182,7 @@ object Products {
 
   }
 
-  def typeOfCustomers(js: JsValue) =
+  def typeOfCustomers(js: JsValue): JsResult[List[String]] =
     for {
       pubs <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "pubs").validate[Boolean]
       nightClubs <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "nightClubs").validate[Boolean]
@@ -1212,7 +1211,7 @@ object Products {
         other ? TypeOfCustomers.other | "").filter(_ != "")
     }
 
-  def typeOfProduct(js: JsValue) =
+  def typeOfProduct(js: JsValue): JsResult[List[String]] =
     for {
       beer <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "beer").validate[Boolean]
       wine <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "wine").validate[Boolean]
@@ -1239,25 +1238,25 @@ object SubscriptionTypeFrontEnd {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[SubscriptionTypeFrontEnd] {
+  implicit val reader = new Reads[SubscriptionTypeFrontEnd] {
 
     def reads(js: JsValue): JsResult[SubscriptionTypeFrontEnd] =
       for {
         legalEntity <- js.validateOpt[BusinessType]
         businessPartnerName <- (js \ "subscriptionType" \ "businessPartnerName").validate[String]
-        groupDeclaration <- js.validate(Reads.optionWithNull[GroupDeclaration])
+        groupDeclaration <- JsSuccess(js.asOpt[GroupDeclaration])
         businessCustomerDetails <- js.validateOpt[BusinessCustomerDetails](BusinessCustomerDetails.reader)
         businessDetails <- js.validateOpt[BusinessDetails]
         businessRegistrationDetails <- js.validateOpt[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(legalEntity.get.legalEntity))
         businessContacts <- js.validateOpt[BusinessContacts](BusinessContacts.reader)
         placeOfBusiness <- js.validateOpt[PlaceOfBusiness](PlaceOfBusiness.reader)
-        groupMemberDetails <- js.validate(Reads.optionWithNull[GroupMembers])
-        additionalPremises <- js.validateOpt[AdditionalBusinessPremisesList]
-        businessDirectors <- js.validate(Reads.optionWithNull[BusinessDirectors])
-        partnership <- js.validate(Reads.optionWithNull[Partners])
-        tradingActivity <- js.validateOpt[TradingActivity]
-        products <- js.validateOpt[Products]
-        suppliers <- js.validateOpt[Suppliers]
+        groupMemberDetails <- JsSuccess(js.asOpt[GroupMembers])
+        additionalPremises <- js.validateOpt[AdditionalBusinessPremisesList](AdditionalBusinessPremisesList.reader)
+        businessDirectors <- JsSuccess(js.asOpt[BusinessDirectors])
+        partnership <- JsSuccess(js.asOpt[Partners])
+        tradingActivity <- js.validateOpt[TradingActivity](TradingActivity.reader)
+        products <- js.validateOpt[Products](Products.reader)
+        suppliers <- JsSuccess(js.asOpt[Suppliers])
         applicationDeclaration <- js.validateOpt[ApplicationDeclaration]
       } yield {
         SubscriptionTypeFrontEnd(
@@ -1268,11 +1267,20 @@ object SubscriptionTypeFrontEnd {
           businessRegistrationDetails = businessRegistrationDetails,
           businessContacts = businessContacts,
           placeOfBusiness = placeOfBusiness,
-          groupDeclaration = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupDeclaration else None,
-          groupMembers = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupMemberDetails else None,
+          groupDeclaration = legalEntity.get.legalEntity match {
+            case Some("LTD_GRP" | "LLP_GRP") => groupDeclaration
+            case None => None
+          },
+          groupMembers = legalEntity.get.legalEntity match {
+            case Some("LTD_GRP" | "LLP_GRP") => groupMemberDetails
+            case None => None
+          },
           partnership = partnership,
           additionalPremises = additionalPremises,
-          businessDirectors = if (legalEntity.get.legalEntity.get == "LTD" | legalEntity.get.legalEntity.get == "LTD_GRP") Some(amendLastDirector(businessDirectors.reduce((x, y) => x))) else None,
+          businessDirectors = legalEntity.get.legalEntity match {
+            case Some("LTD" | "LTD_GRP") => Some(amendLastDirector(businessDirectors.reduce((x, y) => x)))
+            case None => None
+          },
           tradingActivity = tradingActivity,
           products = products,
           suppliers = hasSupplier(suppliers),
@@ -1296,6 +1304,6 @@ object SubscriptionTypeFrontEnd {
       case _ => Some(Suppliers(List(Supplier(alcoholSuppliers = Some("No"), None, None, None, None, None, None))))
     }
 
-  implicit val formats = Json.format[SubscriptionTypeFrontEnd]
+  //implicit val formats = Json.format[SubscriptionTypeFrontEnd]
 
 }

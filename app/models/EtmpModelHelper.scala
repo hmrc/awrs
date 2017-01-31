@@ -49,7 +49,7 @@ trait EtmpModelHelper {
         Json.obj(
           "isBusinessIncorporated" -> true,
           "companyRegistrationNumber" -> identification.companyRegDetails.reduceLeft((x, y) => x).companyRegistrationNumber.toUpperCase,
-          "dateOfIncorporation" -> Utility.stringToDate(identification.companyRegDetails.reduceLeft((x, y) => x).dateOfIncorporation)
+          "dateOfIncorporation" -> Utility.awrsToEtmpDateFormatter(identification.companyRegDetails.reduceLeft((x, y) => x).dateOfIncorporation)
         )
       case _ => Json.obj("isBusinessIncorporated" -> false)
     }
@@ -79,10 +79,10 @@ trait EtmpModelHelper {
 
   def toEtmpNewAWBusiness(st: SubscriptionTypeFrontEnd): JsObject = {
 
-    val newAWBusiness = st.businessDetails.get.newAWBusiness.reduceLeft((x, y) => x)
+    val newAWBusiness = st.businessDetails.get.newAWBusiness.fold(NewAWBusiness("No", None))(x => x)
 
     val dateJsonObject = newAWBusiness.proposedStartDate match {
-      case Some(date) => Json.obj("proposedStartDate" -> JsString(Utility.stringToDate(date)))
+      case Some(date) => Json.obj("proposedStartDate" -> JsString(Utility.awrsToEtmpDateFormatter(date)))
       case _ => Json.obj()
     }
 
@@ -159,8 +159,8 @@ trait EtmpModelHelper {
   }
 
   def createDateGroupRepresantativeJoined(st: SubscriptionTypeFrontEnd): JsObject =
-    st.legalEntity.get.legalEntity.get match {
-      case "LTD_GRP" | "LLP_GRP" => Json.obj("dateGrpRepJoined" -> LocalDate.now().toString)
+    st.legalEntity.get.legalEntity match {
+      case Some("LTD_GRP" | "LLP_GRP") => Json.obj("dateGrpRepJoined" -> LocalDate.now().toString)
       case _ => Json.obj()
     }
 

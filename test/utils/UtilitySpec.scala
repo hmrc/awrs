@@ -27,13 +27,13 @@ class UtilitySpec extends WordSpecLike with Matchers with MockitoSugar with Scal
 
     "convert years correctly from string dd/MM/yyyy to yyyy-MM-dd (mdtp to etmp)" in {
       for(i <- 2000 to 3000){
-        stringToDate("03/01/" + i ) shouldBe (i + "-01-03" )
+        awrsToEtmpDateFormatter("03/01/" + i ) shouldBe (i + "-01-03" )
       }
     }
 
     "convert years correctly from yyyy-MM-dd to string dd/MM/yyyy (etmp to mdtp)" in {
       for(i <- 2000 to 3000){
-        etmpToMdtpDateFormatter(i + "-01-03") shouldBe ("03/01/" + i)
+        etmpToAwrsDateFormatter(i + "-01-03") shouldBe ("03/01/" + i)
       }
     }
   }
