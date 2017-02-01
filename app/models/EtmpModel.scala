@@ -100,15 +100,15 @@ case class AWRSFEModel(subscriptionTypeFrontEnd: SubscriptionTypeFrontEnd)
 object AWRSFEModel extends EtmpModelHelper {
 
   def isLlpCorpBody(st: SubscriptionTypeFrontEnd): JsObject =
-    st.legalEntity.get.legalEntity.get match {
-      case "LTD" | "LLP" | "LP" | "LTD_GRP" | "LLP_GRP" =>
+    st.legalEntity.get.legalEntity match {
+      case Some("LTD" | "LLP" | "LP" | "LTD_GRP" | "LLP_GRP") =>
         Json.obj("llpCorporateBody" -> toGroupDeclaration(st))
       case _ => Json.obj()
     }
 
   def isGroupMemberDetails(st: SubscriptionTypeFrontEnd): JsObject =
-    st.legalEntity.get.legalEntity.get match {
-      case "LTD_GRP" | "LLP_GRP" => Json.obj("groupMemberDetails" -> toEtmpGroupMemberDetails(st))
+    st.legalEntity.get.legalEntity match {
+      case Some("LTD_GRP" | "LLP_GRP") => Json.obj("groupMemberDetails" -> toEtmpGroupMemberDetails(st))
       case _ => Json.obj()
     }
 

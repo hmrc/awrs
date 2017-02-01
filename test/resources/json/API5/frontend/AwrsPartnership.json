@@ -27,6 +27,15 @@
       "doYouHaveVRN": "No",
       "doYouHaveUTR": "No"
     },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
+      "contactFirstName": "Contact first name",
+      "contactLastName": "Contact last name",
+      "email": "example@example.com",
+      "confirmEmail": "example@example.com",
+      "telephone": "07000111222",
+      "modelVersion" : "1.0"
+    },
     "placeOfBusiness": {
       "mainPlaceOfBusiness": "Yes",
       "mainAddress": {
@@ -47,19 +56,12 @@
       "operatingDuration": "over 10 years",
       "modelVersion" : "1.0"
     },
-    "businessContacts": {
-      "contactAddressSame": "Yes",
-      "contactFirstName": "Contact first name",
-      "contactLastName": "Contact last name",
-      "email": "example@example.com",
-      "confirmEmail": "example@example.com",
-      "telephone": "07000111222",
-      "modelVersion" : "1.0"
-    },
     "partnership": {
       "partners": [
         {
           "entityType": "Individual",
+          "firstName": "example",
+          "lastName": "exampleson",
           "partnerAddress": {
             "postcode": "AA1 1AA",
             "addressLine1": "1 Example Street",
@@ -67,14 +69,17 @@
             "addressLine3": "Exampe Town",
             "addressLine4": "Exampeshire"
           },
-          "firstName": "example",
-          "lastName": "exampleson",
           "doYouHaveNino": "Yes",
           "nino": "$nino",
           "otherPartners": "Yes"
         },
         {
           "entityType": "Corporate Body",
+          "companyNames" : {
+            "businessName": "company name",
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "trading name"
+          },
           "partnerAddress": {
             "postcode": "AA1 1AA",
             "addressLine1": "1 Example Street",
@@ -82,11 +87,8 @@
             "addressLine3": "Exampe Town",
             "addressLine4": "Exampeshire"
           },
-          "companyNames" : {
-            "businessName": "company name",
-            "doYouHaveTradingName": "Yes",
-            "tradingName": "trading name"
-          },
+          "doYouHaveUTR": "Yes",
+          "utr": "$utr",
           "isBusinessIncorporated": "Yes",
           "companyRegDetails": {
             "companyRegistrationNumber": "55555555",
@@ -94,12 +96,16 @@
           },
           "doYouHaveVRN": "Yes",
           "vrn": "000000000",
-          "doYouHaveUTR": "Yes",
-          "utr": "$utr",
           "otherPartners": "Yes"
         },
         {
           "entityType": "Sole Trader",
+          "firstName": "example",
+          "lastName": "exampleson",
+          "companyNames": {
+            "doYouHaveTradingName": "Yes",
+            "tradingName": "trading name"
+          },
           "partnerAddress": {
             "postcode": "AA1 1AA",
             "addressLine1": "1 Example Street",
@@ -107,22 +113,16 @@
             "addressLine3": "Exampe Town",
             "addressLine4": "Exampeshire"
           },
-          "firstName": "example",
-          "lastName": "exampleson",
           "doYouHaveNino": "Yes",
           "nino": "$nino",
-          "companyNames": {
-            "doYouHaveTradingName": "Yes",
-            "tradingName": "trading name"
-          },
-          "doYouHaveVRN": "Yes",
-          "vrn": "000000000",
           "doYouHaveUTR": "Yes",
           "utr": "$utr",
+          "doYouHaveVRN": "Yes",
+          "vrn": "000000000",
           "otherPartners": "No"
         }
       ],
-      "modelVersion" : "1.0"
+      "modelVersion":"1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -189,9 +189,9 @@
           "vatRegistered": "Yes",
           "vatNumber": "111111111",
           "supplierAddress": {
-            "postcode": "AA1 1AA",
             "addressLine1": "10 Example Apartments",
-            "addressLine2": "16 Example Crescent"
+            "addressLine2": "16 Example Crescent",
+            "postcode": "AA1 1AA"
           },
           "additionalSupplier": "No",
           "ukSupplier": "Yes"

@@ -78,8 +78,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     "transform correctly to SoleTraderBusinessDetails Frontend Model " in {
       val testJson = api4EtmpSOPJson
 
-      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("SOP"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("SOP"))
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader(Some("SOP")))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("SOP")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
@@ -99,8 +99,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     "transform correctly to CorporateBodyBusinessDetails Frontend Model " in {
       val testJson = api4EtmpLTDJson
 
-      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("LTD"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LTD"))
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader(Some("LTD")))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("LTD")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
@@ -119,8 +119,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     "transform correctly to Partnership Business Details Frontend Model and create correct json" in {
       val testJson = api4EtmpPartnershipJson
 
-      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("Partnership"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("Partnership"))
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader(Some("Partnership")))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("Partnership")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
@@ -141,8 +141,8 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
     "transform correctly to GroupRepBusinessDetails Frontend Model " in {
       val testJson = api4EtmpLLPGRPJson
 
-      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader("LLP_GRP"))
-      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader("LLP_GRP"))
+      val businessDetails = testJson.as[BusinessDetails](BusinessDetails.reader(Some("LLP_GRP")))
+      val businessRegistrationDetails = testJson.as[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(Some("LLP_GRP")))
       val businessContacts = testJson.as[BusinessContacts](BusinessContacts.reader)
       val placeOfBusiness = testJson.as[PlaceOfBusiness](PlaceOfBusiness.reader)
 
@@ -694,16 +694,12 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
     "For LLP/LP transform correct Partnership Details JSON element to AWRS Partnership Details JSON element" in {
       val modelFromEtmp = api4EtmpLLPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val modelFromFE = api5FrontendLLPJson.as[AWRSFEModel]
-
-      Json.toJson(modelFromEtmp) shouldBe Json.toJson(modelFromFE)
+      Json.toJson(modelFromEtmp) shouldBe api5FrontendLLPJson
     }
 
     "For Partnership transform correct Partnership Details JSON element to AWRS Partnership Details JSON element" in {
       val modelFromEtmp = api4EtmpPartnershipJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val modelFromFE = api5FrontendPartnershipJson.as[AWRSFEModel]
-
-      Json.toJson(modelFromEtmp) shouldBe Json.toJson(modelFromFE)
+      Json.toJson(modelFromEtmp) shouldBe api5FrontendPartnershipJson
     }
 
     "For Sole Trader transform correct declaration JSON element when useAlternateContactAddress -> true " in {
@@ -885,16 +881,12 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
 
     "For LLP_GRP transform correct declaration JSON element to include group elements" in {
       val awrsFEModel = api4EtmpLLPGRPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val awrsFEJson = Json.toJson(awrsFEModel)
-
-      awrsFEJson shouldBe api5FrontendLLPGroupJson
+      Json.toJson(awrsFEModel) shouldBe api5FrontendLLPGroupJson
     }
 
     "For LTD_GRP transform correct declaration JSON element to include group elements " in {
       val awrsFEModel = api4EtmpLTDGRPJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
-      val awrsFEJson = Json.toJson(awrsFEModel)
-
-      awrsFEJson shouldBe api5FrontendLTDGroupJson
+      Json.toJson(awrsFEModel) shouldBe api5FrontendLTDGroupJson
     }
 
     "For Sole Trader, make sure Group Details are not present " in {

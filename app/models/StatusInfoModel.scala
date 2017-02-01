@@ -55,7 +55,7 @@ object StatusInfoSuccessResponseType {
     }
   }
 
-  implicit val writter = Json.writes[StatusInfoSuccessResponseType]
+  implicit val writer = Json.writes[StatusInfoSuccessResponseType]
 }
 
 object StatusInfoFailureResponseType {
@@ -70,7 +70,7 @@ object StatusInfoFailureResponseType {
       }
     }
   }
-  implicit val writter = Json.writes[StatusInfoFailureResponseType]
+  implicit val writer = Json.writes[StatusInfoFailureResponseType]
 }
 
 
@@ -80,8 +80,8 @@ object StatusInfoType {
 
     def reads(js: JsValue): JsResult[StatusInfoType] = {
       for {
-        successResponse <- js.validate[Option[StatusInfoSuccessResponseType]]
-        failureResponse <- js.validate[Option[StatusInfoFailureResponseType]]
+        successResponse <- JsSuccess(js.asOpt[StatusInfoSuccessResponseType](StatusInfoSuccessResponseType.reader))
+        failureResponse <- JsSuccess(js.asOpt[StatusInfoFailureResponseType](StatusInfoFailureResponseType.reader))
       } yield {
         (successResponse, failureResponse) match {
           case (r@Some(_), None) => StatusInfoType(r)
@@ -92,11 +92,11 @@ object StatusInfoType {
     }
   }
 
-  implicit val writter = new Writes[StatusInfoType] {
+  implicit val writer = new Writes[StatusInfoType] {
     def writes(info: StatusInfoType) =
       info.response match {
-        case Some(r: StatusInfoSuccessResponseType) => StatusInfoSuccessResponseType.writter.writes(r)
-        case Some(r: StatusInfoFailureResponseType) => StatusInfoFailureResponseType.writter.writes(r)
+        case Some(r: StatusInfoSuccessResponseType) => StatusInfoSuccessResponseType.writer.writes(r)
+        case Some(r: StatusInfoFailureResponseType) => StatusInfoFailureResponseType.writer.writes(r)
         case _ => Json.obj("unknown" -> "Etmp returned invalid json")
       }
   }

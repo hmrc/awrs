@@ -17,7 +17,7 @@
 package controllers
 
 import config.MicroserviceAuditConnector
-import metrics.Metrics
+import metrics.AwrsMetrics
 import models.{ApiType, StatusInfoType}
 import play.api.libs.json.Json
 import play.api.mvc.Action
@@ -33,12 +33,12 @@ object StatusInfoController extends StatusInfoController {
   override val appName: String = AppName.appName
   override val audit: Audit = new Audit(AppName.appName, MicroserviceAuditConnector)
   val statusInfoService: EtmpStatusInfoService = EtmpStatusInfoService
-  override val metrics = Metrics
+  override val metrics = AwrsMetrics
 }
 
 trait StatusInfoController extends BaseController with LoggingUtils {
   val statusInfoService: EtmpStatusInfoService
-  val metrics: Metrics
+  val metrics: AwrsMetrics
 
   // utr & busType are used to authenticate the request but are ignored by this function
   def getStatusInfo(awrsRef: String, contactNumber: String, utr: String, busType: String) = Action.async {

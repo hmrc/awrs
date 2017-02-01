@@ -35,9 +35,9 @@ object SubscriptionStatusType {
       for {
         processingDate <- (js \ "processingDate").validate[String]
         formBundleStatus <- (js \ "formBundleStatus").validate[FormBundleStatus]
-        deRegistrationDate <- (js \ "deRegistrationDate").validate[Option[String]]
+        deRegistrationDate <- (js \ "deRegistrationDate").validateOpt[String]
         groupBusinessPartner <- (js \ "groupBusinessPartner").validate[Boolean]
-        businessContactNumber <- (js \ "businessContactNumber").validate[Option[String]]
+        businessContactNumber <- (js \ "businessContactNumber").validateOpt[String]
       } yield {
         SubscriptionStatusType(processingDate,
           formBundleStatus = formBundleStatus,

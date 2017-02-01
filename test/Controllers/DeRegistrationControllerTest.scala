@@ -18,7 +18,7 @@ package Controllers
 
 import audit.TestAudit
 import controllers.DeRegistrationController
-import metrics.Metrics
+import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -43,7 +43,7 @@ class DeRegistrationControllerTest extends UnitSpec with OneServerPerSuite with 
     override val appName: String = "awrs"
     override val deRegistrationService: EtmpDeRegistrationService = mockEtmpDeRegistrationService
     override val audit: Audit = new TestAudit
-    override val metrics = Metrics
+    override val metrics = AwrsMetrics
   }
 
   "For API 10, Status Info Controller " should {

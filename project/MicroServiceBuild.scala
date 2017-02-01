@@ -15,31 +15,41 @@
 import sbt._
 
 object MicroServiceBuild extends Build with MicroService {
+
   import scala.util.Properties.envOrElse
 
   val appName = "awrs"
+  val appVersion = envOrElse(appName.toUpperCase + "_VERSION", "999-SNAPSHOT")
 
   override lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 }
 
 private object AppDependencies {
-  import play.PlayImport._
+  import play.sbt.PlayImport._
   import play.core.PlayVersion
+
+  private val microserviceBootstrapVersion = "5.8.0"
+  private val playAuthVersion = "4.2.0"
+  private val playHealthVersion = "2.0.0"
+  private val logbackJsonLoggerVersion = "3.1.0"
+  private val playUrlBindersVersion = "2.0.0"
+  private val playConfigVersion = "3.0.0"
+  private val domainVersion = "4.0.0"
+  private val playGraphiteVersion = "3.1.0"
+  private val hmrcTestVersion = "2.1.0"
+  private val scalaTestVersion = "2.2.6"
+  private val pegdownVersion = "1.6.0"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "microservice-bootstrap" % "4.4.0",
-    "uk.gov.hmrc" %% "play-url-binders" % "1.0.0",
-    "uk.gov.hmrc" %% "play-config" % "2.0.1",
-    "uk.gov.hmrc" %% "play-scheduling" % "1.1.0",
-    "uk.gov.hmrc" %% "play-json-logger" % "1.0.0",
-    "uk.gov.hmrc" %% "domain" % "3.7.0",
-    "uk.gov.hmrc" %% "play-health" % "1.1.0",
-    "uk.gov.hmrc" %% "play-authorisation" % "3.3.0",
-
-    "com.kenshoo" %% "metrics-play" % "2.3.0_0.1.8",
-    "com.codahale.metrics" % "metrics-graphite" % "3.0.2",
-
+    "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
+    "uk.gov.hmrc" %% "play-authorisation" % playAuthVersion,
+    "uk.gov.hmrc" %% "play-health" % playHealthVersion,
+    "uk.gov.hmrc" %% "play-url-binders" % playUrlBindersVersion,
+    "uk.gov.hmrc" %% "play-config" % playConfigVersion,
+    "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
+    "uk.gov.hmrc" %% "domain" % domainVersion,
+    "uk.gov.hmrc" %% "play-graphite" % playGraphiteVersion,
     "org.json4s" %% "json4s-jackson" % "3.2.10",
     "com.github.fge" % "json-schema-validator" % "2.2.6",
     "org.json4s" %% "json4s-native" % "3.2.10"
@@ -53,15 +63,16 @@ private object AppDependencies {
   object Test {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
-        "org.scalatest" %% "scalatest" % "2.2.2" % scope,
-        "org.scalatestplus" %% "play" % "1.2.0" % scope,
-        "org.pegdown" % "pegdown" % "1.4.2" % scope,
+        "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
+        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
+        "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope,
         "org.jsoup" % "jsoup" % "1.7.3" % scope,
-        "uk.gov.hmrc" %% "hmrctest" % "1.4.0",
         "org.json4s" %% "json4s-jackson" % "3.2.10",
         "com.github.fge" % "json-schema-validator" % "2.2.6",
-        "org.json4s" %% "json4s-native" % "3.2.10"
+        "org.json4s" %% "json4s-native" % "3.2.10",
+        "org.mockito" % "mockito-all" % "1.9.5"
       )
     }.test
   }
@@ -72,10 +83,11 @@ private object AppDependencies {
       override lazy val scope: String = "it"
 
       override lazy val test = Seq(
-        "org.scalatest" %% "scalatest" % "2.2.2" % scope,
-        "org.scalatestplus" %% "play" % "1.2.0" % scope,
-        "org.pegdown" % "pegdown" % "1.4.2" % scope,
-        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
+        "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
+        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
+        "org.pegdown" % "pegdown" % pegdownVersion % scope,
+        "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope
       )
     }.test
   }

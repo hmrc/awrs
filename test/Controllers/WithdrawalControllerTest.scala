@@ -18,7 +18,7 @@ package Controllers
 
 import audit.TestAudit
 import controllers.WithdrawalController
-import metrics.Metrics
+import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -41,7 +41,7 @@ class WithdrawalControllerTest extends UnitSpec with OneServerPerSuite with Mock
     override val appName: String = "awrs"
     val withdrawalService: WithdrawalService = mockWithdrawalService
     override val audit: Audit = new TestAudit
-    override val metrics = Metrics
+    override val metrics = AwrsMetrics
   }
 
   "For API 8, Withdrawal Controller " should {

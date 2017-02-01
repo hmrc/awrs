@@ -17,7 +17,7 @@
 package controllers
 
 import config.MicroserviceAuditConnector
-import metrics.Metrics
+import metrics.AwrsMetrics
 import models.{AWRSFEModel, ApiType, SubscriptionStatusType, SuccessfulSubscriptionResponse}
 import play.api.libs.json.Json
 import play.api.mvc.Action
@@ -35,7 +35,7 @@ object OrgSubscriptionController extends SubscriptionController {
   val subscriptionService: SubscriptionService = SubscriptionService
   val lookupService: EtmpLookupService = EtmpLookupService
   val statusService: EtmpStatusService = EtmpStatusService
-  override val metrics = Metrics
+  override val metrics = AwrsMetrics
 }
 
 object SaSubscriptionController extends SubscriptionController with LoggingUtils {
@@ -44,14 +44,14 @@ object SaSubscriptionController extends SubscriptionController with LoggingUtils
   val subscriptionService: SubscriptionService = SubscriptionService
   val lookupService: EtmpLookupService = EtmpLookupService
   val statusService: EtmpStatusService = EtmpStatusService
-  override val metrics = Metrics
+  override val metrics = AwrsMetrics
 }
 
 trait SubscriptionController extends BaseController with LoggingUtils {
   val subscriptionService: SubscriptionService
   val lookupService: EtmpLookupService
   val statusService: EtmpStatusService
-  val metrics: Metrics
+  val metrics: AwrsMetrics
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 

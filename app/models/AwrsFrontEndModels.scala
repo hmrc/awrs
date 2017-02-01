@@ -194,9 +194,9 @@ object BCAddress {
       for {
         line_1 <- (js \ "address" \ "addressLine1").validate[String]
         line_2 <- (js \ "address" \ "addressLine2").validate[String]
-        line_3 <- (js \ "address" \ "addressLine3").validate[Option[String]]
-        line_4 <- (js \ "address" \ "addressLine4").validate[Option[String]]
-        postcode <- (js \ "address" \ "postalCode").validate[Option[String]]
+        line_3 <- (js \ "address" \ "addressLine3").validateOpt[String]
+        line_4 <- (js \ "address" \ "addressLine4").validateOpt[String]
+        postcode <- (js \ "address" \ "postalCode").validateOpt[String]
         country <- (js \ "address" \ "countryCode").validate[String]
       } yield {
         BCAddress(line_1 = line_1, line_2 = line_2, line_3 = line_3, line_4 = line_4, postcode = postcode, country = country)
@@ -257,10 +257,10 @@ object Address {
       for {
         addressLine1 <- (js \ "addressLine1").validate[String]
         addressLine2 <- (js \ "addressLine2").validate[String]
-        addressLine3 <- (js \ "addressLine3").validate[Option[String]]
-        addressLine4 <- (js \ "addressLine4").validate[Option[String]]
-        postcode <- (js \ "postalCode").validate[Option[String]]
-        countryCode <- (js \ "countryCode").validate[Option[String]]
+        addressLine3 <- (js \ "addressLine3").validateOpt[String]
+        addressLine4 <- (js \ "addressLine4").validateOpt[String]
+        postcode <- (js \ "postalCode").validateOpt[String]
+        countryCode <- (js \ "countryCode").validateOpt[String]
       } yield {
         Address(postcode = postcode, addressLine1 = addressLine1, addressLine2 = addressLine2, addressLine3 = addressLine3,
           addressLine4 = addressLine4, addressCountryCode = if (countryCode.fold("")(x => x).equals("GB")) None else countryCode)
@@ -278,8 +278,8 @@ object NewAWBusiness {
 
     def reads(js: JsValue): JsResult[NewAWBusiness] =
       for {
-        newAWBusiness <- (js \ "newAWBusiness").validate[Option[Boolean]]
-        proposedStartDate <- (js \ "proposedStartDate").validate[Option[String]]
+        newAWBusiness <- (js \ "newAWBusiness").validateOpt[Boolean]
+        proposedStartDate <- (js \ "proposedStartDate").validateOpt[String]
       } yield {
         // the check for "" is speced by AWRS-1413. This is due to an issue with ETMP sometimes sending the
         // data as "proposedStartDate": ""
@@ -287,7 +287,7 @@ object NewAWBusiness {
           case Some("") => None
           case _ => proposedStartDate
         }
-        NewAWBusiness(newAWBusiness = booleanToString(newAWBusiness.fold(false)(x => x)).get, proposedStartDate = etmpToMdtpDateFormatterOrNone(parsedProposedStartDate))
+        NewAWBusiness(newAWBusiness = booleanToString(newAWBusiness.fold(false)(x => x)).get, proposedStartDate = etmpToAwrsDateFormatterOrNone(parsedProposedStartDate))
       }
 
   }
@@ -305,7 +305,7 @@ object CompanyRegDetails {
         companyRegistrationNumber <- (js \ "companyRegistrationNumber").validate[String]
         dateOfIncorporation <- (js \ "dateOfIncorporation").validate[String]
       } yield {
-        CompanyRegDetails(companyRegistrationNumber = companyRegistrationNumber, dateOfIncorporation = etmpToMdtpDateFormatter(dateOfIncorporation))
+        CompanyRegDetails(companyRegistrationNumber = companyRegistrationNumber, dateOfIncorporation = etmpToAwrsDateFormatter(dateOfIncorporation))
       }
 
   }
@@ -315,9 +315,9 @@ object CompanyRegDetails {
 
 object BusinessRegistrationDetails {
 
-  val reader = (legalEntity: String) => new Reads[BusinessRegistrationDetails] {
+  val reader = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
 
-    def toBusinessRegistrationDetails(legalEntity: String,
+    def toBusinessRegistrationDetails(legalEntity: Option[String],
                                       doYouHaveNino: Option[String],
                                       nino: Option[String],
                                       isBusinessIncorporated: Option[String],
@@ -326,7 +326,7 @@ object BusinessRegistrationDetails {
                                       vrn: Option[String],
                                       doYouHaveUTR: Option[String],
                                       utr: Option[String]) = {
-      BusinessRegistrationDetails(legalEntity = Some(legalEntity),
+      BusinessRegistrationDetails(legalEntity = legalEntity,
         doYouHaveNino = doYouHaveNino,
         nino = nino,
         isBusinessIncorporated = isBusinessIncorporated,
@@ -339,7 +339,7 @@ object BusinessRegistrationDetails {
 
     def reads(js: JsValue): JsResult[BusinessRegistrationDetails] = {
       val jsSubscriptionType = js \ "subscriptionType"
-      val etmpLegalEntity = (jsSubscriptionType \ "legalEntity").validate[Option[String]]
+      val etmpLegalEntity = (jsSubscriptionType \ "legalEntity").validateOpt[String]
 
       lazy val identification: JsResult[JsValue] =
         jsSubscriptionType \ "businessDetails" \ "soleProprietor" match {
@@ -348,14 +348,14 @@ object BusinessRegistrationDetails {
         }
 
       for {
-        doYouHaveNino <- (identification.get \ "doYouHaveNino").validate[Option[Boolean]]
-        nino <- (identification.get \ "nino").validate[Option[String]]
-        isBusinessIncorporated <- (jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails" \ "isBusinessIncorporated").validate[Option[Boolean]]
-        companyRegDetails <- (jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails").validate[Option[CompanyRegDetails]](Reads.optionNoError(CompanyRegDetails.reader))
-        doYouHaveVRN <- (identification.get \ "doYouHaveVRN").validate[Option[Boolean]]
-        vrn <- (identification.get \ "vrn").validate[Option[String]]
-        doYouHaveUTR <- (identification.get \ "doYouHaveUTR").validate[Option[Boolean]]
-        utr <- (identification.get \ "utr").validate[Option[String]]
+        doYouHaveNino <- (identification.get \ "doYouHaveNino").validateOpt[Boolean]
+        nino <- (identification.get \ "nino").validateOpt[String]
+        isBusinessIncorporated <- (jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
+        companyRegDetails <- JsSuccess((jsSubscriptionType \ "businessDetails" \ "llpCorporateBody" \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
+        doYouHaveVRN <- (identification.get \ "doYouHaveVRN").validateOpt[Boolean]
+        vrn <- (identification.get \ "vrn").validateOpt[String]
+        doYouHaveUTR <- (identification.get \ "doYouHaveUTR").validateOpt[Boolean]
+        utr <- (identification.get \ "utr").validateOpt[String]
       } yield {
         val doYouHaveNinoString = booleanToString(doYouHaveNino.fold(false)(x => x))
         val isBusinessIncorporatedString = booleanToString(isBusinessIncorporated.fold(false)(x => x))
@@ -382,8 +382,8 @@ object CompanyNames {
 
     def reads(js: JsValue): JsResult[CompanyNames] =
       for {
-        companyName <- (js \ "companyName").validate[Option[String]]
-        tradingName <- (js \ "tradingName").validate[Option[String]]
+        companyName <- (js \ "companyName").validateOpt[String]
+        tradingName <- (js \ "tradingName").validateOpt[String]
       } yield {
         CompanyNames(
           businessName = companyName,
@@ -454,14 +454,14 @@ object GroupMember {
     def reads(js: JsValue): JsResult[GroupMember] =
       for {
         names <- (js \ "names").validate[CompanyNames](CompanyNames.reader)
-        isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validate[Option[Boolean]]
-        companyRegDetails <- (js \ "incorporationDetails").validate[Option[CompanyRegDetails]](Reads.optionNoError(CompanyRegDetails.reader))
+        isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
+        companyRegDetails <- JsSuccess((js \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
         groupJoiningDate <- (js \ "groupJoiningDate").validate[String]
-        address <- (js \ "address").validate[Option[Address]](Reads.optionNoError(Address.reader))
-        doYouHaveVRN <- (js \ "identification" \ "doYouHaveVRN").validate[Option[Boolean]]
-        vrn <- (js \ "identification" \ "vrn").validate[Option[String]]
-        doYouHaveUTR <- (js \ "identification" \ "doYouHaveUTR").validate[Option[Boolean]]
-        utr <- (js \ "identification" \ "utr").validate[Option[String]]
+        address <- (js \ "address").validateOpt[Address](Address.reader)
+        doYouHaveVRN <- (js \ "identification" \ "doYouHaveVRN").validateOpt[Boolean]
+        vrn <- (js \ "identification" \ "vrn").validateOpt[String]
+        doYouHaveUTR <- (js \ "identification" \ "doYouHaveUTR").validateOpt[Boolean]
+        utr <- (js \ "identification" \ "utr").validateOpt[String]
       } yield {
         GroupMember(
           companyNames = names,
@@ -529,7 +529,7 @@ object AdditionalBusinessPremises {
 
     def reads(js: JsValue): JsResult[AdditionalBusinessPremises] =
       for {
-        additionalAddress <- (js \ "address").validate[Option[Address]](Reads.optionNoError(Address.reader))
+        additionalAddress <- (js \ "address").validateOpt[Address](Address.reader)
       } yield {
         AdditionalBusinessPremises(
           additionalPremises = Some("Yes"),
@@ -610,30 +610,30 @@ object Partner {
 
     def reads(js: JsValue): JsResult[Partner] =
       for {
-        entityType <- (js \ "entityType").validate[Option[String]]
-        partnerAddress <- (js \ "partnerAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
-        firstName <- (js \ "individual" \ "name" \ "firstName").validate[Option[String]]
-        lastName <- (js \ "individual" \ "name" \ "lastName").validate[Option[String]]
-        doYouHaveNino <- (js \ "individual" \ "doYouHaveNino").validate[Option[Boolean]]
-        nino <- (js \ "individual" \ "nino").validate[Option[String]]
-        companyName <- (js \ "names" \ "companyName").validate[Option[String]]
-        tradingName <- (js \ "names" \ "tradingName").validate[Option[String]]
-        doYouHaveVRN <- (js \ "identification" \ "doYouHaveVRN").validate[Option[Boolean]]
-        vrn <- (js \ "identification" \ "vrn").validate[Option[String]]
-        doYouHaveUTR <- (js \ "identification" \ "doYouHaveUTR").validate[Option[Boolean]]
-        utr <- (js \ "identification" \ "utr").validate[Option[String]]
-        isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validate[Option[Boolean]]
-        companyRegDetails <- (js \ "incorporationDetails").validate[Option[CompanyRegDetails]](Reads.optionNoError(CompanyRegDetails.reader))
-        dateOfIncorporation <- (js \ "incorporationDetails" \ "dateOfIncorporation").validate[Option[String]]
-        solTradingName <- (js \ "soleProprietor" \ "tradingName").validate[Option[String]]
-        solFirstName <- (js \ "soleProprietor" \ "name" \ "firstName").validate[Option[String]]
-        solLastName <- (js \ "soleProprietor" \ "name" \ "lastName").validate[Option[String]]
-        solDoYouHaveNino <- (js \ "soleProprietor" \ "doYouHaveNino").validate[Option[Boolean]]
-        solNino <- (js \ "soleProprietor" \ "nino").validate[Option[String]]
-        solDoYouHaveVRN <- (js \ "soleProprietor" \ "identification" \ "doYouHaveVRN").validate[Option[Boolean]]
-        solVrn <- (js \ "soleProprietor" \ "identification" \ "vrn").validate[Option[String]]
-        soldoYouHaveUTR <- (js \ "soleProprietor" \ "identification" \ "doYouHaveUTR").validate[Option[Boolean]]
-        solUtr <- (js \ "soleProprietor" \ "identification" \ "utr").validate[Option[String]]
+        entityType <- (js \ "entityType").validateOpt[String]
+        partnerAddress <- (js \ "partnerAddress").validateOpt[Address](Address.reader)
+        firstName <- (js \ "individual" \ "name" \ "firstName").validateOpt[String]
+        lastName <- (js \ "individual" \ "name" \ "lastName").validateOpt[String]
+        doYouHaveNino <- (js \ "individual" \ "doYouHaveNino").validateOpt[Boolean]
+        nino <- (js \ "individual" \ "nino").validateOpt[String]
+        companyName <- (js \ "names" \ "companyName").validateOpt[String]
+        tradingName <- (js \ "names" \ "tradingName").validateOpt[String]
+        doYouHaveVRN <- (js \ "identification" \ "doYouHaveVRN").validateOpt[Boolean]
+        vrn <- (js \ "identification" \ "vrn").validateOpt[String]
+        doYouHaveUTR <- (js \ "identification" \ "doYouHaveUTR").validateOpt[Boolean]
+        utr <- (js \ "identification" \ "utr").validateOpt[String]
+        isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
+        companyRegDetails <- (js \ "incorporationDetails").validateOpt[CompanyRegDetails](CompanyRegDetails.reader)
+        dateOfIncorporation <- (js \ "incorporationDetails" \ "dateOfIncorporation").validateOpt[String]
+        solTradingName <- (js \ "soleProprietor" \ "tradingName").validateOpt[String]
+        solFirstName <- (js \ "soleProprietor" \ "name" \ "firstName").validateOpt[String]
+        solLastName <- (js \ "soleProprietor" \ "name" \ "lastName").validateOpt[String]
+        solDoYouHaveNino <- (js \ "soleProprietor" \ "doYouHaveNino").validateOpt[Boolean]
+        solNino <- (js \ "soleProprietor" \ "nino").validateOpt[String]
+        solDoYouHaveVRN <- (js \ "soleProprietor" \ "identification" \ "doYouHaveVRN").validateOpt[Boolean]
+        solVrn <- (js \ "soleProprietor" \ "identification" \ "vrn").validateOpt[String]
+        soldoYouHaveUTR <- (js \ "soleProprietor" \ "identification" \ "doYouHaveUTR").validateOpt[Boolean]
+        solUtr <- (js \ "soleProprietor" \ "identification" \ "utr").validateOpt[String]
       } yield {
         entityType.fold("")(x => x) match {
           case PartnerDetailType.Individual => toPartnerDetail(entityType, partnerAddress, firstName, lastName,
@@ -659,21 +659,21 @@ object BusinessDirector {
 
     def reads(js: JsValue): JsResult[BusinessDirector] =
       for {
-        individualStatus <- (js \ "individual" \ "status").validate[Option[String]]
-        firstName <- (js \ "individual" \ "name" \ "firstName").validate[Option[String]]
-        lastName <- (js \ "individual" \ "name" \ "lastName").validate[Option[String]]
-        nino <- (js \ "individual" \ "identification" \ "nino").validate[Option[String]]
-        passportNumber <- (js \ "individual" \ "identification" \ "passportNumber").validate[Option[String]]
-        nationalID <- (js \ "individual" \ "identification" \ "nationalIdNumber").validate[Option[String]]
-        companyStatus <- (js \ "company" \ "status").validate[Option[String]]
-        businessName <- (js \ "company" \ "names" \ "companyName").validate[Option[String]]
-        tradingName <- (js \ "company" \ "names" \ "tradingName").validate[Option[String]]
-        doYouHaveVRN <- (js \ "company" \ "identification" \ "doYouHaveVRN").validate[Option[Boolean]]
-        vrn <- (js \ "company" \ "identification" \ "vrn").validate[Option[String]]
-        doYouHaveCRN <- (js \ "company" \ "identification" \ "doYouHaveCRN").validate[Option[Boolean]]
-        companyRegNumber <- (js \ "company" \ "identification" \ "companyRegNumber").validate[Option[String]]
-        doYouHaveUTR <- (js \ "company" \ "identification" \ "doYouHaveUTR").validate[Option[Boolean]]
-        utr <- (js \ "company" \ "identification" \ "utr").validate[Option[String]]
+        individualStatus <- (js \ "individual" \ "status").validateOpt[String]
+        firstName <- (js \ "individual" \ "name" \ "firstName").validateOpt[String]
+        lastName <- (js \ "individual" \ "name" \ "lastName").validateOpt[String]
+        nino <- (js \ "individual" \ "identification" \ "nino").validateOpt[String]
+        passportNumber <- (js \ "individual" \ "identification" \ "passportNumber").validateOpt[String]
+        nationalID <- (js \ "individual" \ "identification" \ "nationalIdNumber").validateOpt[String]
+        companyStatus <- (js \ "company" \ "status").validateOpt[String]
+        businessName <- (js \ "company" \ "names" \ "companyName").validateOpt[String]
+        tradingName <- (js \ "company" \ "names" \ "tradingName").validateOpt[String]
+        doYouHaveVRN <- (js \ "company" \ "identification" \ "doYouHaveVRN").validateOpt[Boolean]
+        vrn <- (js \ "company" \ "identification" \ "vrn").validateOpt[String]
+        doYouHaveCRN <- (js \ "company" \ "identification" \ "doYouHaveCRN").validateOpt[Boolean]
+        companyRegNumber <- (js \ "company" \ "identification" \ "companyRegNumber").validateOpt[String]
+        doYouHaveUTR <- (js \ "company" \ "identification" \ "doYouHaveUTR").validateOpt[Boolean]
+        utr <- (js \ "company" \ "identification" \ "utr").validateOpt[String]
       } yield {
         val (directorsAndCompanySecretaries, personOrCompany) = (individualStatus, companyStatus) match {
           case (Some(status), _) => (status, "person")
@@ -733,10 +733,10 @@ object Supplier {
 
     def reads(js: JsValue): JsResult[Supplier] =
       for {
-        supplierName <- (js \ "name").validate[Option[String]]
-        isSupplierVatRegistered <- (js \ "isSupplierVatRegistered").validate[Option[Boolean]]
-        vatNumber <- (js \ "vrn").validate[Option[String]]
-        supplierAddress <- (js \ "address").validate[Option[Address]](Reads.optionNoError(Address.reader))
+        supplierName <- (js \ "name").validateOpt[String]
+        isSupplierVatRegistered <- (js \ "isSupplierVatRegistered").validateOpt[Boolean]
+        vatNumber <- (js \ "vrn").validateOpt[String]
+        supplierAddress <- (js \ "address").validateOpt[Address](Address.reader)
       } yield {
         Supplier(
           alcoholSuppliers = Some("Yes"),
@@ -784,8 +784,8 @@ object ApplicationDeclaration {
 
     def reads(js: JsValue): JsResult[ApplicationDeclaration] =
       for {
-        declarationName <- (js \ "subscriptionType" \ "declaration" \ "nameOfPerson").validate[Option[String]]
-        declarationRole <- (js \ "subscriptionType" \ "declaration" \ "statusOfPerson").validate[Option[String]]
+        declarationName <- (js \ "subscriptionType" \ "declaration" \ "nameOfPerson").validateOpt[String]
+        declarationRole <- (js \ "subscriptionType" \ "declaration" \ "statusOfPerson").validateOpt[String]
       } yield {
         ApplicationDeclaration(declarationName = declarationName, declarationRole = declarationRole)
       }
@@ -802,8 +802,8 @@ object BusinessType {
 
     def reads(js: JsValue): JsResult[BusinessType] =
       for {
-        legalEntity <- (js \ "subscriptionType" \ "legalEntity").validate[Option[String]]
-        isAgroup <- (js \ "subscriptionType" \ "llpCorporateBody" \ "creatingAGroup").validate[Option[Boolean]]
+        legalEntity <- (js \ "subscriptionType" \ "legalEntity").validateOpt[String]
+        isAgroup <- (js \ "subscriptionType" \ "llpCorporateBody" \ "creatingAGroup").validateOpt[Boolean]
       } yield {
         BusinessType(legalEntity = convertLegalEntity(legalEntity, isAgroup.fold(false)(x => x)))
       }
@@ -849,6 +849,10 @@ object Partners {
       case (x, i) => x
     }
 
+  val writer = new Writes[Partners] {
+    def writes(partners: Partners): JsValue = Json.obj("partners" -> Json.toJson(partners.partners))
+  }
+
   implicit val formats = Json.format[Partners]
 
 }
@@ -864,7 +868,7 @@ object BusinessDetailsEntityTypes extends Enumeration {
   val Llp = Value("Llp")
   val Partnership = Value("Partnership")
 
-  implicit val reader = new Reads[BusinessDetailsEntityTypes.Value] {
+  val reader = new Reads[BusinessDetailsEntityTypes.Value] {
 
     def reads(js: JsValue): JsResult[BusinessDetailsEntityTypes.Value] = js match {
       case JsString(s) =>
@@ -957,15 +961,15 @@ case class SubscriptionTypeFrontEnd(
 
 object BusinessDetails {
 
-  val reader = (legalEntity: String) => new Reads[BusinessDetails] {
+  val reader = (legalEntity: Option[String]) => new Reads[BusinessDetails] {
 
     def reads(js: JsValue): JsResult[BusinessDetails] =
       for {
         tradingName <- legalEntity match {
-          case "SOP" => (js \ "subscriptionType" \ "businessDetails" \ "soleProprietor" \ "tradingName").validate[Option[String]]
-          case _ => (js \ "subscriptionType" \ "businessDetails" \ "nonProprietor" \ "tradingName").validate[Option[String]]
+          case Some("SOP") => (js \ "subscriptionType" \ "businessDetails" \ "soleProprietor" \ "tradingName").validateOpt[String]
+          case _ => (js \ "subscriptionType" \ "businessDetails" \ "nonProprietor" \ "tradingName").validateOpt[String]
         }
-        newAWBusiness <- (js \ "subscriptionType").validate[Option[NewAWBusiness]](Reads.optionNoError(NewAWBusiness.reader))
+        newAWBusiness <- JsSuccess((js \ "subscriptionType").asOpt[NewAWBusiness](NewAWBusiness.reader))
       } yield {
         BusinessDetails(
           doYouHaveTradingName = tradingName match {
@@ -991,12 +995,12 @@ object BusinessContacts {
 
     def reads(js: JsValue): JsResult[BusinessContacts] =
       for {
-        contactAddressSame <- (js \ "subscriptionType" \ "contactDetails" \ "useAlternateContactAddress").validate[Option[Boolean]]
-        contactAddress <- (js \ "subscriptionType" \ "contactDetails" \ "address").validate[Option[Address]](Reads.optionNoError(Address.reader))
+        contactAddressSame <- (js \ "subscriptionType" \ "contactDetails" \ "useAlternateContactAddress").validateOpt[Boolean]
+        contactAddress <- (js \ "subscriptionType" \ "contactDetails" \ "address").validateOpt[Address](Address.reader)
         firstName <- (js \ "subscriptionType" \ "contactDetails" \ "name" \ "firstName").validate[String]
         lastName <- (js \ "subscriptionType" \ "contactDetails" \ "name" \ "lastName").validate[String]
         email <- (js \ "subscriptionType" \ "contactDetails" \ "communicationDetails" \ "email").validate[String]
-        telephone <- (js \ "subscriptionType" \ "contactDetails" \ "communicationDetails" \ "telephone").validate[Option[String]]
+        telephone <- (js \ "subscriptionType" \ "contactDetails" \ "communicationDetails" \ "telephone").validateOpt[String]
       } yield {
         BusinessContacts(
           contactAddressSame = trueToNoOrFalseToYes(contactAddressSame.fold(false)(x => x)),
@@ -1023,10 +1027,10 @@ object PlaceOfBusiness {
 
     def reads(js: JsValue): JsResult[PlaceOfBusiness] =
       for {
-        mainAddress <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
+        mainAddress <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").validateOpt[Address](Address.reader)
         premiseFirstAddress <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
-        placeOfBusinessLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "differentOperatingAddresslnLast3Years").validate[Option[Boolean]]
-        placeOfBusinessAddressLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").validate[Option[Address]](Reads.optionNoError(Address.reader))
+        placeOfBusinessLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "differentOperatingAddresslnLast3Years").validateOpt[Boolean]
+        placeOfBusinessAddressLast3Years <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").validateOpt[Address](Address.reader)
         operatingDuration <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "operatingDuration").validate[String]
       } yield {
         PlaceOfBusiness(
@@ -1051,13 +1055,13 @@ object TradingActivity {
     def reads(js: JsValue): JsResult[TradingActivity] =
       for {
         wholesalerType <- typeOfWholeSaler(js)
-        otherwholeSalerType <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "typeOfWholesalerOther").validate[Option[String]]
+        otherwholeSalerType <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "typeOfWholesalerOther").validateOpt[String]
         typeOfAlcoholOrders <- typeOfAlcoholOrders(js)
-        otherTypeOfAlcoholOrders <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "typeOfOrderOther").validate[Option[String]]
-        doesBusinessImportAlcohol <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsImported").validate[Option[Boolean]]
+        otherTypeOfAlcoholOrders <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "typeOfOrderOther").validateOpt[String]
+        doesBusinessImportAlcohol <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsImported").validateOpt[Boolean]
         doYouExportAlcohol <- doYouExportAlcohol(js)
         exportLocation <- exportLocation(js)
-        thirdPartyStorage <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "thirdPartyStorageUsed").validate[Option[Boolean]]
+        thirdPartyStorage <- JsSuccess((js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "thirdPartyStorageUsed").asOpt[Boolean])
       } yield {
         TradingActivity(wholesalerType = wholesalerType,
           otherWholesaler = otherwholeSalerType,
@@ -1072,10 +1076,10 @@ object TradingActivity {
 
   }
 
-  def doYouExportAlcohol(js: JsValue) =
+  def doYouExportAlcohol(js: JsValue): JsResult[Option[String]] =
     for {
-      alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validate[Option[Boolean]]
-      euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validate[Option[Boolean]]
+      alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validateOpt[Boolean]
+      euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validateOpt[Boolean]
     } yield {
       (alcoholGoodsExported, euDispatches) match {
         case (Some(false), Some(false)) => Some("No")
@@ -1083,10 +1087,10 @@ object TradingActivity {
       }
     }
 
-  def exportLocation(js: JsValue) =
+  def exportLocation(js: JsValue): JsResult[Option[List[String]]] =
     for {
-      alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validate[Option[Boolean]]
-      euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validate[Option[Boolean]]
+      alcoholGoodsExported <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "alcoholGoodsExported").validateOpt[Boolean]
+      euDispatches <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "euDispatches").validateOpt[Boolean]
     } yield {
       typeOfExports(alcoholGoodsExported, euDispatches)
     }
@@ -1099,7 +1103,7 @@ object TradingActivity {
       case (Some(false), Some(false)) => None
     }
 
-  def typeOfWholeSaler(js: JsValue) =
+  def typeOfWholeSaler(js: JsValue): JsResult[List[String]] =
     for {
       cashAndCarry <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "cashAndCarry").validate[Boolean]
       offTradeSupplierOnly <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "offTradeSupplierOnly").validate[Boolean]
@@ -1114,7 +1118,7 @@ object TradingActivity {
         other ? WholesalerType.other | "").filter(_ != "")
     }
 
-  def typeOfAlcoholOrders(js: JsValue) =
+  def typeOfAlcoholOrders(js: JsValue): JsResult[List[String]] =
     for {
       onlineOnly <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "onlineOnly").validate[Boolean]
       onlineAndTel <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "onlineAndTel").validate[Boolean]
@@ -1169,9 +1173,9 @@ object Products {
     def reads(js: JsValue): JsResult[Products] =
       for {
         mainCustomers <- typeOfCustomers(js)
-        otherMainCustomers <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "typeOfCustomerOther").validate[Option[String]]
+        otherMainCustomers <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "typeOfCustomerOther").validateOpt[String]
         productType <- typeOfProduct(js)
-        otherProductType <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "typeOfProductOther").validate[Option[String]]
+        otherProductType <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "typeOfProductOther").validateOpt[String]
       } yield {
         Products(
           mainCustomers = mainCustomers,
@@ -1183,7 +1187,7 @@ object Products {
 
   }
 
-  def typeOfCustomers(js: JsValue) =
+  def typeOfCustomers(js: JsValue): JsResult[List[String]] =
     for {
       pubs <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "pubs").validate[Boolean]
       nightClubs <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "nightClubs").validate[Boolean]
@@ -1212,7 +1216,7 @@ object Products {
         other ? TypeOfCustomers.other | "").filter(_ != "")
     }
 
-  def typeOfProduct(js: JsValue) =
+  def typeOfProduct(js: JsValue): JsResult[List[String]] =
     for {
       beer <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "beer").validate[Boolean]
       wine <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "wine").validate[Boolean]
@@ -1243,22 +1247,22 @@ object SubscriptionTypeFrontEnd {
 
     def reads(js: JsValue): JsResult[SubscriptionTypeFrontEnd] =
       for {
-        legalEntity <- js.validate[Option[BusinessType]](Reads.optionNoError(BusinessType.reader))
+        legalEntity <- js.validateOpt[BusinessType](BusinessType.reader)
         businessPartnerName <- (js \ "subscriptionType" \ "businessPartnerName").validate[String]
-        groupDeclaration <- js.validate[Option[GroupDeclaration]](Reads.optionNoError(GroupDeclaration.reader))
-        businessCustomerDetails <- js.validate[Option[BusinessCustomerDetails]](Reads.optionNoError(BusinessCustomerDetails.reader))
-        businessDetails <- js.validate[Option[BusinessDetails]](Reads.optionNoError(BusinessDetails.reader(legalEntity.get.legalEntity.get)))
-        businessRegistrationDetails <- js.validate[Option[BusinessRegistrationDetails]](Reads.optionNoError(BusinessRegistrationDetails.reader(legalEntity.get.legalEntity.get)))
-        businessContacts <- js.validate[Option[BusinessContacts]](Reads.optionNoError(BusinessContacts.reader))
-        placeOfBusiness <- js.validate[Option[PlaceOfBusiness]](Reads.optionNoError(PlaceOfBusiness.reader))
-        groupMemberDetails <- js.validate[Option[GroupMembers]](Reads.optionNoError(GroupMembers.reader))
-        additionalPremises <- js.validate[Option[AdditionalBusinessPremisesList]](Reads.optionNoError(AdditionalBusinessPremisesList.reader))
-        businessDirectors <- js.validate[Option[BusinessDirectors]](Reads.optionNoError(BusinessDirectors.reader))
-        partnership <- js.validate[Option[Partners]](Reads.optionNoError(Partners.reader))
-        tradingActivity <- js.validate[Option[TradingActivity]](Reads.optionNoError(TradingActivity.reader))
-        products <- js.validate[Option[Products]](Reads.optionNoError(Products.reader))
-        suppliers <- js.validate[Option[Suppliers]](Reads.optionNoError(Suppliers.reader))
-        applicationDeclaration <- js.validate[Option[ApplicationDeclaration]](Reads.optionNoError(ApplicationDeclaration.reader))
+        groupDeclaration <- JsSuccess(js.asOpt[GroupDeclaration](GroupDeclaration.reader))
+        businessCustomerDetails <- js.validateOpt[BusinessCustomerDetails](BusinessCustomerDetails.reader)
+        businessDetails <- js.validateOpt[BusinessDetails](BusinessDetails.reader(legalEntity.get.legalEntity))
+        businessRegistrationDetails <- js.validateOpt[BusinessRegistrationDetails](BusinessRegistrationDetails.reader(legalEntity.get.legalEntity))
+        businessContacts <- js.validateOpt[BusinessContacts](BusinessContacts.reader)
+        placeOfBusiness <- js.validateOpt[PlaceOfBusiness](PlaceOfBusiness.reader)
+        groupMemberDetails <- JsSuccess(js.asOpt[GroupMembers](GroupMembers.reader))
+        additionalPremises <- js.validateOpt[AdditionalBusinessPremisesList](AdditionalBusinessPremisesList.reader)
+        businessDirectors <- JsSuccess(js.asOpt[BusinessDirectors](BusinessDirectors.reader))
+        partnership <- JsSuccess(js.asOpt[Partners](Partners.reader))
+        tradingActivity <- js.validateOpt[TradingActivity](TradingActivity.reader)
+        products <- js.validateOpt[Products](Products.reader)
+        suppliers <- JsSuccess(js.asOpt[Suppliers](Suppliers.reader))
+        applicationDeclaration <- js.validateOpt[ApplicationDeclaration](ApplicationDeclaration.reader)
       } yield {
         SubscriptionTypeFrontEnd(
           legalEntity = legalEntity,
@@ -1268,11 +1272,20 @@ object SubscriptionTypeFrontEnd {
           businessRegistrationDetails = businessRegistrationDetails,
           businessContacts = businessContacts,
           placeOfBusiness = placeOfBusiness,
-          groupDeclaration = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupDeclaration else None,
-          groupMembers = if (legalEntity.get.legalEntity.get == "LTD_GRP" | legalEntity.get.legalEntity.get == "LLP_GRP") groupMemberDetails else None,
+          groupDeclaration = legalEntity.get.legalEntity match {
+            case Some("LTD_GRP" | "LLP_GRP") => groupDeclaration
+            case _ => None
+          },
+          groupMembers = legalEntity.get.legalEntity match {
+            case Some("LTD_GRP" | "LLP_GRP") => groupMemberDetails
+            case _ => None
+          },
           partnership = partnership,
           additionalPremises = additionalPremises,
-          businessDirectors = if (legalEntity.get.legalEntity.get == "LTD" | legalEntity.get.legalEntity.get == "LTD_GRP") Some(amendLastDirector(businessDirectors.reduce((x, y) => x))) else None,
+          businessDirectors = legalEntity.get.legalEntity match {
+            case Some("LTD" | "LTD_GRP") => Some(amendLastDirector(businessDirectors.reduce((x, y) => x)))
+            case _ => None
+          },
           tradingActivity = tradingActivity,
           products = products,
           suppliers = hasSupplier(suppliers),

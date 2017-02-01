@@ -21,22 +21,14 @@ import java.util.Date
 
 object Utility {
 
-  def stringToDate(stringDate: String): String = {
+  def awrsToEtmpDateFormatter(stringDate: String): String = {
     val ddMMyyyyFormat = new SimpleDateFormat("dd/MM/yyyy")
     val date: Date = ddMMyyyyFormat.parse(stringDate)
     new SimpleDateFormat("yyyy-MM-dd").format(date).toString
   }
 
-  def etmpToMdtpDateFormatter(date: String): String = {
-    toAndFromDateFormat(date, "dd/MM/yyyy", "yyyy-MM-dd")
-  }
-
   def etmpToAwrsDateFormatter(date: String): String = {
-    toAndFromDateFormat(date, "dd MMMM yyyy", "yyyy-MM-dd")
-  }
-
-  def etmpToAwrsOptionalDateFormatter(date: Option[String]) = {
-    formatOptionalDate(date)(x => etmpToAwrsDateFormatter(x))
+    toAndFromDateFormat(date, "dd/MM/yyyy", "yyyy-MM-dd")
   }
 
   def formatOptionalDate(optionalDate: Option[String])(f: String => String): Option[String] = {
@@ -52,9 +44,9 @@ object Utility {
     toDate.format(fromDate.parse(date))
   }
 
-  def etmpToMdtpDateFormatterOrNone(date: Option[String]): Option[String] = {
+  def etmpToAwrsDateFormatterOrNone(date: Option[String]): Option[String] = {
     date match {
-      case Some(date) => Some(etmpToMdtpDateFormatter(date))
+      case Some(date) => Some(etmpToAwrsDateFormatter(date))
       case _ => None
     }
   }

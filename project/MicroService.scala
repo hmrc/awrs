@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License. */
 
+import play.routes.compiler.StaticRoutesGenerator
+import play.sbt.routes.RoutesKeys.routesGenerator
 import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
 import sbt._
+import uk.gov.hmrc.NexusPublishing._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
@@ -26,9 +29,10 @@ trait MicroService {
   import TestPhases._
 
   val appName: String
+  val appVersion: String
 
   lazy val appDependencies : Seq[ModuleID] = ???
-  lazy val plugins : Seq[Plugins] = Seq(play.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
+  lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
   lazy val playSettings : Seq[Setting[_]] = Seq.empty
 
   lazy val scoverageSettings = {
@@ -47,13 +51,16 @@ trait MicroService {
     .settings(playSettings ++ scoverageSettings : _*)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
+    .settings(nexusPublishingSettings: _*)
     .settings(defaultSettings(): _*)
+    .settings(version := appVersion)
     .settings(
-      targetJvm := "jvm-1.8",
+      shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
-      fork in Test := false,
-      retrieveManaged := true
+      retrieveManaged := true,
+      evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+      routesGenerator := StaticRoutesGenerator
     )
     .settings(publishingSettings: _*)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
@@ -65,7 +72,10 @@ trait MicroService {
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
-    .settings(resolvers += Resolver.bintrayRepo("hmrc", "releases"))
+    .settings(
+      resolvers += Resolver.bintrayRepo("hmrc", "releases"),
+      resolvers += Resolver.jcenterRepo
+    )
 }
 
 private object TestPhases {

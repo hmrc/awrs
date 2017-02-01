@@ -19,7 +19,7 @@ package services
 import java.util.UUID
 
 import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
-import metrics.Metrics
+import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -41,7 +41,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
   object TestSubscriptionService extends SubscriptionService {
     override val ggAdminConnector = mockggAdminConnector
     override val etmpConnector = mockEtmpConnector
-    override val metrics = Metrics
+    override val metrics = AwrsMetrics
   }
 
   "Subscription Service" should {
