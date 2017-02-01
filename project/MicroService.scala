@@ -17,7 +17,6 @@ import play.sbt.routes.RoutesKeys.routesGenerator
 import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
 import sbt._
-import uk.gov.hmrc.NexusPublishing._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning
@@ -51,7 +50,6 @@ trait MicroService {
     .settings(playSettings ++ scoverageSettings : _*)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
-    .settings(nexusPublishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(version := appVersion)
     .settings(
@@ -71,7 +69,10 @@ trait MicroService {
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
-      .settings(resolvers ++= uk.gov.hmrc.HmrcResolvers())
+      .settings(
+        resolvers += Resolver.bintrayRepo("hmrc", "releases"),
+        resolvers += Resolver.jcenterRepo
+      )
 }
 
 private object TestPhases {
