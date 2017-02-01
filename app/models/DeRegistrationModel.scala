@@ -61,7 +61,7 @@ object DeRegistrationSuccessResponseType {
 
   }
 
-  implicit val etmpWritter = Json.writes[DeRegistrationSuccessResponseType]
+  implicit val etmpWriter = Json.writes[DeRegistrationSuccessResponseType]
 }
 
 object DeRegistrationFailureResponseType {
@@ -75,7 +75,7 @@ object DeRegistrationFailureResponseType {
       }
 
   }
-  implicit val etmpWritter = Json.writes[DeRegistrationFailureResponseType]
+  implicit val etmpWriter = Json.writes[DeRegistrationFailureResponseType]
 }
 
 
@@ -97,11 +97,11 @@ object DeRegistrationType {
     }
   }
 
-  implicit val etmpWritter = new Writes[DeRegistrationType] {
+  implicit val etmpWriter = new Writes[DeRegistrationType] {
     def writes(info: DeRegistrationType) =
       info.response match {
-        case Some(r: DeRegistrationSuccessResponseType) => DeRegistrationSuccessResponseType.etmpWritter.writes(r)
-        case Some(r: DeRegistrationFailureResponseType) => DeRegistrationFailureResponseType.etmpWritter.writes(r)
+        case Some(r: DeRegistrationSuccessResponseType) => DeRegistrationSuccessResponseType.etmpWriter.writes(r)
+        case Some(r: DeRegistrationFailureResponseType) => DeRegistrationFailureResponseType.etmpWriter.writes(r)
         case _ => Json.obj("unknown" -> "Etmp returned invalid json")
       }
   }
