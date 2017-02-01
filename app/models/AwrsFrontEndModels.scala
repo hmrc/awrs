@@ -996,7 +996,7 @@ object BusinessContacts {
     def reads(js: JsValue): JsResult[BusinessContacts] =
       for {
         contactAddressSame <- (js \ "subscriptionType" \ "contactDetails" \ "useAlternateContactAddress").validateOpt[Boolean]
-        contactAddress <- (js \ "subscriptionType" \ "contactDetails" \ "address").validateOpt[Address]
+        contactAddress <- (js \ "subscriptionType" \ "contactDetails" \ "address").validateOpt[Address](Address.reader)
         firstName <- (js \ "subscriptionType" \ "contactDetails" \ "name" \ "firstName").validate[String]
         lastName <- (js \ "subscriptionType" \ "contactDetails" \ "name" \ "lastName").validate[String]
         email <- (js \ "subscriptionType" \ "contactDetails" \ "communicationDetails" \ "email").validate[String]
