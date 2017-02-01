@@ -47,7 +47,7 @@ trait MicroService {
   }
 
   lazy val microservice = Project(appName, file("."))
-    .enablePlugins(plugins : _*)
+    .enablePlugins(Seq(play.sbt.PlayScala,SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin) ++ plugins : _*)
     .settings(playSettings ++ scoverageSettings : _*)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
@@ -62,20 +62,16 @@ trait MicroService {
       evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
       routesGenerator := StaticRoutesGenerator
     )
-    .settings(publishingSettings: _*)
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
-    .configs(IntegrationTest)
     .settings(inConfig(TemplateItTest)(Defaults.itSettings): _*)
+    .configs(IntegrationTest)
     .settings(
       Keys.fork in IntegrationTest := false,
       unmanagedSourceDirectories in IntegrationTest <<= (baseDirectory in IntegrationTest)(base => Seq(base / "it")),
       addTestReportOption(IntegrationTest, "int-test-reports"),
       testGrouping in IntegrationTest := oneForkedJvmPerTest((definedTests in IntegrationTest).value),
       parallelExecution in IntegrationTest := false)
-    .settings(
-      resolvers += Resolver.bintrayRepo("hmrc", "releases"),
-      resolvers += Resolver.jcenterRepo
-    )
+      .settings(resolvers ++= uk.gov.hmrc.HmrcResolvers())
 }
 
 private object TestPhases {
