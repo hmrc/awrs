@@ -121,7 +121,8 @@
           "vrn": "000000000",
           "otherPartners": "No"
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -188,9 +189,9 @@
           "vatRegistered": "Yes",
           "vatNumber": "111111111",
           "supplierAddress": {
-            "postcode": "AA1 1AA",
             "addressLine1": "10 Example Apartments",
-            "addressLine2": "16 Example Crescent"
+            "addressLine2": "16 Example Crescent",
+            "postcode": "AA1 1AA"
           },
           "additionalSupplier": "No",
           "ukSupplier": "Yes"

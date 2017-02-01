@@ -67,7 +67,8 @@
           "nino": "$nino",
           "otherPartners": "No"
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "groupMembers": {
       "members": [
@@ -159,9 +160,9 @@
           "supplierName": "Example Supplier",
           "vatRegistered": "No",
           "supplierAddress": {
-            "postcode": "DD1 1DD",
             "addressLine1": "101, Example Street",
-            "addressLine2": "Exampleham"
+            "addressLine2": "Exampleham",
+            "postcode": "DD1 1DD"
           },
           "additionalSupplier": "No",
           "ukSupplier": "Yes"

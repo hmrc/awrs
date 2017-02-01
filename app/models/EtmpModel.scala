@@ -145,7 +145,7 @@ object AWRSFEModel extends EtmpModelHelper {
 
   }
 
-  implicit val etmpReader = new Reads[AWRSFEModel] {
+  val etmpReader = new Reads[AWRSFEModel] {
 
     def reads(js: JsValue): JsResult[AWRSFEModel] =
       for {

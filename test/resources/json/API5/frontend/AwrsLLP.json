@@ -118,7 +118,8 @@
           "doYouHaveVRN": "No",
           "otherPartners": "No"
         }
-      ]
+      ],
+      "modelVersion":"1.0"
     },
     "additionalPremises": {
       "premises": [
@@ -192,9 +193,9 @@
           "supplierName": "dfgdfgfd",
           "vatRegistered": "No",
           "supplierAddress": {
-            "postcode": "BB1 1BB",
             "addressLine1": "150 Avenue",
-            "addressLine2": "Example Avenue"
+            "addressLine2": "Example Avenue",
+            "postcode": "BB1 1BB"
           },
           "additionalSupplier": "Yes",
           "ukSupplier": "Yes"
@@ -204,9 +205,9 @@
           "supplierName": "bbbbbbbb",
           "vatRegistered": "No",
           "supplierAddress": {
-            "postcode": "BB1 1BB",
             "addressLine1": "150 Example Avenue",
-            "addressLine2": "Example Avenue"
+            "addressLine2": "Example Avenue",
+            "postcode": "BB1 1BB"
           },
           "additionalSupplier": "Yes",
           "ukSupplier": "Yes"

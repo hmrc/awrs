@@ -188,7 +188,7 @@ case class GroupMember(companyNames: CompanyNames,
 
 object BCAddress {
 
-  implicit val reader = new Reads[BCAddress] {
+  val reader = new Reads[BCAddress] {
 
     def reads(js: JsValue): JsResult[BCAddress] =
       for {
@@ -220,7 +220,7 @@ case class BusinessCustomerDetails(businessName: String,
 
 object BusinessCustomerDetails {
 
-  implicit val reader = new Reads[BusinessCustomerDetails] {
+  val reader = new Reads[BusinessCustomerDetails] {
 
     def reads(js: JsValue): JsResult[BusinessCustomerDetails] =
       JsSuccess(BusinessCustomerDetails(businessName = "", businessType = None, businessAddress = BCAddress("", "", None, None, None, ""),
@@ -234,7 +234,7 @@ object BusinessCustomerDetails {
 
 object EtmpAddress {
 
-  implicit val reader = new Reads[EtmpAddress] {
+  val reader = new Reads[EtmpAddress] {
 
     def reads(js: JsValue): JsResult[EtmpAddress] =
       for {
@@ -251,7 +251,7 @@ object EtmpAddress {
 
 object Address {
 
-  implicit val reader = new Reads[Address] {
+  val reader = new Reads[Address] {
 
     def reads(js: JsValue): JsResult[Address] =
       for {
@@ -274,7 +274,7 @@ object Address {
 
 object NewAWBusiness {
 
-  implicit val reader = new Reads[NewAWBusiness] {
+  val reader = new Reads[NewAWBusiness] {
 
     def reads(js: JsValue): JsResult[NewAWBusiness] =
       for {
@@ -298,7 +298,7 @@ object NewAWBusiness {
 
 object CompanyRegDetails {
 
-  implicit val reader = new Reads[CompanyRegDetails] {
+  val reader = new Reads[CompanyRegDetails] {
 
     def reads(js: JsValue): JsResult[CompanyRegDetails] =
       for {
@@ -315,7 +315,7 @@ object CompanyRegDetails {
 
 object BusinessRegistrationDetails {
 
-  implicit val reader = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
+  val reader = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
 
     def toBusinessRegistrationDetails(legalEntity: Option[String],
                                       doYouHaveNino: Option[String],
@@ -378,7 +378,7 @@ object BusinessRegistrationDetails {
 
 object CompanyNames {
 
-  implicit val reader = new Reads[CompanyNames] {
+  val reader = new Reads[CompanyNames] {
 
     def reads(js: JsValue): JsResult[CompanyNames] =
       for {
@@ -449,7 +449,7 @@ object CompanyNamesFact {
 
 object GroupMember {
 
-  implicit val reader = new Reads[GroupMember] {
+  val reader = new Reads[GroupMember] {
 
     def reads(js: JsValue): JsResult[GroupMember] =
       for {
@@ -485,7 +485,7 @@ object GroupMember {
 
 object GroupMembers {
   val latestModelVersion = "1.0"
-  implicit val reader = new Reads[GroupMembers] {
+  val reader = new Reads[GroupMembers] {
 
     def reads(js: JsValue): JsResult[GroupMembers] =
       for {
@@ -508,7 +508,7 @@ object GroupMembers {
 
 object GroupDeclaration {
 
-  implicit val reader = new Reads[GroupDeclaration] {
+  val reader = new Reads[GroupDeclaration] {
 
     def reads(js: JsValue): JsResult[GroupDeclaration] =
       for {
@@ -525,7 +525,7 @@ object GroupDeclaration {
 
 object AdditionalBusinessPremises {
 
-  implicit val reader = new Reads[AdditionalBusinessPremises] {
+  val reader = new Reads[AdditionalBusinessPremises] {
 
     def reads(js: JsValue): JsResult[AdditionalBusinessPremises] =
       for {
@@ -546,7 +546,7 @@ object AdditionalBusinessPremises {
 
 object AdditionalBusinessPremisesList {
 
-  implicit val reader = new Reads[AdditionalBusinessPremisesList] {
+  val reader = new Reads[AdditionalBusinessPremisesList] {
 
     def reads(js: JsValue): JsResult[AdditionalBusinessPremisesList] =
       for {
@@ -574,7 +574,7 @@ object AdditionalBusinessPremisesList {
 
 object Partner {
 
-  implicit val reader = new Reads[Partner] {
+  val reader = new Reads[Partner] {
 
     def toPartnerDetail(entityType: Option[String],
                         partnerAddress: Option[Address],
@@ -655,7 +655,7 @@ object Partner {
 
 object BusinessDirector {
 
-  implicit val reader = new Reads[BusinessDirector] {
+  val reader = new Reads[BusinessDirector] {
 
     def reads(js: JsValue): JsResult[BusinessDirector] =
       for {
@@ -712,7 +712,7 @@ object BusinessDirectors {
 
   val latestModelVersion = "1.0"
 
-  implicit val reader = new Reads[BusinessDirectors] {
+  val reader = new Reads[BusinessDirectors] {
 
     def reads(js: JsValue): JsResult[BusinessDirectors] =
       for {
@@ -729,7 +729,7 @@ object BusinessDirectors {
 
 object Supplier {
 
-  implicit val reader = new Reads[Supplier] {
+  val reader = new Reads[Supplier] {
 
     def reads(js: JsValue): JsResult[Supplier] =
       for {
@@ -757,7 +757,7 @@ object Supplier {
 
 object Suppliers {
 
-  implicit val reader = new Reads[Suppliers] {
+  val reader = new Reads[Suppliers] {
 
     def reads(js: JsValue): JsResult[Suppliers] =
       for {
@@ -780,7 +780,7 @@ object Suppliers {
 
 object ApplicationDeclaration {
 
-  implicit val reader = new Reads[ApplicationDeclaration] {
+  val reader = new Reads[ApplicationDeclaration] {
 
     def reads(js: JsValue): JsResult[ApplicationDeclaration] =
       for {
@@ -798,7 +798,7 @@ object ApplicationDeclaration {
 
 object BusinessType {
 
-  implicit val reader = new Reads[BusinessType] {
+  val reader = new Reads[BusinessType] {
 
     def reads(js: JsValue): JsResult[BusinessType] =
       for {
@@ -832,7 +832,7 @@ object Partners {
 
   val latestModelVersion = "1.0"
 
-  implicit val reader = new Reads[Partners] {
+  val reader = new Reads[Partners] {
 
     def reads(js: JsValue): JsResult[Partners] =
       for {
@@ -849,9 +849,11 @@ object Partners {
       case (x, i) => x
     }
 
-  implicit val writer = new Writes[Partners] {
+  val writer = new Writes[Partners] {
     def writes(partners: Partners): JsValue = Json.obj("partners" -> Json.toJson(partners.partners))
   }
+
+  implicit val formats = Json.format[Partners]
 
 }
 
@@ -866,7 +868,7 @@ object BusinessDetailsEntityTypes extends Enumeration {
   val Llp = Value("Llp")
   val Partnership = Value("Partnership")
 
-  implicit val reader = new Reads[BusinessDetailsEntityTypes.Value] {
+  val reader = new Reads[BusinessDetailsEntityTypes.Value] {
 
     def reads(js: JsValue): JsResult[BusinessDetailsEntityTypes.Value] = js match {
       case JsString(s) =>
@@ -959,7 +961,7 @@ case class SubscriptionTypeFrontEnd(
 
 object BusinessDetails {
 
-  implicit val reader = (legalEntity: Option[String]) => new Reads[BusinessDetails] {
+  val reader = (legalEntity: Option[String]) => new Reads[BusinessDetails] {
 
     def reads(js: JsValue): JsResult[BusinessDetails] =
       for {
@@ -989,7 +991,7 @@ object BusinessContacts {
 
   val latestModelVersion = "1.0"
 
-  implicit val reader = new Reads[BusinessContacts] {
+  val reader = new Reads[BusinessContacts] {
 
     def reads(js: JsValue): JsResult[BusinessContacts] =
       for {
@@ -1021,7 +1023,7 @@ object PlaceOfBusiness {
 
   val latestModelVersion = "1.0"
 
-  implicit val reader = new Reads[PlaceOfBusiness] {
+  val reader = new Reads[PlaceOfBusiness] {
 
     def reads(js: JsValue): JsResult[PlaceOfBusiness] =
       for {
@@ -1048,7 +1050,7 @@ object PlaceOfBusiness {
 
 object TradingActivity {
 
-  implicit val reader = new Reads[TradingActivity] {
+  val reader = new Reads[TradingActivity] {
 
     def reads(js: JsValue): JsResult[TradingActivity] =
       for {
@@ -1166,7 +1168,7 @@ object TradingActivity {
 
 object Products {
 
-  implicit val reader = new Reads[Products] {
+  val reader = new Reads[Products] {
 
     def reads(js: JsValue): JsResult[Products] =
       for {
@@ -1241,7 +1243,7 @@ object SubscriptionTypeFrontEnd {
 
   val latestModelVersion = "1.0"
 
-  implicit val reader = new Reads[SubscriptionTypeFrontEnd] {
+  val reader = new Reads[SubscriptionTypeFrontEnd] {
 
     def reads(js: JsValue): JsResult[SubscriptionTypeFrontEnd] =
       for {
