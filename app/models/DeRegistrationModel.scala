@@ -85,8 +85,8 @@ object DeRegistrationType {
 
     def reads(js: JsValue): JsResult[DeRegistrationType] = {
       for {
-        successResponse <- js.validateOpt[DeRegistrationSuccessResponseType]
-        failureResponse <- js.validateOpt[DeRegistrationFailureResponseType]
+        successResponse <- JsSuccess(js.asOpt[DeRegistrationSuccessResponseType](DeRegistrationSuccessResponseType.etmpReader))
+        failureResponse <- JsSuccess(js.asOpt[DeRegistrationFailureResponseType](DeRegistrationFailureResponseType.etmpReader))
       } yield {
         (successResponse, failureResponse) match {
           case (r@Some(_), None) => DeRegistrationType(r)

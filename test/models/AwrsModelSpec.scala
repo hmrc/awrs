@@ -144,8 +144,6 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
             ))),
         deletedJson)
 
-      println(updatedJson)
-
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
 

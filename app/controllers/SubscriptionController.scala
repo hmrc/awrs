@@ -177,7 +177,6 @@ trait SubscriptionController extends BaseController with LoggingUtils {
               warn(s"[$auditAPI5TxName - $awrsRef ] - Successful return of API5 Response")
               debug(s"${result.json}")
               val convertedJson = result.json.as[AWRSFEModel](AWRSFEModel.etmpReader)
-              println(">>>>>CONV\n\n\n"+Json.toJson(convertedJson))
               Ok(Json.toJson(convertedJson))
             case NOT_FOUND =>
               metrics.incrementFailedCounter(ApiType.API5LookupSubscription)

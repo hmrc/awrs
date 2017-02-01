@@ -27,14 +27,14 @@ class DeRegistrationReaderSpec extends UnitSpec with AwrsTestJson {
     "transform DeRegistration correctly to etmp" in {
       val deRegistrationData = DeRegistration("2012-02-10", "Group disbanded", None)
       val deRegistration = Json.toJson(deRegistrationData)
-      val expectedJson = api10RequestJson.toString().replace("$ackRef", deRegistration.\("acknowledgementReference").toString().replace("\"", ""))
+      val expectedJson = api10RequestJson.toString().replace("$ackRef", deRegistration.\("acknowledgementReference").get.toString().replace("\"", ""))
       deRegistration.toString() shouldBe expectedJson
     }
 
     "transform DeRegistration (inc other reason) correctly to etmp" in {
       val deRegistrationData = DeRegistration("2012-02-10", "Others", Some("other reason"))
       val deRegistration = Json.toJson(deRegistrationData)
-      val expectedJson = api10OtherReasonRequestJson.toString().replace("$ackRef", deRegistration.\("acknowledgementReference").toString().replace("\"", ""))
+      val expectedJson = api10OtherReasonRequestJson.toString().replace("$ackRef", deRegistration.\("acknowledgementReference").get.toString().replace("\"", ""))
       deRegistration.toString() shouldBe expectedJson
     }
 
