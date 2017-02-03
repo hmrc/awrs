@@ -22,7 +22,7 @@ import utils.TestUtil._
 
 object AwrsTestJson extends AwrsTestJson {
   // We only want one test nino and utr throughout, therefore assign a value in the object declaration
-  lazy val testNino = "RR490578C" // TODO FIX THIS new Generator().nextNino.nino
+  lazy val testNino = new Generator().nextNino.nino
   lazy val testUtr = new SaUtrGenerator().nextSaUtr.utr
   lazy val testGrpJoinDate = LocalDate.now().toString()
   lazy val testRefNo = "DummmyRef"
