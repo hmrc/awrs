@@ -28,7 +28,6 @@ trait MicroService {
   import TestPhases._
 
   val appName: String
-  val appVersion: String
 
   lazy val appDependencies : Seq[ModuleID] = ???
   lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
@@ -51,9 +50,7 @@ trait MicroService {
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
-    .settings(version := appVersion)
     .settings(
-      shellPrompt := ShellPrompt(appVersion),
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       retrieveManaged := true,
