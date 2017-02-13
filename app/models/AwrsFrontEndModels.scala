@@ -623,7 +623,7 @@ object Partner {
         doYouHaveUTR <- (js \ "identification" \ "doYouHaveUTR").validateOpt[Boolean]
         utr <- (js \ "identification" \ "utr").validateOpt[String]
         isBusinessIncorporated <- (js \ "incorporationDetails" \ "isBusinessIncorporated").validateOpt[Boolean]
-        companyRegDetails <- (js \ "incorporationDetails").validateOpt[CompanyRegDetails](CompanyRegDetails.reader)
+        companyRegDetails <- JsSuccess((js \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
         dateOfIncorporation <- (js \ "incorporationDetails" \ "dateOfIncorporation").validateOpt[String]
         solTradingName <- (js \ "soleProprietor" \ "tradingName").validateOpt[String]
         solFirstName <- (js \ "soleProprietor" \ "name" \ "firstName").validateOpt[String]
