@@ -77,11 +77,10 @@ trait SubscriptionService {
     val knownFact2 = KnownFact("SAFEID", safeId)
     val knownFacts = utr match {
       case Some(someUtr) =>
-        val knownFact3 = businessType match {
-          case "SOP" => KnownFact("SAUTR", someUtr)
-          case _ => KnownFact("CTUTR", someUtr)
+        businessType match {
+          case "SOP" => List(knownFact1,KnownFact("SAUTR", someUtr))
+          case _ => List(knownFact1,KnownFact("CTUTR", someUtr))
         }
-        List(knownFact1, knownFact2, knownFact3)
       case _ => List(knownFact1, knownFact2)
     }
     KnownFactsForService(knownFacts)
