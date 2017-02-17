@@ -60,10 +60,6 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
       val feJson = request.body.asJson.get
 
-     /* val safeId = (feJson \ subscriptionTypeJSPath \ "businessCustomerDetails" \ "safeId").as[String]
-      val userOrBusinessName = (feJson \ subscriptionTypeJSPath \ "businessCustomerDetails" \ "businessName").as[String]
-      val legalEntityType = (feJson \ subscriptionTypeJSPath \ "legalEntity" \ "legalEntity").as[String]*/
-
       val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
 
       val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
