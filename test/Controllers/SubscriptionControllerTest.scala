@@ -70,46 +70,46 @@ class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with Mo
       val matchFailureResponse = HttpResponse(NOT_FOUND, responseJson = Some(matchFailure))
 
       "respond with OK" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
+        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe OK
       }
 
       "return text/plain" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
+        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentType(result).get shouldBe "text/plain"
       }
 
       "return Businessdetails for successful register" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
+        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentAsJson(result) shouldBe successResponse
       }
 
       "for an unsuccessful match return Not found" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(matchFailureResponse))
+        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(matchFailureResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe NOT_FOUND
         contentAsJson(result) shouldBe matchFailureResponse.json
       }
 
       "for a bad request, return BadRequest" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
+        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
         val result = TestSubscriptionController.subscribe("")(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe BAD_REQUEST
         contentAsJson(result) shouldBe badRequestJson
       }
 
       "for service unavailable, return service unavailable" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
+        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe SERVICE_UNAVAILABLE
         contentAsJson(result) shouldBe serviceUnavailable
       }
 
       "internal server error, return internal server error" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
+        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe INTERNAL_SERVER_ERROR
         contentAsJson(result) shouldBe serverError

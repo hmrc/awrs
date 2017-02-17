@@ -18,7 +18,7 @@ package services
 
 import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
-import models.{ApiType, KnownFact, KnownFactsForService}
+import models.{ApiType, KnownFact, KnownFactsForService, Postcode}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
@@ -38,11 +38,11 @@ trait SubscriptionService {
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
   val metrics: AwrsMetrics
 
-  def subscribe(data: JsValue, safeId: String, utr: Option[String], businessType: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def subscribe(data: JsValue, safeId: String, utr: Option[String], businessType: String,postcode :String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
     for {
       submitResponse <- etmpConnector.subscribe(data, safeId)
-      ggResponse <- addKnownFacts(submitResponse, safeId, utr, businessType)
+      ggResponse <- addKnownFacts(submitResponse, safeId, utr, businessType,postcode)
     } yield {
       ggResponse.status match {
         case OK =>
@@ -63,23 +63,23 @@ trait SubscriptionService {
   def updateSubcription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.updateSubscription(inputJson, awrsRefNo)
 
-  private def addKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  private def addKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String,postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     response.status match {
       case OK =>
         val json = response.json
         val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
-        ggAdminConnector.addKnownFacts(createKnownFacts(awrsRegistrationNumber, safeId, utr, businessType), awrsRegistrationNumber)
+        ggAdminConnector.addKnownFacts(createKnownFacts(awrsRegistrationNumber, safeId, utr, businessType,postcode), awrsRegistrationNumber)
       case _ => Future.successful(response)
     }
 
-  private def createKnownFacts(awrsRegistrationNumber: String, safeId: String, utr: Option[String], businessType: String) = {
+  private def createKnownFacts(awrsRegistrationNumber: String, safeId: String, utr: Option[String], businessType: String, postcode : String) = {
     val knownFact1 = KnownFact("AWRSRefNumber", awrsRegistrationNumber)
-    val knownFact2 = KnownFact("SAFEID", safeId)
+    val knownFact2 = KnownFact("POSTCODE", postcode)
     val knownFacts = utr match {
       case Some(someUtr) =>
         businessType match {
-          case "SOP" => List(knownFact1,KnownFact("SAUTR", someUtr))
-          case _ => List(knownFact1,KnownFact("CTUTR", someUtr))
+          case "SOP" => List(knownFact1,KnownFact("SAUTR", someUtr),knownFact2)
+          case _ => List(knownFact1,KnownFact("CTUTR", someUtr),knownFact2)
         }
       case _ => List(knownFact1, knownFact2)
     }
