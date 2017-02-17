@@ -60,18 +60,21 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
       val feJson = request.body.asJson.get
 
-      val safeId = (feJson \ subscriptionTypeJSPath \ "businessCustomerDetails" \ "safeId").as[String]
-      val userOrBusinessName = (feJson \ subscriptionTypeJSPath \ "businessCustomerDetails" \ "businessName").as[String]
-      val legalEntityType = (feJson \ subscriptionTypeJSPath \ "legalEntity" \ "legalEntity").as[String]
+      val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
 
+      val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
+
+      val safeId :String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.safeId)
+      val userOrBusinessName :String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.businessName)
+      val legalEntityType :String = awrsModel.subscriptionTypeFrontEnd.legalEntity.get.legalEntity.fold("")(x =>x )
+
+      val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
+      val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x)
+      val utr = businessReg.utr
+      val businessType = businessReg.legalEntity.fold("")(x => x)
       val auditMap: Map[String,String] = Map("safeId" -> safeId, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType)
 
-      val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
-      val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
-      val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
-      val utr = businessReg.utr
-      val businessType = businessReg.legalEntity.get
-      subscriptionService.subscribe(convertedEtmpJson,safeId, utr, businessType).map {
+      subscriptionService.subscribe(convertedEtmpJson,safeId, utr, businessType, postcode).map {
         registerData =>
           warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " +  registerData.body)
           registerData.status match {
@@ -87,7 +90,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
               NotFound(registerData.body)
             case BAD_REQUEST =>
               metrics.incrementFailedCounter(ApiType.API4Subscribe)
-              warn(s"[$auditAPI4TxName - $safeId ] - Bad Request \n API4 Request Json to DES ## ")
+              warn(s"[$auditAPI4TxName - $safeId ] - Bad Request l")
               val failureReason: String = if(registerData.body.contains("Reason")) (registerData.json \ "Reason").as[String] else "Bad Request"
               audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> failureReason, "EtmpJson" -> convertedEtmpJson.toString()), eventType = eventTypeFailure)
               BadRequest(registerData.body)

@@ -60,7 +60,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "subscribe when we are passed valid json" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockggAdminConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP")
+      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe OK
       response.json shouldBe successResponse
@@ -68,7 +68,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
 
     "respond with BadRequest, when subscription request fails with a Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP")
+      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe BAD_REQUEST
       response.json shouldBe failureResponse
@@ -77,7 +77,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "respond with Ok, when subscription works but gg admin request fails with a Bad request but audit the Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockggAdminConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP")
+      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe OK
       response.json shouldBe successResponse
