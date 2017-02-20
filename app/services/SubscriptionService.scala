@@ -43,7 +43,7 @@ trait SubscriptionService {
     for {
       submitResponse <- etmpConnector.subscribe(data, safeId)
       ggResponse <- addKnownFacts(submitResponse, safeId, utr, businessType,postcode)
-    } yield {
+      } yield {
       ggResponse.status match {
         case OK =>
           timer.stop()

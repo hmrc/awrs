@@ -69,7 +69,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
       val legalEntityType :String = awrsModel.subscriptionTypeFrontEnd.legalEntity.get.legalEntity.fold("")(x =>x )
 
       val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
-      val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x)
+      val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x).replaceAll("\\s+", "")
       val utr = businessReg.utr
       val businessType = businessReg.legalEntity.fold("")(x => x)
       val auditMap: Map[String,String] = Map("safeId" -> safeId, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType)
