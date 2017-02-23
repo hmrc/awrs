@@ -74,8 +74,15 @@ trait SubscriptionService {
 
   private def createKnownFacts(awrsRegistrationNumber: String, safeId: String, utr: Option[String], businessType: String, postcode : String) = {
     val knownFact1 = KnownFact("AWRSRefNumber", awrsRegistrationNumber)
-    val knownFact2 = KnownFact("SAFEID", safeId)
-    val knownFacts = List(knownFact1, knownFact2)
+    val knownFact2 = KnownFact("POSTCODE", postcode)
+    val knownFacts = utr match {
+      case Some(someUtr) =>
+        businessType match {
+          case "SOP" => List(knownFact1,KnownFact("SAUTR", someUtr),knownFact2)
+          case _ => List(knownFact1,KnownFact("CTUTR", someUtr),knownFact2)
+        }
+      case _ => List(knownFact1, knownFact2)
+    }
     KnownFactsForService(knownFacts)
   }
 
