@@ -25,17 +25,22 @@ private object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "5.8.0"
-  private val playAuthVersion = "4.2.0"
-  private val playHealthVersion = "2.0.0"
+  private val microserviceBootstrapVersion = "5.13.0"
+  private val playAuthVersion = "4.3.0"
+  private val playHealthVersion = "2.1.0"
   private val logbackJsonLoggerVersion = "3.1.0"
-  private val playUrlBindersVersion = "2.0.0"
-  private val playConfigVersion = "3.0.0"
-  private val domainVersion = "4.0.0"
-  private val playGraphiteVersion = "3.1.0"
-  private val hmrcTestVersion = "2.1.0"
+  private val playUrlBindersVersion = "2.1.0"
+  private val playConfigVersion = "4.2.0"
+  private val domainVersion = "4.1.0"
+  private val playGraphiteVersion = "3.2.0"
+  private val hmrcTestVersion = "2.3.0"
   private val scalaTestVersion = "2.2.6"
+  private val scalaTestplusPlayVersion = "1.5.1"
   private val pegdownVersion = "1.6.0"
+  private val json4sJacksonVersion = "3.2.10"
+  private val jsonSchemaValidatorVersion = "2.2.6"
+  private val json4sNativeVersion = "3.2.10"
+  private val mockitoAllVersion = "1.9.5"
 
   val compile = Seq(
     ws,
@@ -47,9 +52,9 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "logback-json-logger" % logbackJsonLoggerVersion,
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "uk.gov.hmrc" %% "play-graphite" % playGraphiteVersion,
-    "org.json4s" %% "json4s-jackson" % "3.2.10",
-    "com.github.fge" % "json-schema-validator" % "2.2.6",
-    "org.json4s" %% "json4s-native" % "3.2.10"
+    "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
+    "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
+    "org.json4s" %% "json4s-native" %json4sNativeVersion
   )
 
   trait TestDependencies {
@@ -64,12 +69,12 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope,
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
         "org.jsoup" % "jsoup" % "1.7.3" % scope,
-        "org.json4s" %% "json4s-jackson" % "3.2.10",
-        "com.github.fge" % "json-schema-validator" % "2.2.6",
-        "org.json4s" %% "json4s-native" % "3.2.10",
-        "org.mockito" % "mockito-all" % "1.9.5"
+        "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
+        "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
+        "org.json4s" %% "json4s-native" % json4sNativeVersion,
+        "org.mockito" % "mockito-all" % mockitoAllVersion
       )
     }.test
   }
@@ -84,7 +89,7 @@ private object AppDependencies {
         "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % scope
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope
       )
     }.test
   }
