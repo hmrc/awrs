@@ -48,9 +48,8 @@
       "contactFirstName": "Example",
       "contactLastName": "Exampleson",
       "email": "example@example.com",
-      "confirmEmail": "example@example.com",
       "telephone": "07000111222",
-      "modelVersion" : "1.0"
+      "modelVersion" : "1.1"
     },
     "groupMembers": {
       "members": [

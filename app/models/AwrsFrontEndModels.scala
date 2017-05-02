@@ -925,7 +925,6 @@ case class BusinessContacts(contactAddressSame: Option[String],
                             contactFirstName: String,
                             contactLastName: String,
                             email: String,
-                            confirmEmail: Option[String] = None,
                             telephone: String,
                             modelVersion: String = BusinessContacts.latestModelVersion
                            ) extends ModelVersionControl
@@ -989,7 +988,7 @@ object BusinessDetails {
 
 object BusinessContacts {
 
-  val latestModelVersion = "1.0"
+  val latestModelVersion = "1.1"
 
   val reader = new Reads[BusinessContacts] {
 
@@ -1008,7 +1007,6 @@ object BusinessContacts {
           contactFirstName = firstName,
           contactLastName = lastName,
           email = email,
-          confirmEmail = Some(email),
           telephone = telephone.fold("")(x => x)
         )
       }
