@@ -245,10 +245,10 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
   def updateGrpRegistrationDetails(orgRef : String, awrsRefNo: String, safeId: String) = Action.async(parse.json) {
     implicit request =>
-      println("#####################called updateGroupBusinessPartner #####################")
       val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
       subscriptionService.updateGrpRepRegistrationDetails(awrsRefNo, safeId, updatedData) map {
         responseReceived =>
+          println("@@@@@@@@@responseReceived (Body):" + responseReceived.body)
         responseReceived.status match {
           case OK => Ok(responseReceived.body)
           case NOT_FOUND => NotFound(responseReceived.body)
