@@ -24,7 +24,7 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.FakeRequest
+import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers._
 import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
 import uk.gov.hmrc.play.audit.model.Audit
@@ -185,6 +185,41 @@ class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with Mo
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
         when(mockSubcriptionService.updateSubcription(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
         val result = TestSubscriptionController.updateSubscription("", "").apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+    }
+
+    "For API3, Subscription Controller " should {
+      val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
+      val fakeRequest = FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = api3FrontendJson)
+      "respond with OK" in {
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
+        val result = TestSubscriptionController.updateGrpRegistrationDetails("", "","").apply(fakeRequest)
+        status(result) shouldBe OK
+        contentAsJson(result) shouldBe updateSuccessResponse
+      }
+
+      "respond with BAD REQUEST" in {
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
+        val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(serviceUnavailable))))
+        val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
+        status(result) shouldBe NOT_FOUND
+      }
+
+      "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
+        val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
+        status(result) shouldBe SERVICE_UNAVAILABLE
+      }
+
+      "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
+        val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
     }

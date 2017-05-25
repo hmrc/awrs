@@ -35,6 +35,7 @@ import uk.gov.hmrc.play.http.ws.{WSGet, WSPost, WSPut}
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
+import utils.AwrsTestJson.testRefNo
 
 import scala.concurrent.Future
 
@@ -142,6 +143,14 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
       when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api8SuccessfulResponseJson))))
       val result = TestEtmpConnector.withdrawal(awrsRefNo, api8RequestJson)
       await(result).json should be(api8SuccessfulResponseJson)
+    }
+
+    "for a successful API3 submission, return processing date in ETMP response" in {
+      val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
+      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(updateSuccessResponse))))
+      val result = TestEtmpConnector.updateGrpRepRegistrationDetails(testRefNo,api3FrontendJson)
+      await(result).json should be(updateSuccessResponse)
     }
   }
 

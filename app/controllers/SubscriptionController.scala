@@ -245,7 +245,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
   def updateGrpRegistrationDetails(orgRef : String, awrsRefNo: String, safeId: String) = Action.async(parse.json) {
     implicit request =>
-      val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
+     val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
       subscriptionService.updateGrpRepRegistrationDetails(awrsRefNo, safeId, updatedData) map {
         responseReceived =>
         responseReceived.status match {

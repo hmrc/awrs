@@ -39,6 +39,7 @@ trait AwrsPathConstants {
   lazy val api5FrontendLTDGroup = "/json/API5/frontend/AwrsLTDGroup.json"
 
   lazy val api6FrontendLTD = "/json/API6/frontend/AwrsLTD.json"
+  lazy val api3Frontend = "/json/API3/frontend/API3.json"
 
   // ETMP Json paths
 
