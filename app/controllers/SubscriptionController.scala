@@ -248,7 +248,6 @@ trait SubscriptionController extends BaseController with LoggingUtils {
       val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
       subscriptionService.updateGrpRepRegistrationDetails(awrsRefNo, safeId, updatedData) map {
         responseReceived =>
-          println("@@@@@@@@@responseReceived (Body):" + responseReceived.body)
         responseReceived.status match {
           case OK => Ok(responseReceived.body)
           case NOT_FOUND => NotFound(responseReceived.body)
