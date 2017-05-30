@@ -128,7 +128,6 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
 
       val auditMap: Map[String, String] = Map("AWRS Reference No" -> awrsRefNo, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType, "change-flags" -> changeIndicators.toString())
-      println("ETMP JSON " + convertedEtmpJson)
       val timer = metrics.startTimer(ApiType.API6UpdateSubscription)
       subscriptionService.updateSubcription(convertedEtmpJson, awrsRefNo).map {
         updatedData =>
