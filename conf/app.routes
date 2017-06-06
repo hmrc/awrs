@@ -15,4 +15,6 @@ GET   /:busType/:utr/awrs/status-info/:awrsRefNo/:contactNumber      controllers
 POST  /:busType/:utr/awrs/de-registration/:awrsRefNo                 controllers.DeRegistrationController.deRegistration(awrsRefNo:String, utr: String, busType:String)
 
 
-POST /:busType/:utr/awrs/withdrawal/:awrsRefNo                       controllers.WithdrawalController.withdrawal(awrsRefNo: String, utr: String, busType:String)
+POST  /:busType/:utr/awrs/withdrawal/:awrsRefNo                      controllers.WithdrawalController.withdrawal(awrsRefNo: String, utr: String, busType:String)
+
+PUT   /org/:orgRef/:awrsRefNo/registration-details/:safeId           controllers.OrgSubscriptionController.updateGrpRegistrationDetails(orgRef: String, awrsRefNo: String,safeId : String)

@@ -18,10 +18,11 @@ package services
 
 import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
-import models.{ApiType, KnownFact, KnownFactsForService, Postcode}
+import models._
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
+import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -84,6 +85,11 @@ trait SubscriptionService {
       case _ => List(knownFact1, knownFact2)
     }
     KnownFactsForService(knownFacts)
+  }
+
+  def updateGrpRepRegistrationDetails(awrsRefNo: String, safeId: String, updateData: UpdateRegistrationDetailsRequest)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    val request = updateData.copy(acknowledgementReference = Some(SessionUtils.getUniqueAckNo))
+    etmpConnector.updateGrpRepRegistrationDetails(safeId,  Json.toJson(request))
   }
 
 }

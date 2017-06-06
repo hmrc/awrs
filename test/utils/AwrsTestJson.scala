@@ -26,6 +26,7 @@ object AwrsTestJson extends AwrsTestJson {
   lazy val testUtr = new SaUtrGenerator().nextSaUtr.utr
   lazy val testGrpJoinDate = LocalDate.now().toString()
   lazy val testRefNo = "DummmyRef"
+  lazy val testSafeId = "DummmyRef"
 }
 
 trait AwrsTestJson extends AwrsPathConstants {
@@ -55,6 +56,8 @@ trait AwrsTestJson extends AwrsPathConstants {
   lazy val api5FrontendLTDGroupJson = loadAndParseJsonWithDummyData(api5FrontendLTDGroup)
 
   lazy val api6FrontendLTDJson = loadAndParseJsonWithDummyData(api6FrontendLTD)
+
+  lazy val api3FrontendJson = loadAndParseJsonWithDummyData(api3Frontend)
 
   // Etmp Json
   lazy val api4EtmpLTDString = loadWithDummy(api4EtmpLTD)

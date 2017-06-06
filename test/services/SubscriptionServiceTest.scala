@@ -20,6 +20,7 @@ import java.util.UUID
 
 import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
+import models._
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -50,6 +51,8 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     val successResponse = Json.parse( s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "$testRefNo"}""")
     val ggEnrolResponse = Json.parse( """{}""")
     val failureResponse = Json.parse( """{"Reason": "Resource not found"}""")
+    val address = Address(addressLine1 = "", addressLine2 = "")
+    val updatedData = new UpdateRegistrationDetailsRequest(None, false, Some(Organisation("testName")), address, ContactDetails(), false, false)
     implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
     "use the correct Connectors" in {
@@ -93,6 +96,21 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "respond with BadRequest when update subscription json is invalid" in {
       when(mockEtmpConnector.updateSubscription(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = TestSubscriptionService.updateSubcription(inputJson, testRefNo)
+      val response = await(result)
+      response.status shouldBe BAD_REQUEST
+    }
+
+    "respond with Ok, when a valid update Group Partner registration json is supplied" in {
+      val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
+      when(mockEtmpConnector.updateGrpRepRegistrationDetails(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
+      val result = TestSubscriptionService.updateGrpRepRegistrationDetails(testRefNo,testSafeId,updatedData)
+      val response = await(result)
+      response.status shouldBe OK
+    }
+
+    "respond with BadRequest when update Group Partner registration json is invalid" in {
+      when(mockEtmpConnector.updateGrpRepRegistrationDetails(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
+      val result = TestSubscriptionService.updateGrpRepRegistrationDetails(testRefNo,testSafeId,updatedData)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
     }

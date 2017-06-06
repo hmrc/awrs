@@ -25,6 +25,7 @@ object ApiType extends Enumeration {
   val API6UpdateSubscription = Value
   val API8Withdrawal = Value
   val API9UpdateSubscription = Value
+  val API3UpdateGrpRepRegDetails = Value
   val API10DeRegistration = Value
   val API11GetStatusInfo= Value
 }

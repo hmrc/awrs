@@ -30,6 +30,7 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   lazy val serviceURL = baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
   val subscriptionURI = "/subscription/"
+  val UpdateGrpRepRegistrationURI = "/registration/safeid/"
   val secureCommsURI = "/secure-comms/"
   val statusURI = "/status"
   val regNumberURI = "reg-number/"
@@ -66,8 +67,14 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
     cPUT(s"""$serviceURL$baseURI$subscriptionURI$awrsRefNo""", updateData)
   }
 
+  def updateGrpRepRegistrationDetails(safeId: String, updateData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cPUT(s"""$serviceURL$UpdateGrpRepRegistrationURI$safeId""", updateData)
+  }
+
   def checkStatus(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET( s"""$serviceURL$baseURI$subscriptionURI$awrsRef$statusURI""")
+
+
   }
 
   def getStatusInfo(awrsRef: String, contactNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {

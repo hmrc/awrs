@@ -24,7 +24,8 @@ case class SubscriptionStatusType(processingDate: String,
                                   formBundleStatus: FormBundleStatus,
                                   deRegistrationDate: Option[String],
                                   groupBusinessPartner: Boolean,
-                                  businessContactNumber: Option[String])
+                                  businessContactNumber: Option[String],
+                                  safeId : Option[String])
 
 object SubscriptionStatusType {
 
@@ -38,12 +39,14 @@ object SubscriptionStatusType {
         deRegistrationDate <- (js \ "deRegistrationDate").validateOpt[String]
         groupBusinessPartner <- (js \ "groupBusinessPartner").validate[Boolean]
         businessContactNumber <- (js \ "businessContactNumber").validateOpt[String]
+        safeId <- (js \ "safeId").validateOpt[String]
       } yield {
         SubscriptionStatusType(processingDate,
           formBundleStatus = formBundleStatus,
           deRegistrationDate = deRegistrationDate,
           groupBusinessPartner = groupBusinessPartner,
-          businessContactNumber = businessContactNumber
+          businessContactNumber = businessContactNumber,
+          safeId = safeId
         )
       }
     }
