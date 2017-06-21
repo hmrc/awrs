@@ -40,16 +40,24 @@ object Organisation {
   implicit val formats = Json.format[Organisation]
 }
 
+case class BCAddressApi3(addressLine1: String,
+                         addressLine2: String,
+                         addressLine3: Option[String] = None,
+                         addressLine4: Option[String] = None,
+                         postalCode: Option[String] = None,
+                         countryCode: Option[String] = None)
+
+object BCAddressApi3 {
+  implicit val formats = Json.format[BCAddressApi3]
+}
+
 case class UpdateRegistrationDetailsRequest(acknowledgementReference: Option[String],
                                             isAnIndividual: Boolean,
                                             organisationName: Option[Organisation],
-                                            address: Address,
+                                            address: BCAddressApi3,
                                             contactDetails: ContactDetails,
                                             isAnAgent: Boolean,
-                                            isAGroup: Boolean) {
-
-
-}
+                                            isAGroup: Boolean)
 
 object UpdateRegistrationDetailsRequest {
   implicit val formats = Json.format[UpdateRegistrationDetailsRequest]
