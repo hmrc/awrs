@@ -51,7 +51,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     val successResponse = Json.parse( s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "$testRefNo"}""")
     val ggEnrolResponse = Json.parse( """{}""")
     val failureResponse = Json.parse( """{"Reason": "Resource not found"}""")
-    val address = BCAddressApi3(addressLine1 = "", addressLine2 = "", countryCode = Some(""))
+    val address = BCAddressApi3(addressLine1 = "", addressLine2 = "")
     val updatedData = new UpdateRegistrationDetailsRequest(None, false, Some(Organisation("testName")), address, ContactDetails(), false, false)
     implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
