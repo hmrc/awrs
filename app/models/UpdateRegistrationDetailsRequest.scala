@@ -53,7 +53,7 @@ object BCAddressApi3 {
 
 case class UpdateRegistrationDetailsRequest(acknowledgementReference: Option[String],
                                             isAnIndividual: Boolean,
-                                            organisationName: Option[Organisation],
+                                            organisation: Option[Organisation],
                                             address: BCAddressApi3,
                                             contactDetails: ContactDetails,
                                             isAnAgent: Boolean,
