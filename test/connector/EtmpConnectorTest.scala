@@ -30,7 +30,6 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 import utils.AwrsTestJson.testRefNo
-
 import scala.concurrent.Future
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
