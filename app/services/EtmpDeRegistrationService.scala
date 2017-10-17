@@ -18,10 +18,10 @@ package services
 
 import connectors.EtmpConnector
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 object EtmpDeRegistrationService extends EtmpDeRegistrationService {
   override val etmpConnector: EtmpConnector = EtmpConnector

@@ -21,11 +21,11 @@ import metrics.AwrsMetrics
 import models._
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 object SubscriptionService extends SubscriptionService {
   val etmpConnector: EtmpConnector = EtmpConnector

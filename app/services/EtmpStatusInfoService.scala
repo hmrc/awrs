@@ -17,10 +17,10 @@
 package services
 
 import connectors.EtmpConnector
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 object EtmpStatusInfoService extends EtmpStatusInfoService {
   override val etmpConnector: EtmpConnector = EtmpConnector

@@ -21,19 +21,19 @@ import metrics.AwrsMetrics
 import models.{DeRegistered, FormBundleStatus, Pending, SubscriptionStatusType}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers._
 import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
 import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
 import utils.AwrsTestJson.testRefNo
+import uk.gov.hmrc.http.HttpResponse
 
 class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]

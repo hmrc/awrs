@@ -20,9 +20,9 @@ import connectors.EtmpConnector
 import metrics.AwrsMetrics
 import models.ApiType
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 object WithdrawalService extends WithdrawalService {
   val etmpConnector: EtmpConnector = EtmpConnector
