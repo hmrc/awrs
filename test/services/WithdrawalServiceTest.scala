@@ -22,15 +22,15 @@ import connectors.EtmpConnector
 import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.http.logging.SessionId
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.logging.SessionId
 
 class WithdrawalServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
   val mockEtmpConnector = mock[EtmpConnector]

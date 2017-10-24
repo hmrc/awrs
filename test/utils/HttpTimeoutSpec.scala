@@ -19,18 +19,19 @@ package utils
 import java.net.{ServerSocket, URI}
 import java.util.concurrent.TimeoutException
 
+import config.WSHttp
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import org.webbitserver.handler.{DelayedHttpHandler, StringHttpHandler}
 import org.webbitserver.netty.NettyWebServer
 import play.api.Play
 import play.api.test.FakeApplication
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.http.ws.WSHttp
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.play.audit.http.HttpAuditing
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 
 class HttpTimeoutSpec extends WordSpecLike with Matchers with MockitoSugar with ScalaFutures with BeforeAndAfterAll {
 
@@ -50,7 +51,8 @@ class HttpTimeoutSpec extends WordSpecLike with Matchers with MockitoSugar with 
   "HttpCalls" should {
 
     "be gracefully timeout when no response is received within the 'timeout' frame" in {
-      val http = new WSHttp with MockAuditing
+      val http = WSHttp
+
 
       // get an unused port
       val ss = new ServerSocket(0)
@@ -77,7 +79,7 @@ class HttpTimeoutSpec extends WordSpecLike with Matchers with MockitoSugar with 
 
 
     "worked when the response is received within the 'timeout' frame" in {
-      val http = new WSHttp with MockAuditing
+      val http = WSHttp
 
       // get an unused port
       val ss = new ServerSocket(0)

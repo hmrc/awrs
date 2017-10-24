@@ -18,15 +18,16 @@ package connectors
 
 import models.KnownFactsForService
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import config.WSHttp
 import uk.gov.hmrc.play.http._
 import utils.LoggingUtils
 import play.api.http.Status._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpResponse}
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+
 
 trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
 

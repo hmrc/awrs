@@ -18,37 +18,34 @@ package connector
 
 import java.util.UUID
 
+import config.WSHttp
 import connectors.EtmpConnector
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.Play
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.http.logging.SessionId
-import uk.gov.hmrc.play.http.ws.{WSGet, WSPost, WSPut}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 import utils.AwrsTestJson.testRefNo
-
 import scala.concurrent.Future
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
 
 class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
 
-  object TestAuditConnector extends AuditConnector with AppName with RunMode {
+  object TestAuditConnector extends AuditConnector {
     override lazy val auditingConfig = LoadAuditingConfig("auditing")
   }
 
-  class MockHttp extends WSGet with WSPost with WSPut with HttpAuditing {
-    override val hooks = Seq(AuditingHook)
+  abstract class MockHttp extends WSHttp  {
+//    override val hooks = Seq(AuditingHook)
 
-    override def auditConnector: AuditConnector = TestAuditConnector
+    override val auditConnector = TestAuditConnector
 
     override def appName = Play.configuration.getString("appName").getOrElse("awrs")
   }
@@ -79,7 +76,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
       val api4Json = api4EtmpSOPJson
       val safeId = "XA0001234567890"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api4SuccessResponse))))
+      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api4SuccessResponse))))
       val result = TestEtmpConnector.subscribe(api4Json, safeId)
       await(result).json should be(api4SuccessResponse)
     }
@@ -88,7 +85,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
       val lookupSuccess = Json.parse( """{"Reason": "All ok"}""")
       val awrsRefNo = "XAAW0000012345"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(lookupSuccess))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(lookupSuccess))))
       val result = TestEtmpConnector.lookup(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
@@ -104,7 +101,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
     "for a successful API6 submission, return etmp processing date and form bundle number in response" in {
       val awrsRefNo = "XAAW000003457890"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api6SuccessResponseJson))))
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api6SuccessResponseJson))))
       val result = TestEtmpConnector.updateSubscription(api6FrontendLTDJson, awrsRefNo)
       await(result).json should be(api6SuccessResponseJson)
     }
@@ -112,7 +109,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
     "check status of an application with a valid reference number " in {
       val awrsRefNo = "XAAW0000010001"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api9SuccessfulResponseJson))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api9SuccessfulResponseJson))))
       val result = TestEtmpConnector.checkStatus(awrsRefNo)
       await(result).json shouldBe api9SuccessfulResponseJson
     }
@@ -122,7 +119,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
       val contactNumber = "0123456789"
       val expectedURL: String = s"/alcohol-wholesaler-register/secure-comms/reg-number/$awrsRefNo/contact-number/$contactNumber"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](Matchers.endsWith(expectedURL))(Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api11SuccessfulResponseJson))))
+      when(mockWSHttp.GET[HttpResponse](Matchers.endsWith(expectedURL))(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api11SuccessfulResponseJson))))
       val result = TestEtmpConnector.getStatusInfo(awrsRefNo, contactNumber)
       await(result).json shouldBe api11SuccessfulResponseJson // if the URL is correct then getStatusInfoSuccess should be returned
     }
@@ -132,7 +129,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
       val dummyData: JsValue = Json.parse("true") // dummy data does not matter since the call is mocked
       val expectedURL: String = s"/alcohol-wholesaler-register/subscription/$awrsRefNo/deregistration"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.endsWith(expectedURL), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api10SuccessfulResponseJson))))
+      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.endsWith(expectedURL), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api10SuccessfulResponseJson))))
       val result = TestEtmpConnector.deRegister(awrsRefNo, dummyData)
       await(result).json shouldBe api10SuccessfulResponseJson // if the URL is correct then deRegisterSuccess should be returned
     }
@@ -140,7 +137,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
     "for a successful withdrawal, return a success response" in {
       val awrsRefNo = "XAAW0000010001"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api8SuccessfulResponseJson))))
+      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(),Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api8SuccessfulResponseJson))))
       val result = TestEtmpConnector.withdrawal(awrsRefNo, api8RequestJson)
       await(result).json should be(api8SuccessfulResponseJson)
     }
@@ -148,7 +145,7 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
     "for a successful API3 submission, return processing date in ETMP response" in {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(updateSuccessResponse))))
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(),Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(updateSuccessResponse))))
       val result = TestEtmpConnector.updateGrpRepRegistrationDetails(testRefNo,api3FrontendJson)
       await(result).json should be(updateSuccessResponse)
     }

@@ -19,11 +19,11 @@ package connectors
 import config.WSHttp
 import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
-import uk.gov.hmrc.play.http.logging.Authorization
 import utils.LoggingUtils
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpPut, HttpReads, HttpResponse}
+import uk.gov.hmrc.http.logging.Authorization
 
 trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
 
@@ -40,16 +40,16 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   val urlHeaderEnvironment: String
   val urlHeaderAuthorization: String
 
-  val http: HttpGet with HttpPost with HttpPut = WSHttp
+  val http: WSHttp with HttpGet with HttpPost with HttpPut = WSHttp
 
   @inline def cPOST[I, O](url: String, body: I, headers: Seq[(String, String)] = Seq.empty)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier) =
-    http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = createHeaderCarrier(hc))
+    http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier) =
-    http.GET[A](url)(rds, hc = createHeaderCarrier(hc))
+    http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
 
   @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier) =
-    http.PUT[I, O](url, body)(wts, rds, hc = createHeaderCarrier(hc))
+    http.PUT[I, O](url, body)(wts, rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$safeId""", registerData)
