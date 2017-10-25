@@ -29,13 +29,14 @@ private object AppDependencies {
   private val playUrlBindersVersion = "2.1.0"
   private val domainVersion = "4.1.0"
   private val hmrcTestVersion = "3.0.0"
-  private val scalaTestVersion = "2.2.6"
-  private val scalaTestplusPlayVersion = "1.5.1"
+  private val scalaTestVersion = "3.0.4"
+  private val scalaTestplusPlayVersion = "2.0.1"
   private val pegdownVersion = "1.6.0"
   private val json4sJacksonVersion = "3.2.10"
   private val jsonSchemaValidatorVersion = "2.2.6"
   private val json4sNativeVersion = "3.2.10"
   private val mockitoAllVersion = "1.9.5"
+  private val webbitServerVersion = "0.4.14"
 
   val compile = Seq(
     ws,
@@ -64,7 +65,8 @@ private object AppDependencies {
         "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
         "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
         "org.json4s" %% "json4s-native" % json4sNativeVersion,
-        "org.mockito" % "mockito-all" % mockitoAllVersion
+        "org.mockito" % "mockito-all" % mockitoAllVersion,
+        "org.webbitserver" % "webbit" % webbitServerVersion
       )
     }.test
   }
