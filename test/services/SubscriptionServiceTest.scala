@@ -18,7 +18,7 @@ package services
 
 import java.util.UUID
 
-import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
+import connectors.{EnrolmentStoreConnector, EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
 import models._
 import org.mockito.Matchers
@@ -27,22 +27,25 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
+import utils.AwrsTestJson._
 
 import scala.concurrent.Future
-import utils.AwrsTestJson._
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
-import uk.gov.hmrc.http.logging.SessionId
 
 class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
   val mockEtmpConnector = mock[EtmpConnector]
   val mockggAdminConnector = mock[GovernmentGatewayAdminConnector]
+  val mockEnrolmentStoreConnector = mock[EnrolmentStoreConnector]
 
-  object TestSubscriptionService extends SubscriptionService {
+  object TestSubscriptionServiceGG extends SubscriptionService {
     override val ggAdminConnector = mockggAdminConnector
+    override val enrolmentStoreConnector: EnrolmentStoreConnector = mockEnrolmentStoreConnector
     override val etmpConnector = mockEtmpConnector
     override val metrics = AwrsMetrics
+    override val isEmacsFeatureToggle = false
   }
 
   "Subscription Service" should {
@@ -63,7 +66,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "subscribe when we are passed valid json" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockggAdminConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
+      val result = TestSubscriptionServiceGG.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe OK
       response.json shouldBe successResponse
@@ -71,7 +74,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
 
     "respond with BadRequest, when subscription request fails with a Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
+      val result = TestSubscriptionServiceGG.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe BAD_REQUEST
       response.json shouldBe failureResponse
@@ -80,7 +83,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "respond with Ok, when subscription works but gg admin request fails with a Bad request but audit the Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockggAdminConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
+      val result = TestSubscriptionServiceGG.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe OK
       response.json shouldBe successResponse
@@ -88,14 +91,14 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
 
     "respond with Ok, when a valid update subscription json is supplied" in {
       when(mockEtmpConnector.updateSubscription(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api6SuccessResponseJson))))
-      val result = TestSubscriptionService.updateSubcription(inputJson, testRefNo)
+      val result = TestSubscriptionServiceGG.updateSubcription(inputJson, testRefNo)
       val response = await(result)
       response.status shouldBe OK
     }
 
     "respond with BadRequest when update subscription json is invalid" in {
       when(mockEtmpConnector.updateSubscription(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.updateSubcription(inputJson, testRefNo)
+      val result = TestSubscriptionServiceGG.updateSubcription(inputJson, testRefNo)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
     }
@@ -103,14 +106,14 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     "respond with Ok, when a valid update Group Partner registration json is supplied" in {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
       when(mockEtmpConnector.updateGrpRepRegistrationDetails(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
-      val result = TestSubscriptionService.updateGrpRepRegistrationDetails(testRefNo,testSafeId,updatedData)
+      val result = TestSubscriptionServiceGG.updateGrpRepRegistrationDetails(testRefNo,testSafeId,updatedData)
       val response = await(result)
       response.status shouldBe OK
     }
 
     "respond with BadRequest when update Group Partner registration json is invalid" in {
       when(mockEtmpConnector.updateGrpRepRegistrationDetails(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = TestSubscriptionService.updateGrpRepRegistrationDetails(testRefNo,testSafeId,updatedData)
+      val result = TestSubscriptionServiceGG.updateGrpRepRegistrationDetails(testRefNo,testSafeId,updatedData)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
     }
