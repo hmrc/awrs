@@ -16,10 +16,6 @@
 
 package models
 
-case class EnrolmentKey(serviceName: String, identifiers: (String, String)*){
-  def asString: String = {
-    val formattedIdentifiers = identifiers map { case (key, value) => s"$key~$value" }
-
-    serviceName +: formattedIdentifiers mkString "~"
-  }
+case class EnrolmentKey(serviceName: String, knownFacts: Seq[KnownFact]){
+  def asString: String = serviceName +: knownFacts mkString "~"
 }

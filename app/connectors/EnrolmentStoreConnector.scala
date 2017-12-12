@@ -17,9 +17,8 @@
 package connectors
 
 import config.WSHttp
-import httpparsers.UpsertEnrolmentResponseHttpParser.UpsertEnrolmentResponse
-import models.{EnrolmentKey, EnrolmentVerifiers}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpPut}
+import models.EnrolmentVerifiers
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.Future
@@ -29,11 +28,11 @@ trait EnrolmentStoreConnector extends ServicesConfig {
 
   val http: HttpGet with HttpPut = WSHttp
 
-  def upsertEnrolment(enrolmentKey: EnrolmentKey,
+  def upsertEnrolment(enrolmentKey: String,
                       verifiers: EnrolmentVerifiers
-                     )(implicit hc: HeaderCarrier): Future[UpsertEnrolmentResponse] = {
+                     )(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val url = s"$enrolmentStore/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey"
-    http.PUT[EnrolmentVerifiers, UpsertEnrolmentResponse](url, verifiers)
+    http.PUT(url, verifiers)
   }
 
 //  def allocateEnrolment(groupId: String,
