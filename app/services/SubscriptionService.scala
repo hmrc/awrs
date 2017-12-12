@@ -19,13 +19,15 @@ package services
 import connectors.{EnrolmentStoreConnector, EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
 import models.{EnrolmentVerifiers, KnownFactsForService, _}
+import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.config.RunMode
 import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 object SubscriptionService extends SubscriptionService {
   val etmpConnector: EtmpConnector = EtmpConnector
@@ -34,15 +36,20 @@ object SubscriptionService extends SubscriptionService {
   override val metrics = AwrsMetrics
 }
 
-trait SubscriptionService {
+trait SubscriptionService extends RunMode {
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   val etmpConnector: EtmpConnector
   val ggAdminConnector: GovernmentGatewayAdminConnector
   val enrolmentStoreConnector: EnrolmentStoreConnector
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
   val metrics: AwrsMetrics
+  val isEmacsFeatureToggle = runModeConfiguration.getBoolean("emacsFeatureToggle").getOrElse(false)
 
-  def subscribe(data: JsValue, safeId: String, utr: Option[String], businessType: String, postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def subscribe(data: JsValue,
+                safeId: String,
+                utr: Option[String],
+                businessType: String,
+                postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
     for {
       submitResponse <- etmpConnector.subscribe(data, safeId)
@@ -67,20 +74,6 @@ trait SubscriptionService {
   def updateSubcription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.updateSubscription(inputJson, awrsRefNo)
 
-  private def knownFacts(awrsRegistrationNumber: String, safeId: String, utr: Option[String], businessType: String, postcode: String): String = {
-    val knownFact1 = KnownFact("AWRSRefNumber", awrsRegistrationNumber)
-    val knownFact2 = KnownFact("POSTCODE", postcode)
-    val knownFacts = utr match {
-      case Some(someUtr) =>
-        businessType match {
-          case "SOP" => Seq(knownFact1, KnownFact("SAUTR", someUtr), knownFact2)
-          case _ => Seq(knownFact1, KnownFact("CTUTR", someUtr), knownFact2)
-        }
-      case _ => Seq(knownFact1, knownFact2)
-    }
-    knownFacts mkString "~"
-  }
-
   private def addKnownFacts(response: HttpResponse,
                             safeId: String,
                             utr: Option[String],
@@ -90,17 +83,18 @@ trait SubscriptionService {
       case OK =>
         val json = response.json
         val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
-        ggAdminConnector
-          .addKnownFacts(createKnownFacts(awrsRegistrationNumber, safeId, utr, businessType, postcode), awrsRegistrationNumber)
 
-        ///
-//        val enrolmentKey = AWRS_SERVICE_NAME + Seq("AWRSRefNumber" -> awrsRegistrationNumber) mkString "~"
-//        val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
-//
-//        enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
-
-      ///
-
+        if (isEmacsFeatureToggle) {
+          Logger.info( "EMACS is switched ON" )
+          val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
+          val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
+          enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
+        } else {
+          Logger.info( "EMACS is switched OFF so using GG" )
+          ggAdminConnector
+            .addKnownFacts(
+              createKnownFacts(awrsRegistrationNumber, safeId, utr, businessType, postcode), awrsRegistrationNumber)
+        }
       case _ => Future.successful(response)
     }
 
