@@ -20,6 +20,7 @@ import config.WSHttp
 import models.EnrolmentVerifiers
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
