@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{EtmpConnector, GovernmentGatewayAdminConnector}
+import connectors.{EnrolmentStoreConnector, EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
 import models._
 import play.api.http.Status._
@@ -25,17 +25,19 @@ import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 object SubscriptionService extends SubscriptionService {
   val etmpConnector: EtmpConnector = EtmpConnector
   val ggAdminConnector: GovernmentGatewayAdminConnector = GovernmentGatewayAdminConnector
+  val enrolmentStoreConnector: EnrolmentStoreConnector = EnrolmentStoreConnector
   override val metrics = AwrsMetrics
 }
 
 trait SubscriptionService {
   val etmpConnector: EtmpConnector
   val ggAdminConnector: GovernmentGatewayAdminConnector
+  val enrolmentStoreConnector: EnrolmentStoreConnector
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
   val metrics: AwrsMetrics
 
@@ -70,6 +72,15 @@ trait SubscriptionService {
         val json = response.json
         val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
         ggAdminConnector.addKnownFacts(createKnownFacts(awrsRegistrationNumber, safeId, utr, businessType,postcode), awrsRegistrationNumber)
+
+        ///
+        val enrolmentKey = EnrolmentKey(Constants.mtdItsaEnrolmentName, MTDITID -> mtditId)
+        val enrolmentVerifiers = EnrolmentVerifiers(NINO -> nino)
+
+        enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
+
+        ///
+
       case _ => Future.successful(response)
     }
 
