@@ -43,7 +43,7 @@ trait SubscriptionService extends RunMode {
   val enrolmentStoreConnector: EnrolmentStoreConnector
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
   val metrics: AwrsMetrics
-  val isEmacFeatureToggle = runModeConfiguration.getBoolean("emacsFeatureToggle").getOrElse(false)
+  val isEmacFeatureToggle = runModeConfiguration.getBoolean("emacsFeatureToggle").getOrElse(true)
 
   def subscribe(data: JsValue,
                 safeId: String,
@@ -118,7 +118,7 @@ trait SubscriptionService extends RunMode {
       case _ => "CTUTR" -> utr.getOrElse("")
     }
     val verifierTuples = Seq(
-      "POSTCODE" -> postcode,
+      "Postcode" -> postcode,
       "SAFEID" -> safeId
     ) :+ utrTuple
 

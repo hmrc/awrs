@@ -18,13 +18,18 @@ package connectors
 
 import config.WSHttp
 import models.EnrolmentVerifiers
+import play.api.http.Status.OK
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
-import scala.concurrent.ExecutionContext.Implicits.global
+import utils.LoggingUtils
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait EnrolmentStoreConnector extends ServicesConfig {
+trait EnrolmentStoreConnector extends ServicesConfig with LoggingUtils {
+  val retryLimit = 7
+  val retryWait = 1000 // milliseconds
+
   lazy val enrolmentStore = baseUrl("enrolment-store-proxy")
 
   val http: HttpGet with HttpPut = WSHttp
@@ -33,16 +38,27 @@ trait EnrolmentStoreConnector extends ServicesConfig {
                       verifiers: EnrolmentVerifiers
                      )(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val url = s"$enrolmentStore/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey"
-    http.PUT(url, verifiers)
-  }
 
-//  def allocateEnrolment(groupId: String,
-//                        enrolmentKey: EnrolmentKey,
-//                        enrolmentRequest: EmacEnrolmentRequest
-//                       )(implicit hc: HeaderCarrier): Future[AllocateEnrolmentResponse] = {
-//    val url = appConfig.allocateEnrolmentUrl(groupId, enrolmentKey.asString)
-//    httpClient.POST[EmacEnrolmentRequest, AllocateEnrolmentResponse](url, enrolmentRequest)
-//  }
+    def trySend(tries: Int): Future[HttpResponse] = {
+      http.PUT(url, verifiers).flatMap {
+        response =>
+          response.status match {
+            case OK => Future.successful(response)
+            case _ if tries < retryLimit => Future {
+              warn(s"Retrying upsertEnrolment - call number: $tries")
+              Thread.sleep(retryWait)
+            }.flatMap(_ => trySend(tries + 1))
+            case status@_ =>
+              // The upsertEnrolment failure will need to be sorted out manually until an automated service is introduced (currently in the pipeline).
+              // The manual process will take place after the failure is picked up in Splunk.
+              audit(enrolmentStoreTxName, Map("enrolmentKey" -> enrolmentKey, "FailureStatusCode" -> status.toString), eventTypeFailure)
+              warn(s"Retrying upsertEnrolment - retry limit exceeded")
+              Future.successful(response)
+          }
+      }
+    }
+    trySend(0)
+  }
 }
 
 object EnrolmentStoreConnector extends EnrolmentStoreConnector

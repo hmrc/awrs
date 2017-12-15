@@ -82,7 +82,7 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockEnrolmentStoreConnector.upsertEnrolment(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
 
       val result = testSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
@@ -90,11 +90,11 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
       response.json shouldBe successResponse
     }
 
-    "respond with Ok, when subscription works but gg admin request fails with a Bad request but audit the Bad request" in {
+    "respond with Ok, when subscription works but enrolment store connector request fails with a Bad request but audit the Bad request" in {
       when(mockEtmpConnector.subscribe(Matchers.any(),Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       when(mockEnrolmentStoreConnector.upsertEnrolment(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = testSubscriptionService.subscribe(inputJson,safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe OK
