@@ -85,12 +85,12 @@ trait SubscriptionService extends RunMode {
         val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
 
         if (isEmacFeatureToggle) {
-          Logger.info( "EMACS is switched ON" )
+          Logger.info( "EMAC is switched ON" )
           val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
           val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
           enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
         } else {
-          Logger.info( "EMACS is switched OFF so using GG" )
+          Logger.info( "EMAC is switched OFF so using GG" )
           ggAdminConnector
             .addKnownFacts(
               createKnownFacts(awrsRegistrationNumber, safeId, utr, businessType, postcode), awrsRegistrationNumber)

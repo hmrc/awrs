@@ -18,7 +18,7 @@ package connectors
 
 import config.WSHttp
 import models.EnrolmentVerifiers
-import play.api.http.Status.OK
+import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
 import utils.LoggingUtils
@@ -43,7 +43,7 @@ trait EnrolmentStoreConnector extends ServicesConfig with LoggingUtils {
       http.PUT(url, verifiers).flatMap {
         response =>
           response.status match {
-            case OK => Future.successful(response)
+            case NO_CONTENT => Future.successful(response)
             case _ if tries < retryLimit => Future {
               warn(s"Retrying upsertEnrolment - call number: $tries")
               Thread.sleep(retryWait)
