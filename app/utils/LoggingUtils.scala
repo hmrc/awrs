@@ -39,6 +39,7 @@ trait LoggingUtils extends Auditable {
   final val auditUpdateSubscriptionTxName: String = "AWRS ETMP Update Subscription"
 
   final val ggAdminTxName: String = "GGAdmin"
+  final val enrolmentStoreTxName: String = "EnrolmentStore"
 
   final val eventTypeSuccess: String = "AwrsSuccess"
   final val eventTypeFailure: String = "AwrsFailure"
