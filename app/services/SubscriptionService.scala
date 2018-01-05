@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ trait SubscriptionService extends RunMode {
   val enrolmentStoreConnector: EnrolmentStoreConnector
   val notFound = Json.parse( """{"Reason": "Resource not found"}""")
   val metrics: AwrsMetrics
-  val isEmacFeatureToggle = runModeConfiguration.getBoolean("emacsFeatureToggle").getOrElse(true)
+  val isEmacFeatureToggle = runModeConfiguration.getBoolean("emacsFeatureToggle").getOrElse(false)
 
   def subscribe(data: JsValue,
                 safeId: String,
