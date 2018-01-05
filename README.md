@@ -1,5 +1,5 @@
 Backend of the Alcohol Wholesale Registration Scheme application
-==================================================================
+=================================================================
 
 [![Build Status](https://travis-ci.org/hmrc/awrs.svg)](https://travis-ci.org/hmrc/awrs) [ ![Download](https://api.bintray.com/packages/hmrc/releases/awrs/images/download.svg) ](https://bintray.com/hmrc/releases/awrs/_latestVersion)
 
