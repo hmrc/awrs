@@ -34,14 +34,14 @@ where,
 
 | Parameter | Description | Example |
 | --------------- | --------------- | --------------- |
-| orgRef | bla | k0LcJx3AeNgNGD750vfogI5xs20 |
-| utr | bla | |
-| awrsRefNo | bla | |
-| busType | bla | |
-| contactNumber | bla | |
-| safeId | bla | |
+| orgRef | the organisation reference | k0LcJx3AeNgNGD750vfogI5xs20 |
+| utr | the unique tax reference number | 8560005977 |
+| awrsRefNo | the awrs reference number | XOAW00000111031 |
+| busType | the business type | org |
+| contactNumber | contact phone number | 0998772363 |
+| safeId | the safe ID | XE0001234567890 |
 
-and responses:-
+and possible responses are:-
 
 | Response code | Message |
 | --------------- | --------------- |
@@ -50,10 +50,6 @@ and responses:-
 | 400 | Bad request |
 | 503 | Service unavailable |
 | 500 | Internal server error |
-
-
-
-
 
 ## Usages with request and response
 

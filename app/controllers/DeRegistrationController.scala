@@ -45,6 +45,9 @@ trait DeRegistrationController extends BaseController with LoggingUtils {
     implicit request =>
       info(s"[API10 - $awrsRef ] - hit deRegistration controller ")
 
+      println( "\n\n\n))))))))))))))))))))))))(((((((" + busType)
+
+
       val feJson: JsValue = request.body.asJson.get
       val deRegistration: DeRegistration = Json.parse(feJson.toString()).as[DeRegistration]
 
