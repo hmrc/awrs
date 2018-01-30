@@ -41,6 +41,20 @@ where,
 | contactNumber | bla | |
 | safeId | bla | |
 
+and responses:-
+
+| Response code | Message |
+| --------------- | --------------- |
+| 200 | OK |
+| 404 | Not Found |
+| 400 | Bad request |
+| 503 | Service unavailable |
+| 500 | Internal server error |
+
+
+
+
+
 ## Usages with request and response
 
 ### POST /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data
