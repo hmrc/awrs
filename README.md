@@ -5,15 +5,15 @@ AWRS
 
 This service provides the backend endpoints for the [Alcohol Wholesale Registration Scheme Frontend project](https://github.com/hmrc/awrs-frontend), allowing a customer to apply for apply for the Alcohol Wholesale Registration Scheme.
 
-##License
+## License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
 
-##Requirements
+## Requirements
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs at least a [JRE] to run.
 
-##List of APIs
+## List of APIs
 
 | PATH | Supported Methods | Description |
 | --------------- | --------------- | --------------- |
@@ -40,9 +40,9 @@ where,
 | contactNumber | bla |
 | safeId | bla |
 
-##Usage with request and response
+## Usage with request and response
 
-###POST /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data
+### POST /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data
 **Example request with valid body**
 ```json
 {  
