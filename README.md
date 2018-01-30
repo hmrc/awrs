@@ -32,28 +32,28 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 
 where,
 
-| Parameter | Description |
-| --------------- | --------------- |
-| orgRef | bla |
-| utr | bla |
-| awrsRefNo | bla |
-| busType | bla |
-| contactNumber | bla |
-| safeId | bla |
+| Parameter | Description | Example |
+| --------------- | --------------- | --------------- |
+| orgRef | bla | k0LcJx3AeNgNGD750vfogI5xs20 |
+| utr | bla | |
+| awrsRefNo | bla | |
+| busType | bla | |
+| contactNumber | bla | |
+| safeId | bla | |
 
 ## Usages with request and response
 
 ### POST /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data
 **Valid request body:-**
 ```json
-{  
-   "subscriptionTypeFrontEnd":{  
-      "legalEntity":{  
+{
+   "subscriptionTypeFrontEnd":{
+      "legalEntity":{
          "legalEntity":"LTD",
          "isOrgAccount":true
       },
       "businessPartnerName":"Real Business Inc",
-      "businessCustomerDetails":{  
+      "businessCustomerDetails":{
          "businessName":"Real Business Inc",
          "businessType":"corporate body",
          "businessAddress":{  
@@ -70,13 +70,13 @@ where,
          "agentReferenceNumber":"JARN1234567",
          "utr":"9999202780"
       },
-      "businessDetails":{  
+      "businessDetails":{
          "doYouHaveTradingName":"No",
          "newAWBusiness":{  
             "newAWBusiness":"No"
          }
       },
-      "businessRegistrationDetails":{  
+      "businessRegistrationDetails":{
          "legalEntity":"LTD",
          "doYouHaveUTR":"Yes",
          "utr":"9999202780",
@@ -87,7 +87,7 @@ where,
          },
          "doYouHaveVRN":"No"
       },
-      "businessContacts":{  
+      "businessContacts":{
          "contactFirstName":"G",
          "contactLastName":"Smythe",
          "telephone":"099877564",
@@ -95,7 +95,7 @@ where,
          "contactAddressSame":"Yes",
          "modelVersion":"1.1"
       },
-      "placeOfBusiness":{  
+      "placeOfBusiness":{
          "mainPlaceOfBusiness":"No",
          "mainAddress":{  
             "addressLine1":"23 High Street",
@@ -108,14 +108,14 @@ where,
          "operatingDuration":"0 to 2 years",
          "modelVersion":"1.0"
       },
-      "additionalPremises":{  
+      "additionalPremises":{
          "premises":[  
             {  
                "additionalPremises":"No"
             }
          ]
       },
-      "businessDirectors":{  
+      "businessDirectors":{
          "directors":[  
             {  
                "personOrCompany":"person",
@@ -129,7 +129,7 @@ where,
          ],
          "modelVersion":"1.0"
       },
-      "tradingActivity":{  
+      "tradingActivity":{
          "wholesalerType":[  
             "01"
          ],
@@ -140,7 +140,7 @@ where,
          "thirdPartyStorage":"No",
          "doYouExportAlcohol":"No"
       },
-      "products":{  
+      "products":{
          "mainCustomers":[  
             "01"
          ],
@@ -148,14 +148,14 @@ where,
             "02"
          ]
       },
-      "suppliers":{  
+      "suppliers":{
          "suppliers":[  
             {  
                "alcoholSuppliers":"No"
             }
          ]
       },
-      "applicationDeclaration":{  
+      "applicationDeclaration":{
          "declarationName":"Bill",
          "declarationRole":"Bloggs",
          "confirmation":true
