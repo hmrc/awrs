@@ -33,6 +33,7 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 where,
 
 | Parameter | Description |
+| --------------- | --------------- |
 | orgRef | bla |
 | utr | bla |
 | awrsRefNo | bla |
@@ -40,10 +41,10 @@ where,
 | contactNumber | bla |
 | safeId | bla |
 
-## Usage with request and response
+## Usages with request and response
 
 ### POST /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data
-**Example request with valid body**
+**Valid request body:-**
 ```json
 {  
    "subscriptionTypeFrontEnd":{  
