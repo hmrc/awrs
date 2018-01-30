@@ -43,10 +43,6 @@ trait StatusInfoController extends BaseController with LoggingUtils {
   // utr & busType are used to authenticate the request but are ignored by this function
   def getStatusInfo(awrsRef: String, contactNumber: String, utr: String, busType: String) = Action.async {
     implicit request =>
-
-
-      println( "\n\n!!!!!!!!!!!!!!!!!!!!!!!!!!####getstatusinfo --- " + busType)
-
       info(s"[$auditAPI11TxName - $awrsRef ] - hit getStatusInfo controller ")
       val apiType: ApiType.Value = ApiType.API11GetStatusInfo
       val timer = metrics.startTimer(apiType)
