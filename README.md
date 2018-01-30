@@ -17,29 +17,29 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 
 | PATH | Supported Methods | Description |
 | --------------- | --------------- | --------------- |
-| /org/:orgRef/awrs/send-data | POST |
-| /sa/:utr/awrs/send-data | POST |
-| /org/:orgRef/awrs/lookup/:awrsRefNo | GET |
-| /sa/:utr/awrs/lookup/:awrsRefNo | GET |
-| /org/:orgRef/awrs/status/:awrsRefNo | GET |
-| /sa/:utr/awrs/status/:awrsRefNo | GET |
-| /org/:orgRef/awrs/update/:awrsRefNo | PUT |
-| /sa/:utr/awrs/update/:awrsRefNo | PUT |
-| /:busType/:utr/awrs/status-info/:awrsRefNo/:contactNumber | GET |
-| /:busType/:utr/awrs/de-registration/:awrsRefNo | POST |
-| /:busType/:utr/awrs/withdrawal/:awrsRefNo | POST |
-| /org/:orgRef/:awrsRefNo/registration-details/:safeId | PUT |
+| /org/:orgRef/awrs/send-data | POST | Send organisation application data to ETMP |
+| /sa/:utr/awrs/send-data | POST | Send individual application data to ETMP |
+| /org/:orgRef/awrs/lookup/:awrsRefNo | GET | Lookup organisation application data in ETMP |
+| /sa/:utr/awrs/lookup/:awrsRefNo | GET | Lookup individual application data in ETMP |
+| /org/:orgRef/awrs/status/:awrsRefNo | GET | Checks the status of organisation application in ETMP |
+| /sa/:utr/awrs/status/:awrsRefNo | GET | Checks the status of individual application in ETMP |
+| /org/:orgRef/awrs/update/:awrsRefNo | PUT | Update organisation application data in ETMP |
+| /sa/:utr/awrs/update/:awrsRefNo | PUT | Update individual application data in ETMP |
+| /:busType/:utr/awrs/status-info/:awrsRefNo/:contactNumber | GET | Gets status info for organisation or individual from ETMP |
+| /:busType/:utr/awrs/de-registration/:awrsRefNo | POST | De-register an organisation or individual from ETMP |
+| /:busType/:utr/awrs/withdrawal/:awrsRefNo | POST | Withdraw an organisation or individual from ETMP |
+| /org/:orgRef/:awrsRefNo/registration-details/:safeId | PUT | Update group registration details in ETMP |
 
 where,
 
-| Parameter | Description | Example |
-| --------------- | --------------- | --------------- |
-| orgRef | the organisation reference | k0LcJx3AeNgNGD750vfogI5xs20 |
-| utr | the unique tax reference number | 8560005977 |
-| awrsRefNo | the awrs reference number | XOAW00000111031 |
-| busType | the business type | org |
-| contactNumber | contact phone number | 0998772363 |
-| safeId | the safe ID | XE0001234567890 |
+| Parameter | Description | Valid values | Example |
+| --------------- | --------------- | --------------- | --------------- |
+| orgRef | the organisation reference | string | k0LcJx3AeNgNGD750vfogI5xs20 |
+| utr | the unique tax reference number | string | 8560005977 |
+| awrsRefNo | the awrs reference number | string | XOAW00000111031 |
+| busType | an indicator whether organisation or individual | org or sa | org
+| contactNumber | contact phone number | string | 0998772363 |
+| safeId | the safe ID | string | XE0001234567890 |
 
 and possible responses are:-
 
