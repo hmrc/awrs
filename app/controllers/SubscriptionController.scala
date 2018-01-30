@@ -60,8 +60,8 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
       val feJson = request.body.asJson.get
 
-      println( "\n\n\n*****" + feJson)
-      println( "###" + ref)
+      println( "\n\n\nsubscribe(" + ref + ")")
+      println( " subscribe body*****" + feJson)
 
 
       val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]

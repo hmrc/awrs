@@ -51,10 +51,7 @@ and possible responses are:-
 | 503 | Service unavailable |
 | 500 | Internal server error |
 
-## Usages with request and response
-
-### POST /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data
-**Valid request body:-**
+**Valid request body for all above POSTs and PUTs:-**
 ```json
 {
    "subscriptionTypeFrontEnd":{
@@ -175,9 +172,20 @@ and possible responses are:-
 }
 ```
 
+### Examples
 
-
-
-
-
+| Method | URI |
+| --------------- | --------------- |
+| POST | /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data |
+| POST | /sa/3984535715/awrs/send-data |
+| GET | /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/lookup/XOAW00000111007 |
+| GET | /sa/3984535715/awrs/lookup/XOAW00000111007 |
+| GET | /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/status/XOAW00000111007 |
+| GET | /sa/3984535715/awrs/status/XOAW00000111007 |
+| PUT | /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/update/XOAW00000111007 |
+| PUT | /sa/3984535715/awrs/update/XOAW00000111007 |
+| GET | /sa/3984535715/awrs/status-info/XOAW00000111007/09288347362 |
+| POST | /org/3984535715/awrs/de-registration/XOAW00000111007 |
+| POST | /org/3984535715/awrs/withdrawal/XOAW00000111007 |
+| POST | /org/3984535715/XOAW00000111007/registration-details/XE0001234567890 |
 
