@@ -1,22 +1,17 @@
-#AWRS
+AWRS
+====
 
 [![Build Status](https://travis-ci.org/hmrc/awrs.svg)](https://travis-ci.org/hmrc/awrs) [ ![Download](https://api.bintray.com/packages/hmrc/releases/awrs/images/download.svg) ](https://bintray.com/hmrc/releases/awrs/_latestVersion)
+
+This service provides the backend endpoints for the [Alcohol Wholesale Registration Scheme Frontend project](https://github.com/hmrc/awrs-frontend), allowing a customer to apply for apply for the Alcohol Wholesale Registration Scheme.
 
 ##License
 
 This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
 
-##AWRS
-
-This service provides the backend endpoints for the [Alcohol Wholesale Registration Scheme Frontend project](https://github.com/hmrc/awrs-frontend), allowing a customer to apply for apply for the Alcohol Wholesale Registration Scheme.
-
 ##Requirements
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs at least a [JRE] to run.
-
-##Authentication
-
-This customer logs into this service using [GOV.UK Verify](https://www.gov.uk/government/publications/introducing-govuk-verify/introducing-govuk-verify).
 
 ##List of APIs
 
