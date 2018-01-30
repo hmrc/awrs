@@ -1,61 +1,177 @@
-Backend of the Alcohol Wholesale Registration Scheme application
-================================================================
+#AWRS
 
 [![Build Status](https://travis-ci.org/hmrc/awrs.svg)](https://travis-ci.org/hmrc/awrs) [ ![Download](https://api.bintray.com/packages/hmrc/releases/awrs/images/download.svg) ](https://bintray.com/hmrc/releases/awrs/_latestVersion)
 
-This service provides the backend endpoint for the [Alcohol Wholesale Registration Scheme project](https://github.com/hmrc/awrs-frontend).
+##License
 
-Summary
------------
+This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
 
-This service allow a customer to apply for apply for Alcohol Wholesale Registration Scheme.
+##AWRS
 
-Requirements
-------------
+This service provides the backend endpoints for the [Alcohol Wholesale Registration Scheme Frontend project](https://github.com/hmrc/awrs-frontend), allowing a customer to apply for apply for the Alcohol Wholesale Registration Scheme.
+
+##Requirements
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs at least a [JRE] to run.
 
-Authentication
-------------
+##Authentication
 
 This customer logs into this service using [GOV.UK Verify](https://www.gov.uk/government/publications/introducing-govuk-verify/introducing-govuk-verify).
 
+##List of APIs
 
-Acronyms
----
+| PATH | Supported Methods | Description |
+| --------------- | --------------- | --------------- |
+| /org/:orgRef/awrs/send-data | POST |
+| /sa/:utr/awrs/send-data | POST |
+| /org/:orgRef/awrs/lookup/:awrsRefNo | GET |
+| /sa/:utr/awrs/lookup/:awrsRefNo | GET |
+| /org/:orgRef/awrs/status/:awrsRefNo | GET |
+| /sa/:utr/awrs/status/:awrsRefNo | GET |
+| /org/:orgRef/awrs/update/:awrsRefNo | PUT |
+| /sa/:utr/awrs/update/:awrsRefNo | PUT |
+| /:busType/:utr/awrs/status-info/:awrsRefNo/:contactNumber | GET |
+| /:busType/:utr/awrs/de-registration/:awrsRefNo | POST |
+| /:busType/:utr/awrs/withdrawal/:awrsRefNo | POST |
+| /org/:orgRef/:awrsRefNo/registration-details/:safeId | PUT |
 
-In the context of this application we use the following acronyms and define their
-meanings. Provided you will also find a web link to discover more about the systems
-and technology.
+where,
 
-* [API]: Application Programming Interface
+| Parameter | Description |
+| orgRef | bla |
+| utr | bla |
+| awrsRefNo | bla |
+| busType | bla |
+| contactNumber | bla |
+| safeId | bla |
 
-* [HoD]: Head of Duty
+##Usage with request and response
 
-* [JRE]: Java Runtime Environment
+###POST /org/k0LcJx3AeNgNGD750vfogI5xs20/awrs/send-data
+**Example request with valid body**
+```json
+{  
+   "subscriptionTypeFrontEnd":{  
+      "legalEntity":{  
+         "legalEntity":"LTD",
+         "isOrgAccount":true
+      },
+      "businessPartnerName":"Real Business Inc",
+      "businessCustomerDetails":{  
+         "businessName":"Real Business Inc",
+         "businessType":"corporate body",
+         "businessAddress":{  
+            "line_1":"23 High Street",
+            "line_2":"Park View",
+            "line_3":"Gloucester",
+            "line_4":"Gloucestershire",
+            "postcode":"NE98 1ZZ",
+            "country":"GB"
+         },
+         "sapNumber":"1234567890",
+         "safeId":"XE0001234567890",
+         "isAGroup":false,
+         "agentReferenceNumber":"JARN1234567",
+         "utr":"9999202780"
+      },
+      "businessDetails":{  
+         "doYouHaveTradingName":"No",
+         "newAWBusiness":{  
+            "newAWBusiness":"No"
+         }
+      },
+      "businessRegistrationDetails":{  
+         "legalEntity":"LTD",
+         "doYouHaveUTR":"Yes",
+         "utr":"9999202780",
+         "isBusinessIncorporated":"Yes",
+         "companyRegDetails":{  
+            "companyRegistrationNumber":"11111111",
+            "dateOfIncorporation":"01/01/2016"
+         },
+         "doYouHaveVRN":"No"
+      },
+      "businessContacts":{  
+         "contactFirstName":"G",
+         "contactLastName":"Smythe",
+         "telephone":"099877564",
+         "email":"xxx@xxx.com",
+         "contactAddressSame":"Yes",
+         "modelVersion":"1.1"
+      },
+      "placeOfBusiness":{  
+         "mainPlaceOfBusiness":"No",
+         "mainAddress":{  
+            "addressLine1":"23 High Street",
+            "addressLine2":"Park View",
+            "addressLine3":"Gloucester",
+            "addressLine4":"Gloucestershire",
+            "postcode":"NE981ZZ"
+         },
+         "placeOfBusinessLast3Years":"Yes",
+         "operatingDuration":"0 to 2 years",
+         "modelVersion":"1.0"
+      },
+      "additionalPremises":{  
+         "premises":[  
+            {  
+               "additionalPremises":"No"
+            }
+         ]
+      },
+      "businessDirectors":{  
+         "directors":[  
+            {  
+               "personOrCompany":"person",
+               "firstName":"H",
+               "lastName":"Hudson",
+               "doTheyHaveNationalInsurance":"Yes",
+               "nino":"QQ121212C",
+               "directorsAndCompanySecretaries":"Director",
+               "otherDirectors":"No"
+            }
+         ],
+         "modelVersion":"1.0"
+      },
+      "tradingActivity":{  
+         "wholesalerType":[  
+            "01"
+         ],
+         "typeOfAlcoholOrders":[  
+            "02"
+         ],
+         "doesBusinessImportAlcohol":"No",
+         "thirdPartyStorage":"No",
+         "doYouExportAlcohol":"No"
+      },
+      "products":{  
+         "mainCustomers":[  
+            "01"
+         ],
+         "productType":[  
+            "02"
+         ]
+      },
+      "suppliers":{  
+         "suppliers":[  
+            {  
+               "alcoholSuppliers":"No"
+            }
+         ]
+      },
+      "applicationDeclaration":{  
+         "declarationName":"Bill",
+         "declarationRole":"Bloggs",
+         "confirmation":true
+      },
+      "modelVersion":"1.1"
+   }
+}
+```
 
-* [JSON]: JavaScript Object Notation
-
-* [NINO]: National Insurance Number
-
-* [URL]: Uniform Resource Locator
-
-* [CID]: Citizen Identifier
-
-
-[NPS]: http://www.publications.parliament.uk/pa/cm201012/cmselect/cmtreasy/731/73107.htm
-[HoD]: http://webarchive.nationalarchives.gov.uk/+/http://www.hmrc.gov.uk/manuals/sam/samglossary/samgloss249.htm
-[NINO]: http://www.hmrc.gov.uk/manuals/nimmanual/nim39110.htm
-[National Insurance]: https://www.gov.uk/national-insurance/overview
-[JRE]: http://www.oracle.com/technetwork/java/javase/overview/index.html
-[API]: https://en.wikipedia.org/wiki/Application_programming_interface
-[URL]: https://en.wikipedia.org/wiki/Uniform_Resource_Locator
-[State Pension]: https://www.gov.uk/new-state-pension/overview
-[SP]: https://www.gov.uk/new-state-pension/overview
-[JSON]: http://json.org/
 
 
 
-### License
 
-This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
+
+
