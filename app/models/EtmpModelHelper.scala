@@ -18,11 +18,11 @@ package models
 
 import org.joda.time.LocalDate
 import play.api.libs.json._
-import utils.Utility
+import utils.{EtmpConstants, Utility}
 
 object EtmpModelHelper extends EtmpModelHelper
 
-trait EtmpModelHelper {
+trait EtmpModelHelper extends EtmpConstants {
 
   private lazy val VrnPrefix = "GB"
   private lazy val EmptyString = ""
@@ -244,19 +244,22 @@ trait EtmpModelHelper {
 
   private def matchDuration(duration: String): String = {
     val operationDurationPattern = """^[0-9]*$"""
+    val awrsToEtmpYearRange = Map(LessThanTwoYearsAwrs -> ZeroToTwoYearsEtmp,
+      TwoToFourYearsAwrs -> TwoToFiveYearsEtmp,
+      FiveToNineYearsAwrs -> FiveToTenYearsEtmp)
 
     duration.matches(operationDurationPattern) match {
       case true => convertOperatingDuration(duration)
-      case _ => duration
+      case _ => awrsToEtmpYearRange.getOrElse(duration, duration)
     }
   }
 
   private def convertOperatingDuration(duration: String): String =
     duration.toInt match {
-      case x: Int if x >= 0 && x < 2 => "0 to 2 years"
-      case x: Int if x >= 2 && x < 5 => "2 to 5 years"
-      case x: Int if x >= 5 && x < 10 => "5 to 10 years"
-      case x: Int if x >= 10 => "over 10 years"
+      case x: Int if x >= 0 && x < 2 => ZeroToTwoYearsEtmp
+      case x: Int if x >= 2 && x < 5 => TwoToFiveYearsEtmp
+      case x: Int if x >= 5 && x < 10 => FiveToTenYearsEtmp
+      case x: Int if x >= 10 => OverTenYears
     }
 
   def toEtmpName(st: SubscriptionTypeFrontEnd): JsValue = {
