@@ -420,7 +420,7 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
   "toEtmpBusinessAddressForAwrs method of EtmpModelHelper " should {
 
     "transform to correct JSON element placeOfBusinessLast3Years is Yes and operatingDuration is less than 2 years" in {
-      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "less than 2 years"))), api4FrontendSOPString)
+      val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("placeOfBusiness" -> Json.obj("operatingDuration" -> "Less than 2 years"))), api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("\"operatingDuration\":\"0 to 2 years")
