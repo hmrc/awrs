@@ -93,7 +93,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       businessContacts shouldBe a[BusinessContacts]
       businessContacts.telephone shouldBe "07000111222"
       businessContacts.email shouldBe "example@example.com"
-      placeOfBusiness.operatingDuration shouldBe "over 10 years"
+      placeOfBusiness.operatingDuration shouldBe "10 or more years"
     }
 
     "transform correctly to CorporateBodyBusinessDetails Frontend Model " in {
@@ -113,7 +113,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       businessContacts shouldBe a[BusinessContacts]
       businessContacts.telephone shouldBe "07000111222"
       businessContacts.email shouldBe "test@example.com"
-      placeOfBusiness.operatingDuration shouldBe "0 to 2 years"
+      placeOfBusiness.operatingDuration shouldBe "Less than 2 years"
     }
 
     "transform correctly to Partnership Business Details Frontend Model and create correct json" in {
@@ -130,7 +130,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       businessRegistrationDetails.doYouHaveUTR shouldBe Some("No")
 
       businessContacts shouldBe a[BusinessContacts]
-      placeOfBusiness.operatingDuration shouldBe "over 10 years"
+      placeOfBusiness.operatingDuration shouldBe "10 or more years"
       businessContacts.contactAddressSame shouldBe Some("Yes")
       businessContacts.contactFirstName shouldBe "Contact first name"
       businessContacts.contactLastName shouldBe "Contact last name"
@@ -155,7 +155,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
       businessContacts shouldBe a[BusinessContacts]
       businessContacts.telephone shouldBe "07000111222"
       businessContacts.email shouldBe "example@example.com"
-      placeOfBusiness.operatingDuration shouldBe "over 10 years"
+      placeOfBusiness.operatingDuration shouldBe "10 or more years"
     }
 
     "transform correctly to Suppliers Frontend Model " in {
