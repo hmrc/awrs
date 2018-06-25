@@ -16,6 +16,7 @@
 
 package models
 
+import models.PlaceOfBusiness.{FiveToTenYearsEtmp, TwoToFiveYearsEtmp, ZeroToTwoYearsEtmp}
 import org.joda.time.LocalDate
 import play.api.libs.json._
 import utils.{EtmpConstants, Utility}
@@ -246,7 +247,9 @@ trait EtmpModelHelper extends EtmpConstants {
     val operationDurationPattern = """^[0-9]*$"""
     val awrsToEtmpYearRange = Map(LessThanTwoYearsAwrs -> ZeroToTwoYearsEtmp,
       TwoToFourYearsAwrs -> TwoToFiveYearsEtmp,
-      FiveToNineYearsAwrs -> FiveToTenYearsEtmp)
+      FiveToNineYearsAwrs -> FiveToTenYearsEtmp,
+      OverTenYearsAwrs -> OverTenYearsEtmp
+    )
 
     duration.matches(operationDurationPattern) match {
       case true => convertOperatingDuration(duration)
@@ -254,14 +257,25 @@ trait EtmpModelHelper extends EtmpConstants {
     }
   }
 
-  private def convertOperatingDuration(duration: String): String =
+  private def convertOperatingDuration(duration: String): String = {
+
     duration.toInt match {
       case x: Int if x >= 0 && x < 2 => ZeroToTwoYearsEtmp
       case x: Int if x >= 2 && x < 5 => TwoToFiveYearsEtmp
       case x: Int if x >= 5 && x < 10 => FiveToTenYearsEtmp
-      case x: Int if x >= 10 => OverTenYears
+      case x: Int if x >= 10 => OverTenYearsEtmp
       case _ => throw new IllegalArgumentException("Duration must be positive")
+
     }
+  }
+
+  def convertEtmpToArwsOperatingDuration(duration: String): String = {
+    val etmpToAwrsYearRange = Map(ZeroToTwoYearsEtmp -> LessThanTwoYearsAwrs,
+      TwoToFiveYearsEtmp -> TwoToFourYearsAwrs,
+      FiveToTenYearsEtmp -> FiveToNineYearsAwrs,
+      OverTenYearsEtmp -> OverTenYearsAwrs)
+    etmpToAwrsYearRange.getOrElse(duration, duration)
+  }
 
   def toEtmpName(st: SubscriptionTypeFrontEnd): JsValue = {
     val businessDetails = st.businessContacts.reduceLeft((x, y) => x)
