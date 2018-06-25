@@ -260,6 +260,7 @@ trait EtmpModelHelper extends EtmpConstants {
       case x: Int if x >= 2 && x < 5 => TwoToFiveYearsEtmp
       case x: Int if x >= 5 && x < 10 => FiveToTenYearsEtmp
       case x: Int if x >= 10 => OverTenYears
+      case _ => throw new IllegalArgumentException("Duration must be positive")
     }
 
   def toEtmpName(st: SubscriptionTypeFrontEnd): JsValue = {
