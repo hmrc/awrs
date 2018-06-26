@@ -19,6 +19,7 @@ package models
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Format, Json, _}
 import utils.Bool._
+import utils.EtmpConstants
 import utils.Utility._
 
 import scala.util.{Failure, Success, Try}
@@ -1017,7 +1018,7 @@ object BusinessContacts {
 
 }
 
-object PlaceOfBusiness {
+object PlaceOfBusiness extends EtmpConstants {
 
   val latestModelVersion = "1.0"
 
@@ -1036,7 +1037,7 @@ object PlaceOfBusiness {
           mainAddress = mainAddress,
           placeOfBusinessLast3Years = trueToNoOrFalseToYes(placeOfBusinessLast3Years.fold(false)(x => x)),
           placeOfBusinessAddressLast3Years = placeOfBusinessAddressLast3Years,
-          operatingDuration = operatingDuration
+          operatingDuration = EtmpModelHelper.convertEtmpToArwsOperatingDuration(operatingDuration)
         )
       }
 

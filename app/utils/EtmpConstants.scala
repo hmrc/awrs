@@ -21,10 +21,11 @@ trait EtmpConstants {
   val ZeroToTwoYearsEtmp = "0 to 2 years"
   val TwoToFiveYearsEtmp = "2 to 5 years"
   val FiveToTenYearsEtmp = "5 to 10 years"
-  val OverTenYears = "over 10 years"
+  val OverTenYearsEtmp = "over 10 years"
 
   val LessThanTwoYearsAwrs = "Less than 2 years"
   val TwoToFourYearsAwrs = "2 to 4 years"
   val FiveToNineYearsAwrs = "5 to 9 years"
+  val OverTenYearsAwrs = "10 or more years"
 
 }
