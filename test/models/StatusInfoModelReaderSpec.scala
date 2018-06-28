@@ -30,19 +30,6 @@ class StatusInfoModelReaderSpec extends UnitSpec with AwrsTestJson {
       statusInfoTypeDetails.response.get shouldBe a[StatusInfoSuccessResponseType]
     }
 
-    "trims the CDATA tag" in {
-      val statusInfoTypeDetails = api11SuccessfulCDATAResponseJson.as[StatusInfoType](StatusInfoType.reader)
-      statusInfoTypeDetails shouldBe a[StatusInfoType]
-      statusInfoTypeDetails.response should not be None
-      statusInfoTypeDetails.response.get shouldBe a[StatusInfoSuccessResponseType]
-      val proccessedStatusInfo = statusInfoTypeDetails.response.get.asInstanceOf[StatusInfoSuccessResponseType]
-      StatusInfoSuccessResponseType.isInCDATATag(proccessedStatusInfo.secureCommText) shouldBe false
-      val statusInfoTypeNoCDATADetails = api11SuccessfulResponseJson.as[StatusInfoType](StatusInfoType.reader)
-      // this final test relies on the content of api11ResponseJson is the same as api11CDATAResponseJson but without the CDATA tag
-      val cleanStatusInfo = statusInfoTypeDetails.response.get.asInstanceOf[StatusInfoSuccessResponseType]
-      proccessedStatusInfo.secureCommText shouldBe cleanStatusInfo.secureCommText
-    }
-
     "transform correctly to StatusInfoType Frontend Model for failure response " in {
       val statusInfoTypeDetails = api11FailureResponseJson.as[StatusInfoType](StatusInfoType.reader)
       statusInfoTypeDetails shouldBe a[StatusInfoType]

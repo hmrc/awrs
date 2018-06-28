@@ -30,25 +30,13 @@ case class StatusInfoFailureResponseType(reason: String) extends StatusInfoRespo
 
 
 object StatusInfoSuccessResponseType {
-  private val cdataPattern = """^<!\[[Cc][Dd][Aa][Tt][Aa]\[.*?\]\]>$"""
-
-  def isInCDATATag(secureCommText: String): Boolean =
-    secureCommText.matches(cdataPattern)
-
-  // this function only strips the outter CData tag
-  private def stripCData(secureCommText: String): String =
-    isInCDATATag(secureCommText) match {
-      case true => secureCommText.replaceAll("""^<!\[[Cc][Dd][Aa][Tt][Aa]\[""", "").replaceAll("""\]\]>$""", "")
-      case false => secureCommText
-    }
-
 
   implicit val reader = new Reads[StatusInfoSuccessResponseType] {
 
     def reads(js: JsValue): JsResult[StatusInfoSuccessResponseType] = {
       for {
         processingDate <- (js \ "processingDate").validate[String]
-        secureCommText <- (js \ "secureCommText").validate[String].map(stripCData)
+        secureCommText <- (js \ "secureCommText").validate[String]
       } yield {
         StatusInfoSuccessResponseType(processingDate = processingDate, secureCommText = secureCommText)
       }

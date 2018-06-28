@@ -17,10 +17,11 @@
 package services
 
 import connectors.EtmpConnector
+import models.{StatusInfoResponseType, StatusInfoSuccessResponseType}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 object EtmpStatusInfoService extends EtmpStatusInfoService {
   override val etmpConnector: EtmpConnector = EtmpConnector
@@ -29,6 +30,17 @@ object EtmpStatusInfoService extends EtmpStatusInfoService {
 trait EtmpStatusInfoService {
   val etmpConnector: EtmpConnector
 
+  private val cdataPattern = """^<!\[[Cc][Dd][Aa][Tt][Aa]\[.*?\]\]>$"""
+  private[services] def isInCDATATag(secureCommText: String): Boolean =
+    secureCommText.matches(cdataPattern)
+
+  // this function only strips the outter CData tag
+  private[services] def stripCData(secureCommText: String): String =
+    isInCDATATag(secureCommText) match {
+      case true => secureCommText.replaceAll("""^<!\[[Cc][Dd][Aa][Tt][Aa]\[""", "").replaceAll("""\]\]>$""", "")
+      case false => secureCommText
+    }
+
   def getStatusInfo(awrsRefNo: String, contactNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.getStatusInfo(awrsRefNo, contactNumber) map {
       response =>
@@ -36,5 +48,11 @@ trait EtmpStatusInfoService {
           case _ => response
         }
     }
-
+//TODO decode secure com text for success and call this method on controller after a successful response. This should be before stripCData is ran
+  def decode(statusInfoResponseType: StatusInfoResponseType): StatusInfoResponseType = {
+    statusInfoResponseType match {
+      case data: StatusInfoSuccessResponseType ⇒ data.copy(secureCommText = stripCData(data.secureCommText))
+      case data ⇒ data
+    }
+  }
 }

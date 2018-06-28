@@ -19,6 +19,7 @@ package services
 import java.util.UUID
 
 import connectors.EtmpConnector
+import models.{StatusInfoFailureResponseType, StatusInfoSuccessResponseType, StatusInfoType}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -28,10 +29,11 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 import utils.AwrsTestJson.testRefNo
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.logging.SessionId
+import utils.AwrsTestJson
 
-class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar {
+class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson  {
 
   implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
@@ -63,4 +65,37 @@ class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with Moc
     }
   }
 
+  "Decode" when {
+    "a failed response is passed" should {
+      "leave the data unchanged" in {
+        val failedResponse = StatusInfoFailureResponseType("failed")
+        TestEtmpStatusInfoService.decode(failedResponse) shouldBe failedResponse
+      }
+    }
+
+    "a successful response is passed" should {
+      "strip the CD data tag if there is one" in {
+        val statusInfoTypeDetails = api11SuccessfulCDATAResponseJson.as[StatusInfoSuccessResponseType](StatusInfoSuccessResponseType.reader)
+        TestEtmpStatusInfoService.decode(statusInfoTypeDetails) shouldBe api11SuccessfulResponseJson.as[StatusInfoSuccessResponseType]
+      }
+    }
+  }
+
+  "Strip CD data tag" should {
+    "remove the data tag" when {
+      "the tag is present" in {
+        val statusInfoTypeDetails = api11SuccessfulCDATAResponseJson.as[StatusInfoSuccessResponseType](StatusInfoSuccessResponseType.reader)
+        TestEtmpStatusInfoService.isInCDATATag(statusInfoTypeDetails.secureCommText) shouldBe true
+        TestEtmpStatusInfoService.stripCData(statusInfoTypeDetails.secureCommText) shouldBe api11SuccessfulResponseJson.as[StatusInfoSuccessResponseType].secureCommText
+      }
+    }
+
+    "leave the data unchanged" when {
+      "there is no tag present" in {
+        val statusInfoTypeDetails = api11SuccessfulResponseJson.as[StatusInfoSuccessResponseType](StatusInfoSuccessResponseType.reader)
+        TestEtmpStatusInfoService.isInCDATATag(statusInfoTypeDetails.secureCommText) shouldBe false
+        TestEtmpStatusInfoService.stripCData(statusInfoTypeDetails.secureCommText) shouldBe statusInfoTypeDetails.secureCommText
+      }
+    }
+  }
 }
