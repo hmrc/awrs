@@ -53,7 +53,7 @@ trait StatusInfoController extends BaseController with LoggingUtils {
             case OK =>
               val convertedJson: StatusInfoType = result.json.as[StatusInfoType](StatusInfoType.reader)
               convertedJson match {
-                case StatusInfoType(Some(statusInfoResponseType)) => //TODO Decode data here
+                case StatusInfoType(Some(_)) =>
                   metrics.incrementSuccessCounter(apiType)
                   info(s"[$auditAPI11TxName - $awrsRef ] - Successful return of data \n ## API11 Response from DES  ##\n${result.json}")
                   Ok(Json.toJson(convertedJson))

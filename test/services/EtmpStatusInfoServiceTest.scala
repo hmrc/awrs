@@ -64,38 +64,4 @@ class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with Moc
       await(result).status shouldBe 400
     }
   }
-
-  "Decode" when {
-    "a failed response is passed" should {
-      "leave the data unchanged" in {
-        val failedResponse = StatusInfoFailureResponseType("failed")
-        TestEtmpStatusInfoService.decode(failedResponse) shouldBe failedResponse
-      }
-    }
-
-    "a successful response is passed" should {
-      "strip the CD data tag if there is one" in {
-        val statusInfoTypeDetails = api11SuccessfulCDATAResponseJson.as[StatusInfoSuccessResponseType](StatusInfoSuccessResponseType.reader)
-        TestEtmpStatusInfoService.decode(statusInfoTypeDetails) shouldBe api11SuccessfulResponseJson.as[StatusInfoSuccessResponseType]
-      }
-    }
-  }
-
-  "Strip CD data tag" should {
-    "remove the data tag" when {
-      "the tag is present" in {
-        val statusInfoTypeDetails = api11SuccessfulCDATAResponseJson.as[StatusInfoSuccessResponseType](StatusInfoSuccessResponseType.reader)
-        TestEtmpStatusInfoService.isInCDATATag(statusInfoTypeDetails.secureCommText) shouldBe true
-        TestEtmpStatusInfoService.stripCData(statusInfoTypeDetails.secureCommText) shouldBe api11SuccessfulResponseJson.as[StatusInfoSuccessResponseType].secureCommText
-      }
-    }
-
-    "leave the data unchanged" when {
-      "there is no tag present" in {
-        val statusInfoTypeDetails = api11SuccessfulResponseJson.as[StatusInfoSuccessResponseType](StatusInfoSuccessResponseType.reader)
-        TestEtmpStatusInfoService.isInCDATATag(statusInfoTypeDetails.secureCommText) shouldBe false
-        TestEtmpStatusInfoService.stripCData(statusInfoTypeDetails.secureCommText) shouldBe statusInfoTypeDetails.secureCommText
-      }
-    }
-  }
 }
