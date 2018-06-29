@@ -112,9 +112,8 @@ trait AwrsTestJson extends AwrsPathConstants {
   lazy val api10SuccessfulResponseJson = loadAndParseJsonWithDummyData(api10SuccessfulResponse)
 
   lazy val api11SuccessfulResponseJson = loadAndParseJsonWithDummyData(api11SuccessfulResponse)
-  lazy val api11SuccessfulResponseString = loadWithDummy(api11SuccessfulResponse)
-  lazy val api11SuccessfulCDATAResponseString = loadWithDummy(api11SuccessfulCDATAResponse)
   lazy val api11SuccessfulCDATAResponseJson = loadAndParseJsonWithDummyData(api11SuccessfulCDATAResponse)
+  lazy val api11SuccessfulCDATAEncodedResponseJson = loadAndParseJsonWithDummyData(api11SuccessfulCDATAEncodedResponse)
 
   // Failure Response Json
 

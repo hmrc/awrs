@@ -18,7 +18,8 @@ package models
 
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, _}
-import utils.Utility._
+import utils.DecodeText._
+import utils.StripDataTags._
 
 sealed trait StatusInfoResponseType
 
@@ -36,8 +37,9 @@ object StatusInfoSuccessResponseType {
     def reads(js: JsValue): JsResult[StatusInfoSuccessResponseType] = {
       for {
         processingDate <- (js \ "processingDate").validate[String]
-        secureCommText <- (js \ "secureCommText").validate[String]
+        ecodedSecureCommText <- (js \ "secureCommText").validate[String]
       } yield {
+        val secureCommText = stripCData(decodeBase64Text(ecodedSecureCommText))
         StatusInfoSuccessResponseType(processingDate = processingDate, secureCommText = secureCommText)
       }
     }
