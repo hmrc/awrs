@@ -19,6 +19,7 @@ package services
 import java.util.UUID
 
 import connectors.EtmpConnector
+import models.{StatusInfoFailureResponseType, StatusInfoSuccessResponseType, StatusInfoType}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -28,10 +29,11 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 import utils.AwrsTestJson.testRefNo
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.logging.SessionId
+import utils.AwrsTestJson
 
-class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar {
+class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson  {
 
   implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
@@ -62,5 +64,4 @@ class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with Moc
       await(result).status shouldBe 400
     }
   }
-
 }

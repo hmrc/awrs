@@ -51,7 +51,7 @@ trait StatusInfoController extends BaseController with LoggingUtils {
           timer.stop()
           result.status match {
             case OK =>
-              val convertedJson = result.json.as[StatusInfoType](StatusInfoType.reader)
+              val convertedJson: StatusInfoType = result.json.as[StatusInfoType](StatusInfoType.reader)
               convertedJson match {
                 case StatusInfoType(Some(_)) =>
                   metrics.incrementSuccessCounter(apiType)

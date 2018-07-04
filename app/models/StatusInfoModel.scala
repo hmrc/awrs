@@ -18,7 +18,8 @@ package models
 
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, _}
-import utils.Utility._
+import utils.DecodeText._
+import utils.StripDataTags._
 
 sealed trait StatusInfoResponseType
 
@@ -30,26 +31,15 @@ case class StatusInfoFailureResponseType(reason: String) extends StatusInfoRespo
 
 
 object StatusInfoSuccessResponseType {
-  private val cdataPattern = """^<!\[[Cc][Dd][Aa][Tt][Aa]\[.*?\]\]>$"""
-
-  def isInCDATATag(secureCommText: String): Boolean =
-    secureCommText.matches(cdataPattern)
-
-  // this function only strips the outter CData tag
-  private def stripCData(secureCommText: String): String =
-    isInCDATATag(secureCommText) match {
-      case true => secureCommText.replaceAll("""^<!\[[Cc][Dd][Aa][Tt][Aa]\[""", "").replaceAll("""\]\]>$""", "")
-      case false => secureCommText
-    }
-
 
   implicit val reader = new Reads[StatusInfoSuccessResponseType] {
 
     def reads(js: JsValue): JsResult[StatusInfoSuccessResponseType] = {
       for {
         processingDate <- (js \ "processingDate").validate[String]
-        secureCommText <- (js \ "secureCommText").validate[String].map(stripCData)
+        ecodedSecureCommText <- (js \ "secureCommText").validate[String]
       } yield {
+        val secureCommText = stripCData(decodeBase64Text(ecodedSecureCommText))
         StatusInfoSuccessResponseType(processingDate = processingDate, secureCommText = secureCommText)
       }
     }

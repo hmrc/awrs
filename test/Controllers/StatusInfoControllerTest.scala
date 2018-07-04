@@ -53,7 +53,7 @@ class StatusInfoControllerTest extends UnitSpec with OneServerPerSuite with Mock
     }
 
     "check success response is transported correctly" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api11SuccessfulResponseJson))))
+      when(mockEtmpStatusInfoService.getStatusInfo(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api11SuccessfulCDATAEncodedResponseJson))))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890", "ignore", "ignore").apply(FakeRequest())
       status(result) shouldBe OK
       await(result)
