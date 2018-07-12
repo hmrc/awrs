@@ -16,10 +16,11 @@
 
 package models
 
+import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
-class StatusInfoModelReaderSpec extends UnitSpec with AwrsTestJson {
+class StatusInfoModelReaderSpec extends UnitSpec with AwrsTestJson with OneAppPerSuite {
 
   "StatusInfoModelReaderSpec " should {
 

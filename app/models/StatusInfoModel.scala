@@ -16,8 +16,10 @@
 
 package models
 
+import play.api.Play
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, _}
+import uk.gov.hmrc.play.config.RunMode
 import utils.DecodeText._
 import utils.StripDataTags._
 
@@ -30,7 +32,9 @@ case class StatusInfoSuccessResponseType(processingDate: String, secureCommText:
 case class StatusInfoFailureResponseType(reason: String) extends StatusInfoResponseType
 
 
-object StatusInfoSuccessResponseType {
+object StatusInfoSuccessResponseType extends RunMode {
+
+  lazy val decodeSecureCommText: Boolean = runModeConfiguration.getBoolean(s"$env.decode.enabled").getOrElse(false)
 
   implicit val reader = new Reads[StatusInfoSuccessResponseType] {
 
@@ -39,7 +43,11 @@ object StatusInfoSuccessResponseType {
         processingDate <- (js \ "processingDate").validate[String]
         ecodedSecureCommText <- (js \ "secureCommText").validate[String]
       } yield {
-        val secureCommText = stripCData(decodeBase64Text(ecodedSecureCommText))
+        val secureCommText = if(decodeSecureCommText){
+          stripCData(decodeBase64Text(ecodedSecureCommText))
+        } else {
+          stripCData(ecodedSecureCommText)
+        }
         StatusInfoSuccessResponseType(processingDate = processingDate, secureCommText = secureCommText)
       }
     }
