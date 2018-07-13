@@ -16,17 +16,17 @@
 
 package utils
 
-object StripDataTags {
+import uk.gov.hmrc.play.test.UnitSpec
 
-  private[utils] def isInCDATATag(secureCommText: String): Boolean = {
-    val cdataPattern = """^<!\[[Cc][Dd][Aa][Tt][Aa]\[.*?\]\]>$"""
-    secureCommText.matches(cdataPattern)
+class ReplaceNewlineCharactersSpec extends UnitSpec {
+
+  "ReplaceNewlineCharacters" should {
+    "replace new lines with html break" in {
+      val newlineText = "<P>Abcdefghijklmnopqrstuvwxyz\n\n0123456789110720182</P>"
+      val expectedText = "<P>Abcdefghijklmnopqrstuvwxyz<br/><br/>0123456789110720182</P>"
+
+      ReplaceNewlineCharacters.replaceNewlineWithHtmlBr(newlineText) shouldBe expectedText
+    }
   }
 
-  // this function only strips the outer CData tag
-  def stripCData(secureCommText: String): String =
-    isInCDATATag(secureCommText) match {
-      case true => secureCommText.replaceAll("""^<!\[[Cc][Dd][Aa][Tt][Aa]\[""", "").replaceAll("""\]\]>$""", "")
-      case false => secureCommText
-    }
 }

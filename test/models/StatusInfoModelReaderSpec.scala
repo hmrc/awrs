@@ -46,6 +46,21 @@ class StatusInfoModelReaderSpec extends UnitSpec with AwrsTestJson with OneAppPe
       secureCommentText.contains(expectedSecureCommenttext) shouldBe true
     }
 
+    "trims the CDATA tag when there is a new line" in {
+      val statusInfoTypeDetails = api11SuccessfulCDATAEncodedResponseJsonWithNewLine.as[StatusInfoType](StatusInfoType.reader)
+      statusInfoTypeDetails shouldBe a[StatusInfoType]
+      statusInfoTypeDetails.response should not be None
+      statusInfoTypeDetails.response.get shouldBe a[StatusInfoSuccessResponseType]
+
+      val secureCommentText = statusInfoTypeDetails.response.collect {
+        case statusInfoSuccessResponseType: StatusInfoSuccessResponseType =>
+          statusInfoSuccessResponseType.secureCommText
+      }
+
+      val expectedSecureCommenttext = (api11SuccessfulResponseJsonWithNewLine \ "secureCommText").as[String]
+      secureCommentText.contains(expectedSecureCommenttext) shouldBe true
+    }
+
     "transform correctly to StatusInfoType Frontend Model for failure response " in {
       val statusInfoTypeDetails = api11FailureResponseJson.as[StatusInfoType](StatusInfoType.reader)
       statusInfoTypeDetails shouldBe a[StatusInfoType]

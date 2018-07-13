@@ -22,6 +22,7 @@ import play.api.libs.json.{Json, _}
 import uk.gov.hmrc.play.config.RunMode
 import utils.DecodeText._
 import utils.StripDataTags._
+import utils.ReplaceNewlineCharacters._
 
 sealed trait StatusInfoResponseType
 
@@ -44,9 +45,9 @@ object StatusInfoSuccessResponseType extends RunMode {
         ecodedSecureCommText <- (js \ "secureCommText").validate[String]
       } yield {
         val secureCommText = if(decodeSecureCommText){
-          stripCData(decodeBase64Text(ecodedSecureCommText))
+          stripCData(replaceNewlineWithHtmlBr(decodeBase64Text(ecodedSecureCommText)))
         } else {
-          stripCData(ecodedSecureCommText)
+          stripCData(replaceNewlineWithHtmlBr(ecodedSecureCommText))
         }
         StatusInfoSuccessResponseType(processingDate = processingDate, secureCommText = secureCommText)
       }

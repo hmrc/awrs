@@ -16,17 +16,8 @@
 
 package utils
 
-object StripDataTags {
-
-  private[utils] def isInCDATATag(secureCommText: String): Boolean = {
-    val cdataPattern = """^<!\[[Cc][Dd][Aa][Tt][Aa]\[.*?\]\]>$"""
-    secureCommText.matches(cdataPattern)
+object ReplaceNewlineCharacters {
+  def replaceNewlineWithHtmlBr(text:String):String = {
+    text.replaceAll("\n", "<br/>")
   }
-
-  // this function only strips the outer CData tag
-  def stripCData(secureCommText: String): String =
-    isInCDATATag(secureCommText) match {
-      case true => secureCommText.replaceAll("""^<!\[[Cc][Dd][Aa][Tt][Aa]\[""", "").replaceAll("""\]\]>$""", "")
-      case false => secureCommText
-    }
 }
