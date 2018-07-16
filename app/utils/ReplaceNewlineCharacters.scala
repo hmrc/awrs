@@ -18,6 +18,6 @@ package utils
 
 object ReplaceNewlineCharacters {
   def replaceNewlineWithHtmlBr(text:String):String = {
-    text.replaceAll("\n", "<br/>")
+    text.replaceAll("\n", "<br>")
   }
 }

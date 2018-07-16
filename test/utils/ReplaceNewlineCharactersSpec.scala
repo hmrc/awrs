@@ -23,7 +23,7 @@ class ReplaceNewlineCharactersSpec extends UnitSpec {
   "ReplaceNewlineCharacters" should {
     "replace new lines with html break" in {
       val newlineText = "<P>Abcdefghijklmnopqrstuvwxyz\n\n0123456789110720182</P>"
-      val expectedText = "<P>Abcdefghijklmnopqrstuvwxyz<br/><br/>0123456789110720182</P>"
+      val expectedText = "<P>Abcdefghijklmnopqrstuvwxyz<br><br>0123456789110720182</P>"
 
       ReplaceNewlineCharacters.replaceNewlineWithHtmlBr(newlineText) shouldBe expectedText
     }
