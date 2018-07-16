@@ -45,9 +45,9 @@ object StatusInfoSuccessResponseType extends RunMode {
         ecodedSecureCommText <- (js \ "secureCommText").validate[String]
       } yield {
         val secureCommText = if(decodeSecureCommText){
-          stripCData(replaceNewlineWithHtmlBr(decodeBase64Text(ecodedSecureCommText)))
+          stripCData(stripOtherCharacters(replaceNewlineWithHtmlBr(decodeBase64Text(ecodedSecureCommText))))
         } else {
-          stripCData(replaceNewlineWithHtmlBr(ecodedSecureCommText))
+          stripCData(stripOtherCharacters(replaceNewlineWithHtmlBr(ecodedSecureCommText)))
         }
         StatusInfoSuccessResponseType(processingDate = processingDate, secureCommText = secureCommText)
       }

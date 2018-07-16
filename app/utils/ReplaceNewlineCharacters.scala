@@ -20,4 +20,8 @@ object ReplaceNewlineCharacters {
   def replaceNewlineWithHtmlBr(text:String):String = {
     text.replaceAll("\n", "<br>")
   }
+
+  def stripOtherCharacters(text:String):String = {
+    text.replaceAll("\r", "").replaceAll("\t", "")
+  }
 }

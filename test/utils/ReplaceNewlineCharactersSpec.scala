@@ -27,6 +27,20 @@ class ReplaceNewlineCharactersSpec extends UnitSpec {
 
       ReplaceNewlineCharacters.replaceNewlineWithHtmlBr(newlineText) shouldBe expectedText
     }
+
+    "strip our carriage returns" in {
+      val newlineText = "<P>Abcdefghijklmnopqrstuvwxyz\r0123456789110720182</P>"
+      val expectedText = "<P>Abcdefghijklmnopqrstuvwxyz0123456789110720182</P>"
+
+      ReplaceNewlineCharacters.stripOtherCharacters(newlineText) shouldBe expectedText
+    }
+
+    "strip out tabulator" in {
+      val newlineText = "<P>Abcdefghijklmnopqrstuvwxyz\t0123456789110720182</P>"
+      val expectedText = "<P>Abcdefghijklmnopqrstuvwxyz0123456789110720182</P>"
+
+      ReplaceNewlineCharacters.stripOtherCharacters(newlineText) shouldBe expectedText
+    }
   }
 
 }
