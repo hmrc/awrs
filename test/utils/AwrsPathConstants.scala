@@ -92,8 +92,10 @@ trait AwrsPathConstants {
   lazy val api10SuccessfulResponse = "/json/API10/response/SuccessfulResponse.json"
 
   lazy val api11SuccessfulResponse = "/json/API11/SuccessfulResponse.json"
+  lazy val api11SuccessfulResponseWithNewLine = "/json/API11/SuccessfulResponseWithBr.json"
   lazy val api11SuccessfulCDATAResponse = "/json/API11/SuccessfulCDATAResponse.json"
   lazy val api11SuccessfulCDATAEncodedResponse = "/json/API11/SuccessfulCDATAEncodedResponse.json"
+  lazy val api11SuccessfulCDATAEncodedResponseWithNewLine = "/json/API11/SuccessfulCDATAEncodedResponseWithNewLine.json"
 
   // Failure Json paths
 

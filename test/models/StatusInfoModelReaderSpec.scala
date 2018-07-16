@@ -16,10 +16,11 @@
 
 package models
 
+import org.scalatestplus.play.OneAppPerSuite
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
-class StatusInfoModelReaderSpec extends UnitSpec with AwrsTestJson {
+class StatusInfoModelReaderSpec extends UnitSpec with AwrsTestJson with OneAppPerSuite {
 
   "StatusInfoModelReaderSpec " should {
 
@@ -42,6 +43,21 @@ class StatusInfoModelReaderSpec extends UnitSpec with AwrsTestJson {
       }
 
       val expectedSecureCommenttext = (api11SuccessfulResponseJson \ "secureCommText").as[String]
+      secureCommentText.contains(expectedSecureCommenttext) shouldBe true
+    }
+
+    "trims the CDATA tag when there is a new line" in {
+      val statusInfoTypeDetails = api11SuccessfulCDATAEncodedResponseJsonWithNewLine.as[StatusInfoType](StatusInfoType.reader)
+      statusInfoTypeDetails shouldBe a[StatusInfoType]
+      statusInfoTypeDetails.response should not be None
+      statusInfoTypeDetails.response.get shouldBe a[StatusInfoSuccessResponseType]
+
+      val secureCommentText = statusInfoTypeDetails.response.collect {
+        case statusInfoSuccessResponseType: StatusInfoSuccessResponseType =>
+          statusInfoSuccessResponseType.secureCommText
+      }
+
+      val expectedSecureCommenttext = (api11SuccessfulResponseJsonWithNewLine \ "secureCommText").as[String]
       secureCommentText.contains(expectedSecureCommenttext) shouldBe true
     }
 
