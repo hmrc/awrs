@@ -35,8 +35,6 @@ case class StatusInfoFailureResponseType(reason: String) extends StatusInfoRespo
 
 object StatusInfoSuccessResponseType extends RunMode {
 
-  lazy val decodeSecureCommText: Boolean = runModeConfiguration.getBoolean(s"$env.decode.enabled").getOrElse(false)
-
   implicit val reader = new Reads[StatusInfoSuccessResponseType] {
 
     def reads(js: JsValue): JsResult[StatusInfoSuccessResponseType] = {
@@ -44,11 +42,8 @@ object StatusInfoSuccessResponseType extends RunMode {
         processingDate <- (js \ "processingDate").validate[String]
         ecodedSecureCommText <- (js \ "secureCommText").validate[String]
       } yield {
-        val secureCommText = if(decodeSecureCommText){
-          stripCData(stripOtherCharacters(replaceNewlineWithHtmlBr(decodeBase64Text(ecodedSecureCommText))))
-        } else {
-          stripCData(stripOtherCharacters(replaceNewlineWithHtmlBr(ecodedSecureCommText)))
-        }
+        val secureCommText = stripCData(stripOtherCharacters(replaceNewlineWithHtmlBr(decodeBase64Text(ecodedSecureCommText))))
+
         StatusInfoSuccessResponseType(processingDate = processingDate, secureCommText = secureCommText)
       }
     }
