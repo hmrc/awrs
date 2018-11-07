@@ -939,4 +939,35 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
+  "toEtmpCommunicationDetails method of EtmpModelHelper" should {
+    "convert '+' to 00" when {
+      "given a contact number that starts with +" in {
+        val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("telephone" -> "+441234567890"))), api4FrontendSOPString)
+        val awrsModel: AWRSFEModel = Json.parse(updatedJson).as[AWRSFEModel]
+
+        val json = TestEtmpModelHelper.toEtmpCommunicationDetails(awrsModel.subscriptionTypeFrontEnd).toString
+        json should include ("00441234567890")
+
+      }
+    }
+
+    "keep the input the same" when {
+      "given a contact number that does not start with +" in {
+        val apiJson = api4FrontendSOPString
+        val awrsModel: AWRSFEModel = Json.parse(apiJson).as[AWRSFEModel]
+
+        val json = TestEtmpModelHelper.toEtmpCommunicationDetails(awrsModel.subscriptionTypeFrontEnd).toString
+        json should include ("01234567891")
+      }
+
+      "give + appears anywhere else in number" in {
+        val updatedJson = updateJson(Json.obj("subscriptionTypeFrontEnd" -> Json.obj("businessContacts" -> Json.obj("telephone" -> "1234567890+22"))), api4FrontendSOPString)
+        val awrsModel: AWRSFEModel = Json.parse(updatedJson).as[AWRSFEModel]
+
+        val json = TestEtmpModelHelper.toEtmpCommunicationDetails(awrsModel.subscriptionTypeFrontEnd).toString
+        json should include ("1234567890+22")
+      }
+    }
+  }
+
 }

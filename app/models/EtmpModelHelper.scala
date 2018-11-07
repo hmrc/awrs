@@ -218,10 +218,12 @@ trait EtmpModelHelper extends EtmpConstants {
 
   def toEtmpCommunicationDetails(st: SubscriptionTypeFrontEnd): JsValue = {
     val businessContacts = st.businessContacts.reduceLeft((x, y) => x)
+    val preTelephoneNumberRegex = "^[+]".r
+    val preTelephoneNumber = "00"
 
     Json.obj(
       "email" -> businessContacts.email,
-      "telephone" -> businessContacts.telephone)
+      "telephone" -> preTelephoneNumberRegex.replaceFirstIn(businessContacts.telephone, preTelephoneNumber))
   }
 
   val getPlaceOfBusinessLast3Years = (placeOfBusinessLast3Years: String, placeOfBusinessAddressLast3Years: Option[Address]) =>
