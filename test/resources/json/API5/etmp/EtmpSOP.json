@@ -25,7 +25,7 @@
     },
     "communicationDetails": {
       "email": "Example@gmail.com",
-      "telephone": "07945638956"
+      "telephone": "01234567891"
     },
     "operatingDuration": "2 to 5 years",
     "differentOperatingAddresslnLast3Years": false
@@ -38,7 +38,7 @@
     "useAlternateContactAddress": false,
     "communicationDetails": {
       "email": "Example@gmail.com",
-      "telephone": "07945638956"
+      "telephone": "01234567891"
     }
   },
   "additionalBusinessInfo": {
