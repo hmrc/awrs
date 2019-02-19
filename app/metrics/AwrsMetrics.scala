@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package metrics
 
 import com.codahale.metrics.Timer
 import com.codahale.metrics.Timer.Context
-import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 import models.ApiType
 import models.ApiType.ApiType
+import uk.gov.hmrc.play.graphite.MicroserviceMetrics
 
 trait AwrsMetrics extends MicroserviceMetrics {
   def startTimer(api: ApiType): Timer.Context

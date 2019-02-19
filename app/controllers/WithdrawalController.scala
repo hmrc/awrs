@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package controllers
 import config.MicroserviceAuditConnector
 import metrics.AwrsMetrics
 import models.{ApiType, WithdrawalRequest}
+import play.api.Play
 import play.api.libs.json._
 import play.api.mvc.Action
 import services._
@@ -31,8 +32,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 object WithdrawalController extends WithdrawalController {
-  override val appName: String = AppName.appName
-  override val audit: Audit = new Audit(AppName.appName, MicroserviceAuditConnector)
+  override val appName: String = AppName(Play.current.configuration).appName
+  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
   val withdrawalService: WithdrawalService = WithdrawalService
   override val metrics = AwrsMetrics
 }

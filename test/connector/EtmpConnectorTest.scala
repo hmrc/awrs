@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,19 @@ import config.WSHttp
 import connectors.EtmpConnector
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.Play
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AwrsTestJson
-import utils.AwrsTestJson.testRefNo
-import scala.concurrent.Future
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
+import utils.AwrsTestJson.testRefNo
+import utils.BaseSpec
 
-class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
+import scala.concurrent.Future
+
+class EtmpConnectorTest extends BaseSpec {
 
   object TestAuditConnector extends AuditConnector {
     override lazy val auditingConfig = LoadAuditingConfig("auditing")
@@ -56,6 +54,10 @@ class EtmpConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSuga
     override val http = mockWSHttp
     override val urlHeaderEnvironment: String = config("etmp-hod").getString("environment").getOrElse("")
     override val urlHeaderAuthorization: String = s"Bearer ${config("etmp-hod").getString("authorization-token").getOrElse("")}"
+
+    override protected def mode: Mode = Play.current.mode
+
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   before {

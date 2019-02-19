@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,18 @@ import metrics.AwrsMetrics
 import models._
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
+import play.api.Mode.Mode
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import play.api.{Configuration, Play}
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AwrsTestJson
 import utils.AwrsTestJson._
+import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
+class SubscriptionServiceTest extends BaseSpec {
   val mockEtmpConnector = mock[EtmpConnector]
   val mockggAdminConnector = mock[GovernmentGatewayAdminConnector]
   val mockEnrolmentStoreConnector = mock[EnrolmentStoreConnector]
@@ -57,6 +56,10 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     override val etmpConnector = mockEtmpConnector
     override val metrics = AwrsMetrics
     override val isEmacFeatureToggle = false
+
+    override protected def mode: Mode = Play.current.mode
+
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   object TestSubscriptionServiceEMAC extends SubscriptionService {
@@ -65,6 +68,10 @@ class SubscriptionServiceTest extends UnitSpec with OneServerPerSuite with Mocki
     override val etmpConnector = mockEtmpConnector
     override val metrics = AwrsMetrics
     override val isEmacFeatureToggle = true
+
+    override protected def mode: Mode = Play.current.mode
+
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   "Subscription Service with EMAC switched off" should {

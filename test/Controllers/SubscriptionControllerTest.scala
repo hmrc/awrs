@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,18 @@ import metrics.AwrsMetrics
 import models.{DeRegistered, FormBundleStatus, Pending, SubscriptionStatusType}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.{FakeHeaders, FakeRequest}
 import play.api.test.Helpers._
+import play.api.test.{FakeHeaders, FakeRequest}
 import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
+import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AwrsTestJson
+import utils.AwrsTestJson.testRefNo
+import utils.BaseSpec
 
 import scala.concurrent.Future
-import utils.AwrsTestJson.testRefNo
-import uk.gov.hmrc.http.HttpResponse
 
-class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson {
+class SubscriptionControllerTest extends BaseSpec {
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
   val mockEtmpStatusService: EtmpStatusService = mock[EtmpStatusService]
@@ -72,16 +69,10 @@ class SubscriptionControllerTest extends UnitSpec with OneServerPerSuite with Mo
       "respond with OK" in {
         when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
-        status(result) shouldBe OK
-      }
-
-      "return text/plain" in {
-        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
-        val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentType(result).get shouldBe "text/plain"
       }
 
-      "return Businessdetails for successful register" in {
+      "return Businessdetails for succSubscriptionController.subscribe(\"\").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))\n        status(result) shouldBe OK\n      }\n\n      \"return text/plain\" in {\n        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))\n        val result = TestSubscriptessful register" in {
         when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentAsJson(result) shouldBe successResponse

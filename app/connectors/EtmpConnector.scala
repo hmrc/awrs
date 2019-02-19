@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package connectors
 
 import config.WSHttp
+import play.api.{Configuration, Play}
+import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.play.config.ServicesConfig
 import utils.LoggingUtils
@@ -95,4 +97,8 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
 object EtmpConnector extends EtmpConnector {
   override val urlHeaderEnvironment: String = config("etmp-hod").getString("environment").getOrElse("")
   override val urlHeaderAuthorization: String = s"Bearer ${config("etmp-hod").getString("authorization-token").getOrElse("")}"
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

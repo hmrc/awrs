@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,26 +24,21 @@ import connectors.GovernmentGatewayAdminConnector
 import models.{KnownFact, KnownFactsForService}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfter
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
-import play.api.Play
+import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.play.audit.http.HttpAuditing
+import play.api.{Configuration, Play}
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.{AppName, RunMode}
-import uk.gov.hmrc.play.test.UnitSpec
-import utils.AwrsTestJson
+import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
 import utils.AwrsTestJson.testRefNo
+import utils.BaseSpec
 
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
 
-class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
+class GGAdminConnectorTest extends BaseSpec {
 
   object TestAuditConnector extends AuditConnector {
     override lazy val auditingConfig = LoadAuditingConfig("auditing")
@@ -62,6 +57,9 @@ class GGAdminConnectorTest extends UnitSpec with OneServerPerSuite with MockitoS
   object TestGGAdminConnector extends GovernmentGatewayAdminConnector {
     override val http = mockWSHttp
     override val retryWait = 1 // override the retryWait as the wait time is irrelevant to the meaning of the test and reducing it speeds up the tests
+    override protected def mode: Mode = Play.current.mode
+
+    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   // verification value that equals the amount of gg admin calls made, i.e. the first failed call plus 7 failed retries

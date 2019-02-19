@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package connectors
 
 import config.WSHttp
 import models.EnrolmentVerifiers
+import play.api.{Configuration, Play}
+import play.api.Mode.Mode
 import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -61,4 +63,8 @@ trait EnrolmentStoreConnector extends ServicesConfig with LoggingUtils {
   }
 }
 
-object EnrolmentStoreConnector extends EnrolmentStoreConnector
+object EnrolmentStoreConnector extends EnrolmentStoreConnector {
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+}

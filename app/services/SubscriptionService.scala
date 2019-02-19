@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package services
 import connectors.{EnrolmentStoreConnector, EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
 import models.{EnrolmentVerifiers, KnownFactsForService, _}
-import play.api.Logger
+import play.api.Mode.Mode
+import play.api.{Configuration, Logger, Play}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -34,6 +35,10 @@ object SubscriptionService extends SubscriptionService {
   val ggAdminConnector: GovernmentGatewayAdminConnector = GovernmentGatewayAdminConnector
   val enrolmentStoreConnector: EnrolmentStoreConnector = EnrolmentStoreConnector
   override val metrics = AwrsMetrics
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 trait SubscriptionService extends RunMode {
