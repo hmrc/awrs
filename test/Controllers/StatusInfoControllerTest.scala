@@ -46,10 +46,6 @@ class StatusInfoControllerTest extends BaseSpec {
 
   "For API 11, Status Info Controller " should {
 
-    "use the correct status info service" in {
-      //StatusInfoController.statusInfoService shouldBe EtmpStatusInfoService
-    }
-
     "check success response is transported correctly" in {
       when(mockEtmpStatusInfoService.getStatusInfo(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api11SuccessfulCDATAEncodedResponseJson))))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890", "ignore", "ignore").apply(FakeRequest())
