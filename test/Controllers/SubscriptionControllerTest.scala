@@ -70,9 +70,10 @@ class SubscriptionControllerTest extends BaseSpec {
         when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentType(result).get shouldBe "text/plain"
+        status(result) shouldBe OK
       }
 
-      "return Businessdetails for succSubscriptionController.subscribe(\"\").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))\n        status(result) shouldBe OK\n      }\n\n      \"return text/plain\" in {\n        when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))\n        val result = TestSubscriptessful register" in {
+      "return Businessdetails for successful register" in {
         when(mockSubcriptionService.subscribe(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe("").apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentAsJson(result) shouldBe successResponse
