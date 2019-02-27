@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,13 @@ import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.http.HeaderCarrier
 import config.MicroserviceAuditConnector
+import play.api.Play
 
 trait Auditable {
 
-  def appName: String = AppName.appName
+ def appName: String = AppName(Play.current.configuration).appName
 
-  def audit: Audit = new Audit(AppName.appName, MicroserviceAuditConnector)
+  def audit: Audit = new Audit(appName, MicroserviceAuditConnector)
 
   def sendDataEvent(transactionName: String, path: String = "N/A",
                     tags: Map[String, String] = Map.empty[String, String],

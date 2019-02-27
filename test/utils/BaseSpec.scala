@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-package models
+package utils
 
+import com.kenshoo.play.metrics.Metrics
+import org.scalatest.BeforeAndAfter
+import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.play.OneAppPerSuite
+import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.test.UnitSpec
+import play.api.inject.bind
 
-class AwrsAddressSpec extends UnitSpec {
 
-  "AwrsAddressSpec" should {
-    "output valid toString" in {
+trait BaseSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
 
-      val address = Address(Some("NE1 1AA"), "address line 1", "address line 2", Some("address line 3"),Some("address line 4"), Some("GB"))
-      address.toString should include("address line 1, address line 2, address line 3, address line 4, NE1 1AA, ")
-
-    }
-
-  }
+  override def fakeApplication(): Application = GuiceApplicationBuilder()
+    .configure(
+      "metrics.enabled" -> false,
+      "microservice.metrics.graphite.enabled" -> false
+    )
+  .overrides(bind[Metrics].toInstance(MockMetrics))
+  .build()
 
 }

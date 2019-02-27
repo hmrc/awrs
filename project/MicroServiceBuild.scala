@@ -25,16 +25,15 @@ private object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val microserviceBootstrapVersion = "8.2.0"
-  private val domainVersion = "5.2.0"
-  private val hmrcTestVersion = "3.1.0"
-  private val scalaTestVersion = "3.0.4"
+  private val microserviceBootstrapVersion = "10.4.0"
+  private val domainVersion = "5.3.0"
+  private val hmrcTestVersion = "3.5.0-play-25"
   private val scalaTestplusPlayVersion = "2.0.1"
   private val pegdownVersion = "1.6.0"
   private val json4sJacksonVersion = "3.2.10"
   private val jsonSchemaValidatorVersion = "2.2.6"
   private val json4sNativeVersion = "3.2.10"
-  private val mockitoAllVersion = "1.9.5"
+  private val mockitoAllVersion = "1.10.19"
   private val webbitServerVersion = "0.4.14"
 
   val compile = Seq(
@@ -55,7 +54,6 @@ private object AppDependencies {
     def apply() = new TestDependencies {
       override lazy val test = Seq(
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
-        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
@@ -76,7 +74,6 @@ private object AppDependencies {
 
       override lazy val test = Seq(
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
-        "org.scalatest" %% "scalatest" % scalaTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope

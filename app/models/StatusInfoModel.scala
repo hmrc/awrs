@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package models
 
-import play.api.Play
+import play.api.Mode.Mode
+import play.api.{Configuration, Play}
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, _}
 import uk.gov.hmrc.play.config.RunMode
@@ -50,6 +51,10 @@ object StatusInfoSuccessResponseType extends RunMode {
   }
 
   implicit val writer = Json.writes[StatusInfoSuccessResponseType]
+
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 object StatusInfoFailureResponseType {

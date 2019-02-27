@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package services
+package utils
 
-import connectors.EtmpConnector
+import com.codahale.metrics.MetricRegistry
+import com.kenshoo.play.metrics.Metrics
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+object MockMetrics extends Metrics {
+  override def defaultRegistry: MetricRegistry = new MetricRegistry
 
-object EtmpLookupService extends EtmpLookupService {
-  val etmpConnector: EtmpConnector = EtmpConnector
-}
-
-trait EtmpLookupService {
-  val etmpConnector: EtmpConnector
-
-  def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
-    etmpConnector.lookup(awrsRefNo) map {
-      response =>
-        response.status match {
-          case _ => response
-        }
-    }
-
+  override def toJson: String = ""
 }

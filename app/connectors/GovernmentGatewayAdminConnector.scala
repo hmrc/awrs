@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import models.KnownFactsForService
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.config.ServicesConfig
 import config.WSHttp
+import play.api.{Configuration, Play}
+import play.api.Mode.Mode
 import uk.gov.hmrc.play.http._
 import utils.LoggingUtils
 import play.api.http.Status._
@@ -71,4 +73,8 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
   }
 }
 
-object GovernmentGatewayAdminConnector extends GovernmentGatewayAdminConnector
+object GovernmentGatewayAdminConnector extends GovernmentGatewayAdminConnector {
+  override protected def mode: Mode = Play.current.mode
+
+  override protected def runModeConfiguration: Configuration = Play.current.configuration
+}

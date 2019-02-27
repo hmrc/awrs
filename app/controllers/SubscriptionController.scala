@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package controllers
 import config.MicroserviceAuditConnector
 import metrics.AwrsMetrics
 import models._
+import play.api.Play
 import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
 import play.api.libs.json.Json
 import play.api.mvc.Action
@@ -30,8 +31,8 @@ import utils.LoggingUtils
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object OrgSubscriptionController extends SubscriptionController {
-  override val appName: String = AppName.appName
-  override val audit: Audit = new Audit(AppName.appName, MicroserviceAuditConnector)
+  override val appName: String = AppName(Play.current.configuration).appName
+  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
   val subscriptionService: SubscriptionService = SubscriptionService
   val lookupService: EtmpLookupService = EtmpLookupService
   val statusService: EtmpStatusService = EtmpStatusService
@@ -39,8 +40,8 @@ object OrgSubscriptionController extends SubscriptionController {
 }
 
 object SaSubscriptionController extends SubscriptionController with LoggingUtils {
-  override val appName: String = AppName.appName
-  override val audit: Audit = new Audit(AppName.appName, MicroserviceAuditConnector)
+  override val appName: String = AppName(Play.current.configuration).appName
+  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
   val subscriptionService: SubscriptionService = SubscriptionService
   val lookupService: EtmpLookupService = EtmpLookupService
   val statusService: EtmpStatusService = EtmpStatusService

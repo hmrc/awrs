@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ import scala.concurrent.Future
 import utils.AwrsTestJson.testRefNo
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.logging.SessionId
-import utils.AwrsTestJson
+import utils.{AwrsTestJson, BaseSpec}
 
-class EtmpStatusInfoServiceTest extends UnitSpec with OneServerPerSuite with MockitoSugar with AwrsTestJson  {
+class EtmpStatusInfoServiceTest extends BaseSpec {
 
   implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
