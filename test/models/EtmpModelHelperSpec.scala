@@ -970,4 +970,112 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
+  "identificationCorpNumbersWithCRNType" should {
+    "not pad a CRN and produce json" when {
+      "the CRN is 8 digits" in {
+        val identification: CorpNumbersWithCRNType = BusinessDirector(
+          personOrCompany = "yes",
+          directorsAndCompanySecretaries = "foo",
+          doYouHaveCRN = Some("yes"),
+          companyRegNumber = Some("12345678")
+        )
+
+        val json = TestEtmpModelHelper.identificationCorpNumbersWithCRNType(identification)
+        (json \ "companyRegNumber").get.as[String] shouldBe "12345678"
+      }
+
+      "the CRN is a scottish company" in {
+        val identification: CorpNumbersWithCRNType = BusinessDirector(
+          personOrCompany = "yes",
+          directorsAndCompanySecretaries = "foo",
+          doYouHaveCRN = Some("yes"),
+          companyRegNumber = Some("SC999999")
+        )
+
+        val json = TestEtmpModelHelper.identificationCorpNumbersWithCRNType(identification)
+        (json \ "companyRegNumber").get.as[String] shouldBe "SC999999"
+      }
+    }
+
+    "pad a CRN and produce json" when {
+      "the CRN is 7 digits" in {
+        val identification: CorpNumbersWithCRNType = BusinessDirector(
+          personOrCompany = "yes",
+          directorsAndCompanySecretaries = "foo",
+          doYouHaveCRN = Some("yes"),
+          companyRegNumber = Some("1234567")
+        )
+
+        val json = TestEtmpModelHelper.identificationCorpNumbersWithCRNType(identification)
+        (json \ "companyRegNumber").get.as[String] shouldBe "01234567"
+      }
+    }
+  }
+
+  "identificationIncorporationDetails" should {
+    "not pad a CRN and produce json" when {
+      "the CRN is 8 digits" in {
+        val identification: IncorporationDetails = GroupMember(
+          companyNames = CompanyNames(None, None, None),
+          isBusinessIncorporated = Some("Yes"),
+          companyRegDetails = Some(CompanyRegDetails(
+            companyRegistrationNumber = "12345678",
+            dateOfIncorporation = "20/05/1970"
+          )),
+          address = None,
+          doYouHaveVRN = None,
+          vrn = None,
+          doYouHaveUTR = None,
+          utr = None,
+          addAnotherGrpMember = None
+        )
+
+        val json = TestEtmpModelHelper.identificationIncorporationDetails(identification)
+        (json \ "companyRegistrationNumber").get.as[String] shouldBe "12345678"
+      }
+
+      "the CRN is a scottish company" in {
+        val identification: IncorporationDetails = GroupMember(
+          companyNames = CompanyNames(None, None, None),
+          isBusinessIncorporated = Some("Yes"),
+          companyRegDetails = Some(CompanyRegDetails(
+            companyRegistrationNumber = "SC999999",
+            dateOfIncorporation = "20/05/1970"
+          )),
+          address = None,
+          doYouHaveVRN = None,
+          vrn = None,
+          doYouHaveUTR = None,
+          utr = None,
+          addAnotherGrpMember = None
+        )
+
+        val json = TestEtmpModelHelper.identificationIncorporationDetails(identification)
+        (json \ "companyRegistrationNumber").get.as[String] shouldBe "SC999999"
+      }
+    }
+
+    "pad a CRN and produce json" when {
+      "the CRN is 7 digits" in {
+        val identification: IncorporationDetails = GroupMember(
+          companyNames = CompanyNames(None, None, None),
+          isBusinessIncorporated = Some("Yes"),
+          companyRegDetails = Some(CompanyRegDetails(
+            companyRegistrationNumber = "1234567",
+            dateOfIncorporation = "20/05/1970"
+          )),
+          address = None,
+          doYouHaveVRN = None,
+          vrn = None,
+          doYouHaveUTR = None,
+          utr = None,
+          addAnotherGrpMember = None
+        )
+
+        val json = TestEtmpModelHelper.identificationIncorporationDetails(identification)
+        (json \ "companyRegistrationNumber").get.as[String] shouldBe "01234567"
+      }
+    }
+  }
+
 }

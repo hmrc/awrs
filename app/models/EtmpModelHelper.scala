@@ -42,14 +42,31 @@ trait EtmpModelHelper extends EtmpConstants {
   def identificationCorpNumbersWithCRNType(identification: CorpNumbersWithCRNType): JsObject =
     identificationCorpNumbersType(identification) // this adds the vrn and utr
       .++(Json.obj("doYouHaveCRN" -> yestoTrue(identification.doYouHaveCRN.fold("")(x => x))))
-      .++(identification.companyRegNumber.fold(Json.obj())(x => Json.obj("companyRegNumber" -> x)))
+      .++(identification.companyRegNumber.fold(Json.obj()) {companyRegNo =>
+        val regexPattern = """^[0-9]{7}$"""
+        val paddedCompanyRegNumber = if (companyRegNo.matches(regexPattern)) {
+          "0" + companyRegNo
+        } else {
+          companyRegNo
+        }
+
+        Json.obj("companyRegNumber" -> paddedCompanyRegNumber)
+      })
 
   def identificationIncorporationDetails(identification: IncorporationDetails): JsObject =
     identification.isBusinessIncorporated match {
       case Some("Yes") =>
+        val crn = identification.companyRegDetails.reduceLeft((x, y) => x).companyRegistrationNumber.toUpperCase
+        val regexPattern = """^[0-9]{7}$"""
+        val paddedCompanyRegNumber = if (crn.matches(regexPattern)) {
+          "0" + crn
+        } else {
+          crn
+        }
+
         Json.obj(
           "isBusinessIncorporated" -> true,
-          "companyRegistrationNumber" -> identification.companyRegDetails.reduceLeft((x, y) => x).companyRegistrationNumber.toUpperCase,
+          "companyRegistrationNumber" -> paddedCompanyRegNumber,
           "dateOfIncorporation" -> Utility.awrsToEtmpDateFormatter(identification.companyRegDetails.reduceLeft((x, y) => x).dateOfIncorporation)
         )
       case _ => Json.obj("isBusinessIncorporated" -> false)
@@ -355,9 +372,10 @@ trait EtmpModelHelper extends EtmpConstants {
     val premises = st.additionalPremises.reduceLeft((x, y) => x)
 
     def ifOtherThen(hasOther: Boolean, otherFieldKey: => String, otherFieldValue: => Option[String]) =
-      hasOther match {
-        case true => Json.obj(otherFieldKey -> otherFieldValue.fold("")(x => x))
-        case _ => Json.obj()
+      if (hasOther) {
+        Json.obj(otherFieldKey -> otherFieldValue.fold("")(x => x))
+      } else {
+        Json.obj()
       }
 
     val typeOfWholesaler = {
