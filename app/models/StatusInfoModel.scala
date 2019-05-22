@@ -16,14 +16,11 @@
 
 package models
 
-import play.api.Mode.Mode
-import play.api.{Configuration, Play}
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, _}
-import uk.gov.hmrc.play.config.RunMode
 import utils.DecodeText._
-import utils.StripDataTags._
 import utils.ReplaceNewlineCharacters._
+import utils.StripDataTags._
 
 sealed trait StatusInfoResponseType
 
@@ -34,7 +31,7 @@ case class StatusInfoSuccessResponseType(processingDate: String, secureCommText:
 case class StatusInfoFailureResponseType(reason: String) extends StatusInfoResponseType
 
 
-object StatusInfoSuccessResponseType extends RunMode {
+object StatusInfoSuccessResponseType {
 
   implicit val reader = new Reads[StatusInfoSuccessResponseType] {
 
@@ -51,10 +48,6 @@ object StatusInfoSuccessResponseType extends RunMode {
   }
 
   implicit val writer = Json.writes[StatusInfoSuccessResponseType]
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }
 
 object StatusInfoFailureResponseType {

@@ -17,18 +17,14 @@
 package services
 
 import connectors.EtmpConnector
+import javax.inject.Inject
 import play.api.libs.json.JsValue
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-object EtmpDeRegistrationService extends EtmpDeRegistrationService {
-  override val etmpConnector: EtmpConnector = EtmpConnector
-}
-
-trait EtmpDeRegistrationService {
-  val etmpConnector: EtmpConnector
+class EtmpDeRegistrationService @Inject()(etmpConnector: EtmpConnector) {
 
   def deRegistration(awrsRefNo: String, deRegistration: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.deRegister(awrsRefNo, deRegistration) map {

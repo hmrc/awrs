@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package Controllers
+package controllers
 
 import audit.TestAudit
-import controllers.StatusInfoController
 import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.Json
+import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.EtmpStatusInfoService
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
@@ -36,19 +37,15 @@ import scala.concurrent.Future
 class StatusInfoControllerTest extends BaseSpec {
 
   val mockEtmpStatusInfoService: EtmpStatusInfoService = mock[EtmpStatusInfoService]
-  object TestStatusInfoControllerTest extends StatusInfoController {
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
+  val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 
-    override val appName: String = "awrs"
-    val statusInfoService: EtmpStatusInfoService = mockEtmpStatusInfoService
-    override val audit: Audit = new TestAudit
-    override val metrics = AwrsMetrics
+  object TestStatusInfoControllerTest extends StatusInfoController(mockAuditConnector, awrsMetrics, mockEtmpStatusInfoService, cc, "awrs") {
+    override val audit: Audit = new TestAudit(mockAuditConnector)
   }
 
   "For API 11, Status Info Controller " should {
-
-    "use the correct status info service" in {
-      StatusInfoController.statusInfoService shouldBe EtmpStatusInfoService
-    }
 
     "check success response is transported correctly" in {
       when(mockEtmpStatusInfoService.getStatusInfo(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api11SuccessfulCDATAEncodedResponseJson))))

@@ -16,35 +16,26 @@
 
 package controllers
 
-import config.MicroserviceAuditConnector
+import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models.{ApiType, DeRegistration, DeRegistrationType}
-import play.api.Play
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object DeRegistrationController extends DeRegistrationController {
-
-  override val appName: String = AppName(Play.current.configuration).appName
-  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
-  val deRegistrationService: EtmpDeRegistrationService = EtmpDeRegistrationService
-  override val metrics = AwrsMetrics
-
-}
-
-trait DeRegistrationController extends BaseController with LoggingUtils {
-  val deRegistrationService: EtmpDeRegistrationService
-  val metrics: AwrsMetrics
+class DeRegistrationController @Inject()(val auditConnector: AuditConnector,
+                                         metrics: AwrsMetrics,
+                                         deRegistrationService: EtmpDeRegistrationService,
+                                         cc: ControllerComponents,
+                                         @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
   // utr & busType are used to authenticate the request but are ignored by this function
-  def deRegistration(awrsRef: String, utr: String, busType: String) = Action.async {
+  def deRegistration(awrsRef: String, utr: String, busType: String): Action[AnyContent] = Action.async {
     implicit request =>
       info(s"[API10 - $awrsRef ] - hit deRegistration controller ")
 

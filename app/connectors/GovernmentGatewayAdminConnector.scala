@@ -16,24 +16,26 @@
 
 package connectors
 
+import javax.inject.{Inject, Named}
 import models.KnownFactsForService
-import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.config.ServicesConfig
-import config.WSHttp
-import play.api.{Configuration, Play}
-import play.api.Mode.Mode
-import uk.gov.hmrc.play.http._
-import utils.LoggingUtils
 import play.api.http.Status._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpResponse}
+import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import utils.LoggingUtils
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
-trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
+class GovernmentGatewayAdminConnector @Inject()(http: DefaultHttpClient,
+                                                val auditConnector: AuditConnector,
+                                                config: ServicesConfig,
+                                                @Named("appName") val appName: String) extends RawResponseReads with LoggingUtils {
 
-  lazy val serviceURL = baseUrl("government-gateway-admin")
+  lazy val serviceURL: String = config.baseUrl("government-gateway-admin")
 
   val addKnownFactsURI = "known-facts"
 
@@ -41,8 +43,6 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
   val retryWait = 1000 // milliseconds
 
   val url = s"""$serviceURL/government-gateway-admin/service"""
-
-  val http: HttpGet with HttpPost = WSHttp
 
   def addKnownFacts(knownFacts: KnownFactsForService, awrsRegistrationNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = postKnownFact(knownFacts, addKnownFactsURI, awrsRegistrationNumber)
 
@@ -69,12 +69,7 @@ trait GovernmentGatewayAdminConnector extends ServicesConfig with RawResponseRea
           }
       }
     }
+
     trySend(0)
   }
-}
-
-object GovernmentGatewayAdminConnector extends GovernmentGatewayAdminConnector {
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

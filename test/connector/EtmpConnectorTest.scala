@@ -18,17 +18,15 @@ package connector
 
 import java.util.UUID
 
-import config.WSHttp
 import connectors.EtmpConnector
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import play.api.Mode.Mode
 import play.api.libs.json.{JsValue, Json}
-import play.api.{Configuration, Play}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
@@ -36,29 +34,13 @@ import scala.concurrent.Future
 
 class EtmpConnectorTest extends BaseSpec {
 
-  object TestAuditConnector extends AuditConnector {
-    override lazy val auditingConfig = LoadAuditingConfig("auditing")
-  }
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
-  abstract class MockHttp extends WSHttp  {
-//    override val hooks = Seq(AuditingHook)
+  val mockWSHttp: DefaultHttpClient = mock[DefaultHttpClient]
 
-    override val auditConnector = TestAuditConnector
+  val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-    override def appName = Play.configuration.getString("appName").getOrElse("awrs")
-  }
-
-  val mockWSHttp = mock[MockHttp]
-
-  object TestEtmpConnector extends EtmpConnector {
-    override val http = mockWSHttp
-    override val urlHeaderEnvironment: String = config("etmp-hod").getString("environment").getOrElse("")
-    override val urlHeaderAuthorization: String = s"Bearer ${config("etmp-hod").getString("authorization-token").getOrElse("")}"
-
-    override protected def mode: Mode = Play.current.mode
-
-    override protected def runModeConfiguration: Configuration = Play.current.configuration
-  }
+  object TestEtmpConnector extends EtmpConnector(mockWSHttp, mockAuditConnector, config, "awrs")
 
   before {
     reset(mockWSHttp)
@@ -139,7 +121,7 @@ class EtmpConnectorTest extends BaseSpec {
     "for a successful withdrawal, return a success response" in {
       val awrsRefNo = "XAAW0000010001"
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(),Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api8SuccessfulResponseJson))))
+      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api8SuccessfulResponseJson))))
       val result = TestEtmpConnector.withdrawal(awrsRefNo, api8RequestJson)
       await(result).json should be(api8SuccessfulResponseJson)
     }
@@ -147,8 +129,8 @@ class EtmpConnectorTest extends BaseSpec {
     "for a successful API3 submission, return processing date in ETMP response" in {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(),Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(updateSuccessResponse))))
-      val result = TestEtmpConnector.updateGrpRepRegistrationDetails(testRefNo,api3FrontendJson)
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(updateSuccessResponse))))
+      val result = TestEtmpConnector.updateGrpRepRegistrationDetails(testRefNo, api3FrontendJson)
       await(result).json should be(updateSuccessResponse)
     }
   }

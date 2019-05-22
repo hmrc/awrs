@@ -18,7 +18,7 @@ package models
 
 
 import org.joda.time.LocalDate
-import play.api.libs.json.{JsPath, Json}
+import play.api.libs.json.{JsObject, JsPath, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestUtil._
 import utils.{AwrsTestJson, TestUtil}
@@ -255,8 +255,8 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
       val awrsModel = Json.parse(finalDeletedJson).as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
 
-      etmpJson should include("\"businessDetails\":{\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":false")
-      etmpJson should not include "\"businessDetails\":{\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":false,\"vrn\":\"000000000\""
+      etmpJson should include(s""""nonProprietor":{"tradingName":"asddsad","identification":{"utr":"${AwrsTestJson.testUtr}","doYouHaveVRN":false,"doYouHaveUTR":true""")
+      etmpJson should not include "\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":false,\"vrn\":\"000000000\""
 
       TestUtil.validateJson(schemaPath, etmpJson) shouldBe true
     }
@@ -269,8 +269,8 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
       val awrsModel = Json.parse(finalDeletedJson).as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
 
-      etmpJson should include("\"businessDetails\":{\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":true,\"vrn\":\"000000000\",\"doYouHaveUTR\":false")
-      etmpJson should not include "\"businessDetails\":{\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":true,\"vrn\":\"000000000\",\"doYouHaveUTR\":true,\"utr\":\"1111111111\""
+      etmpJson should include("\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"vrn\":\"000000000\",\"doYouHaveVRN\":true,\"doYouHaveUTR\":false")
+      etmpJson should not include "\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":true,\"vrn\":\"000000000\",\"doYouHaveUTR\":true,\"utr\":\"1111111111\""
 
       TestUtil.validateJson(schemaPath, etmpJson) shouldBe true
     }
@@ -677,10 +677,10 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
     "transform correctly to valid SubscriptionType for LLP without Groups" in {
       val awrsModel = api4FrontendLLPJson.as[AWRSFEModel]
-      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
+      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
 
-      etmpJson should include(Json.parse(api5EtmpLLPString).toString())
-      TestUtil.validateJson(schemaPath, etmpJson) shouldBe true
+      (etmpJson.as[JsObject] - "acknowledgmentReference") shouldBe api5EtmpLLPJson
+      TestUtil.validateJson(schemaPath, etmpJson.toString()) shouldBe true
     }
   }
 
@@ -689,19 +689,19 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     "transform correctly to valid SubscriptionType for LP without groups" in {
 
       val awrsModel = api4FrontendLPJson.as[AWRSFEModel]
-      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
+      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
 
-      etmpJson should include(Json.parse(api5EtmpLPString).toString())
-      TestUtil.validateJson(schemaPath, etmpJson) should be(true)
+      (etmpJson.as[JsObject] - "acknowledgmentReference") shouldBe api5EtmpLPJson
+      TestUtil.validateJson(schemaPath, etmpJson.toString()) should be(true)
     }
 
     "transform correctly to valid  SubscriptionType for LLP with groups" in {
       val awrsModel = api4FrontendLLPGRPJson.as[AWRSFEModel]
-      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
+      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
 
       withClue(s"etmpJson:\n\n$etmpJson\n\n") {
-        etmpJson should include(Json.parse(api5EtmpLLPGroupString).toString())
-        TestUtil.validateJson(schemaPath, etmpJson) should be(true)
+        (etmpJson.as[JsObject] - "acknowledgmentReference") shouldBe Json.parse(api5EtmpLLPGroupString)
+        TestUtil.validateJson(schemaPath, etmpJson.toString()) should be(true)
       }
     }
   }
@@ -709,10 +709,10 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
   "A AwrsFrontEndModel with LTD details" should {
     "transform correctly to valid SubscriptionType for LTD without groups" in {
       val awrsModel = api4FrontendLTDJson.as[AWRSFEModel]
-      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
+      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
 
-      etmpJson should include(Json.parse(api5EtmpLTDString).toString())
-      TestUtil.validateJson(schemaPath, etmpJson) should be(true)
+      (etmpJson.as[JsObject] - "acknowledgmentReference") shouldBe api5EtmpLTDJson
+      TestUtil.validateJson(schemaPath, etmpJson.toString()) should be(true)
     }
 
     "transform correctly to valid SubscriptionType for LTD with groups" in {
@@ -731,10 +731,10 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
     "transform correctly to valid  SubscriptionType for Partnership without groups" in {
       val awrsModel = api4FrontendPartnershipJson.as[AWRSFEModel]
-      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
+      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
 
-      etmpJson should include(Json.parse(api5EtmpPartnershipString).toString())
-      TestUtil.validateJson(schemaPath, etmpJson) should be(true)
+      (etmpJson.as[JsObject] - "acknowledgmentReference") shouldBe api5EtmpPartnershipJson
+      TestUtil.validateJson(schemaPath, etmpJson.toString()) should be(true)
     }
   }
 
@@ -742,10 +742,10 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
     "transform correctly to valid SubscriptionType for SOP without groups" in {
       val awrsModel = api4FrontendSOPJson.as[AWRSFEModel]
-      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
+      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
 
-      etmpJson should include(Json.parse(api5EtmpSOPString).toString())
-      TestUtil.validateJson(schemaPath, etmpJson) should be(true)
+      (etmpJson.as[JsObject] - "acknowledgmentReference") shouldBe api5EtmpSOPJson
+      TestUtil.validateJson(schemaPath, etmpJson.toString()) should be(true)
     }
   }
 

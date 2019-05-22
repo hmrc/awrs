@@ -1,199 +1,201 @@
 {
-  "legalEntity": "Partnership",
-  "newAWBusiness": false,
-  "businessDetails": {
-    "nonProprietor": {
-      "tradingName": "asddsad",
-      "identification": {
-        "doYouHaveVRN": true,
-        "vrn": "000000000",
-        "doYouHaveUTR": true,
-        "utr": "$utr"
-      }
-    },
-    "partnership": {
-      "numberOfPartners": "3",
-      "partnerDetails": [
-        {
-          "entityType": "Individual",
-          "partnerAddress": {
-            "postalCode": "AA1 1AA",
-            "addressLine1": "1 Example Street",
-            "addressLine2": "Exampe View",
-            "addressLine3": "Exampe Town",
-            "addressLine4": "Exampeshire",
-            "countryCode": "GB"
-          },
-          "individual": {
-            "name": {
-              "firstName": "example",
-              "lastName": "exampleson"
+  "subscriptionType": {
+    "legalEntity": "Partnership",
+    "newAWBusiness": false,
+    "businessDetails": {
+      "nonProprietor": {
+        "tradingName": "asddsad",
+        "identification": {
+          "doYouHaveVRN": true,
+          "vrn": "000000000",
+          "doYouHaveUTR": true,
+          "utr": "$utr"
+        }
+      },
+      "partnership": {
+        "numberOfPartners": "3",
+        "partnerDetails": [
+          {
+            "entityType": "Individual",
+            "partnerAddress": {
+              "postalCode": "AA1 1AA",
+              "addressLine1": "1 Example Street",
+              "addressLine2": "Exampe View",
+              "addressLine3": "Exampe Town",
+              "addressLine4": "Exampeshire",
+              "countryCode": "GB"
             },
-            "doYouHaveNino": true,
-            "nino": "$nino"
-          }
-        },
-        {
-          "entityType": "Corporate Body",
-          "partnerAddress": {
-            "postalCode": "AA1 1AA",
-            "addressLine1": "1 Example Street",
-            "addressLine2": "Exampe View",
-            "addressLine3": "Exampe Town",
-            "addressLine4": "Exampeshire",
-            "countryCode": "GB"
+            "individual": {
+              "name": {
+                "firstName": "example",
+                "lastName": "exampleson"
+              },
+              "doYouHaveNino": true,
+              "nino": "$nino"
+            }
           },
-          "names": {
-            "companyName": "company name",
-            "tradingName": "trading name"
-          },
-          "identification": {
-            "doYouHaveVRN": true,
-            "vrn": "000000000",
-            "doYouHaveUTR": true,
-            "utr": "$utr"
-          },
-          "incorporationDetails": {
-            "isBusinessIncorporated": true,
-            "companyRegistrationNumber": "55555555",
-            "dateOfIncorporation": "2015-01-01"
-          }
-        },
-        {
-          "entityType": "Sole Trader",
-          "partnerAddress": {
-            "postalCode": "AA1 1AA",
-            "addressLine1": "1 Example Street",
-            "addressLine2": "Exampe View",
-            "addressLine3": "Exampe Town",
-            "addressLine4": "Exampeshire",
-            "countryCode": "GB"
-          },
-          "soleProprietor": {
-            "tradingName": "trading name",
-            "name": {
-              "firstName": "example",
-              "lastName": "exampleson"
+          {
+            "entityType": "Corporate Body",
+            "partnerAddress": {
+              "postalCode": "AA1 1AA",
+              "addressLine1": "1 Example Street",
+              "addressLine2": "Exampe View",
+              "addressLine3": "Exampe Town",
+              "addressLine4": "Exampeshire",
+              "countryCode": "GB"
             },
-            "doYouHaveNino": true,
-            "nino": "$nino",
+            "names": {
+              "companyName": "company name",
+              "tradingName": "trading name"
+            },
             "identification": {
               "doYouHaveVRN": true,
               "vrn": "000000000",
               "doYouHaveUTR": true,
               "utr": "$utr"
+            },
+            "incorporationDetails": {
+              "isBusinessIncorporated": true,
+              "companyRegistrationNumber": "55555555",
+              "dateOfIncorporation": "2015-01-01"
             }
-          }
-        }
-      ]
-    }
-  },
-  "businessAddressForAwrs": {
-    "currentAddress": {
-      "postalCode": "AA1 1AA",
-      "addressLine1": "1 Example Street",
-      "addressLine2": "Exampe View",
-      "addressLine3": "Exampe Town",
-      "addressLine4": "Exampeshire",
-      "countryCode": "GB"
-    },
-    "communicationDetails": {
-      "email": "example@example.com",
-      "telephone": "07000111222"
-    },
-    "operatingDuration": "over 10 years",
-    "differentOperatingAddresslnLast3Years": false
-  },
-  "contactDetails": {
-    "name": {
-      "firstName": "Example",
-      "lastName": "Name"
-    },
-    "useAlternateContactAddress": false,
-    "communicationDetails": {
-      "email": "example@example.com",
-      "telephone": "07000111222"
-    }
-  },
-  "additionalBusinessInfo": {
-    "partnerCorporateBody": {
-      "numberOfCoOfficials": "0"
-    },
-    "all": {
-      "typeOfWholesaler": {
-        "cashAndCarry": true,
-        "offTradeSupplierOnly": false,
-        "onTradeSupplierOnly": false,
-        "all": false,
-        "other": false
-      },
-      "typeOfAlcoholOrders": {
-        "onlineOnly": true,
-        "onlineAndTel": true,
-        "onlineTelAndPhysical": false,
-        "all": false,
-        "other": false
-      },
-      "typeOfCustomers": {
-        "pubs": true,
-        "nightClubs": true,
-        "privateClubs": true,
-        "hotels": true,
-        "hospitalityCatering": true,
-        "restaurants": true,
-        "indepRetailers": true,
-        "nationalRetailers": true,
-        "public": true,
-        "otherWholesalers": true,
-        "all": true,
-        "other": false
-      },
-      "productsSold": {
-        "beer": true,
-        "wine": true,
-        "spirits": true,
-        "cider": true,
-        "perry": true,
-        "all": true,
-        "other": false
-      },
-      "numberOfPremises": "1",
-      "premiseAddress": [
-        {
-          "address": {
-            "postalCode": "AA1 1AA",
-            "addressLine1": "1 Example Street",
-            "addressLine2": "Exampe View",
-            "addressLine3": "Exampe Town",
-            "addressLine4": "Exampeshire",
-            "countryCode": "GB"
-          }
-        }
-      ],
-      "thirdPartyStorageUsed": false,
-      "alcoholGoodsExported": true,
-      "euDispatches": true,
-      "suppliers": {
-        "supplier": [
+          },
           {
-            "name": "Example Name",
-            "isSupplierVatRegistered": true,
-            "vrn": "111111111",
-            "address": {
+            "entityType": "Sole Trader",
+            "partnerAddress": {
               "postalCode": "AA1 1AA",
-              "addressLine1": "10 Example Apartments",
-              "addressLine2": "16 Example Crescent",
+              "addressLine1": "1 Example Street",
+              "addressLine2": "Exampe View",
+              "addressLine3": "Exampe Town",
+              "addressLine4": "Exampeshire",
               "countryCode": "GB"
+            },
+            "soleProprietor": {
+              "tradingName": "trading name",
+              "name": {
+                "firstName": "example",
+                "lastName": "exampleson"
+              },
+              "doYouHaveNino": true,
+              "nino": "$nino",
+              "identification": {
+                "doYouHaveVRN": true,
+                "vrn": "000000000",
+                "doYouHaveUTR": true,
+                "utr": "$utr"
+              }
             }
           }
         ]
+      }
+    },
+    "businessAddressForAwrs": {
+      "currentAddress": {
+        "postalCode": "AA1 1AA",
+        "addressLine1": "1 Example Street",
+        "addressLine2": "Exampe View",
+        "addressLine3": "Exampe Town",
+        "addressLine4": "Exampeshire",
+        "countryCode": "GB"
       },
-      "alcoholGoodsImported": false
+      "communicationDetails": {
+        "email": "example@example.com",
+        "telephone": "07000111222"
+      },
+      "operatingDuration": "over 10 years",
+      "differentOperatingAddresslnLast3Years": false
+    },
+    "contactDetails": {
+      "name": {
+        "firstName": "Example",
+        "lastName": "Name"
+      },
+      "useAlternateContactAddress": false,
+      "communicationDetails": {
+        "email": "example@example.com",
+        "telephone": "07000111222"
+      }
+    },
+    "additionalBusinessInfo": {
+      "partnerCorporateBody": {
+        "numberOfCoOfficials": "0"
+      },
+      "all": {
+        "typeOfWholesaler": {
+          "cashAndCarry": true,
+          "offTradeSupplierOnly": false,
+          "onTradeSupplierOnly": false,
+          "all": false,
+          "other": false
+        },
+        "typeOfAlcoholOrders": {
+          "onlineOnly": true,
+          "onlineAndTel": true,
+          "onlineTelAndPhysical": false,
+          "all": false,
+          "other": false
+        },
+        "typeOfCustomers": {
+          "pubs": true,
+          "nightClubs": true,
+          "privateClubs": true,
+          "hotels": true,
+          "hospitalityCatering": true,
+          "restaurants": true,
+          "indepRetailers": true,
+          "nationalRetailers": true,
+          "public": true,
+          "otherWholesalers": true,
+          "all": true,
+          "other": false
+        },
+        "productsSold": {
+          "beer": true,
+          "wine": true,
+          "spirits": true,
+          "cider": true,
+          "perry": true,
+          "all": true,
+          "other": false
+        },
+        "numberOfPremises": "1",
+        "premiseAddress": [
+          {
+            "address": {
+              "postalCode": "AA1 1AA",
+              "addressLine1": "1 Example Street",
+              "addressLine2": "Exampe View",
+              "addressLine3": "Exampe Town",
+              "addressLine4": "Exampeshire",
+              "countryCode": "GB"
+            }
+          }
+        ],
+        "thirdPartyStorageUsed": false,
+        "alcoholGoodsExported": true,
+        "euDispatches": true,
+        "suppliers": {
+          "supplier": [
+            {
+              "name": "Example Name",
+              "isSupplierVatRegistered": true,
+              "vrn": "111111111",
+              "address": {
+                "postalCode": "AA1 1AA",
+                "addressLine1": "10 Example Apartments",
+                "addressLine2": "16 Example Crescent",
+                "countryCode": "GB"
+              }
+            }
+          ]
+        },
+        "alcoholGoodsImported": false
+      }
+    },
+    "declaration": {
+      "nameOfPerson": "Example Exampleson",
+      "statusOfPerson": "Director",
+      "informationIsAccurateAndComplete": true
     }
-  },
-  "declaration": {
-    "nameOfPerson": "Example Exampleson",
-    "statusOfPerson": "Director",
-    "informationIsAccurateAndComplete": true
   }
 }

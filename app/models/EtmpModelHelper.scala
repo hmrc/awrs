@@ -20,6 +20,7 @@ import models.PlaceOfBusiness.{FiveToTenYearsEtmp, TwoToFiveYearsEtmp, ZeroToTwo
 import org.joda.time.LocalDate
 import play.api.libs.json._
 import utils.{EtmpConstants, Utility}
+import play.api.libs.json.JodaWrites._
 
 object EtmpModelHelper extends EtmpModelHelper
 

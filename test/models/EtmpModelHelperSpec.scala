@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import utils.TestUtil._
 import utils.{AwrsTestJson, TestUtil}
 import utils.AwrsTestJson.testNino
+import play.api.libs.json.JodaWrites._
 
 class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
 
@@ -209,14 +210,14 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
 
     "transform to correct JSON element and give correct group members (actual output)" in {
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMember(awrsModel.subscriptionTypeFrontEnd.groupMembers.get.members.head)
 
-      val updatedJson = updateJson(Json.
-        obj("groupJoiningDate" -> LocalDate.now()), commonGroupMemberString)
+      val updatedJson = Json.parse(updateJson(Json.
+        obj("groupJoiningDate" -> LocalDate.now()), commonGroupMemberString))
 
       val today = LocalDate.now()
-      etmpJson should include("\"groupJoiningDate\":\"" + today)
-      etmpJson should include(updatedJson.toString)
+      etmpJson.toString() should include("\"groupJoiningDate\":\"" + today)
+      etmpJson shouldBe updatedJson
     }
   }
 
@@ -224,12 +225,12 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
     "transform to correct JSON element and give correct group members" in {
 
       val awrsModel = LTDGroupsJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpGroupMembers(awrsModel.subscriptionTypeFrontEnd).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpGroupMembers(awrsModel.subscriptionTypeFrontEnd)
 
       val updatedGroupMembersJsonString = commonGroupMembersString.replace("$grpJoinDate", grpJoinDate.toString)
       val groupMembersJson = Json.parse(updatedGroupMembersJsonString)
 
-      etmpJson should be(groupMembersJson.toString)
+      etmpJson shouldBe groupMembersJson
 
     }
   }
@@ -617,9 +618,9 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
 
-      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd).toString()
+      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd)
 
-      etmpson should be(Json.parse(commonIndPartnershipString).toString())
+      etmpson shouldBe Json.parse(commonIndPartnershipString)
     }
 
     "transform to correct ETMP Business Details JSON element with only one partnershipDetail - Corporate Body" in {
@@ -652,9 +653,9 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
         deletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
-      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd).toString()
+      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd)
 
-      etmpson should be(Json.parse(commonCorpBodyPartnershipString).toString())
+      etmpson shouldBe Json.parse(commonCorpBodyPartnershipString)
     }
 
     "transform to correct ETMP Business Details JSON element with  only one partnershipDetail - Sole Trader" in {
@@ -688,9 +689,9 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
         deletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
-      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd).toString()
+      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd)
 
-      etmpson should be(Json.parse(commonSOPPartnershipString).toString())
+      etmpson shouldBe Json.parse(commonSOPPartnershipString)
     }
 
     "transform to correct ETMP Business Details JSON element with no Incorporation Details and no trading name" in {
@@ -724,22 +725,22 @@ class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
         finalDeletedJson)
 
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
-      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd).toString()
+      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd)
 
-      etmpson should be(Json.parse(commonSOPPartnershipNoRegString).toString())
+      etmpson shouldBe Json.parse(commonSOPPartnershipNoRegString)
     }
 
     "transform to correct ETMP Business Details JSON element with groups date" in {
       val awrsModel = api4FrontendLLPGRPJson.as[AWRSFEModel]
 
-      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd).toString()
+      val etmpson = TestEtmpModelHelper.toEtmpBaseBusinessDetails(awrsModel.subscriptionTypeFrontEnd)
 
-      val llpBusDetGrpUpdatedJson = updateJson(
+      val llpBusDetGrpUpdatedJson = Json.parse(updateJson(
         Json.obj("llpCorporateBody" -> Json.obj()
           .++(Json.obj("dateGrpRepJoined" -> LocalDate.now()))),
-        commonLLPBusDetailsGroupString)
+        commonLLPBusDetailsGroupString))
 
-      etmpson should be(llpBusDetGrpUpdatedJson.toString)
+      etmpson shouldBe llpBusDetGrpUpdatedJson
     }
   }
 
