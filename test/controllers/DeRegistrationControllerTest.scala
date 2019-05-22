@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package Controllers
+package controllers
 
 import audit.TestAudit
 import controllers.DeRegistrationController
@@ -22,10 +22,12 @@ import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.Json
+import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.EtmpDeRegistrationService
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
@@ -35,19 +37,15 @@ import scala.concurrent.Future
 
 class DeRegistrationControllerTest extends BaseSpec {
   val mockEtmpDeRegistrationService: EtmpDeRegistrationService = mock[EtmpDeRegistrationService]
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
+  val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 
-  object TestDeRegistrationControllerTest extends DeRegistrationController {
-    override val appName: String = "awrs"
-    override val deRegistrationService: EtmpDeRegistrationService = mockEtmpDeRegistrationService
-    override val audit: Audit = new TestAudit
-    override val metrics = AwrsMetrics
+  object TestDeRegistrationControllerTest extends DeRegistrationController(mockAuditConnector, awrsMetrics, mockEtmpDeRegistrationService, cc, "awrs") {
+    override val audit: Audit = new TestAudit(mockAuditConnector)
   }
 
   "For API 10, Status Info Controller " should {
-
-    "use the correct status info service" in {
-      DeRegistrationController.deRegistrationService shouldBe EtmpDeRegistrationService
-    }
 
     "check success response is transported correctly" in {
       when(mockEtmpDeRegistrationService.deRegistration(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api10SuccessfulResponseJson))))

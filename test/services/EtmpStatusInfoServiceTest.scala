@@ -35,18 +35,13 @@ import utils.{AwrsTestJson, BaseSpec}
 
 class EtmpStatusInfoServiceTest extends BaseSpec {
 
-  implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-  val mockEtmpConnector = mock[EtmpConnector]
+  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 
-  object TestEtmpStatusInfoService extends EtmpStatusInfoService {
-    override val etmpConnector = mockEtmpConnector
-  }
+  object TestEtmpStatusInfoService extends EtmpStatusInfoService(mockEtmpConnector)
 
   "TestEtmpStatusInfoService " should {
-    "use the correct connector" in {
-      EtmpStatusInfoService.etmpConnector shouldBe connectors.EtmpConnector
-    }
 
     "successfully lookup status info when passed a valid reference number and contact number" in {
       val awrsRefNo = testRefNo

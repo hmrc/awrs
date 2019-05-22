@@ -19,19 +19,17 @@ package connector
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-import config.WSHttp
 import connectors.GovernmentGatewayAdminConnector
 import models.{KnownFact, KnownFactsForService}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import play.api.Mode.Mode
 import play.api.http.Status._
 import play.api.libs.json.JsValue
-import play.api.{Configuration, Play}
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.microservice.config.LoadAuditingConfig
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
@@ -40,30 +38,18 @@ import scala.concurrent.duration.FiniteDuration
 
 class GGAdminConnectorTest extends BaseSpec {
 
-  object TestAuditConnector extends AuditConnector {
-    override lazy val auditingConfig = LoadAuditingConfig("auditing")
-  }
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
-  abstract class MockHttp extends WSHttp {
-//    override val hooks = Seq(AuditingHook)
+  val mockWSHttp: DefaultHttpClient = mock[DefaultHttpClient]
 
-    override val auditConnector = TestAuditConnector
+  val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-    override def appName = Play.configuration.getString("appName").getOrElse("awrs")
-  }
-
-  val mockWSHttp = mock[MockHttp]
-
-  object TestGGAdminConnector extends GovernmentGatewayAdminConnector {
-    override val http = mockWSHttp
+  object TestGGAdminConnector extends GovernmentGatewayAdminConnector(mockWSHttp, mockAuditConnector, config, "awrs") {
     override val retryWait = 1 // override the retryWait as the wait time is irrelevant to the meaning of the test and reducing it speeds up the tests
-    override protected def mode: Mode = Play.current.mode
-
-    override protected def runModeConfiguration: Configuration = Play.current.configuration
   }
 
   // verification value that equals the amount of gg admin calls made, i.e. the first failed call plus 7 failed retries
-  lazy val retries = TestGGAdminConnector.retryLimit + 1
+  lazy val retries: Int = TestGGAdminConnector.retryLimit + 1
 
   before {
     reset(mockWSHttp)
@@ -101,7 +87,7 @@ class GGAdminConnectorTest extends BaseSpec {
       val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
       await(result)(FiniteDuration(10, TimeUnit.SECONDS)).status shouldBe INTERNAL_SERVER_ERROR
       // verify that the correct amount of retry calls are made, i.e. the first failed call plus the specified amount of failed retries
-      verify(mockWSHttp, times(retries)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(),Matchers.any(), Matchers.any(), Matchers.any())
+      verify(mockWSHttp, times(retries)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
     }
 
   }

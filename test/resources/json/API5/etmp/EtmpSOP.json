@@ -1,131 +1,122 @@
 {
-  "legalEntity": "Sole Trader",
-  "newAWBusiness": false,
-  "businessDetails": {
-    "soleProprietor": {
-      "tradingName": "Example Trading",
-      "identification": {
-        "doYouHaveNino": true,
-        "nino": "$nino",
-        "doYouHaveVRN": true,
-        "vrn": "000000000",
-        "doYouHaveUTR": true,
-        "utr": "$utr"
-      }
-    }
-  },
-  "businessAddressForAwrs": {
-    "currentAddress": {
-      "postalCode": "AA1 1AA",
-      "addressLine1": "1 Example Street",
-      "addressLine2": "Exampe View",
-      "addressLine3": "Exampe Town",
-      "addressLine4": "Exampeshire",
-      "countryCode": "GB"
-    },
-    "communicationDetails": {
-      "email": "Example@gmail.com",
-      "telephone": "01234567891"
-    },
-    "operatingDuration": "2 to 5 years",
-    "differentOperatingAddresslnLast3Years": false
-  },
-  "contactDetails": {
-    "name": {
-      "firstName": "Example",
-      "lastName": "Exampleson"
-    },
-    "useAlternateContactAddress": false,
-    "communicationDetails": {
-      "email": "Example@gmail.com",
-      "telephone": "01234567891"
-    }
-  },
-  "additionalBusinessInfo": {
-    "all": {
-      "typeOfWholesaler": {
-        "cashAndCarry": true,
-        "offTradeSupplierOnly": true,
-        "onTradeSupplierOnly": true,
-        "all": false,
-        "other": true,
-        "typeOfWholesalerOther": "Other wholesaler type"
-      },
-      "typeOfAlcoholOrders": {
-        "onlineOnly": true,
-        "onlineAndTel": true,
-        "onlineTelAndPhysical": false,
-        "all": false,
-        "other": true,
-        "typeOfOrderOther": "Other alcohol order"
-      },
-      "typeOfCustomers": {
-        "pubs": false,
-        "nightClubs": true,
-        "privateClubs": true,
-        "hotels": false,
-        "hospitalityCatering": false,
-        "restaurants": false,
-        "indepRetailers": false,
-        "nationalRetailers": false,
-        "public": false,
-        "otherWholesalers": false,
-        "all": false,
-        "other": false
-      },
-      "productsSold": {
-        "beer": false,
-        "wine": false,
-        "spirits": true,
-        "cider": false,
-        "perry": false,
-        "all": false,
-        "other": true,
-        "typeOfProductOther": "Other product type"
-      },
-      "numberOfPremises": "3",
-      "premiseAddress": [{
-        "address": {
-          "postalCode": "AA1 1AA",
-          "addressLine1": "1 Example Street",
-          "addressLine2": "Exampe View",
-          "addressLine3": "Exampe Town",
-          "addressLine4": "Exampeshire",
-          "countryCode": "GB"
+  "subscriptionType": {
+    "legalEntity": "Sole Trader",
+    "newAWBusiness": false,
+    "businessDetails": {
+      "soleProprietor": {
+        "tradingName": "Example Trading",
+        "identification": {
+          "doYouHaveNino": true,
+          "nino": "$nino",
+          "doYouHaveVRN": true,
+          "vrn": "000000000",
+          "doYouHaveUTR": true,
+          "utr": "$utr"
         }
+      }
+    },
+    "businessAddressForAwrs": {
+      "currentAddress": {
+        "postalCode": "AA1 1AA",
+        "addressLine1": "1 Example Street",
+        "addressLine2": "Exampe View",
+        "addressLine3": "Exampe Town",
+        "addressLine4": "Exampeshire",
+        "countryCode": "GB"
       },
-        {
-          "address": {
-            "postalCode": "AA1 1AA",
-            "addressLine1": "82 Example Street",
-            "addressLine2": "Exampledon",
-            "countryCode": "GB"
-          }
+      "communicationDetails": {
+        "email": "Example@gmail.com",
+        "telephone": "01234567891"
+      },
+      "operatingDuration": "2 to 5 years",
+      "differentOperatingAddresslnLast3Years": false
+    },
+    "contactDetails": {
+      "name": {
+        "firstName": "Example",
+        "lastName": "Exampleson"
+      },
+      "useAlternateContactAddress": false,
+      "communicationDetails": {
+        "email": "Example@gmail.com",
+        "telephone": "01234567891"
+      }
+    },
+    "additionalBusinessInfo": {
+      "all": {
+        "typeOfWholesaler": {
+          "cashAndCarry": true,
+          "offTradeSupplierOnly": true,
+          "onTradeSupplierOnly": true,
+          "all": false,
+          "other": true,
+          "typeOfWholesalerOther": "Other wholesaler type"
         },
-        {
+        "typeOfAlcoholOrders": {
+          "onlineOnly": true,
+          "onlineAndTel": true,
+          "onlineTelAndPhysical": false,
+          "all": false,
+          "other": true,
+          "typeOfOrderOther": "Other alcohol order"
+        },
+        "typeOfCustomers": {
+          "pubs": false,
+          "nightClubs": true,
+          "privateClubs": true,
+          "hotels": false,
+          "hospitalityCatering": false,
+          "restaurants": false,
+          "indepRetailers": false,
+          "nationalRetailers": false,
+          "public": false,
+          "otherWholesalers": false,
+          "all": false,
+          "other": false
+        },
+        "productsSold": {
+          "beer": false,
+          "wine": false,
+          "spirits": true,
+          "cider": false,
+          "perry": false,
+          "all": false,
+          "other": true,
+          "typeOfProductOther": "Other product type"
+        },
+        "numberOfPremises": "3",
+        "premiseAddress": [{
           "address": {
             "postalCode": "AA1 1AA",
-            "addressLine1": "82 Example Street",
-            "addressLine2": "Exampledon",
-            "countryCode": "GB"
-          }
-        }],
-      "thirdPartyStorageUsed": true,
-      "alcoholGoodsExported": true,
-      "euDispatches": true,
-      "suppliers": {
-        "supplier": [{
-          "name": "Example Supplier",
-          "isSupplierVatRegistered": false,
-          "address": {
-            "postalCode": "BB1 1BB",
-            "addressLine1": "3 Example Road",
-            "addressLine2": "Exampledon",
+            "addressLine1": "1 Example Street",
+            "addressLine2": "Exampe View",
+            "addressLine3": "Exampe Town",
+            "addressLine4": "Exampeshire",
             "countryCode": "GB"
           }
         },
           {
-            "name": "ExampleName",
+            "address": {
+              "postalCode": "AA1 1AA",
+              "addressLine1": "82 Example Street",
+              "addressLine2": "Exampledon",
+              "countryCode": "GB"
+            }
+          },
+          {
+            "address": {
+              "postalCode": "AA1 1AA",
+              "addressLine1": "82 Example Street",
+              "addressLine2": "Exampledon",
+              "countryCode": "GB"
+            }
+          }],
+        "thirdPartyStorageUsed": true,
+        "alcoholGoodsExported": true,
+        "euDispatches": true,
+        "suppliers": {
+          "supplier": [{
+            "name": "Example Supplier",
             "isSupplierVatRegistered": false,
             "address": {
               "postalCode": "BB1 1BB",
@@ -133,15 +124,26 @@
               "addressLine2": "Exampledon",
               "countryCode": "GB"
             }
-          }]
-      },
-      "alcoholGoodsImported": true
+          },
+            {
+              "name": "ExampleName",
+              "isSupplierVatRegistered": false,
+              "address": {
+                "postalCode": "BB1 1BB",
+                "addressLine1": "3 Example Road",
+                "addressLine2": "Exampledon",
+                "countryCode": "GB"
+              }
+            }]
+        },
+        "alcoholGoodsImported": true
+      }
+    },
+    "declaration": {
+      "nameOfPerson": "Example Exampleson",
+      "statusOfPerson": "Other",
+      "personStatusOther": "Other",
+      "informationIsAccurateAndComplete": true
     }
-  },
-  "declaration": {
-    "nameOfPerson": "Example Exampleson",
-    "statusOfPerson": "Other",
-    "personStatusOther": "Other",
-    "informationIsAccurateAndComplete": true
   }
 }

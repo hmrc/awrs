@@ -58,8 +58,7 @@ trait MicroService {
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
       retrieveManaged := true,
-      evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
-      routesGenerator := StaticRoutesGenerator
+      evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
     )
     .settings(inConfig(TemplateTest)(Defaults.testSettings): _*)
     .settings(inConfig(TemplateItTest)(Defaults.itSettings): _*)

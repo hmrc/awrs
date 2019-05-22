@@ -31,18 +31,13 @@ import scala.concurrent.Future
 
 class EtmpStatusServiceTest extends BaseSpec {
 
-  implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-  val mockEtmpConnector = mock[EtmpConnector]
+  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 
-  object TestEtmpStatusService extends EtmpStatusService {
-    override val etmpConnector = mockEtmpConnector
-  }
+  object TestEtmpStatusService extends EtmpStatusService(mockEtmpConnector)
 
   "EtmpStatusService " should {
-    "use the correct connector" in {
-      EtmpStatusService.etmpConnector shouldBe EtmpConnector
-    }
 
     "successfully lookup application status when passed a valid reference number" in {
       val awrsRefNo = testRefNo

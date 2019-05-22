@@ -16,20 +16,23 @@
 
 package connectors
 
-import config.WSHttp
-import play.api.{Configuration, Play}
-import play.api.Mode.Mode
+import javax.inject.{Inject, Named}
 import play.api.libs.json.{JsValue, Writes}
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.http.logging.Authorization
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.LoggingUtils
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet, HttpPost, HttpPut, HttpReads, HttpResponse}
-import uk.gov.hmrc.http.logging.Authorization
 
-trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUtils {
+class EtmpConnector @Inject()(http: DefaultHttpClient,
+                              val auditConnector: AuditConnector,
+                              config: ServicesConfig,
+                              @Named("appName") val appName: String) extends RawResponseReads with LoggingUtils {
 
-  lazy val serviceURL = baseUrl("etmp-hod")
+  lazy val serviceURL: String = config.baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
   val subscriptionURI = "/subscription/"
   val UpdateGrpRepRegistrationURI = "/registration/safeid/"
@@ -39,18 +42,16 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   val contactNumberURI = "/contact-number/"
   val withdrawalURI = "/withdrawal"
   val deRegistrationURI = "/deregistration"
-  val urlHeaderEnvironment: String
-  val urlHeaderAuthorization: String
+  val urlHeaderEnvironment: String = config.getConfString("etmp-hod.environment", "")
+  val urlHeaderAuthorization: String = s"Bearer ${config.getConfString("etmp-hod.authorization-token", "")}"
 
-  val http: WSHttp with HttpGet with HttpPost with HttpPut = WSHttp
-
-  @inline def cPOST[I, O](url: String, body: I, headers: Seq[(String, String)] = Seq.empty)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier) =
+  @inline def cPOST[I, O](url: String, body: I, headers: Seq[(String, String)] = Seq.empty)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
     http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
 
-  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier) =
+  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
     http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
 
-  @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier) =
+  @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
     http.PUT[I, O](url, body)(wts, rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
@@ -91,14 +92,4 @@ trait EtmpConnector extends ServicesConfig with RawResponseReads with LoggingUti
   def withdrawal(awrsRefNo: String, withdrawalData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$awrsRefNo$withdrawalURI""", withdrawalData)
   }
-
-}
-
-object EtmpConnector extends EtmpConnector {
-  override val urlHeaderEnvironment: String = config("etmp-hod").getString("environment").getOrElse("")
-  override val urlHeaderAuthorization: String = s"Bearer ${config("etmp-hod").getString("authorization-token").getOrElse("")}"
-
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

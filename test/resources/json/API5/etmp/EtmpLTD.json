@@ -1,165 +1,173 @@
 {
-  "legalEntity": "Corporate Body",
-  "newAWBusiness": false,
-  "llpCorporateBody": {
-    "creatingAGroup": false,
-    "groupRepConfirmation": false
-  },
-  "businessDetails": {
-    "nonProprietor": {
-      "tradingName": "Trading name",
-      "identification": {
-        "doYouHaveVRN": true,
-        "vrn": "000000000",
-        "doYouHaveUTR": true,
-        "utr": "$utr"
-      }
-    },
+  "subscriptionType": {
+    "legalEntity": "Corporate Body",
+    "newAWBusiness": false,
     "llpCorporateBody": {
-      "incorporationDetails": {
-        "isBusinessIncorporated": true,
-        "companyRegistrationNumber": "55555555",
-        "dateOfIncorporation": "2015-01-01"
-      }
-    }
-  },
-  "businessAddressForAwrs": {
-    "currentAddress": {
-      "postalCode": "AA1 1AA",
-      "addressLine1": "1 Example Street",
-      "addressLine2": "Exampe View",
-      "addressLine3": "Exampe Town",
-      "addressLine4": "Exampeshire",
-      "countryCode": "GB"
+      "creatingAGroup": false,
+      "groupRepConfirmation": false
     },
-    "communicationDetails": {
-      "email": "Email@email.com",
-      "telephone": "07000111222"
-    },
-    "operatingDuration": "over 10 years",
-    "differentOperatingAddresslnLast3Years": false
-  },
-  "contactDetails": {
-    "name": {
-      "firstName": "first name",
-      "lastName": "last name"
-    },
-    "useAlternateContactAddress": false,
-    "communicationDetails": {
-      "email": "Email@email.com",
-      "telephone": "07000111222"
-    }
-  },
-  "additionalBusinessInfo": {
-    "partnerCorporateBody": {
-      "numberOfCoOfficials": "2",
-      "coOfficialDetails": {
-        "coOfficial": [{
-          "individual": {
-            "status": "Director",
-            "name": {
-              "firstName": "sdfsd",
-              "lastName": "sdfsdfsd"
-            },
-            "identification": {
-              "nino": "$nino"
-            }
-          }
-        },
-          {
-            "individual": {
-              "status": "Director and Company Secretary",
-              "name": {
-                "firstName": "Example",
-                "lastName": "Exampleson"
-              },
-              "identification": {
-                "nino": "$nino"
-              }
-            }
-          }]
-      }
-    },
-    "all": {
-      "typeOfWholesaler": {
-        "cashAndCarry": true,
-        "offTradeSupplierOnly": true,
-        "onTradeSupplierOnly": true,
-        "all": true,
-        "other": false
-      },
-      "typeOfAlcoholOrders": {
-        "onlineOnly": true,
-        "onlineAndTel": true,
-        "onlineTelAndPhysical": true,
-        "all": true,
-        "other": false
-      },
-      "typeOfCustomers": {
-        "pubs": true,
-        "nightClubs": true,
-        "privateClubs": true,
-        "hotels": true,
-        "hospitalityCatering": true,
-        "restaurants": true,
-        "indepRetailers": true,
-        "nationalRetailers": true,
-        "public": false,
-        "otherWholesalers": false,
-        "all": false,
-        "other": false
-      },
-      "productsSold": {
-        "beer": true,
-        "wine": true,
-        "spirits": true,
-        "cider": false,
-        "perry": true,
-        "all": false,
-        "other": true,
-        "typeOfProductOther": "rwerwrwerew"
-      },
-      "numberOfPremises": "2",
-      "premiseAddress": [{
-        "address": {
-          "postalCode": "AA1 1AA",
-          "addressLine1": "1 Example Street",
-          "addressLine2": "Exampe View",
-          "addressLine3": "Exampe Town",
-          "addressLine4": "Exampeshire",
-          "countryCode": "GB"
+    "businessDetails": {
+      "nonProprietor": {
+        "tradingName": "Trading name",
+        "identification": {
+          "doYouHaveVRN": true,
+          "vrn": "000000000",
+          "doYouHaveUTR": true,
+          "utr": "$utr"
         }
       },
-        {
-          "address": {
-            "postalCode": "BB1 1BB",
-            "addressLine1": "150 Example Avenue",
-            "addressLine2": "Exampletown",
-            "countryCode": "GB"
-          }
-        }],
-      "thirdPartyStorageUsed": false,
-      "alcoholGoodsExported": true,
-      "euDispatches": true,
-      "suppliers": {
-        "supplier": [{
-          "name": "dfgdfgfd",
-          "isSupplierVatRegistered": false,
-          "address": {
-            "postalCode": "BB1 1BB",
-            "addressLine1": "150 Example Avenue",
-            "addressLine2": "Example Avenue",
-            "countryCode": "GB"
-          }
-        }]
+      "llpCorporateBody": {
+        "incorporationDetails": {
+          "isBusinessIncorporated": true,
+          "companyRegistrationNumber": "55555555",
+          "dateOfIncorporation": "2015-01-01"
+        }
+      }
+    },
+    "businessAddressForAwrs": {
+      "currentAddress": {
+        "postalCode": "AA1 1AA",
+        "addressLine1": "1 Example Street",
+        "addressLine2": "Exampe View",
+        "addressLine3": "Exampe Town",
+        "addressLine4": "Exampeshire",
+        "countryCode": "GB"
       },
-      "alcoholGoodsImported": true
+      "communicationDetails": {
+        "email": "Email@email.com",
+        "telephone": "07000111222"
+      },
+      "operatingDuration": "over 10 years",
+      "differentOperatingAddresslnLast3Years": false
+    },
+    "contactDetails": {
+      "name": {
+        "firstName": "first name",
+        "lastName": "last name"
+      },
+      "useAlternateContactAddress": false,
+      "communicationDetails": {
+        "email": "Email@email.com",
+        "telephone": "07000111222"
+      }
+    },
+    "additionalBusinessInfo": {
+      "partnerCorporateBody": {
+        "numberOfCoOfficials": "2",
+        "coOfficialDetails": {
+          "coOfficial": [
+            {
+              "individual": {
+                "status": "Director",
+                "name": {
+                  "firstName": "sdfsd",
+                  "lastName": "sdfsdfsd"
+                },
+                "identification": {
+                  "nino": "$nino"
+                }
+              }
+            },
+            {
+              "individual": {
+                "status": "Director and Company Secretary",
+                "name": {
+                  "firstName": "Example",
+                  "lastName": "Exampleson"
+                },
+                "identification": {
+                  "nino": "$nino"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "all": {
+        "typeOfWholesaler": {
+          "cashAndCarry": true,
+          "offTradeSupplierOnly": true,
+          "onTradeSupplierOnly": true,
+          "all": true,
+          "other": false
+        },
+        "typeOfAlcoholOrders": {
+          "onlineOnly": true,
+          "onlineAndTel": true,
+          "onlineTelAndPhysical": true,
+          "all": true,
+          "other": false
+        },
+        "typeOfCustomers": {
+          "pubs": true,
+          "nightClubs": true,
+          "privateClubs": true,
+          "hotels": true,
+          "hospitalityCatering": true,
+          "restaurants": true,
+          "indepRetailers": true,
+          "nationalRetailers": true,
+          "public": false,
+          "otherWholesalers": false,
+          "all": false,
+          "other": false
+        },
+        "productsSold": {
+          "beer": true,
+          "wine": true,
+          "spirits": true,
+          "cider": false,
+          "perry": true,
+          "all": false,
+          "other": true,
+          "typeOfProductOther": "rwerwrwerew"
+        },
+        "numberOfPremises": "2",
+        "premiseAddress": [
+          {
+            "address": {
+              "postalCode": "AA1 1AA",
+              "addressLine1": "1 Example Street",
+              "addressLine2": "Exampe View",
+              "addressLine3": "Exampe Town",
+              "addressLine4": "Exampeshire",
+              "countryCode": "GB"
+            }
+          },
+          {
+            "address": {
+              "postalCode": "BB1 1BB",
+              "addressLine1": "150 Example Avenue",
+              "addressLine2": "Exampletown",
+              "countryCode": "GB"
+            }
+          }
+        ],
+        "thirdPartyStorageUsed": false,
+        "alcoholGoodsExported": true,
+        "euDispatches": true,
+        "suppliers": {
+          "supplier": [
+            {
+              "name": "dfgdfgfd",
+              "isSupplierVatRegistered": false,
+              "address": {
+                "postalCode": "BB1 1BB",
+                "addressLine1": "150 Example Avenue",
+                "addressLine2": "Example Avenue",
+                "countryCode": "GB"
+              }
+            }
+          ]
+        },
+        "alcoholGoodsImported": true
+      }
+    },
+    "declaration": {
+      "nameOfPerson": "AWRS application",
+      "statusOfPerson": "Other",
+      "personStatusOther": "AWRS application1",
+      "informationIsAccurateAndComplete": true
     }
-  },
-  "declaration": {
-    "nameOfPerson": "AWRS application",
-    "statusOfPerson": "Other",
-    "personStatusOther": "AWRS application1",
-    "informationIsAccurateAndComplete": true
   }
 }

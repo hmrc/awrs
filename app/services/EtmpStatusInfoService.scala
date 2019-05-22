@@ -17,17 +17,13 @@
 package services
 
 import connectors.EtmpConnector
+import javax.inject.Inject
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-object EtmpStatusInfoService extends EtmpStatusInfoService {
-  override val etmpConnector: EtmpConnector = EtmpConnector
-}
-
-trait EtmpStatusInfoService {
-  val etmpConnector: EtmpConnector
+class EtmpStatusInfoService @Inject()(etmpConnector: EtmpConnector) {
 
   def getStatusInfo(awrsRefNo: String, contactNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.getStatusInfo(awrsRefNo, contactNumber) map {
