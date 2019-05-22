@@ -17,38 +17,29 @@
 package services
 
 import connectors.{EnrolmentStoreConnector, EtmpConnector, GovernmentGatewayAdminConnector}
+import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models.{EnrolmentVerifiers, KnownFactsForService, _}
-import play.api.Mode.Mode
-import play.api.{Configuration, Logger, Play}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.config.RunMode
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-object SubscriptionService extends SubscriptionService {
-  val etmpConnector: EtmpConnector = EtmpConnector
-  val ggAdminConnector: GovernmentGatewayAdminConnector = GovernmentGatewayAdminConnector
-  val enrolmentStoreConnector: EnrolmentStoreConnector = EnrolmentStoreConnector
-  override val metrics = AwrsMetrics
+class SubscriptionService @Inject()(auditConnector: AuditConnector,
+                                    metrics: AwrsMetrics,
+                                    val enrolmentStoreConnector: EnrolmentStoreConnector,
+                                    val ggAdminConnector: GovernmentGatewayAdminConnector,
+                                    val etmpConnector: EtmpConnector,
+                                    config: ServicesConfig) {
 
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
-}
-
-trait SubscriptionService extends RunMode {
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
-  val etmpConnector: EtmpConnector
-  val ggAdminConnector: GovernmentGatewayAdminConnector
-  val enrolmentStoreConnector: EnrolmentStoreConnector
-  val notFound = Json.parse( """{"Reason": "Resource not found"}""")
-  val metrics: AwrsMetrics
-  val isEmacFeatureToggle = runModeConfiguration.getBoolean("emacsFeatureToggle").getOrElse(true)
+  val notFound: JsValue = Json.parse( """{"Reason": "Resource not found"}""")
+  val isEmacFeatureToggle: Boolean = config.getConfBool("emacsFeatureToggle", defBool = true)
 
   def subscribe(data: JsValue,
                 safeId: String,
@@ -132,5 +123,4 @@ trait SubscriptionService extends RunMode {
     val request = updateData.copy(acknowledgementReference = Some(SessionUtils.getUniqueAckNo))
     etmpConnector.updateGrpRepRegistrationDetails(safeId, Json.toJson(request))
   }
-
 }

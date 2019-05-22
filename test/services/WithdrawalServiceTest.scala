@@ -30,20 +30,13 @@ import utils.BaseSpec
 import scala.concurrent.Future
 
 class WithdrawalServiceTest extends BaseSpec {
-  val mockEtmpConnector = mock[EtmpConnector]
+  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 
-  object TestWithdrawalService extends WithdrawalService {
-    override val etmpConnector = mockEtmpConnector
-    override val metrics = AwrsMetrics
-  }
+  object TestWithdrawalService extends WithdrawalService(app.injector.instanceOf[AwrsMetrics], mockEtmpConnector)
 
   "Withdrawal Service" should {
     val awrsRefNo = "XAAW0000010001"
-    implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-
-    "use the correct Connectors" in {
-      SubscriptionService.etmpConnector shouldBe EtmpConnector
-    }
+    implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
     "perform a withdrawal when passed valid json" in {
       when(mockEtmpConnector.withdrawal(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8SuccessfulResponseJson))))

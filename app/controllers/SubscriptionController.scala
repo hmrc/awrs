@@ -16,39 +16,38 @@
 
 package controllers
 
-import config.MicroserviceAuditConnector
+import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models._
-import play.api.Play
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
-import play.api.libs.json.Json
-import play.api.mvc.Action
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object OrgSubscriptionController extends SubscriptionController {
-  override val appName: String = AppName(Play.current.configuration).appName
-  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
-  val subscriptionService: SubscriptionService = SubscriptionService
-  val lookupService: EtmpLookupService = EtmpLookupService
-  val statusService: EtmpStatusService = EtmpStatusService
-  override val metrics = AwrsMetrics
+class OrgSubscriptionController @Inject()(val auditConnector: AuditConnector,
+                                          override val metrics: AwrsMetrics,
+                                          val subscriptionService: SubscriptionService,
+                                          val lookupService: EtmpLookupService,
+                                          val statusService: EtmpStatusService,
+                                          cc: ControllerComponents,
+                                          @Named("appName") val appName: String) extends SubscriptionController(cc) {
 }
 
-object SaSubscriptionController extends SubscriptionController with LoggingUtils {
-  override val appName: String = AppName(Play.current.configuration).appName
-  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
-  val subscriptionService: SubscriptionService = SubscriptionService
-  val lookupService: EtmpLookupService = EtmpLookupService
-  val statusService: EtmpStatusService = EtmpStatusService
-  override val metrics = AwrsMetrics
+class SaSubscriptionController @Inject()(val auditConnector: AuditConnector,
+                                         override val metrics: AwrsMetrics,
+                                         val subscriptionService: SubscriptionService,
+                                         val lookupService: EtmpLookupService,
+                                         val statusService: EtmpStatusService,
+                                         cc: ControllerComponents,
+                                         @Named("appName") val appName: String) extends SubscriptionController(cc) {
+
 }
 
-trait SubscriptionController extends BaseController with LoggingUtils {
+abstract class SubscriptionController(cc: ControllerComponents) extends BackendController(cc) with LoggingUtils {
   val subscriptionService: SubscriptionService
   val lookupService: EtmpLookupService
   val statusService: EtmpStatusService
@@ -56,7 +55,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 
-  def subscribe(ref: String) = Action.async {
+  def subscribe(ref: String): Action[AnyContent] = Action.async {
     implicit request =>
 
       val feJson = request.body.asJson.get
@@ -116,7 +115,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
   }
 
 
-  def updateSubscription(ref: String, awrsRefNo: String) = Action.async {
+  def updateSubscription(ref: String, awrsRefNo: String): Action[AnyContent] = Action.async {
     implicit request =>
 
       val feJson = request.body.asJson.get
@@ -169,7 +168,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
       }
   }
 
-  def lookupApplication(identifier: String, awrsRef: String) = Action.async {
+  def lookupApplication(identifier: String, awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
       val timer = metrics.startTimer(ApiType.API5LookupSubscription)
       lookupService.lookupApplication(awrsRef) map {
@@ -207,7 +206,7 @@ trait SubscriptionController extends BaseController with LoggingUtils {
       }
   }
 
-  def checkStatus(identifier: String, awrsRef: String) = Action.async {
+  def checkStatus(identifier: String, awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
       val timer = metrics.startTimer(ApiType.API9UpdateSubscription)
       statusService.checkStatus(awrsRef) map {
@@ -243,18 +242,18 @@ trait SubscriptionController extends BaseController with LoggingUtils {
       }
   }
 
-  def updateGrpRegistrationDetails(orgRef : String, awrsRefNo: String, safeId: String) = Action.async(parse.json) {
+  def updateGrpRegistrationDetails(orgRef: String, awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>
-     val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
+      val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
       subscriptionService.updateGrpRepRegistrationDetails(awrsRefNo, safeId, updatedData) map {
         responseReceived =>
-        responseReceived.status match {
-          case OK => Ok(responseReceived.body)
-          case NOT_FOUND => NotFound(responseReceived.body)
-          case BAD_REQUEST => BadRequest(responseReceived.body)
-          case SERVICE_UNAVAILABLE => ServiceUnavailable(responseReceived.body)
-          case _ => InternalServerError(responseReceived.body)
-        }
+          responseReceived.status match {
+            case OK => Ok(responseReceived.body)
+            case NOT_FOUND => NotFound(responseReceived.body)
+            case BAD_REQUEST => BadRequest(responseReceived.body)
+            case SERVICE_UNAVAILABLE => ServiceUnavailable(responseReceived.body)
+            case _ => InternalServerError(responseReceived.body)
+          }
       }
   }
 }

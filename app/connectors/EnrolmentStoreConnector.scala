@@ -16,25 +16,28 @@
 
 package connectors
 
-import config.WSHttp
+import javax.inject.{Inject, Named}
 import models.EnrolmentVerifiers
-import play.api.{Configuration, Play}
+import play.api.Configuration
 import play.api.Mode.Mode
 import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait EnrolmentStoreConnector extends ServicesConfig with LoggingUtils {
+class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
+                                        http: DefaultHttpClient,
+                                        config: ServicesConfig,
+                                        @Named("appName") val appName: String) extends LoggingUtils {
   val retryLimit = 7
   val retryWait = 1000 // milliseconds
 
-  lazy val enrolmentStore = baseUrl("enrolment-store-proxy")
-
-  val http: HttpGet with HttpPut = WSHttp
+  lazy val enrolmentStore: String = config.baseUrl("enrolment-store-proxy")
 
   def upsertEnrolment(enrolmentKey: String,
                       verifiers: EnrolmentVerifiers
@@ -59,12 +62,7 @@ trait EnrolmentStoreConnector extends ServicesConfig with LoggingUtils {
           }
       }
     }
+
     trySend(0)
   }
-}
-
-object EnrolmentStoreConnector extends EnrolmentStoreConnector {
-  override protected def mode: Mode = Play.current.mode
-
-  override protected def runModeConfiguration: Configuration = Play.current.configuration
 }

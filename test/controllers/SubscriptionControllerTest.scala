@@ -22,10 +22,12 @@ import models.{DeRegistered, FormBundleStatus, Pending, SubscriptionStatusType}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
 import play.api.test.{FakeHeaders, FakeRequest}
 import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
@@ -36,29 +38,31 @@ class SubscriptionControllerTest extends BaseSpec {
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
   val mockEtmpStatusService: EtmpStatusService = mock[EtmpStatusService]
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
+  val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
+
   val utr = "testUtr"
-  val lookupSuccess = Json.parse( """{"reason": "All ok"}""")
-  val lookupFailure = Json.parse( """{"reason": "Resource not found"}""")
-  val statusFailure = Json.parse( """{"reason": "Resource not found"}""")
+  val lookupSuccess: JsValue = Json.parse( """{"reason": "All ok"}""")
+  val lookupFailure: JsValue = Json.parse( """{"reason": "Resource not found"}""")
+  val statusFailure: JsValue = Json.parse( """{"reason": "Resource not found"}""")
 
-  val badRequestJson = Json.parse("""{"Reason" : "Bad Request"}""")
-  val serviceUnavailable = Json.parse("""{"Reason" : "Service unavailable"}""")
-  val serverError = Json.parse("""{"Reason" : "Internal server error"}""")
+  val badRequestJson: JsValue = Json.parse("""{"Reason" : "Bad Request"}""")
+  val serviceUnavailable: JsValue = Json.parse("""{"Reason" : "Service unavailable"}""")
+  val serverError: JsValue = Json.parse("""{"Reason" : "Internal server error"}""")
 
-  object TestSubscriptionController extends SubscriptionController {
+  object TestSubscriptionController extends SubscriptionController(cc) {
     override val appName: String = "awrs"
     val subscriptionService: SubscriptionService = mockSubcriptionService
     val lookupService: EtmpLookupService = mockEtmpLookupService
     val statusService: EtmpStatusService = mockEtmpStatusService
-    override val audit: Audit = new TestAudit
-    override val metrics = AwrsMetrics
+    override val audit: Audit = new TestAudit(mockAuditConnector)
+    override val metrics: AwrsMetrics = awrsMetrics
+
+    override val auditConnector: AuditConnector = mockAuditConnector
   }
 
   "SubscriptionController" must {
-    "use the correct Subscription Service" in {
-      OrgSubscriptionController.subscriptionService shouldBe SubscriptionService
-      SaSubscriptionController.subscriptionService shouldBe SubscriptionService
-    }
 
     "subscribe" must {
       val successResponse = Json.parse( s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "$testRefNo"}""")
@@ -109,10 +113,6 @@ class SubscriptionControllerTest extends BaseSpec {
     }
 
     "Subscription Controller " should {
-
-      "use the correct Lookup service" in {
-        SaSubscriptionController.lookupService shouldBe EtmpLookupService
-      }
 
       "lookup submitted application from HODS when passed a valid awrs reference" in {
         when(mockEtmpLookupService.lookupApplication(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api4EtmpLTDJson))))
@@ -185,8 +185,8 @@ class SubscriptionControllerTest extends BaseSpec {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
       val fakeRequest = FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = api3FrontendJson)
       "respond with OK" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
-        val result = TestSubscriptionController.updateGrpRegistrationDetails("", "","").apply(fakeRequest)
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
+        val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
         status(result) shouldBe OK
         contentAsJson(result) shouldBe updateSuccessResponse
       }
@@ -198,29 +198,25 @@ class SubscriptionControllerTest extends BaseSpec {
       }
 
       "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(serviceUnavailable))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(serviceUnavailable))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
         status(result) shouldBe NOT_FOUND
       }
 
       "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
         status(result) shouldBe SERVICE_UNAVAILABLE
       }
 
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "", "").apply(fakeRequest)
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
     }
 
     "For API 9, Subscription Controller " should {
-
-      "use the correct status service" in {
-        SaSubscriptionController.statusService shouldBe EtmpStatusService
-      }
 
       "check submitted application status from HODS when passed a valid awrs reference" in {
 
@@ -234,6 +230,7 @@ class SubscriptionControllerTest extends BaseSpec {
           subscriptionStatusType.isSuccess shouldBe true
           subscriptionStatusType.get.formBundleStatus shouldBe expected
         }
+
         checkStatus(api9SuccessfulResponseJson, Pending)
         checkStatus(api9SuccessfulResponseUsingCodeJson, Pending)
         checkStatus(api9SuccessfulResponseWithMismatchCasesJson, Pending)

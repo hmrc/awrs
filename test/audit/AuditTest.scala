@@ -18,13 +18,12 @@ package audit
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.audit.model.{AuditAsMagnet, Audit, EventTypes}
-import config.MicroserviceAuditConnector
-import uk.gov.hmrc.play.audit.model.Audit._
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.Audit._
+import uk.gov.hmrc.play.audit.model.{Audit, AuditAsMagnet, DataEvent}
 
-class TestAudit() extends Audit("test", MicroserviceAuditConnector) {
+class TestAudit(auditConnector: AuditConnector) extends Audit("test", auditConnector) {
   var capturedTxName: String = ""
   var capturedInputs: Map[String, String] = Map.empty
   private val dataEvents = new ConcurrentLinkedQueue[DataEvent]
@@ -37,10 +36,10 @@ class TestAudit() extends Audit("test", MicroserviceAuditConnector) {
 
   def capturedDataEvents: Seq[DataEvent] = dataEvents.toArray(new Array[DataEvent](0)).toSeq
 
-  def captureDataEvent(event: DataEvent) = {
+  def captureDataEvent(event: DataEvent): Unit = {
     this.dataEvents.add(event)
     ()
   }
 
-  override def sendDataEvent: (DataEvent) => Unit = captureDataEvent
+  override def sendDataEvent: DataEvent => Unit = captureDataEvent
 }

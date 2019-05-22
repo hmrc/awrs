@@ -16,40 +16,33 @@
 
 package controllers
 
-import config.MicroserviceAuditConnector
+import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models.{ApiType, WithdrawalRequest}
-import play.api.Play
 import play.api.libs.json._
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-object WithdrawalController extends WithdrawalController {
-  override val appName: String = AppName(Play.current.configuration).appName
-  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
-  val withdrawalService: WithdrawalService = WithdrawalService
-  override val metrics = AwrsMetrics
-}
-
-trait WithdrawalController extends BaseController with LoggingUtils {
-  val withdrawalService: WithdrawalService
-  val metrics: AwrsMetrics
+class WithdrawalController @Inject()(val auditConnector: AuditConnector,
+                                     metrics: AwrsMetrics,
+                                     val withdrawalService: WithdrawalService,
+                                     cc: ControllerComponents,
+                                     @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
   // utr & busType are used to authenticate the request but are ignored by this function
-  def withdrawal(awrsRefNo : String, utr: String, busType: String) = Action.async {
+  def withdrawal(awrsRefNo: String, utr: String, busType: String): Action[AnyContent] = Action.async {
     implicit request =>
       info(s"[$auditAPI8TxName - $awrsRefNo ] - hit withdrawal controller ")
       val apiType: ApiType.Value = ApiType.API8Withdrawal
 
       val auditWithdrawalTxName: String = "AWRS ETMP Withdrawal"
-      val auditMap: Map[String,String] = Map("AWRS Reference No" -> awrsRefNo)
+      val auditMap: Map[String, String] = Map("AWRS Reference No" -> awrsRefNo)
 
       val timer = metrics.startTimer(apiType)
 

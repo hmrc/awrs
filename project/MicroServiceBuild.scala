@@ -27,22 +27,23 @@ private object AppDependencies {
 
   private val microserviceBootstrapVersion = "10.4.0"
   private val domainVersion = "5.3.0"
-  private val hmrcTestVersion = "3.5.0-play-25"
-  private val scalaTestplusPlayVersion = "2.0.1"
+  private val hmrcTestVersion = "3.8.0-play-26"
+  private val scalaTestplusPlayVersion = "3.1.2"
   private val pegdownVersion = "1.6.0"
-  private val json4sJacksonVersion = "3.2.10"
+  private val json4sJacksonVersion = "3.6.5"
   private val jsonSchemaValidatorVersion = "2.2.6"
-  private val json4sNativeVersion = "3.2.10"
+  private val json4sNativeVersion = "3.6.5"
   private val mockitoAllVersion = "1.10.19"
-  private val webbitServerVersion = "0.4.14"
+  private val webbitServerVersion = "0.4.15"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "microservice-bootstrap" % microserviceBootstrapVersion,
+    "uk.gov.hmrc" %% "bootstrap-play-26" % "0.39.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
-    "org.json4s" %% "json4s-native" %json4sNativeVersion
+    "org.json4s" %% "json4s-native" %json4sNativeVersion,
+    "com.typesafe.play" %% "play-json-joda" % "2.6.13"
   )
 
   trait TestDependencies {
@@ -57,7 +58,7 @@ private object AppDependencies {
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
-        "org.jsoup" % "jsoup" % "1.7.3" % scope,
+        "org.jsoup" % "jsoup" % "1.11.3" % scope,
         "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
         "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
         "org.json4s" %% "json4s-native" % json4sNativeVersion,

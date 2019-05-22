@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package Controllers
+package controllers
 
 import audit.TestAudit
-import controllers.WithdrawalController
 import metrics.AwrsMetrics
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.WithdrawalService
 import uk.gov.hmrc.http.HttpResponse
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
@@ -33,19 +34,15 @@ import scala.concurrent.Future
 
 class WithdrawalControllerTest extends BaseSpec {
   val mockWithdrawalService: WithdrawalService = mock[WithdrawalService]
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
+  val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 
-  object TestWithdrawalController extends WithdrawalController {
-    override val appName: String = "awrs"
-    val withdrawalService: WithdrawalService = mockWithdrawalService
-    override val audit: Audit = new TestAudit
-    override val metrics = AwrsMetrics
+  object TestWithdrawalController extends WithdrawalController(mockAuditConnector, awrsMetrics, mockWithdrawalService, cc, "awrs") {
+    override val audit: Audit = new TestAudit(mockAuditConnector)
   }
 
   "For API 8, Withdrawal Controller " should {
-
-    "use the correct status info service" in {
-      WithdrawalController.withdrawalService shouldBe WithdrawalService
-    }
 
     "check success response is transported correctly" in {
       when(mockWithdrawalService.withdrawal(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8SuccessfulResponseJson))))

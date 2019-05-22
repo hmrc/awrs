@@ -16,19 +16,18 @@
 
 package audit
 
-import uk.gov.hmrc.play.audit.model.DataEvent
-import uk.gov.hmrc.play.audit.AuditExtensions
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.http.HeaderCarrier
-import config.MicroserviceAuditConnector
-import play.api.Play
+import uk.gov.hmrc.play.audit.AuditExtensions
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.audit.model.{Audit, DataEvent}
 
 trait Auditable {
 
- def appName: String = AppName(Play.current.configuration).appName
+  val auditConnector: AuditConnector
 
-  def audit: Audit = new Audit(appName, MicroserviceAuditConnector)
+  def appName: String
+
+  def audit: Audit = new Audit(appName, auditConnector)
 
   def sendDataEvent(transactionName: String, path: String = "N/A",
                     tags: Map[String, String] = Map.empty[String, String],

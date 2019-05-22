@@ -16,33 +16,26 @@
 
 package controllers
 
-import config.MicroserviceAuditConnector
+import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models.{ApiType, StatusInfoType}
-import play.api.Play
 import play.api.libs.json.Json
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
-import uk.gov.hmrc.play.audit.model.Audit
-import uk.gov.hmrc.play.config.AppName
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object StatusInfoController extends StatusInfoController {
-  override val appName: String = AppName(Play.current.configuration).appName
-  override val audit: Audit = new Audit(appName, MicroserviceAuditConnector)
-  val statusInfoService: EtmpStatusInfoService = EtmpStatusInfoService
-  override val metrics = AwrsMetrics
-}
-
-trait StatusInfoController extends BaseController with LoggingUtils {
-  val statusInfoService: EtmpStatusInfoService
-  val metrics: AwrsMetrics
+class StatusInfoController @Inject()(val auditConnector: AuditConnector,
+                                     metrics: AwrsMetrics,
+                                     val statusInfoService: EtmpStatusInfoService,
+                                     cc: ControllerComponents,
+                                     @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
   // utr & busType are used to authenticate the request but are ignored by this function
-  def getStatusInfo(awrsRef: String, contactNumber: String, utr: String, busType: String) = Action.async {
+  def getStatusInfo(awrsRef: String, contactNumber: String, utr: String, busType: String): Action[AnyContent] = Action.async {
     implicit request =>
       info(s"[$auditAPI11TxName - $awrsRef ] - hit getStatusInfo controller ")
       val apiType: ApiType.Value = ApiType.API11GetStatusInfo
@@ -77,7 +70,7 @@ trait StatusInfoController extends BaseController with LoggingUtils {
               metrics.incrementFailedCounter(apiType)
               warn(s"[$auditAPI11TxName - $awrsRef ] - Dependant systems are currently not responding")
               ServiceUnavailable(result.body)
-            case INTERNAL_SERVER_ERROR  =>
+            case INTERNAL_SERVER_ERROR =>
               metrics.incrementFailedCounter(apiType)
               warn(s"[$auditAPI11TxName - $awrsRef ] - WSO2 is currently experiencing problems that require live service intervention")
               InternalServerError(result.body)
