@@ -49,7 +49,6 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
               convertedJson match {
                 case StatusInfoType(Some(_)) =>
                   metrics.incrementSuccessCounter(apiType)
-                  info(s"[$auditAPI11TxName - $awrsRef ] - Successful return of data \n ## API11 Response from DES  ##\n${result.json}")
                   Ok(Json.toJson(convertedJson))
                 // this case should never happen, since at least one of the response types should be returned
                 case StatusInfoType(None) =>

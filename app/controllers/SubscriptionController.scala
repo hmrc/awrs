@@ -55,25 +55,18 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 
-  def subscribe(ref: String): Action[AnyContent] = Action.async {
-    implicit request =>
-
+  def subscribe(ref: String): Action[AnyContent] = Action.async { implicit request =>
       val feJson = request.body.asJson.get
-
       val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
-
       val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
-
       val safeId: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.safeId)
       val userOrBusinessName: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.businessName)
       val legalEntityType: String = awrsModel.subscriptionTypeFrontEnd.legalEntity.get.legalEntity.fold("")(x => x)
-
       val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
       val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x).replaceAll("\\s+", "")
       val utr = businessReg.utr
       val businessType = businessReg.legalEntity.fold("")(x => x)
       val auditMap: Map[String, String] = Map("safeId" -> safeId, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType)
-
 
       subscriptionService.subscribe(convertedEtmpJson, safeId, utr, businessType, postcode).map {
         registerData =>
