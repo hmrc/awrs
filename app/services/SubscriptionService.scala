@@ -67,7 +67,7 @@ class SubscriptionService @Inject()(auditConnector: AuditConnector,
     }
   }
 
-  def updateSubcription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  def updateSubscription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.updateSubscription(inputJson, awrsRefNo)
 
   private def addKnownFacts(response: HttpResponse,
@@ -119,7 +119,8 @@ class SubscriptionService @Inject()(auditConnector: AuditConnector,
     EnrolmentVerifiers(verifierTuples: _*)
   }
 
-  def updateGrpRepRegistrationDetails(awrsRefNo: String, safeId: String, updateData: UpdateRegistrationDetailsRequest)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def updateGrpRepRegistrationDetails(awrsRefNo: String, safeId: String, updateData: UpdateRegistrationDetailsRequest)
+                                     (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val request = updateData.copy(acknowledgementReference = Some(SessionUtils.getUniqueAckNo))
     etmpConnector.updateGrpRepRegistrationDetails(safeId, Json.toJson(request))
   }

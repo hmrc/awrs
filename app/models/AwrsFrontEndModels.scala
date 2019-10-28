@@ -215,9 +215,12 @@ case class BusinessCustomerDetails(businessName: String,
                                    sapNumber: String,
                                    safeId: String,
                                    isAGroup: Boolean,
+                                   regimeRefNumber: Option[String],
                                    agentReferenceNumber: Option[String],
                                    firstName: Option[String] = None,
                                    lastName: Option[String] = None)
+
+
 
 object BusinessCustomerDetails {
 
@@ -225,7 +228,7 @@ object BusinessCustomerDetails {
 
     def reads(js: JsValue): JsResult[BusinessCustomerDetails] =
       JsSuccess(BusinessCustomerDetails(businessName = "", businessType = None, businessAddress = BCAddress("", "", None, None, None, ""),
-        sapNumber = "", safeId = "", isAGroup = false, agentReferenceNumber = None, firstName = None, lastName = None))
+        sapNumber = "", safeId = "", isAGroup = false, regimeRefNumber = None, agentReferenceNumber = None, firstName = None, lastName = None))
 
   }
 

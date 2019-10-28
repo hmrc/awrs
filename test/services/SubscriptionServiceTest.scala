@@ -146,7 +146,7 @@ class SubscriptionServiceTest extends BaseSpec {
     "respond with Ok, when a valid update subscription json is supplied" in {
       when(mockEtmpConnector.updateSubscription(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(api6SuccessResponseJson))))
-      val result = testSubscriptionService.updateSubcription(inputJson, testRefNo)
+      val result = testSubscriptionService.updateSubscription(inputJson, testRefNo)
       val response = await(result)
       response.status shouldBe OK
     }
@@ -154,7 +154,7 @@ class SubscriptionServiceTest extends BaseSpec {
     "respond with BadRequest when update subscription json is invalid" in {
       when(mockEtmpConnector.updateSubscription(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
-      val result = testSubscriptionService.updateSubcription(inputJson, testRefNo)
+      val result = testSubscriptionService.updateSubscription(inputJson, testRefNo)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
     }

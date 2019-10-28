@@ -21,19 +21,23 @@ import metrics.AwrsMetrics
 import models._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.{EtmpLookupService, EtmpStatusService, SubscriptionService}
+import services.{EtmpLookupService, EtmpRegimeService, EtmpStatusService, SubscriptionService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
-import utils.LoggingUtils
+import utils.{AWRSFeatureSwitches, LoggingUtils}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class OrgSubscriptionController @Inject()(val auditConnector: AuditConnector,
                                           override val metrics: AwrsMetrics,
                                           val subscriptionService: SubscriptionService,
                                           val lookupService: EtmpLookupService,
                                           val statusService: EtmpStatusService,
+                                          val regimeService: EtmpRegimeService,
                                           cc: ControllerComponents,
+                                          conf: ServicesConfig,
                                           @Named("appName") val appName: String) extends SubscriptionController(cc) {
 }
 
@@ -42,7 +46,9 @@ class SaSubscriptionController @Inject()(val auditConnector: AuditConnector,
                                          val subscriptionService: SubscriptionService,
                                          val lookupService: EtmpLookupService,
                                          val statusService: EtmpStatusService,
+                                         val regimeService: EtmpRegimeService,
                                          cc: ControllerComponents,
+                                         conf: ServicesConfig,
                                          @Named("appName") val appName: String) extends SubscriptionController(cc) {
 
 }
@@ -51,60 +57,63 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
   val subscriptionService: SubscriptionService
   val lookupService: EtmpLookupService
   val statusService: EtmpStatusService
+  val regimeService: EtmpRegimeService
   val metrics: AwrsMetrics
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 
   def subscribe(ref: String): Action[AnyContent] = Action.async { implicit request =>
-      val feJson = request.body.asJson.get
-      val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
-      val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
-      val safeId: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.safeId)
-      val userOrBusinessName: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.businessName)
-      val legalEntityType: String = awrsModel.subscriptionTypeFrontEnd.legalEntity.get.legalEntity.fold("")(x => x)
-      val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
-      val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x).replaceAll("\\s+", "")
-      val utr = businessReg.utr
-      val businessType = businessReg.legalEntity.fold("")(x => x)
-      val auditMap: Map[String, String] = Map("safeId" -> safeId, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType)
+    val feJson = request.body.asJson.get
+    val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
+    val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
+    val safeId: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.safeId)
+    val userOrBusinessName: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.businessName)
+    val legalEntityType: String = awrsModel.subscriptionTypeFrontEnd.legalEntity.get.legalEntity.fold("")(x => x)
+    val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
+    val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x).replaceAll("\\s+", "")
+    val utr = businessReg.utr
+    val businessType = businessReg.legalEntity.fold("")(x => x)
+    val auditMap: Map[String, String] = Map("safeId" -> safeId, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType)
 
-      subscriptionService.subscribe(convertedEtmpJson, safeId, utr, businessType, postcode).map {
-        registerData =>
-          registerData.status match {
-            case OK =>
-              warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " + registerData.status)
-              val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
-              metrics.incrementSuccessCounter(ApiType.API4Subscribe)
-              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("AWRS Reference No" -> successfulSubscriptionResponse.awrsRegistrationNumber), eventType = eventTypeSuccess)
-              Ok(registerData.body)
-            case NOT_FOUND =>
-              metrics.incrementFailedCounter(ApiType.API4Subscribe)
-              warn(s"[$auditAPI4TxName - $safeId ] - The remote endpoint has indicated that no data can be found")
-              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Not Found"), eventType = eventTypeFailure)
-              NotFound(registerData.body)
-            case BAD_REQUEST =>
+    subscriptionService.subscribe(convertedEtmpJson, safeId, utr, businessType, postcode).flatMap {
+      registerData => registerData.status match {
+        case OK =>
+          warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " + registerData.status)
+          val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
+          metrics.incrementSuccessCounter(ApiType.API4Subscribe)
+          audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("AWRS Reference No" -> successfulSubscriptionResponse.awrsRegistrationNumber), eventType = eventTypeSuccess)
+          Future.successful(Ok(registerData.body))
+        case NOT_FOUND =>
+          metrics.incrementFailedCounter(ApiType.API4Subscribe)
+          warn(s"[$auditAPI4TxName - $safeId ] - The remote endpoint has indicated that no data can be found")
+          audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Not Found"), eventType = eventTypeFailure)
+          Future.successful(NotFound(registerData.body))
+        case BAD_REQUEST =>
+          regimeService.checkETMPApi(safeId, "AWRS") map {
+            case _ =>
               metrics.incrementFailedCounter(ApiType.API4Subscribe)
               warn(s"[$auditAPI4TxName - $safeId ] - Bad Request l")
               val failureReason: String = if (registerData.body.contains("Reason")) (registerData.json \ "Reason").as[String] else "Bad Request"
               audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> failureReason, "EtmpJson" -> convertedEtmpJson.toString()), eventType = eventTypeFailure)
               BadRequest(registerData.body)
-            case SERVICE_UNAVAILABLE =>
-              metrics.incrementFailedCounter(ApiType.API4Subscribe)
-              warn(s"[$auditAPI4TxName - $safeId ] - Dependant systems are currently not responding")
-              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Service Unavailable"), eventType = eventTypeFailure)
-              ServiceUnavailable(registerData.body)
-            case INTERNAL_SERVER_ERROR =>
-              metrics.incrementFailedCounter(ApiType.API4Subscribe)
-              warn(s"[$auditAPI4TxName - $safeId ] - WSO2 is currently experiencing problems that require live service intervention")
-              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Server error"), eventType = eventTypeFailure)
-              InternalServerError(registerData.body)
-            case status@_ =>
-              metrics.incrementFailedCounter(ApiType.API4Subscribe)
-              warn(s"[$auditAPI4TxName - $safeId ] - Unsuccessful return of data")
-              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Other Error"), eventType = eventTypeFailure)
-              InternalServerError(f"Unsuccessful return of data. Status code: $status")
           }
+        case SERVICE_UNAVAILABLE =>
+          metrics.incrementFailedCounter(ApiType.API4Subscribe)
+          warn(s"[$auditAPI4TxName - $safeId ] - Dependant systems are currently not responding")
+          audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Service Unavailable"), eventType = eventTypeFailure)
+          Future.successful(ServiceUnavailable(registerData.body))
+        case INTERNAL_SERVER_ERROR =>
+          metrics.incrementFailedCounter(ApiType.API4Subscribe)
+          warn(s"[$auditAPI4TxName - $safeId ] - WSO2 is currently experiencing problems that require live service intervention")
+          audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Server error"), eventType = eventTypeFailure)
+          Future.successful(InternalServerError(registerData.body))
+        case status@_ =>
+          metrics.incrementFailedCounter(ApiType.API4Subscribe)
+          warn(s"[$auditAPI4TxName - $safeId ] - Unsuccessful return of data")
+          audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Other Error"), eventType = eventTypeFailure)
+          Future.successful(InternalServerError(f"Unsuccessful return of data. Status code: $status"))
       }
+    }
   }
 
 
@@ -122,7 +131,7 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
 
       val auditMap: Map[String, String] = Map("AWRS Reference No" -> awrsRefNo, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType, "change-flags" -> changeIndicators.toString())
       val timer = metrics.startTimer(ApiType.API6UpdateSubscription)
-      subscriptionService.updateSubcription(convertedEtmpJson, awrsRefNo).map {
+      subscriptionService.updateSubscription(convertedEtmpJson, awrsRefNo).map {
         updatedData =>
           timer.stop()
           warn(s"[$auditAPI6TxName - $userOrBusinessName, $legalEntityType ]")
