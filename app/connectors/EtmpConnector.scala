@@ -36,6 +36,7 @@ class EtmpConnector @Inject()(http: DefaultHttpClient,
   val baseURI = "/alcohol-wholesaler-register"
   val subscriptionURI = "/subscription/"
   val UpdateGrpRepRegistrationURI = "/registration/safeid/"
+  val regimeURI = "/registration/details"
   val secureCommsURI = "/secure-comms/"
   val statusURI = "/status"
   val regNumberURI = "reg-number/"
@@ -56,6 +57,10 @@ class EtmpConnector @Inject()(http: DefaultHttpClient,
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$safeId""", registerData)
+  }
+
+  def awrsRegime(safeId: String, regime: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cGET(s"""$serviceURL$regimeURI?safeid=$safeId&regime=$regime""")
   }
 
   def createHeaderCarrier(headerCarrier: HeaderCarrier): HeaderCarrier = {

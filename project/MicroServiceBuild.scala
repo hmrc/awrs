@@ -52,7 +52,7 @@ private object AppDependencies {
   }
 
   object Test {
-    def apply() = new TestDependencies {
+    def apply(): Seq[ModuleID] = new TestDependencies {
       override lazy val test = Seq(
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
@@ -69,7 +69,7 @@ private object AppDependencies {
   }
 
   object IntegrationTest {
-    def apply() = new TestDependencies {
+    def apply(): Seq[ModuleID] = new TestDependencies {
 
       override lazy val scope: String = "it"
 
@@ -77,11 +77,12 @@ private object AppDependencies {
         "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope
+        "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
+        "com.github.tomakehurst" % "wiremock-jre8" % "2.23.2" % scope
       )
     }.test
   }
 
-  def apply() = compile ++ Test() ++ IntegrationTest()
+  def apply(): Seq[ModuleID] = compile ++ Test() ++ IntegrationTest()
 }
 
