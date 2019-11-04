@@ -21,7 +21,7 @@ import java.util.UUID
 import connectors.{EnrolmentStoreConnector, EtmpConnector, GovernmentGatewayAdminConnector}
 import metrics.AwrsMetrics
 import models._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
@@ -85,9 +85,9 @@ class SubscriptionServiceTest extends BaseSpec {
 
   def subscriptionServicesPart2EMAC(testSubscriptionService: => SubscriptionService): Unit = {
     "subscribe when we are passed valid json" in {
-      when(mockEtmpConnector.subscribe(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
-      when(mockEnrolmentStoreConnector.upsertEnrolment(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
 
       val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
@@ -97,9 +97,9 @@ class SubscriptionServiceTest extends BaseSpec {
     }
 
     "respond with Ok, when subscription works but enrolment store connector request fails with a Bad request but audit the Bad request" in {
-      when(mockEtmpConnector.subscribe(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
-      when(mockEnrolmentStoreConnector.upsertEnrolment(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
       val response = await(result)
@@ -110,9 +110,9 @@ class SubscriptionServiceTest extends BaseSpec {
 
   def subscriptionServicesPart2GG(testSubscriptionService: => SubscriptionService): Unit = {
     "subscribe when we are passed valid json" in {
-      when(mockEtmpConnector.subscribe(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
-      when(mockggAdminConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockggAdminConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
       val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
       val response = await(result)
@@ -121,9 +121,9 @@ class SubscriptionServiceTest extends BaseSpec {
     }
 
     "respond with Ok, when subscription works but gg admin request fails with a Bad request but audit the Bad request" in {
-      when(mockEtmpConnector.subscribe(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(successResponse))))
-      when(mockggAdminConnector.addKnownFacts(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockggAdminConnector.addKnownFacts(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
       val response = await(result)
@@ -135,7 +135,7 @@ class SubscriptionServiceTest extends BaseSpec {
   def subscriptionServicesPart1(testSubscriptionService: => SubscriptionService): Unit = {
 
     "respond with BadRequest, when subscription request fails with a Bad request" in {
-      when(mockEtmpConnector.subscribe(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
       val response = await(result)
@@ -144,7 +144,7 @@ class SubscriptionServiceTest extends BaseSpec {
     }
 
     "respond with Ok, when a valid update subscription json is supplied" in {
-      when(mockEtmpConnector.updateSubscription(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(api6SuccessResponseJson))))
       val result = testSubscriptionService.updateSubscription(inputJson, testRefNo)
       val response = await(result)
@@ -152,7 +152,7 @@ class SubscriptionServiceTest extends BaseSpec {
     }
 
     "respond with BadRequest when update subscription json is invalid" in {
-      when(mockEtmpConnector.updateSubscription(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = testSubscriptionService.updateSubscription(inputJson, testRefNo)
       val response = await(result)
@@ -161,7 +161,7 @@ class SubscriptionServiceTest extends BaseSpec {
 
     "respond with Ok, when a valid update Group Partner registration json is supplied" in {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
-      when(mockEtmpConnector.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
       val result = testSubscriptionService.updateGrpRepRegistrationDetails(testRefNo, testSafeId, updatedData)
       val response = await(result)
@@ -169,7 +169,7 @@ class SubscriptionServiceTest extends BaseSpec {
     }
 
     "respond with BadRequest when update Group Partner registration json is invalid" in {
-      when(mockEtmpConnector.updateGrpRepRegistrationDetails(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockEtmpConnector.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(failureResponse))))
       val result = testSubscriptionService.updateGrpRepRegistrationDetails(testRefNo, testSafeId, updatedData)
       val response = await(result)

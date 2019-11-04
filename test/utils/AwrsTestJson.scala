@@ -32,7 +32,10 @@ object AwrsTestJson extends AwrsTestJson {
 trait AwrsTestJson extends AwrsPathConstants {
 
   // Frontend Json
-
+  lazy val etmpCheckOrganisationString= loadWithDummy(etmpCheckOrg)
+  lazy val etmpCheckIndividualString= loadWithDummy(etmpCheckIndividual)
+  lazy val etmpCheckIndividualInvalidString = loadWithDummy(etmpCheckIndividualInvalid)
+  lazy val etmpCheckOrganisationInvalidString = loadWithDummy(etmpCheckOrganisationInvalid)
   lazy val api4FrontendSOPString = loadWithDummy(api4FrontendSOP)
   lazy val api4FrontendLTDString = loadWithDummy(api4FrontendLTD)
   lazy val api4FrontendPartnershipString = loadWithDummy(api4FrontendPartnership)
@@ -60,6 +63,10 @@ trait AwrsTestJson extends AwrsPathConstants {
   lazy val api3FrontendJson = loadAndParseJsonWithDummyData(api3Frontend)
 
   // Etmp Json
+  lazy val getRegDetailsOrg = loadWithDummy(getRegDetailsOrgJson)
+  lazy val getRegDetailsOrgWithRegime = loadWithDummy(getRegDetailsOrgWithRegimeJson)
+  lazy val getRegDetailsIndividual = loadWithDummy(getRegDetailsIndividualJson)
+  lazy val getRegDetailsIndividualWithRegime = loadWithDummy(getRegDetailsIndividualWithRegimeJson)
   lazy val api4EtmpLTDString = loadWithDummy(api4EtmpLTD)
   lazy val api4EtmpSOPString = loadWithDummy(api4EtmpSOP)
   lazy val api4EtmpPartnershipString = loadWithDummy(api4EtmpPartnership)

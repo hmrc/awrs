@@ -20,7 +20,7 @@ import java.util.UUID
 
 import connectors.EtmpConnector
 import models.{StatusInfoFailureResponseType, StatusInfoSuccessResponseType, StatusInfoType}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneServerPerSuite
@@ -46,7 +46,7 @@ class EtmpStatusInfoServiceTest extends BaseSpec {
     "successfully lookup status info when passed a valid reference number and contact number" in {
       val awrsRefNo = testRefNo
       val contactNumber = "0123456789"
-      when(mockEtmpConnector.getStatusInfo(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
+      when(mockEtmpConnector.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
       val result = TestEtmpStatusInfoService.getStatusInfo(awrsRefNo, contactNumber)
       await(result).status shouldBe 200
     }
@@ -54,7 +54,7 @@ class EtmpStatusInfoServiceTest extends BaseSpec {
     "return Bad Request when passed an invalid reference number and contact number" in {
       val invalidAwrsRefNo = "AAW00000123456"
       val contactNumber = "0123456789"
-      when(mockEtmpConnector.getStatusInfo(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, None)))
+      when(mockEtmpConnector.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, None)))
       val result = TestEtmpStatusInfoService.getStatusInfo(invalidAwrsRefNo, contactNumber)
       await(result).status shouldBe 400
     }

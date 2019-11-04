@@ -20,7 +20,7 @@ import java.util.UUID
 
 import connectors.EtmpConnector
 import metrics.AwrsMetrics
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.logging.SessionId
@@ -39,7 +39,7 @@ class WithdrawalServiceTest extends BaseSpec {
     implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
     "perform a withdrawal when passed valid json" in {
-      when(mockEtmpConnector.withdrawal(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8SuccessfulResponseJson))))
+      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8SuccessfulResponseJson))))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe OK
@@ -47,13 +47,13 @@ class WithdrawalServiceTest extends BaseSpec {
     }
 
     "respond with BadRequest, when withdrawal request fails with a Bad request" in {
-      when(mockEtmpConnector.withdrawal(Matchers.any(),Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(api8FailureResponseJson))))
+      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(api8FailureResponseJson))))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
       response.json shouldBe api8FailureResponseJson
     }
-    
+
   }
 
 }

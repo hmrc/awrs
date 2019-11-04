@@ -220,9 +220,50 @@ case class BusinessCustomerDetails(businessName: String,
                                    firstName: Option[String] = None,
                                    lastName: Option[String] = None)
 
+case class EtmpRegistrationDetails(
+                                    organisationName: Option[String],
+                                    sapNumber: String,
+                                    safeId: String,
+                                    isAGroup: Option[Boolean],
+                                    regimeRefNumber: String,
+                                    agentReferenceNumber: Option[String],
+                                    firstName: Option[String] = None,
+                                    lastName: Option[String] = None)
 
+object EtmpRegistrationDetails {
+  val etmpReader: Reads[EtmpRegistrationDetails] = new Reads[EtmpRegistrationDetails] {
+    def reads(js: JsValue): JsResult[EtmpRegistrationDetails] = {
+      val regimeRefNumber: String = (js \ "regimeIdentifiers").asOpt[List[JsValue]].flatMap { regimeIdentifiers =>
+        regimeIdentifiers.headOption.flatMap { regimeJs =>
+          (regimeJs \ "regimeRefNumber").asOpt[String]
+        }
+      }.getOrElse(throw new RuntimeException("[EtmpRegistrationDetails][etmpReader][reads] No regime ref number"))
+
+      val organisationName = (js \ "organisation" \ "organisationName").asOpt[String]
+      val sapNumber = (js \ "sapNumber").as[String]
+      val safeId = (js \ "safeId").as[String]
+      val isAGroup = (js \ "organisation" \ "isAGroup").asOpt[Boolean]
+      val agentReferenceNumber = (js \ "agentReferenceNumber").asOpt[String]
+      val firstName = (js \"individual" \ "firstName").asOpt[String]
+      val lastName = (js \ "individual" \ "lastName").asOpt[String]
+
+      JsSuccess(EtmpRegistrationDetails(
+        organisationName,
+        sapNumber,
+        safeId,
+        isAGroup,
+        regimeRefNumber,
+        agentReferenceNumber,
+        firstName,
+        lastName
+      ))
+    }
+  }
+}
 
 object BusinessCustomerDetails {
+
+
 
   val reader = new Reads[BusinessCustomerDetails] {
 
@@ -940,6 +981,13 @@ case class PlaceOfBusiness(mainPlaceOfBusiness: Option[String],
                            operatingDuration: String,
                            modelVersion: String = PlaceOfBusiness.latestModelVersion
                           ) extends ModelVersionControl
+
+case class CheckRegimeModel(businessCustomerDetails: BusinessCustomerDetails,
+                            businessRegistrationDetails: BusinessRegistrationDetails)
+
+object CheckRegimeModel {
+  implicit val formats: Format[CheckRegimeModel] = Json.format[CheckRegimeModel]
+}
 
 case class SubscriptionTypeFrontEnd(
                                      legalEntity: Option[BusinessType],

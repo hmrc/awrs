@@ -2,7 +2,9 @@
 package uk.gov.hmrc.helpers
 
 import akka.util.Timeout
+import org.mockito.ArgumentMatchers
 import org.scalatest._
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.ws.WSRequest
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.helpers.application.IntegrationApplication
@@ -15,7 +17,6 @@ import scala.concurrent.duration._
 
 trait IntegrationSpec
   extends WordSpecLike
-    with Matchers
     with OptionValues
     with FutureAwaits
     with DefaultAwaitTimeout

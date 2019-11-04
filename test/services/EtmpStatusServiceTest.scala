@@ -19,7 +19,7 @@ package services
 import java.util.UUID
 
 import connectors.EtmpConnector
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.logging.SessionId
@@ -41,14 +41,14 @@ class EtmpStatusServiceTest extends BaseSpec {
 
     "successfully lookup application status when passed a valid reference number" in {
       val awrsRefNo = testRefNo
-      when(mockEtmpConnector.checkStatus(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
+      when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
       val result = TestEtmpStatusService.checkStatus(awrsRefNo)
       await(result).status shouldBe 200
     }
 
     "return Bad Request when passed an invalid reference number" in {
       val invalidAwrsRefNo = "AAW00000123456"
-      when(mockEtmpConnector.checkStatus(Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, None)))
+      when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, None)))
       val result = TestEtmpStatusService.checkStatus(invalidAwrsRefNo)
       await(result).status shouldBe 400
     }
