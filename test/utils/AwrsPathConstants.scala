@@ -23,7 +23,10 @@ trait AwrsPathConstants {
   lazy val schemaPath = "/schema/API4EtmpSchema.json"
 
   // Frontend Json paths
-
+  lazy val etmpCheckOrg = "/json/API4/etmpCheck/EtmpCheckOrg.json"
+  lazy val etmpCheckIndividual = "/json/API4/etmpCheck/EtmpCheckIndividual.json"
+  lazy val etmpCheckIndividualInvalid = "/json/API4/etmpCheck/EtmpCheckIndividualInvalid.json"
+  lazy val etmpCheckOrganisationInvalid = "/json/API4/etmpCheck/EtmpCheckOrganisationInvalid.json"
   lazy val api4FrontendLTD = "/json/API4/frontend/AwrsLTD.json"
   lazy val api4FrontendSOP = "/json/API4/frontend/AwrsSOP.json"
   lazy val api4FrontendPartnership = "/json/API4/frontend/AwrsPartnership.json"
@@ -58,6 +61,10 @@ trait AwrsPathConstants {
   lazy val api5EtmpLTDGroup = "/json/API5/etmp/EtmpLTDGroups.json"
   lazy val api5EtmpPartnership = "/json/API5/etmp/EtmpPartnership.json"
   lazy val api5EtmpSOP = "/json/API5/etmp/EtmpSOP.json"
+  lazy val getRegDetailsOrgJson = "/json/getRegistrationDetails/EtmpNoRegimeOrg.json"
+  lazy val getRegDetailsOrgWithRegimeJson = "/json/getRegistrationDetails/EtmpWithRegimeOrg.json"
+  lazy val getRegDetailsIndividualJson = "/json/getRegistrationDetails/EtmpNoRegimeIndividual.json"
+  lazy val getRegDetailsIndividualWithRegimeJson = "/json/getRegistrationDetails/EtmpWithRegimeIndividual.json"
 
   // Common Json paths
 

@@ -1,0 +1,142 @@
+{
+    "legalEntity": {
+      "legalEntity": "SOP"
+    },
+    "businessCustomerDetails": {
+      "businessName": "Example Name",
+      "businessType": "Sole Trader",
+      "businessAddress": {
+        "line_1": "1 Example Street",
+        "line_2": "Exampe View",
+        "line_3": "Exampe Town",
+        "line_4": "Exampeshire",
+        "postcode": "AA1 1AA",
+        "country": "GB"
+      },
+      "sapNumber": "1234567890",
+      "safeId": "XA0001234567890",
+      "isAGroup": false,
+      "agentReferenceNumber": "01234567890",
+      "firstName": "Example",
+      "lastName": "Exampleson"
+    },
+    "businessDetails": {
+      "doYouHaveTradingName": "Yes",
+      "tradingName": "Example Trading",
+      "newAWBusiness": {
+        "newAWBusiness": "No"
+      }
+    },
+    "businessRegistrationDetails": {
+      "legalEntity": "SOP",
+      "doYouHaveNino": "Yes",
+      "nino": "$nino",
+      "doYouHaveVRN": "Yes",
+      "vrn": "000000000",
+      "doYouHaveUTR": "Yes",
+      "utr": "$utr"
+    },
+    "placeOfBusiness": {
+      "mainPlaceOfBusiness": "Yes",
+      "placeOfBusinessLast3Years": "Yes",
+      "operatingDuration": "2 to 5 years",
+      "modelVersion" : "1.0"
+    },
+    "businessContacts": {
+      "contactAddressSame": "Yes",
+      "contactFirstName": "Example",
+      "contactLastName": "Exampleson",
+      "email": "Example@gmail.com",
+      "confirmEmail": "Example@gmail.com",
+      "telephone": "01234567891",
+      "modelVersion" : "1.0"
+    },
+    "additionalPremises": {
+      "premises": [
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "82 Example Street",
+            "addressLine2": "Exampledon"
+          },
+          "addAnother": "Yes"
+        },
+        {
+          "additionalPremises": "Yes",
+          "additionalAddress": {
+            "postcode": "AA1 1AA",
+            "addressLine1": "82 Example Street",
+            "addressLine2": "Exampledon"
+          },
+          "addAnother": "No"
+        }
+      ]
+    },
+    "tradingActivity": {
+      "wholesalerType": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "99"
+      ],
+      "otherWholesaler": "Other wholesaler type",
+      "typeOfAlcoholOrders": [
+        "02",
+        "03",
+        "99"
+      ],
+      "otherTypeOfAlcoholOrders": "Other alcohol order",
+      "doesBusinessImportAlcohol": "Yes",
+      "thirdPartyStorage": "Yes",
+      "doYouExportAlcohol": "Yes",
+      "exportLocation": [
+        "euDispatches",
+        "outsideEU"
+      ]
+    },
+    "products": {
+      "mainCustomers": [
+        "02",
+        "03"
+      ],
+      "productType": [
+        "03",
+        "99"
+      ],
+      "otherProductType": "Other product type"
+    },
+    "suppliers": {
+      "suppliers": [
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "Example Supplier",
+          "vatRegistered": "No",
+          "supplierAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "3 Example Road",
+            "addressLine2": "Exampledon"
+          },
+          "additionalSupplier": "Yes"
+        },
+        {
+          "alcoholSuppliers": "Yes",
+          "supplierName": "ExampleName",
+          "supplierAddress": {
+            "postcode": "BB1 1BB",
+            "addressLine1": "3 Example Road",
+            "addressLine2": "Exampledon"
+          },
+          "additionalSupplier": "No"
+        }
+      ]
+    },
+    "applicationDeclaration": {
+      "declarationName": "Example Exampleson",
+      "declarationRole": "Other"
+    },
+    "modelVersion": "1.0"
+  }
+

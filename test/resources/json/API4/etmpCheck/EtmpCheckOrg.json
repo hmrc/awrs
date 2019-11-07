@@ -1,0 +1,33 @@
+{
+  "businessCustomerDetails": {
+    "businessName": "sdfsdf",
+    "businessType": "Corporate Body",
+    "businessAddress": {
+      "line_1": "1 Example Street",
+      "line_2": "Exampe View",
+      "line_3": "Exampe Town",
+      "line_4": "Exampeshire",
+      "postcode": "AA1 1AA",
+      "country": "GB"
+    },
+    "sapNumber": "1234567890",
+    "safeId": "XE0001234567890",
+    "isAGroup": false,
+    "agentReferenceNumber": "JARN1234567"
+  },
+  "businessRegistrationDetails": {
+    "legalEntity": "LTD",
+    "isBusinessIncorporated": "Yes",
+    "companyRegDetails": {
+      "companyRegistrationNumber": "55555555",
+      "dateOfIncorporation": "01/01/2015"
+    },
+    "doYouHaveVRN": "Yes",
+    "vrn": "000000000",
+    "doYouHaveUTR": "Yes",
+    "utr": "$utr"
+  },
+  "legalEntity": {
+    "legalEntity": "LTD"
+  }
+}

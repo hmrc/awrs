@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 
 import connectors.GovernmentGatewayAdminConnector
 import models.{KnownFact, KnownFactsForService}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.http.Status._
 import play.api.libs.json.JsValue
@@ -60,7 +60,7 @@ class GGAdminConnectorTest extends BaseSpec {
 
       val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO", testRefNo)))
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = None)))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, responseJson = None)))
       val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
       await(result).status shouldBe OK
     }
@@ -69,25 +69,25 @@ class GGAdminConnectorTest extends BaseSpec {
 
       val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO", testRefNo)))
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, responseJson = None)))
         .thenReturn(Future.successful(HttpResponse(OK, responseJson = None)))
       val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
       await(result).status shouldBe OK
       // verify that the call is made 2 times, i.e. the first failed call plus 1 successful retry
-      verify(mockWSHttp, times(2)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+      verify(mockWSHttp, times(2)).POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     }
 
     "for a successful submission, if the first GG call fails, and all retries fail, return INTERNAL_SERVER_ERROR response" in {
 
       val knownFact = KnownFactsForService(List(KnownFact("AWRS-REF-NO", testRefNo)))
       implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any()))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, responseJson = None)))
       val result = TestGGAdminConnector.addKnownFacts(knownFact, testRefNo)
       await(result)(FiniteDuration(10, TimeUnit.SECONDS)).status shouldBe INTERNAL_SERVER_ERROR
       // verify that the correct amount of retry calls are made, i.e. the first failed call plus the specified amount of failed retries
-      verify(mockWSHttp, times(retries)).POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())
+      verify(mockWSHttp, times(retries)).POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())
     }
 
   }

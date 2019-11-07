@@ -59,8 +59,8 @@ class EtmpConnector @Inject()(http: DefaultHttpClient,
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$safeId""", registerData)
   }
 
-  def awrsRegime(safeId: String, regime: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET(s"""$serviceURL$regimeURI?safeid=$safeId&regime=$regime""")
+  def awrsRegime(safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cGET(s"""$serviceURL$regimeURI?safeid=$safeId&regime=AWRS""")
   }
 
   def createHeaderCarrier(headerCarrier: HeaderCarrier): HeaderCarrier = {

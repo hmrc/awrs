@@ -1,0 +1,24 @@
+{
+  "legalEntity": {
+    "legalEntity": "SOP"
+  },
+  "businessCustomerDetails": {
+    "businessName": "Example Name",
+    "businessType": "Sole Trader",
+    "businessAddress": {
+      "line_1": "1 Example Street",
+      "line_2": "Exampe View",
+      "line_3": "Exampe Town",
+      "line_4": "Exampeshire",
+      "postcode": "AA1 1AA",
+      "country": "GB"
+    },
+    "sapNumber": "1234567890",
+    "safeId": "XA0001234567890",
+    "isAGroup": false,
+    "agentReferenceNumber": "01234567890",
+    "firstName": "Example",
+    "lastName": "Exampleson"
+  }
+}
+

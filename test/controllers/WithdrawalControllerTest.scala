@@ -18,7 +18,7 @@ package controllers
 
 import audit.TestAudit
 import metrics.AwrsMetrics
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
@@ -45,7 +45,7 @@ class WithdrawalControllerTest extends BaseSpec {
   "For API 8, Withdrawal Controller " should {
 
     "check success response is transported correctly" in {
-      when(mockWithdrawalService.withdrawal(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8SuccessfulResponseJson))))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8SuccessfulResponseJson))))
       val result = TestWithdrawalController.withdrawal(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe OK
       await(result.body)
@@ -53,7 +53,7 @@ class WithdrawalControllerTest extends BaseSpec {
     }
 
     "check failure response is transported correctly" in {
-      when(mockWithdrawalService.withdrawal(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8FailureResponseJson))))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8FailureResponseJson))))
       val result = TestWithdrawalController.withdrawal(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe OK
       await(result)
@@ -61,28 +61,28 @@ class WithdrawalControllerTest extends BaseSpec {
     }
 
     "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(api8FailureResponseJson))))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(api8FailureResponseJson))))
       val result = TestWithdrawalController.withdrawal(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe BAD_REQUEST
       contentAsJson(result) shouldBe api8FailureResponseJson
     }
 
     "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(api8FailureResponseJson))))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(api8FailureResponseJson))))
       val result = TestWithdrawalController.withdrawal(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe NOT_FOUND
       contentAsJson(result) shouldBe api8FailureResponseJson
     }
 
     "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(api8FailureResponseJson))))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(api8FailureResponseJson))))
       val result = TestWithdrawalController.withdrawal(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe SERVICE_UNAVAILABLE
       contentAsJson(result) shouldBe api8FailureResponseJson
     }
 
     "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(Matchers.any(), Matchers.any())(Matchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(api8FailureResponseJson))))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(api8FailureResponseJson))))
       val result = TestWithdrawalController.withdrawal(testRefNo, "ignore", "ignore").apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentAsJson(result) shouldBe api8FailureResponseJson

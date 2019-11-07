@@ -2,20 +2,21 @@
 package uk.gov.hmrc.helpers.controllers
 
 import controllers.routes
+import org.scalatest.MustMatchers
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 import utils.{AWRSFeatureSwitches, FeatureSwitch}
 
-class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers  {
+class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with MustMatchers {
 
   val baseURI = "/alcohol-wholesaler-register"
   val subscriptionURI = "/subscription/"
   val regimeURI = "/registration/details"
   val safeId: String = "XE0001234567890"
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
-  val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~DummyRef"
+  val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~XAAW00000123456"
 
   val jsonPostData = Json.parse("""{
                                   |  "subscriptionTypeFrontEnd": {
@@ -192,7 +193,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers  {
       val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
 
       val resp: WSResponse = await(client(controllerUrl).post(jsonPostData))
-      resp.status shouldBe 400
+      resp.status mustBe 400
     }
 
     "AWRS feature flag is true" in {
@@ -207,7 +208,6 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers  {
           |]}
         """.stripMargin
 
-      //TODO: needs refactoring when completed solution in place as it will need to be passed into new function
       val successResponse: JsValue = Json.parse(
         s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "DummyRef"}"""
       )
@@ -221,7 +221,134 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers  {
       val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
 
       val resp: WSResponse = await(client(controllerUrl).post(jsonPostData))
-      resp.status shouldBe 400
+      resp.status mustBe 400
+    }
+
+  }
+
+  "return 200" when {
+
+    "AWRS feature flag is true" in {
+
+      val jsResultString =
+        """
+          |{
+          |  "sapNumber": "1234567890",
+          |  "safeId": "XE0001234567890",
+          |  "agentReferenceNumber": "AARN1234567",
+          |  "regimeIdentifiers": [
+          |    {
+          |      "regimeName": "AWRS",
+          |      "regimeRefNumber": "XAAW00000123456"
+          |    },
+          |    {
+          |      "regimeRefNumber": "XAML00000123456"
+          |    }
+          |  ],
+          |  "nonUKIdentification": {
+          |    "idNumber": "123456",
+          |    "issuingInstitution": "France Institution",
+          |    "issuingCountryCode": "FR"
+          |  },
+          |  "isEditable": true,
+          |  "isAnAgent": false,
+          |  "isAnIndividual": false,
+          |  "organisation": {
+          |    "organisationName": "ACME Trading",
+          |    "isAGroup": false,
+          |    "organisationType": "Corporate body"
+          |  },
+          |  "addressDetails": {
+          |    "addressLine1": "100 SomeStreet",
+          |    "addressLine2": "Wokingham",
+          |    "addressLine3": "Surrey",
+          |    "addressLine4": "London",
+          |    "postalCode": "DH14EJ",
+          |    "countryCode": "GB"
+          |  },
+          |  "contactDetails": {
+          |    "regimeName": "AWRS",
+          |    "phoneNumber": "01332752856",
+          |    "mobileNumber": "07782565326",
+          |    "faxNumber": "01332754256",
+          |    "emailAddress": "stephen@manncorpone.co.uk"
+          |  }
+          |}
+        """.stripMargin
+
+      val successResponse: JsValue = Json.parse(
+        s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "DummyRef"}"""
+      )
+
+      FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
+
+      stubbedGet(s"""$regimeURI""", OK, jsResultString)
+      stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, successResponse.toString)
+      stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", NO_CONTENT)
+
+      val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
+
+      val resp: WSResponse = await(client(controllerUrl).post(jsonPostData))
+      resp.status mustBe 200
+    }
+
+    "AWRS feature flag is true for an individual" in {
+
+      val jsResultString =
+        """
+          |{
+          |  "sapNumber": "1234567890",
+          |  "safeId": "XE0001234567890",
+          |  "agentReferenceNumber": "AARN1234567",
+          |  "regimeIdentifiers": [
+          |    {
+          |      "regimeName": "AWRS",
+          |      "regimeRefNumber": "XAAW00000123456"
+          |    },
+          |    {
+          |      "regimeRefNumber": "XAML00000123456"
+          |    }
+          |  ],
+          |  "nonUKIdentification": {
+          |    "idNumber": "123456",
+          |    "issuingInstitution": "France Institution",
+          |    "issuingCountryCode": "FR"
+          |  },
+          |  "isEditable": true,
+          |  "isAnAgent": false,
+          |  "isAnIndividual": true,
+          |  "addressDetails": {
+          |    "addressLine1": "100 SomeStreet",
+          |    "addressLine2": "Wokingham",
+          |    "addressLine3": "Surrey",
+          |    "addressLine4": "London",
+          |    "postalCode": "DH14EJ",
+          |    "countryCode": "GB"
+          |  },
+          |  "contactDetails": {
+          |    "regimeName": "AWRS",
+          |    "phoneNumber": "01332752856",
+          |    "mobileNumber": "07782565326",
+          |    "faxNumber": "01332754256",
+          |    "emailAddress": "stephen@manncorpone.co.uk"
+          |  }
+          |}
+        """.stripMargin
+
+      val successResponse: JsValue = Json.parse(
+        s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "XAAW00000123456"}"""
+      )
+
+      FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
+
+      stubbedGet(s"""$regimeURI""", OK, jsResultString)
+      stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, successResponse.toString)
+      stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", NO_CONTENT)
+
+      val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
+
+      val resp: WSResponse = await(client(controllerUrl).post(jsonPostData))
+      resp.status mustBe 200
     }
 
   }

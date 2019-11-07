@@ -69,7 +69,8 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
     val safeId: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.safeId)
     val userOrBusinessName: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.businessName)
     val legalEntityType: String = awrsModel.subscriptionTypeFrontEnd.legalEntity.get.legalEntity.fold("")(x => x)
-    val businessReg = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
+    val businessReg: BusinessRegistrationDetails = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
+    val businesssCustomerDetails = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get
     val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x).replaceAll("\\s+", "")
     val utr = businessReg.utr
     val businessType = businessReg.legalEntity.fold("")(x => x)
@@ -89,7 +90,13 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
           audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Not Found"), eventType = eventTypeFailure)
           Future.successful(NotFound(registerData.body))
         case BAD_REQUEST =>
-          regimeService.checkETMPApi(safeId, "AWRS") map {
+          regimeService.checkETMPApi(safeId, businesssCustomerDetails, businessReg) map {
+            case Some(etmpRegistrationDetails) =>
+              warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " + registerData.status)
+              val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
+              metrics.incrementSuccessCounter(ApiType.API4Subscribe)
+              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("AWRS Reference No" -> successfulSubscriptionResponse.awrsRegistrationNumber), eventType = eventTypeSuccess)
+              Ok(registerData.body)
             case _ =>
               metrics.incrementFailedCounter(ApiType.API4Subscribe)
               warn(s"[$auditAPI4TxName - $safeId ] - Bad Request l")
