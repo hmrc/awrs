@@ -92,10 +92,7 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
         case BAD_REQUEST =>
           regimeService.checkETMPApi(safeId, businesssCustomerDetails, businessReg) map {
             case Some(etmpRegistrationDetails) =>
-              warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " + registerData.status)
-              val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
-              metrics.incrementSuccessCounter(ApiType.API4Subscribe)
-              audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("AWRS Reference No" -> successfulSubscriptionResponse.awrsRegistrationNumber), eventType = eventTypeSuccess)
+              warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] Self Heal - API4 Response from DES/GG  ## " + registerData.status)
               Ok(registerData.body)
             case _ =>
               metrics.incrementFailedCounter(ApiType.API4Subscribe)
