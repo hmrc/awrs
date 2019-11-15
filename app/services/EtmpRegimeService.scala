@@ -90,21 +90,24 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     } else {
       getEtmpBusinessDetails(safeId) flatMap {
         case Some(etmpRegDetails) =>
-          handleDuplicateSubscription(etmpRegDetails, businessCustomerDetails) flatMap { _ =>
-            upsertEacdEnrolment(
-              safeId,
-              businessRegistrationDetails.utr,
-              businessType,
-              postcode,
-              etmpRegDetails.regimeRefNumber
-            ) map { response =>
-              response.status match {
-                case NO_CONTENT => Some(etmpRegDetails)
-                case status =>
-                  Logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to upsert to EACD - status: $status")
-                  None
+          handleDuplicateSubscription(etmpRegDetails, businessCustomerDetails) flatMap {
+            case Some(_) =>
+              upsertEacdEnrolment(
+                safeId,
+                businessRegistrationDetails.utr,
+                businessType,
+                postcode,
+                etmpRegDetails.regimeRefNumber
+              ) map { response =>
+                response.status match {
+                  case NO_CONTENT => Some(etmpRegDetails)
+                  case status =>
+                    Logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to upsert to EACD - status: $status")
+                    None
+                }
               }
-            }
+            case None =>
+              Future.successful(None)
           }
       } recover {
         case e: Exception =>
@@ -114,13 +117,20 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     }
   }
 
+  def compareOptionalStrings(bcdValue: Option[String], erdValue: Option[String]): Boolean = {
+    if(bcdValue.isEmpty && erdValue.isEmpty) {
+      true
+    } else {
+      bcdValue.map(_.toUpperCase).contains(erdValue.map(_.toUpperCase).getOrElse(""))
+    }
+  }
+
   private[services] def matchIndividual(bcd: BusinessCustomerDetails, erd: EtmpRegistrationDetails): Boolean = {
     Map(
       "sapNum"    -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
       "safeId"    -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
-      "agentRef"  -> bcd.agentReferenceNumber.map(_.toUpperCase).contains(erd.agentReferenceNumber.map(_.toUpperCase).getOrElse("")),
-      "firstName" -> bcd.firstName.map(_.toUpperCase).contains(erd.firstName.map(_.toUpperCase).getOrElse("")),
-      "lastName"  -> bcd.lastName.map(_.toUpperCase).contains(erd.lastName.map(_.toUpperCase).getOrElse(""))
+      "firstName" -> compareOptionalStrings(bcd.firstName, erd.firstName),
+      "lastName"  -> compareOptionalStrings(bcd.lastName, erd.lastName)
     ).partition{case (_,v) => v} match {
       case (_, failures) if failures.isEmpty => true
       case (_, failures) =>
@@ -135,8 +145,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
       "businessName" -> erd.organisationName.map(_.toUpperCase).contains(bcd.businessName.toUpperCase),
       "sapNumber" -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
       "safeId" -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
-      "isGroup" -> erd.isAGroup.contains(bcd.isAGroup),
-      "agentRef" -> bcd.agentReferenceNumber.map(_.toUpperCase).contains(erd.agentReferenceNumber.map(_.toUpperCase).getOrElse(""))
+      "agentRef" -> compareOptionalStrings(bcd.agentReferenceNumber, erd.agentReferenceNumber)
     ).partition{case (_, v) => v} match {
       case (_, failures) if failures.isEmpty => true
       case (_, failures) =>
