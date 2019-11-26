@@ -39,8 +39,8 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     etmpConnector.awrsRegime(safeId).map { response =>
       Try(EtmpRegistrationDetails.etmpReader.reads(response.json)) match {
         case Success(value)   => value.asOpt
-        case Failure(_)       =>
-          Logger.info(s"[EtmpRegimeService][getEtmpBusinessDetails] Could not read ETMP response")
+        case Failure(e)       =>
+          Logger.info(s"[EtmpRegimeService][getEtmpBusinessDetails] Could not read ETMP response - $e \n Json: ${response.json}")
           None
       }
     }
