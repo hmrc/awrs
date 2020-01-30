@@ -19,13 +19,13 @@ package controllers
 import models.EtmpRegistrationDetails
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.EtmpRegimeService
-import utils.{BaseSpec, AwrsTestJson}
+import utils.BaseSpec
 
 import scala.concurrent.Future
 

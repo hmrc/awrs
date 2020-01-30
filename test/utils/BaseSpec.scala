@@ -18,7 +18,8 @@ package utils
 
 import com.kenshoo.play.metrics.Metrics
 import org.scalatest.BeforeAndAfter
-import org.scalatest.mockito.MockitoSugar
+//import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
