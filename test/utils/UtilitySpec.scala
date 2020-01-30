@@ -17,12 +17,11 @@
 package utils
 
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.mockito.MockitoSugar
-import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.Utility._
 
-class UtilitySpec extends WordSpecLike with MockitoSugar with ScalaFutures with BeforeAndAfterAll with UnitSpec {
+class UtilitySpec extends MockitoSugar with ScalaFutures with UnitSpec {
 
   "UtilitySpec" should {
 

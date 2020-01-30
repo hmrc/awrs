@@ -19,19 +19,15 @@ package services
 import java.util.UUID
 
 import connectors.EtmpConnector
-import models.{StatusInfoFailureResponseType, StatusInfoSuccessResponseType, StatusInfoType}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneServerPerSuite
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import utils.AwrsTestJson.testRefNo
+import utils.BaseSpec
 
 import scala.concurrent.Future
-import utils.AwrsTestJson.testRefNo
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.logging.SessionId
-import utils.{AwrsTestJson, BaseSpec}
 
 class EtmpStatusInfoServiceTest extends BaseSpec {
 

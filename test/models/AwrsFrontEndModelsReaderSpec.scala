@@ -19,8 +19,8 @@ package models
 import play.api.libs.json.{JsPath, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
-import utils.TestUtil._
 import utils.AwrsTestJson._
+import utils.TestUtil._
 
 import scala.collection.GenSeq
 

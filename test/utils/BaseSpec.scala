@@ -18,15 +18,15 @@ package utils
 
 import com.kenshoo.play.metrics.Metrics
 import org.scalatest.BeforeAndAfter
-import org.scalatest.mockito.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.play.test.UnitSpec
-import play.api.inject.bind
 
 
-trait BaseSpec extends UnitSpec with OneAppPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
+trait BaseSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
 
   override def fakeApplication(): Application = GuiceApplicationBuilder()
     .configure(

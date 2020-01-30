@@ -17,7 +17,6 @@
 package controllers
 
 import audit.TestAudit
-import controllers.DeRegistrationController
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._

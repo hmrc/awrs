@@ -27,22 +27,22 @@ private object AppDependencies {
 
   private val domainVersion = "5.6.0-play-26"
   private val hmrcTestVersion = "3.9.0-play-26"
-  private val scalaTestplusPlayVersion = "3.1.2"
+  private val scalaTestplusPlayVersion = "3.1.3"
   private val pegdownVersion = "1.6.0"
-  private val json4sJacksonVersion = "3.6.5"
+  private val json4sJacksonVersion = "3.6.7"
   private val jsonSchemaValidatorVersion = "2.2.6"
-  private val json4sNativeVersion = "3.6.5"
-  private val mockitoCoreVersion = "2.24.5"
+  private val json4sNativeVersion = "3.6.7"
+  private val mockitoCoreVersion = "3.2.4"
   private val webbitServerVersion = "0.4.15"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.1.0",
+    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
     "org.json4s" %% "json4s-native" %json4sNativeVersion,
-    "com.typesafe.play" %% "play-json-joda" % "2.6.13"
+    "com.typesafe.play" %% "play-json-joda" % "2.6.14"
   )
 
   trait TestDependencies {
@@ -57,8 +57,8 @@ private object AppDependencies {
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
-        "org.scalatest" %% "scalatest" % "3.0.5" % scope,
-        "org.scalacheck" %% "scalacheck" % "1.14.0" % scope,
+        "org.scalatest" %% "scalatest" % "3.0.8" % scope,
+        "org.scalacheck" %% "scalacheck" % "1.14.3" % scope,
         "org.jsoup" % "jsoup" % "1.11.3" % scope,
         "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
         "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
@@ -79,7 +79,7 @@ private object AppDependencies {
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
-        "com.github.tomakehurst" % "wiremock-jre8" % "2.23.2" % scope
+        "com.github.tomakehurst" % "wiremock-jre8" % "2.25.1" % scope
       )
     }.test
   }
