@@ -18,7 +18,7 @@ package controllers
 
 import audit.TestAudit
 import metrics.AwrsMetrics
-import models.{DeRegistered, EtmpRegistrationDetails, FormBundleStatus, Pending, SubscriptionStatusType}
+import models._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.libs.json.{JsValue, Json}
@@ -33,7 +33,6 @@ import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class SubscriptionControllerTest extends BaseSpec {
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]

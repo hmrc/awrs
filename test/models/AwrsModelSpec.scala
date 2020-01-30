@@ -17,12 +17,11 @@
 package models
 
 
-import org.joda.time.LocalDate
 import play.api.libs.json.{JsObject, JsPath, Json}
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.AwrsTestJson._
 import utils.TestUtil._
 import utils.{AwrsTestJson, TestUtil}
-import utils.AwrsTestJson._
 
 class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 

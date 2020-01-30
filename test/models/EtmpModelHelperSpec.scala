@@ -17,12 +17,12 @@
 package models
 
 import org.joda.time.LocalDate
+import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
 import uk.gov.hmrc.play.test.UnitSpec
+import utils.AwrsTestJson.testNino
 import utils.TestUtil._
 import utils.{AwrsTestJson, TestUtil}
-import utils.AwrsTestJson.testNino
-import play.api.libs.json.JodaWrites._
 
 class EtmpModelHelperSpec extends UnitSpec with AwrsTestJson {
 
