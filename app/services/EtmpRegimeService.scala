@@ -143,9 +143,9 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
   private[services] def matchOrg(bcd: BusinessCustomerDetails, erd: EtmpRegistrationDetails): Boolean = {
     Map(
       "businessName" -> erd.organisationName.map(_.toUpperCase).contains(bcd.businessName.toUpperCase),
-      "sapNumber" -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
-      "safeId" -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
-      "agentRef" -> compareOptionalStrings(bcd.agentReferenceNumber, erd.agentReferenceNumber)
+      "sapNumber"    -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
+      "safeId"       -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
+      "agentRef"     -> compareOptionalStrings(bcd.agentReferenceNumber, erd.agentReferenceNumber)
     ).partition{case (_, v) => v} match {
       case (_, failures) if failures.isEmpty => true
       case (_, failures) =>
@@ -155,8 +155,8 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
   }
 
   private[services] def getEtmpRegistrationDetails(affinityGroup: Option[AffinityGroup],
-                                         bcd: BusinessCustomerDetails,
-                                         erd: EtmpRegistrationDetails): Option[EtmpRegistrationDetails] = {
+                                                   bcd: BusinessCustomerDetails,
+                                                   erd: EtmpRegistrationDetails): Option[EtmpRegistrationDetails] = {
     affinityGroup match {
       case Some(AffinityGroup.Individual)   if matchIndividual(bcd, erd) => Some(erd)
       case Some(AffinityGroup.Organisation) if matchOrg(bcd, erd)        => Some(erd)

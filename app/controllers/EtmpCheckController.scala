@@ -42,7 +42,9 @@ class EtmpCheckController @Inject()(cc: ControllerComponents,
         val businessCustomerDetails = regime.businessCustomerDetails
 
         etmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails).map {
-          case Some(_) => Ok
+          case Some(etmpRegistrationDetails) =>
+            val responseJson = Json.obj("regimeRefNumber" -> etmpRegistrationDetails.regimeRefNumber)
+            Ok(responseJson)
           case _ =>
             Logger.warn("[EtmpCheckController][checkEtmp] Could not retrieve/upsert for checkEtmp")
             NoContent
