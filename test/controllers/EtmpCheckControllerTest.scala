@@ -53,6 +53,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckOrganisationString)))
         status(result) shouldBe OK
+        contentAsString(result) shouldBe Json.obj("regimeRefNumber" -> "regRef").toString()
       }
 
       "there is a regime model and there is ETMP registration details for an individual" in {
@@ -61,7 +62,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
           "sapNumber",
           "safeId",
           None,
-          "regRef",
+          "regRefInd",
           None
         )
 
@@ -70,6 +71,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckIndividualString)))
         status(result) shouldBe OK
+        contentAsString(result) shouldBe Json.obj("regimeRefNumber" -> "regRefInd").toString()
       }
     }
 
