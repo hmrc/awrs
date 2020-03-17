@@ -90,7 +90,7 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
           audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Not Found"), eventType = eventTypeFailure)
           Future.successful(NotFound(registerData.body))
         case BAD_REQUEST =>
-          regimeService.checkETMPApi(safeId, businesssCustomerDetails, businessReg) map {
+          regimeService.checkETMPApi(businesssCustomerDetails, businessType) map {
             case Some(etmpRegistrationDetails) =>
               warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] Self Heal - API4 Response from DES/GG  ## " + registerData.status)
               val responseJson = Json.obj("regimeRefNumber" -> etmpRegistrationDetails.regimeRefNumber)

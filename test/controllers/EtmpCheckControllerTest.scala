@@ -48,7 +48,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
           None
         )
 
-          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckOrganisationString)))
@@ -66,7 +66,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
           None
         )
 
-          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckIndividualString)))
@@ -86,7 +86,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
           None
         )
 
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckIndividualInvalidString)))
@@ -103,7 +103,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
           None
         )
 
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckOrganisationInvalidString)))
@@ -111,7 +111,7 @@ class EtmpCheckControllerTest extends BaseSpec with MockitoSugar {
       }
 
       "there is a regime model and there aren't any ETMP registration details for an organisation" in {
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(None))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckOrganisationString)))

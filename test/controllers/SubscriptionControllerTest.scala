@@ -95,7 +95,7 @@ class SubscriptionControllerTest extends BaseSpec {
 
       "for a bad request, return BadRequest" in {
         when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
         val result = TestSubscriptionController.subscribe("")(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe BAD_REQUEST
         contentAsJson(result) shouldBe badRequestJson
@@ -107,7 +107,7 @@ class SubscriptionControllerTest extends BaseSpec {
             Some("ACME Trading"), "1", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), None, None)
         when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi( ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
         val result = TestSubscriptionController.subscribe("")(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe ACCEPTED

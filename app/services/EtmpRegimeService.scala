@@ -80,10 +80,10 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
   }
 
-  def checkETMPApi(safeId: String, businessCustomerDetails: BusinessCustomerDetails, businessRegistrationDetails: BusinessRegistrationDetails)
+  def checkETMPApi(businessCustomerDetails: BusinessCustomerDetails, legalEntity: String)
                   (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
-    val businessType = businessRegistrationDetails.legalEntity.getOrElse("")
     val postcode = businessCustomerDetails.businessAddress.postcode.getOrElse("").replaceAll("\\s+", "")
+    val safeId = businessCustomerDetails.safeId
 
     if (!AWRSFeatureSwitches.regimeCheck().enabled) {
       Future.successful(None)
@@ -94,8 +94,8 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
             case Some(_) =>
               upsertEacdEnrolment(
                 safeId,
-                businessRegistrationDetails.utr,
-                businessType,
+                businessCustomerDetails.utr,
+                legalEntity,
                 postcode,
                 etmpRegDetails.regimeRefNumber
               ) map { response =>

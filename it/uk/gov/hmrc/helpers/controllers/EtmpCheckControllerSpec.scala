@@ -47,9 +47,7 @@ class EtmpCheckControllerSpec extends IntegrationSpec with AuthHelpers with Must
                                   |    "doYouHaveUTR": "Yes",
                                   |    "utr": "utr"
                                   |  },
-                                  |  "legalEntity": {
-                                  |    "legalEntity": "LTD"
-                                  |  }
+                                  |  "legalEntity": "LTD"
                                   |}
                                   |""".stripMargin)
 

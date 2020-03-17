@@ -101,7 +101,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val businessRegistrationDetails = BusinessRegistrationDetails(None, None, None, None, None, None, None, None, None)
       val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
-      val result = TestEtmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails)
+      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe Some(registrationDetails)
     }
@@ -121,7 +121,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val businessRegistrationDetails = BusinessRegistrationDetails(Some("SOP"), None, None, None, None, None, None, None, None)
       val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
-      val result = TestEtmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails)
+      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "SOP")
 
       await(result) shouldBe Some(registrationDetails)
     }
@@ -139,7 +139,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val businessRegistrationDetails = BusinessRegistrationDetails(None, None, None, None, None, None, None, None, None)
 
-      val result = TestEtmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails)
+      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe None
     }
@@ -152,8 +152,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
       val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
         "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
-      val businessRegistrationDetails = BusinessRegistrationDetails(None, None, None, None, None, None, None, None, None)
-      val result = TestEtmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails)
+      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe None
     }
@@ -163,8 +162,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
       val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
         "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
-      val businessRegistrationDetails = BusinessRegistrationDetails(None, None, None, None, None, None, None, None, None)
-      val result = TestEtmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails)
+      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe None
     }
@@ -184,7 +182,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val businessRegistrationDetails = BusinessRegistrationDetails(None, None, None, None, None, None, None, None, None)
       val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
-      val result = TestEtmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails)
+      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe None
     }
