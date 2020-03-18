@@ -1,8 +1,6 @@
 {
-    "legalEntity": {
-      "legalEntity": "SOP"
-    },
-    "businessCustomerDetails": {
+  "legalEntity": "SOP",
+  "businessCustomerDetails": {
       "businessName": "Example Name",
       "businessType": "Sole Trader",
       "businessAddress": {

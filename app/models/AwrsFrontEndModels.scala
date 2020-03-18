@@ -218,7 +218,8 @@ case class BusinessCustomerDetails(businessName: String,
                                    regimeRefNumber: Option[String],
                                    agentReferenceNumber: Option[String],
                                    firstName: Option[String] = None,
-                                   lastName: Option[String] = None)
+                                   lastName: Option[String] = None,
+                                   utr: Option[String] = None)
 
 case class EtmpRegistrationDetails(
                                     organisationName: Option[String],
@@ -983,7 +984,7 @@ case class PlaceOfBusiness(mainPlaceOfBusiness: Option[String],
                           ) extends ModelVersionControl
 
 case class CheckRegimeModel(businessCustomerDetails: BusinessCustomerDetails,
-                            businessRegistrationDetails: BusinessRegistrationDetails)
+                            legalEntity: String)
 
 object CheckRegimeModel {
   implicit val formats: Format[CheckRegimeModel] = Json.format[CheckRegimeModel]

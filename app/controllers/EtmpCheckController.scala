@@ -37,11 +37,7 @@ class EtmpCheckController @Inject()(cc: ControllerComponents,
 
     regimeModel match {
       case Some(regime) =>
-        val safeId = regime.businessCustomerDetails.safeId
-        val businessRegistrationDetails = regime.businessRegistrationDetails
-        val businessCustomerDetails = regime.businessCustomerDetails
-
-        etmpRegimeService.checkETMPApi(safeId, businessCustomerDetails, businessRegistrationDetails).map {
+        etmpRegimeService.checkETMPApi(regime.businessCustomerDetails, regime.legalEntity).map {
           case Some(etmpRegistrationDetails) =>
             val responseJson = Json.obj("regimeRefNumber" -> etmpRegistrationDetails.regimeRefNumber)
             Ok(responseJson)

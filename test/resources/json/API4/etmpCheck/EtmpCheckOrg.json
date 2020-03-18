@@ -15,19 +15,5 @@
     "isAGroup": false,
     "agentReferenceNumber": "JARN1234567"
   },
-  "businessRegistrationDetails": {
-    "legalEntity": "LTD",
-    "isBusinessIncorporated": "Yes",
-    "companyRegDetails": {
-      "companyRegistrationNumber": "55555555",
-      "dateOfIncorporation": "01/01/2015"
-    },
-    "doYouHaveVRN": "Yes",
-    "vrn": "000000000",
-    "doYouHaveUTR": "Yes",
-    "utr": "$utr"
-  },
-  "legalEntity": {
-    "legalEntity": "LTD"
-  }
+  "legalEntity": "LTD"
 }
