@@ -498,7 +498,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
       stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, failureResponse.toString)
       stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", NO_CONTENT)
 
-      val controllerUrl = routes.SaSubscriptionController.subscribe("test").url
+      val controllerUrl = "/awrs/send-data"
 
       val resp: WSResponse = await(client(controllerUrl).post(jsonIndividualPostData))
       resp.status mustBe 400

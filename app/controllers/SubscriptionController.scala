@@ -53,6 +53,16 @@ class SaSubscriptionController @Inject()(val auditConnector: AuditConnector,
 
 }
 
+class GenericSubscriptionController @Inject()(val auditConnector: AuditConnector,
+                                             override val metrics: AwrsMetrics,
+                                             val subscriptionService: SubscriptionService,
+                                             val lookupService: EtmpLookupService,
+                                             val statusService: EtmpStatusService,
+                                             val regimeService: EtmpRegimeService,
+                                             cc: ControllerComponents,
+                                             conf: ServicesConfig,
+                                             @Named("appName") val appName: String) extends SubscriptionController(cc)
+
 abstract class SubscriptionController(cc: ControllerComponents) extends BackendController(cc) with LoggingUtils {
   val subscriptionService: SubscriptionService
   val lookupService: EtmpLookupService
