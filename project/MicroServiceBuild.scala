@@ -32,12 +32,12 @@ private object AppDependencies {
   private val json4sJacksonVersion = "3.6.7"
   private val jsonSchemaValidatorVersion = "2.2.6"
   private val json4sNativeVersion = "3.6.7"
-  private val mockitoCoreVersion = "3.2.4"
+  private val mockitoCoreVersion = "3.3.3"
   private val webbitServerVersion = "0.4.15"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.3.0",
+    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.7.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
