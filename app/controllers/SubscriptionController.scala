@@ -25,54 +25,24 @@ import services.{EtmpLookupService, EtmpRegimeService, EtmpStatusService, Subscr
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
-import utils.{AWRSFeatureSwitches, LoggingUtils}
+import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class OrgSubscriptionController @Inject()(val auditConnector: AuditConnector,
-                                          override val metrics: AwrsMetrics,
-                                          val subscriptionService: SubscriptionService,
-                                          val lookupService: EtmpLookupService,
-                                          val statusService: EtmpStatusService,
-                                          val regimeService: EtmpRegimeService,
-                                          cc: ControllerComponents,
-                                          conf: ServicesConfig,
-                                          @Named("appName") val appName: String) extends SubscriptionController(cc) {
-}
-
-class SaSubscriptionController @Inject()(val auditConnector: AuditConnector,
-                                         override val metrics: AwrsMetrics,
-                                         val subscriptionService: SubscriptionService,
-                                         val lookupService: EtmpLookupService,
-                                         val statusService: EtmpStatusService,
-                                         val regimeService: EtmpRegimeService,
-                                         cc: ControllerComponents,
-                                         conf: ServicesConfig,
-                                         @Named("appName") val appName: String) extends SubscriptionController(cc) {
-
-}
-
-class GenericSubscriptionController @Inject()(val auditConnector: AuditConnector,
-                                             override val metrics: AwrsMetrics,
-                                             val subscriptionService: SubscriptionService,
-                                             val lookupService: EtmpLookupService,
-                                             val statusService: EtmpStatusService,
-                                             val regimeService: EtmpRegimeService,
-                                             cc: ControllerComponents,
-                                             conf: ServicesConfig,
-                                             @Named("appName") val appName: String) extends SubscriptionController(cc)
-
-abstract class SubscriptionController(cc: ControllerComponents) extends BackendController(cc) with LoggingUtils {
-  val subscriptionService: SubscriptionService
-  val lookupService: EtmpLookupService
-  val statusService: EtmpStatusService
-  val regimeService: EtmpRegimeService
-  val metrics: AwrsMetrics
+class SubscriptionController @Inject()(val auditConnector: AuditConnector,
+                                       val metrics: AwrsMetrics,
+                                       val subscriptionService: SubscriptionService,
+                                       val lookupService: EtmpLookupService,
+                                       val statusService: EtmpStatusService,
+                                       val regimeService: EtmpRegimeService,
+                                       cc: ControllerComponents,
+                                       conf: ServicesConfig,
+                                       @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 
-  def subscribe(ref: String): Action[AnyContent] = Action.async { implicit request =>
+  def subscribe(): Action[AnyContent] = Action.async { implicit request =>
     val feJson = request.body.asJson.get
     val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
     val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
@@ -132,7 +102,7 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
   }
 
 
-  def updateSubscription(ref: String, awrsRefNo: String): Action[AnyContent] = Action.async {
+  def updateSubscription(awrsRefNo: String): Action[AnyContent] = Action.async {
     implicit request =>
 
       val feJson = request.body.asJson.get
@@ -185,7 +155,7 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
       }
   }
 
-  def lookupApplication(identifier: String, awrsRef: String): Action[AnyContent] = Action.async {
+  def lookupApplication(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
       val timer = metrics.startTimer(ApiType.API5LookupSubscription)
       lookupService.lookupApplication(awrsRef) map {
@@ -223,7 +193,7 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
       }
   }
 
-  def checkStatus(identifier: String, awrsRef: String): Action[AnyContent] = Action.async {
+  def checkStatus(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
       val timer = metrics.startTimer(ApiType.API9UpdateSubscription)
       statusService.checkStatus(awrsRef) map {
@@ -259,7 +229,7 @@ abstract class SubscriptionController(cc: ControllerComponents) extends BackendC
       }
   }
 
-  def updateGrpRegistrationDetails(orgRef: String, awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
+  def updateGrpRegistrationDetails(awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>
       val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
       subscriptionService.updateGrpRepRegistrationDetails(awrsRefNo, safeId, updatedData) map {
