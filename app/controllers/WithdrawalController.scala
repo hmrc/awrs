@@ -35,8 +35,7 @@ class WithdrawalController @Inject()(val auditConnector: AuditConnector,
                                      cc: ControllerComponents,
                                      @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
-  // utr & busType are used to authenticate the request but are ignored by this function
-  def withdrawal(awrsRefNo: String, utr: String, busType: String): Action[AnyContent] = Action.async {
+  def withdrawal(awrsRefNo: String): Action[AnyContent] = Action.async {
     implicit request =>
       info(s"[$auditAPI8TxName - $awrsRefNo ] - hit withdrawal controller ")
       val apiType: ApiType.Value = ApiType.API8Withdrawal

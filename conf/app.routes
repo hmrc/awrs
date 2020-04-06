@@ -1,29 +1,12 @@
-POST  /org/:orgRef/awrs/send-data                                    controllers.OrgSubscriptionController.subscribe(orgRef: String)
-POST  /sa/:utr/awrs/send-data                                        controllers.SaSubscriptionController.subscribe(utr: String)
-POST  /awrs/send-data                                                controllers.GenericSubscriptionController.subscribe(ref: String ?= "")
+POST  /awrs/send-data                                                controllers.SubscriptionController.subscribe()
+GET   /awrs/lookup/:awrsRefNo                                        controllers.SubscriptionController.lookupApplication(awrsRefNo: String)
+GET   /awrs/status/:awrsRefNo                                        controllers.SubscriptionController.checkStatus(awrsRefNo: String)
+PUT   /awrs/update/:awrsRefNo                                        controllers.SubscriptionController.updateSubscription(awrsRefNo: String)
+PUT   /:awrsRefNo/registration-details/:safeId                       controllers.SubscriptionController.updateGrpRegistrationDetails(awrsRefNo: String,safeId : String)
 
-GET   /org/:orgRef/awrs/lookup/:awrsRefNo                            controllers.OrgSubscriptionController.lookupApplication(orgRef: String, awrsRefNo: String)
-GET   /sa/:utr/awrs/lookup/:awrsRefNo                                controllers.SaSubscriptionController.lookupApplication(utr: String, awrsRefNo: String)
-GET   /awrs/lookup/:awrsRefNo                                        controllers.GenericSubscriptionController.lookupApplication(ref: String ?= "", awrsRefNo: String)
+GET   /awrs/status-info/:awrsRefNo/:contactNumber                    controllers.StatusInfoController.getStatusInfo(awrsRefNo: String, contactNumber: String)
 
-GET   /org/:orgRef/awrs/status/:awrsRefNo                            controllers.OrgSubscriptionController.checkStatus(orgRef: String, awrsRefNo: String)
-GET   /sa/:utr/awrs/status/:awrsRefNo                                controllers.SaSubscriptionController.checkStatus(utr: String, awrsRefNo: String)
-GET   /awrs/status/:awrsRefNo                                        controllers.GenericSubscriptionController.checkStatus(ref: String ?= "", awrsRefNo: String)
-
-PUT   /org/:orgRef/awrs/update/:awrsRefNo                            controllers.OrgSubscriptionController.updateSubscription(orgRef: String, awrsRefNo: String)
-PUT   /sa/:utr/awrs/update/:awrsRefNo                                controllers.SaSubscriptionController.updateSubscription(utr: String, awrsRefNo: String)
-PUT   /awrs/update/:awrsRefNo                                        controllers.GenericSubscriptionController.updateSubscription(utr: String ?= "", awrsRefNo: String)
-
-PUT   /org/:orgRef/:awrsRefNo/registration-details/:safeId           controllers.OrgSubscriptionController.updateGrpRegistrationDetails(orgRef: String, awrsRefNo: String,safeId : String)
-PUT   /:awrsRefNo/registration-details/:safeId                       controllers.GenericSubscriptionController.updateGrpRegistrationDetails(orgRef: String ?= "", awrsRefNo: String,safeId : String)
-
-GET   /:busType/:utr/awrs/status-info/:awrsRefNo/:contactNumber      controllers.StatusInfoController.getStatusInfo(awrsRefNo: String, contactNumber: String, utr: String, busType:String)
-GET   /awrs/status-info/:awrsRefNo/:contactNumber                    controllers.StatusInfoController.getStatusInfo(awrsRefNo: String, contactNumber: String, utr: String ?= "", busType: String ?= "")
-
-POST  /:busType/:utr/awrs/de-registration/:awrsRefNo                 controllers.DeRegistrationController.deRegistration(awrsRefNo:String, utr: String, busType:String)
-POST  /awrs/de-registration/:awrsRefNo                               controllers.DeRegistrationController.deRegistration(awrsRefNo:String, utr: String ?= "", busType: String ?= "")
+POST  /awrs/de-registration/:awrsRefNo                               controllers.DeRegistrationController.deRegistration(awrsRefNo:String)
+POST  /awrs/withdrawal/:awrsRefNo                                    controllers.WithdrawalController.withdrawal(awrsRefNo: String)
 
 POST  /regime-etmp-check                                             controllers.EtmpCheckController.checkEtmp()
-
-POST  /:busType/:utr/awrs/withdrawal/:awrsRefNo                      controllers.WithdrawalController.withdrawal(awrsRefNo: String, utr: String, busType:String)
-POST  /awrs/withdrawal/:awrsRefNo                                    controllers.WithdrawalController.withdrawal(awrsRefNo: String, utr: String ?= "", busType: String ?= "")

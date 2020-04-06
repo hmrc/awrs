@@ -20,6 +20,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~XAAW00000123456"
 
+  val controllerUrl = "/awrs/send-data"
 
   val jsonOrgPostData = Json.parse("""{
                                     |  "subscriptionTypeFrontEnd": {
@@ -358,8 +359,6 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
       stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, successResponse.toString)
       stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", OK)
 
-      val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
-
       val resp: WSResponse = await(client(controllerUrl).post(jsonOrgPostData))
       resp.status mustBe 400
     }
@@ -385,8 +384,6 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
       stubbedGet(s"""$regimeURI""", OK, jsResultString)
       stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, failureResponse.toString)
       stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", OK)
-
-      val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
 
       val resp: WSResponse = await(client(controllerUrl).post(jsonOrgPostData))
       resp.status mustBe 400
@@ -448,8 +445,6 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
       stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, failureResponse.toString)
       stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", NO_CONTENT)
 
-      val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
-
       val resp: WSResponse = await(client(controllerUrl).post(jsonOrgPostData))
       resp.status mustBe 400
     }
@@ -497,8 +492,6 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
       stubbedGet(s"""$regimeURI""", OK, jsResultString)
       stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, failureResponse.toString)
       stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", NO_CONTENT)
-
-      val controllerUrl = "/awrs/send-data"
 
       val resp: WSResponse = await(client(controllerUrl).post(jsonIndividualPostData))
       resp.status mustBe 400
@@ -562,8 +555,6 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
         stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, failureResponse.toString)
         stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", NO_CONTENT)
 
-        val controllerUrl = routes.OrgSubscriptionController.subscribe("test").url
-
         val resp: WSResponse = await(client(controllerUrl).post(jsonOrgPostData))
         resp.status mustBe 202
       }
@@ -612,8 +603,6 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
       stubbedGet(s"""$regimeURI""", OK, jsResultString)
       stubbedPost(s"""$baseURI$subscriptionURI$safeId""", BAD_REQUEST, successResponse.toString)
       stubbedPut(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", NO_CONTENT)
-
-      val controllerUrl = routes.SaSubscriptionController.subscribe("test").url
 
       val resp: WSResponse = await(client(controllerUrl).post(jsonIndividualPostData))
       resp.status mustBe 202

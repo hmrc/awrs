@@ -34,8 +34,7 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
                                      cc: ControllerComponents,
                                      @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
-  // utr & busType are used to authenticate the request but are ignored by this function
-  def getStatusInfo(awrsRef: String, contactNumber: String, utr: String, busType: String): Action[AnyContent] = Action.async {
+  def getStatusInfo(awrsRef: String, contactNumber: String): Action[AnyContent] = Action.async {
     implicit request =>
       info(s"[$auditAPI11TxName - $awrsRef ] - hit getStatusInfo controller ")
       val apiType: ApiType.Value = ApiType.API11GetStatusInfo
