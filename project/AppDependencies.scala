@@ -14,18 +14,11 @@
 
 import sbt._
 
-object MicroServiceBuild extends Build with MicroService {
-
-  val appName = "awrs"
-
-  override lazy val appDependencies: Seq[ModuleID] = AppDependencies()
-}
-
-private object AppDependencies {
+object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val domainVersion = "5.6.0-play-26"
+  private val domainVersion = "5.8.0-play-26"
   private val hmrcTestVersion = "3.9.0-play-26"
   private val scalaTestplusPlayVersion = "3.1.3"
   private val pegdownVersion = "1.6.0"
