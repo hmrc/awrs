@@ -18,7 +18,7 @@ package services
 
 import connectors.{EnrolmentStoreConnector, EtmpConnector}
 import javax.inject.Inject
-import models.{BusinessCustomerDetails, BusinessRegistrationDetails, EnrolmentVerifiers, EtmpRegistrationDetails}
+import models.{BusinessCustomerDetails, BusinessRegistrationDetails, EnrolmentVerifiers, EtmpRegistrationDetails, Rejected, Revoked, SubscriptionStatusType}
 import play.api.Logger
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisedFunctions, User}
@@ -80,9 +80,48 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
   }
 
+  def fetchETMPStatus(refNoNumber: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[String]] = {
+    etmpConnector.checkStatus(refNoNumber) map { response =>
+      response.status match {
+        case OK        =>
+          val statusType = response.json.as[SubscriptionStatusType](SubscriptionStatusType.reader)
+          Some(statusType.formBundleStatus.name)
+        case NOT_FOUND => None
+        case status    =>
+          Logger.warn(s"[EtmpRegimeService][checkETMPStatus] Failed to check ETMP API9 status: $status")
+          throw new RuntimeException(s"[EtmpRegimeService][checkETMPStatus] Failed to check ETMP API9 status: $status")
+      }
+    }
+  }
+
+  private def trySelfHealOnValidCase(bcd: BusinessCustomerDetails, etmpRegDetails: EtmpRegistrationDetails, legalEntity: String)
+                                    (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
+    val postcode = bcd.businessAddress.postcode.getOrElse("").replaceAll("\\s+", "")
+
+    handleDuplicateSubscription(etmpRegDetails, bcd) flatMap {
+      case Some(_) =>
+        upsertEacdEnrolment(
+          bcd.safeId,
+          bcd.utr,
+          legalEntity,
+          postcode,
+          etmpRegDetails.regimeRefNumber
+        ) map { response =>
+          response.status match {
+            case NO_CONTENT => Some(etmpRegDetails)
+            case status =>
+              Logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to upsert to EACD - status: $status")
+              None
+          }
+        }
+      case None =>
+        Future.successful(None)
+    }
+  }
+
   def checkETMPApi(businessCustomerDetails: BusinessCustomerDetails, legalEntity: String)
                   (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
-    val postcode = businessCustomerDetails.businessAddress.postcode.getOrElse("").replaceAll("\\s+", "")
+
     val safeId = businessCustomerDetails.safeId
 
     if (!AWRSFeatureSwitches.regimeCheck().enabled) {
@@ -90,24 +129,11 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     } else {
       getEtmpBusinessDetails(safeId) flatMap {
         case Some(etmpRegDetails) =>
-          handleDuplicateSubscription(etmpRegDetails, businessCustomerDetails) flatMap {
-            case Some(_) =>
-              upsertEacdEnrolment(
-                safeId,
-                businessCustomerDetails.utr,
-                legalEntity,
-                postcode,
-                etmpRegDetails.regimeRefNumber
-              ) map { response =>
-                response.status match {
-                  case NO_CONTENT => Some(etmpRegDetails)
-                  case status =>
-                    Logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to upsert to EACD - status: $status")
-                    None
-                }
-              }
-            case None =>
+          fetchETMPStatus(etmpRegDetails.regimeRefNumber) flatMap {
+            case Some(e) if e == Rejected.name || e == Revoked.name =>
+              Logger.info(s"[EtmpRegimeService][checkETMPApi] Not performing self heal on API9 status of $e")
               Future.successful(None)
+            case _ => trySelfHealOnValidCase(businessCustomerDetails, etmpRegDetails, legalEntity)
           }
       } recover {
         case e: Exception =>
