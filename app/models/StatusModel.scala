@@ -91,6 +91,8 @@ object FormBundleStatus {
   }
 }
 
+trait NonSelfHealStatus
+
 case object NoStatus extends FormBundleStatus {
   val code = "00"
   val name = "None".toLowerCase
@@ -101,7 +103,7 @@ case object Pending extends FormBundleStatus {
   val name = "Pending".toLowerCase
 }
 
-case object Withdrawal extends FormBundleStatus {
+case object Withdrawal extends FormBundleStatus with NonSelfHealStatus {
   val code = "02"
   val name = "Withdrawal".toLowerCase
 }
@@ -116,7 +118,7 @@ case object ApprovedWithConditions extends FormBundleStatus {
   val name = "Approved with Conditions".toLowerCase
 }
 
-case object Rejected extends FormBundleStatus {
+case object Rejected extends FormBundleStatus with NonSelfHealStatus {
   val code = "06"
   val name = "Rejected".toLowerCase
 }
@@ -126,7 +128,7 @@ case object RejectedUnderReviewOrAppeal extends FormBundleStatus {
   val name = "Rejected under Review/Appeal".toLowerCase
 }
 
-case object Revoked extends FormBundleStatus {
+case object Revoked extends FormBundleStatus with NonSelfHealStatus {
   val code = "08"
   val name = "Revoked".toLowerCase
 }
@@ -136,7 +138,7 @@ case object RevokedUnderReviewOrAppeal extends FormBundleStatus {
   val name = "Revoked under Review/Appeal".toLowerCase
 }
 
-case object DeRegistered extends FormBundleStatus {
+case object DeRegistered extends FormBundleStatus with NonSelfHealStatus {
   val code = "10"
   val name = "De-Registered".toLowerCase
 }

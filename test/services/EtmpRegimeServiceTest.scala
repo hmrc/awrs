@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * Copyright 2019 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package services
 
 import java.util.UUID
@@ -58,7 +42,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
   val safeId: String = "XE0001234567890"
   val regime: String = "AWRS"
 
-  object TestEtmpRegimeService extends EtmpRegimeService(mockEtmpConnector, mockEnrolmentStore, mockAuthConnector )
+  object TestEtmpRegimeService extends EtmpRegimeService(mockEtmpConnector, mockEnrolmentStore, mockAuthConnector)
 
 
   "getEtmpBusinessDetails" should {
@@ -106,7 +90,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         .thenReturn(HttpResponse(OK, Some(resp)))
 
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
@@ -127,7 +111,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         .thenReturn(HttpResponse(NOT_FOUND))
 
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("SOP"), businessAddress , "1234567890",
+      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("SOP"), businessAddress, "1234567890",
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "SOP")
@@ -135,31 +119,37 @@ class EtmpRegimeServiceTest extends BaseSpec {
       await(result) shouldBe Some(registrationDetails)
     }
 
-    "fail when the status is rejected" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
+    val nonSelfHealStatuses: Seq[String] = List("Rejected", "Revoked", "Withdrawal", "De-Registered")
 
-      when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime)))))
-      when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+    for (status <- nonSelfHealStatuses) {
 
-      val resp = Json.obj(
-        "processingDate" -> "20/01/2010",
-        "formBundleStatus" -> Rejected.name,
-        "groupBusinessPartner" -> false
-      )
+      s"fail when a status of $status is received (no self heal)" in {
 
-      when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(HttpResponse(OK, Some(resp)))
+          FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
-      val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
-        "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
-      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
+          when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(
+            ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
+          when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+            .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime)))))
+          when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+            .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
 
-      await(result) shouldBe None
+          val resp = Json.obj(
+            "processingDate" -> "20/01/2010",
+            "formBundleStatus" -> status,
+            "groupBusinessPartner" -> false
+          )
+
+          when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+            .thenReturn(HttpResponse(OK, Some(resp)))
+
+          val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
+          val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
+            "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
+          val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
+
+          await(result) shouldBe None
+      }
     }
 
     "fail to return a regimeRefNumber when the feature switch is enabled but there are no regimeIdentifiers" in {
@@ -171,7 +161,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
             |{}
           """.stripMargin)))))
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
 
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
@@ -185,7 +175,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
       when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.failed(new RuntimeException("test")))
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
         "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
@@ -195,7 +185,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
     "fail to return a regimeRefNumber when the feature switch is disabled" in {
       FeatureSwitch.disable(AWRSFeatureSwitches.regimeCheck())
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
         "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
@@ -213,7 +203,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         .thenReturn(Future.failed(new RuntimeException("failure to return registration details")))
 
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
@@ -229,9 +219,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
           .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
         val etmpRegistrationDetails =
           EtmpRegistrationDetails(
-            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), None, None)
+            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
           "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
         val result = TestEtmpRegimeService.handleDuplicateSubscription(etmpRegistrationDetails, businessCustomerDetails)
 
@@ -246,9 +236,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
           .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
         val etmpRegistrationDetails =
           EtmpRegistrationDetails(
-            Some("ACME Trading"), "1", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), None, None)
+            Some("ACME Trading"), "1", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
           "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
         val result = TestEtmpRegimeService.handleDuplicateSubscription(etmpRegistrationDetails, businessCustomerDetails)
 
@@ -262,9 +252,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
           .thenReturn(Future.successful(Some(AffinityGroup.Individual)))
         val etmpRegistrationDetails =
           EtmpRegistrationDetails(
-            Some("ACME Trading"), "1", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
+            Some("ACME Trading"), "1", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
           "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
         val result = TestEtmpRegimeService.handleDuplicateSubscription(etmpRegistrationDetails, businessCustomerDetails)
 
@@ -277,9 +267,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
       "passed affinity group individual" in {
         val etmpRegistrationDetails =
           EtmpRegistrationDetails(
-            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
+            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
           "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
 
         val result = TestEtmpRegimeService.getEtmpRegistrationDetails(Some(AffinityGroup.Individual), businessCustomerDetails, etmpRegistrationDetails)
@@ -290,9 +280,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
       "passed affinity group organisation" in {
         val etmpRegistrationDetails =
           EtmpRegistrationDetails(
-            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
+            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
           "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
 
         val result = TestEtmpRegimeService.getEtmpRegistrationDetails(Some(AffinityGroup.Organisation), businessCustomerDetails, etmpRegistrationDetails)
@@ -305,9 +295,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
       "passed other affinity group" in {
         val etmpRegistrationDetails =
           EtmpRegistrationDetails(
-            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
+            Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress , "1234567890",
+        val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
           "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
 
         val result = TestEtmpRegimeService.getEtmpRegistrationDetails(Some(AffinityGroup.Agent), businessCustomerDetails, etmpRegistrationDetails)
@@ -506,39 +496,43 @@ class EtmpRegimeServiceTest extends BaseSpec {
         )
 
         when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-            .thenReturn(HttpResponse(OK, Some(resp)))
+          .thenReturn(HttpResponse(OK, Some(resp)))
 
         await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some(Rejected.name)
       }
 
-      "a revoked case" in {
-        val resp = Json.obj(
-          "processingDate" -> "20/01/2010",
-          "formBundleStatus" -> "Revoked",
-          "groupBusinessPartner" -> false
-        )
-
-        when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-            .thenReturn(HttpResponse(OK, Some(resp)))
-
-        await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some(Revoked.name)
-      }
     }
 
-    "provide no status when it doesn't exist" when {
-      "a not found case" in {
+    "provide no status" when {
+      "the AWRS subscription cannot be found" in {
         when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-            .thenReturn(HttpResponse(NOT_FOUND))
+          .thenReturn(HttpResponse(NOT_FOUND))
 
         await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe None
       }
 
-      "a server error" in {
+      "the status returned from ETMP is not recognised" in {
+        val resp = Json.obj(
+          "processingDate" -> "20/01/2010",
+          "formBundleStatus" -> "Dodgy Status",
+          "groupBusinessPartner" -> false
+        )
+
         when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-            .thenReturn(HttpResponse(INTERNAL_SERVER_ERROR))
+          .thenReturn(HttpResponse(OK, Some(resp)))
+
+        await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some("not found")
+      }
+    }
+
+    "throw an exception" when {
+      "a server error status is received" in {
+        when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(HttpResponse(INTERNAL_SERVER_ERROR))
 
         intercept[RuntimeException](await(TestEtmpRegimeService.fetchETMPStatus("testRef")))
       }
     }
+
   }
 }
