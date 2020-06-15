@@ -23,7 +23,6 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.{EtmpLookupService, EtmpRegimeService, EtmpStatusService, SubscriptionService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import utils.LoggingUtils
 
@@ -37,7 +36,6 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
                                        val statusService: EtmpStatusService,
                                        val regimeService: EtmpRegimeService,
                                        cc: ControllerComponents,
-                                       conf: ServicesConfig,
                                        @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
@@ -232,7 +230,7 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
   def updateGrpRegistrationDetails(awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>
       val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
-      subscriptionService.updateGrpRepRegistrationDetails(awrsRefNo, safeId, updatedData) map {
+      subscriptionService.updateGrpRepRegistrationDetails(safeId, updatedData) map {
         responseReceived =>
           responseReceived.status match {
             case OK => Ok(responseReceived.body)

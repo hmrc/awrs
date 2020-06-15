@@ -20,6 +20,7 @@ import audit.TestAudit
 import metrics.AwrsMetrics
 import models._
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.ControllerComponents
@@ -62,7 +63,6 @@ class SubscriptionControllerTest extends BaseSpec {
     mockEtmpStatusService,
     mockEtmpRegimeService,
     cc,
-    servicesConfig,
     "awrs"
   ) {
     override val appName: String = "awrs"
@@ -81,28 +81,28 @@ class SubscriptionControllerTest extends BaseSpec {
       val matchFailureResponse = HttpResponse(NOT_FOUND, responseJson = Some(matchFailure))
 
       "respond with OK" in {
-        when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(registerSuccessResponse))
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentType(result).get shouldBe "text/plain"
         status(result) shouldBe OK
       }
 
       "return Businessdetails for successful register" in {
-        when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(registerSuccessResponse))
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(registerSuccessResponse))
         val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         contentAsJson(result) shouldBe successResponse
       }
 
       "for an unsuccessful match return Not found" in {
-        when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(matchFailureResponse))
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(matchFailureResponse))
         val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe NOT_FOUND
         contentAsJson(result) shouldBe matchFailureResponse.json
       }
 
       "for a bad request, return BadRequest" in {
-        when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
+        when(mockEtmpRegimeService.checkETMPApi(any(), any())(any(), any())).thenReturn(Future.successful(None))
         val result = TestSubscriptionController.subscribe()(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe BAD_REQUEST
         contentAsJson(result) shouldBe badRequestJson
@@ -112,23 +112,23 @@ class SubscriptionControllerTest extends BaseSpec {
         val etmpRegistrationDetails =
           EtmpRegistrationDetails(
             Some("ACME Trading"), "1", "XE0001234567890", Some(false),"XAAW00000123456", Some("AARN1234567"), None, None)
-        when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any()))
           .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
-        when(mockEtmpRegimeService.checkETMPApi( ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi( any(), any())(any(), any()))
           .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
         val result = TestSubscriptionController.subscribe()(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe ACCEPTED
       }
 
       "for service unavailable, return service unavailable" in {
-        when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
         val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe SERVICE_UNAVAILABLE
         contentAsJson(result) shouldBe serviceUnavailable
       }
 
       "internal server error, return internal server error" in {
-        when(mockSubcriptionService.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
         val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
         status(result) shouldBe INTERNAL_SERVER_ERROR
         contentAsJson(result) shouldBe serverError
@@ -138,31 +138,31 @@ class SubscriptionControllerTest extends BaseSpec {
     "Subscription Controller " should {
 
       "lookup submitted application from HODS when passed a valid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api4EtmpLTDJson))))
+        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(OK, Some(api4EtmpLTDJson))))
         val result = TestSubscriptionController.lookupApplication(testRefNo).apply(FakeRequest())
         status(result) shouldBe OK
       }
 
       "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(lookupFailure))))
+        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(lookupFailure))))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe BAD_REQUEST
       }
 
       "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(lookupFailure))))
+        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(lookupFailure))))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe NOT_FOUND
       }
 
       "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(lookupFailure))))
+        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(lookupFailure))))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe SERVICE_UNAVAILABLE
       }
 
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(lookupFailure))))
+        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(lookupFailure))))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
@@ -173,32 +173,32 @@ class SubscriptionControllerTest extends BaseSpec {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345"}""")
 
       "respond with OK" in {
-        when(mockSubcriptionService.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
+        when(mockSubcriptionService.updateSubscription(any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
         val result = TestSubscriptionController.updateSubscription("").apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
         status(result) shouldBe OK
         contentAsJson(result) shouldBe updateSuccessResponse
       }
 
       "respond with BAD REQUEST" in {
-        when(mockSubcriptionService.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
+        when(mockSubcriptionService.updateSubscription(any(), any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
         val result = TestSubscriptionController.updateSubscription("").apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
         status(result) shouldBe BAD_REQUEST
       }
 
       "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(serviceUnavailable))))
+        when(mockSubcriptionService.updateSubscription(any(), any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(serviceUnavailable))))
         val result = TestSubscriptionController.updateSubscription("").apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
         status(result) shouldBe NOT_FOUND
       }
 
       "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
+        when(mockSubcriptionService.updateSubscription(any(), any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
         val result = TestSubscriptionController.updateSubscription("").apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
         status(result) shouldBe SERVICE_UNAVAILABLE
       }
 
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
+        when(mockSubcriptionService.updateSubscription(any(), any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
         val result = TestSubscriptionController.updateSubscription("").apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
@@ -208,32 +208,32 @@ class SubscriptionControllerTest extends BaseSpec {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
       val fakeRequest = FakeRequest(method = "POST", uri = "", headers = FakeHeaders(Seq("Content-type" -> "application/json")), body = api3FrontendJson)
       "respond with OK" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(any(), any())(any())).thenReturn(Future.successful(HttpResponse(OK, Some(updateSuccessResponse))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "").apply(fakeRequest)
         status(result) shouldBe OK
         contentAsJson(result) shouldBe updateSuccessResponse
       }
 
       "respond with BAD REQUEST" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(any(), any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(badRequestJson))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "").apply(fakeRequest)
         status(result) shouldBe BAD_REQUEST
       }
 
       "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(serviceUnavailable))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(any(), any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(serviceUnavailable))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "").apply(fakeRequest)
         status(result) shouldBe NOT_FOUND
       }
 
       "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(any(), any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(serviceUnavailable))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "").apply(fakeRequest)
         status(result) shouldBe SERVICE_UNAVAILABLE
       }
 
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-        when(mockSubcriptionService.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
+        when(mockSubcriptionService.updateGrpRepRegistrationDetails(any(), any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(serverError))))
         val result = TestSubscriptionController.updateGrpRegistrationDetails("", "").apply(fakeRequest)
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
@@ -244,7 +244,7 @@ class SubscriptionControllerTest extends BaseSpec {
       "check submitted application status from HODS when passed a valid awrs reference" in {
 
         def checkStatus(json: JsValue, expected: FormBundleStatus): Unit = {
-          when(mockEtmpStatusService.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+          when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(OK, Some(json))))
           val result = TestSubscriptionController.checkStatus(testRefNo).apply(FakeRequest())
           status(result) shouldBe OK
           await(result)
@@ -261,25 +261,25 @@ class SubscriptionControllerTest extends BaseSpec {
       }
 
       "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(statusFailure))))
+        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(statusFailure))))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe BAD_REQUEST
       }
 
       "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(statusFailure))))
+        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(statusFailure))))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe NOT_FOUND
       }
 
       "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(statusFailure))))
+        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(statusFailure))))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe SERVICE_UNAVAILABLE
       }
 
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(statusFailure))))
+        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(statusFailure))))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }

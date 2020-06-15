@@ -16,30 +16,24 @@
 
 package services
 
-import connectors.{EnrolmentStoreConnector, EtmpConnector, GovernmentGatewayAdminConnector}
-import javax.inject.{Inject, Named}
+import connectors.{EnrolmentStoreConnector, EtmpConnector}
+import javax.inject.Inject
 import metrics.AwrsMetrics
-import models.{EnrolmentVerifiers, KnownFactsForService, _}
+import models.{EnrolmentVerifiers, _}
 import play.api.http.Status._
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.SessionUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class SubscriptionService @Inject()(auditConnector: AuditConnector,
-                                    metrics: AwrsMetrics,
+class SubscriptionService @Inject()(metrics: AwrsMetrics,
                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
-                                    val ggAdminConnector: GovernmentGatewayAdminConnector,
-                                    val etmpConnector: EtmpConnector,
-                                    config: ServicesConfig) {
+                                    val etmpConnector: EtmpConnector) {
 
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   val notFound: JsValue = Json.parse( """{"Reason": "Resource not found"}""")
-  val isEmacFeatureToggle: Boolean = config.getConfBool("emacsFeatureToggle", defBool = true)
 
   def subscribe(data: JsValue,
                 safeId: String,
@@ -80,31 +74,11 @@ class SubscriptionService @Inject()(auditConnector: AuditConnector,
         val json = response.json
         val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
 
-        if (isEmacFeatureToggle) {
-          val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
-          val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
-          enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
-        } else {
-          ggAdminConnector
-            .addKnownFacts(
-              createKnownFacts(awrsRegistrationNumber, safeId, utr, businessType, postcode), awrsRegistrationNumber)
-        }
+        val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
+        val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
+        enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
       case _ => Future.successful(response)
     }
-
-  private def createKnownFacts(awrsRegistrationNumber: String, safeId: String, utr: Option[String], businessType: String, postcode: String) = {
-    val knownFact1 = KnownFact("AWRSRefNumber", awrsRegistrationNumber)
-    val knownFact2 = KnownFact("POSTCODE", postcode)
-    val knownFacts = utr match {
-      case Some(someUtr) =>
-        businessType match {
-          case "SOP" => List(knownFact1, KnownFact("SAUTR", someUtr), knownFact2)
-          case _ => List(knownFact1, KnownFact("CTUTR", someUtr), knownFact2)
-        }
-      case _ => List(knownFact1, knownFact2)
-    }
-    KnownFactsForService(knownFacts)
-  }
 
   private def createVerifiers(safeId: String, utr: Option[String], businessType: String, postcode: String) = {
     val utrTuple = businessType match {
@@ -119,7 +93,7 @@ class SubscriptionService @Inject()(auditConnector: AuditConnector,
     EnrolmentVerifiers(verifierTuples: _*)
   }
 
-  def updateGrpRepRegistrationDetails(awrsRefNo: String, safeId: String, updateData: UpdateRegistrationDetailsRequest)
+  def updateGrpRepRegistrationDetails(safeId: String, updateData: UpdateRegistrationDetailsRequest)
                                      (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val request = updateData.copy(acknowledgementReference = Some(SessionUtils.getUniqueAckNo))
     etmpConnector.updateGrpRepRegistrationDetails(safeId, Json.toJson(request))
