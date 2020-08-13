@@ -18,17 +18,17 @@ package controllers
 
 import javax.inject.Inject
 import models.CheckRegimeModel
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.EtmpRegimeService
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EtmpCheckController @Inject()(cc: ControllerComponents,
-                                    etmpRegimeService: EtmpRegimeService) extends BackendController(cc) {
+                                    etmpRegimeService: EtmpRegimeService) extends BackendController(cc) with Logging {
 
 
   def checkEtmp(): Action[AnyContent] = Action.async { implicit request =>
@@ -42,11 +42,11 @@ class EtmpCheckController @Inject()(cc: ControllerComponents,
             val responseJson = Json.obj("regimeRefNumber" -> etmpRegistrationDetails.regimeRefNumber)
             Ok(responseJson)
           case _ =>
-            Logger.warn("[EtmpCheckController][checkEtmp] Could not retrieve/upsert for checkEtmp")
+            logger.warn("[EtmpCheckController][checkEtmp] Could not retrieve/upsert for checkEtmp")
             NoContent
         }
       case _ =>
-        Logger.warn("[EtmpCheckController][checkEtmp] Incorrect model for checkEtmp")
+        logger.warn("[EtmpCheckController][checkEtmp] Incorrect model for checkEtmp")
         Future.successful(NoContent)
     }
   }

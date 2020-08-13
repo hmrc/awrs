@@ -18,9 +18,6 @@ package utils
 
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.libs.json.Json
-import play.api.libs.json.JodaReads._
-import play.api.libs.json.JodaWrites._
 
 sealed trait FeatureSwitch {
   def name: String

@@ -18,9 +18,8 @@ package controllers.test
 
 import akka.actor.ActorSystem
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.controller.BackendController
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.{AWRSFeatureSwitches, BooleanFeatureSwitch, FeatureSwitch}
 
 import scala.concurrent.Future

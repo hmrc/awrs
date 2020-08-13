@@ -18,7 +18,6 @@ package models
 
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, _}
-import utils.Utility._
 
 case class SubscriptionStatusType(processingDate: String,
                                   formBundleStatus: FormBundleStatus,
