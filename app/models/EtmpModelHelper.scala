@@ -16,7 +16,6 @@
 
 package models
 
-import models.PlaceOfBusiness.{FiveToTenYearsEtmp, TwoToFiveYearsEtmp, ZeroToTwoYearsEtmp}
 import org.joda.time.LocalDate
 import play.api.libs.json._
 import utils.{EtmpConstants, Utility}

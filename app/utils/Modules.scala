@@ -16,7 +16,7 @@
 
 package utils
 
-import play.api.inject.{Binding, Module}
+import play.api.inject.{Binding, Module, bind => playBind}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
@@ -29,7 +29,7 @@ class Modules extends Module {
   }
 
   private def bindControllers: Seq[Binding[_]] = Seq(
-    bind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector]),
-    bind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
+    playBind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector]),
+    playBind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
   )
 }

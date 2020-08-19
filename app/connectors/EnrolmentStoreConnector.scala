@@ -18,20 +18,18 @@ package connectors
 
 import javax.inject.{Inject, Named}
 import models.EnrolmentVerifiers
-import play.api.Configuration
-import play.api.Mode.Mode
 import play.api.http.Status.NO_CONTENT
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.http.HttpClient
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
-                                        http: DefaultHttpClient,
+                                        http: HttpClient,
                                         config: ServicesConfig,
                                         @Named("appName") val appName: String) extends LoggingUtils {
   val retryLimit = 7

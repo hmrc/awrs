@@ -20,7 +20,7 @@ object AppDependencies {
 
   private val domainVersion = "5.9.0-play-26"
   private val hmrcTestVersion = "3.9.0-play-26"
-  private val scalaTestplusPlayVersion = "3.1.3"
+  private val scalaTestplusPlayVersion = "4.0.3"
   private val pegdownVersion = "1.6.0"
   private val json4sJacksonVersion = "3.6.9"
   private val jsonSchemaValidatorVersion = "2.2.6"
@@ -30,7 +30,7 @@ object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-26" % "1.8.0",
+    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "2.23.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
@@ -72,7 +72,7 @@ object AppDependencies {
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
-        "com.github.tomakehurst" % "wiremock-jre8" % "2.25.1" % scope
+        "com.github.tomakehurst" % "wiremock-jre8" % "2.23.2" % scope
       )
     }.test
   }

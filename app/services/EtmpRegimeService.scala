@@ -19,7 +19,7 @@ package services
 import connectors.{EnrolmentStoreConnector, EtmpConnector}
 import javax.inject.Inject
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisedFunctions, User}
@@ -31,7 +31,9 @@ import scala.util.{Failure, Success, Try}
 
 class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                                   val enrolmentStoreConnector: EnrolmentStoreConnector,
-                                  val authConnector: AuthConnector) extends AuthorisedFunctions with NonSelfHealStatus {
+                                  val authConnector: AuthConnector) extends AuthorisedFunctions
+                                  with NonSelfHealStatus
+                                  with Logging{
 
   private val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
 
@@ -40,7 +42,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
       Try(EtmpRegistrationDetails.etmpReader.reads(response.json)) match {
         case Success(value)   => value.asOpt
         case Failure(e)       =>
-          Logger.info(s"[EtmpRegimeService][getEtmpBusinessDetails] Could not read ETMP response - $e")
+          logger.info(s"[EtmpRegimeService][getEtmpBusinessDetails] Could not read ETMP response - $e")
           None
       }
     }
@@ -88,7 +90,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
           Some(statusType.formBundleStatus.name)
         case NOT_FOUND => None
         case status    =>
-          Logger.warn(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status")
+          logger.warn(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status")
           throw new RuntimeException(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status")
       }
     }
@@ -110,7 +112,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
           response.status match {
             case NO_CONTENT => Some(etmpRegDetails)
             case status =>
-              Logger.warn(s"[EtmpRegimeService][trySelfHealOnValidCase] Failed to upsert to EACD - status: $status")
+              logger.warn(s"[EtmpRegimeService][trySelfHealOnValidCase] Failed to upsert to EACD - status: $status")
               None
           }
         }
@@ -133,14 +135,14 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
             status =>
               status.map(FormBundleStatus.apply) match {
                 case Some(s: NonSelfHealStatus) =>
-                  Logger.info(s"[EtmpRegimeService][checkETMPApi] Not performing self heal on API9 status of $s")
+                  logger.info(s"[EtmpRegimeService][checkETMPApi] Not performing self heal on API9 status of $s")
                   Future.successful(None)
                 case _ => trySelfHealOnValidCase(businessCustomerDetails, etmpRegDetails, legalEntity)
               }
           }
       } recover {
         case e: Exception =>
-          Logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to check ETMP api :${e.getMessage}")
+          logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to check ETMP api :${e.getMessage}")
           None
       }
     }
@@ -163,7 +165,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     ).partition{case (_,v) => v} match {
       case (_, failures) if failures.isEmpty => true
       case (_, failures) =>
-        Logger.warn(s"[matchIndividual] Could not match following details for individual: $failures")
+        logger.warn(s"[matchIndividual] Could not match following details for individual: $failures")
         false
     }
 
@@ -178,7 +180,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
     ).partition{case (_, v) => v} match {
       case (_, failures) if failures.isEmpty => true
       case (_, failures) =>
-        Logger.warn(s"[matchOrg] Could not match following details for organisation: $failures")
+        logger.warn(s"[matchOrg] Could not match following details for organisation: $failures")
         false
     }
   }
