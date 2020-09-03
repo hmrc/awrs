@@ -16,11 +16,13 @@
 
 package models
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
 import utils.BaseSpec
 
-class StatusInfoModelReaderSpec extends BaseSpec {
+class StatusInfoModelReaderSpec extends BaseSpec with WordSpecLike with MustMatchers {
 
-  "StatusInfoModelReaderSpec " should {
+  "StatusInfoModelReaderSpec " must {
 
     "transform correctly to StatusInfoType Frontend Model for success response" in {
       val statusInfoTypeDetails = api11SuccessfulCDATAEncodedResponseJson.as[StatusInfoType](StatusInfoType.reader)

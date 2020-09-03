@@ -28,7 +28,7 @@ object TestUtil extends TestUtil
 
 trait TestUtil {
 
-  lazy val dummyDataMap = Map("$nino" -> testNino, "$utr" -> testUtr, "$grpJoinDate" -> testGrpJoinDate, "$testRefNo" -> testRefNo)
+  lazy val dummyDataMap = Map(f"$$nino" -> testNino, f"$$utr" -> testUtr, f"$$grpJoinDate" -> testGrpJoinDate, f"$$testRefNo" -> testRefNo)
 
   def load(path: String): String = {
     Source.fromURL(getClass.getResource(path)).mkString

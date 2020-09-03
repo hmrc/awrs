@@ -136,7 +136,6 @@ trait EtmpModelHelper extends EtmpConstants {
     st.legalEntity.reduceLeft((x, y) => x).legalEntity match {
       case Some("Partnership") => Json.obj()
       case _ =>
-        val businessDetails = st.businessDetails.reduceLeft((x, y) => x)
         val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, y) => x)
         val incorporationDetails = identificationIncorporationDetails(businessRegistrationDetails)
         val llpCorporateBody = Json.obj("incorporationDetails" -> incorporationDetails).++(createDateGroupRepresantativeJoined(st))
@@ -460,6 +459,7 @@ trait EtmpModelHelper extends EtmpConstants {
     val legalEntity = st.legalEntity match {
       case Some(BusinessType(Some("SOP"))) => Json.obj()
       case Some(BusinessType(_)) => toEtmpAdditionalBusinessInfoPartnerCorporateBody(st)
+      case _ => throw new Exception("")
     }
 
     legalEntity
@@ -498,6 +498,7 @@ trait EtmpModelHelper extends EtmpConstants {
       case Some("Individual") => toEtmpPartnerDetailsIndividual(partnerDetail)
       case Some("Corporate Body") => toEtmpPartnerDetailsCompany(partnerDetail)
       case Some("Sole Trader") => toEtmpPartnerDetailsSoleTrader(partnerDetail)
+      case _ => throw new Exception("")
     }
 
   def toEtmpPartnerDetailsIndividual(partnerDetail: Partner) = {

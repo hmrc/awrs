@@ -140,6 +140,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                 case _ => trySelfHealOnValidCase(businessCustomerDetails, etmpRegDetails, legalEntity)
               }
           }
+        case _ => throw new Exception("")
       } recover {
         case e: Exception =>
           logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to check ETMP api :${e.getMessage}")

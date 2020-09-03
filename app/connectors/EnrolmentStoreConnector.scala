@@ -19,11 +19,11 @@ package connectors
 import javax.inject.{Inject, Named}
 import models.EnrolmentVerifiers
 import play.api.http.Status.NO_CONTENT
-import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import utils.LoggingUtils
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -43,7 +43,7 @@ class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
     val url = s"$enrolmentStore/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey"
 
     def trySend(tries: Int): Future[HttpResponse] = {
-      http.PUT(url, verifiers).flatMap {
+      http.PUT(url, verifiers)(implicitly, readRaw, implicitly, implicitly).flatMap {
         response =>
           response.status match {
             case NO_CONTENT => Future.successful(response)

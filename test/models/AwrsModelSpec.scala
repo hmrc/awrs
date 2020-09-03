@@ -17,15 +17,17 @@
 package models
 
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsObject, JsPath, Json}
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson._
 import utils.TestUtil._
 import utils.{AwrsTestJson, TestUtil}
 
-class AwrsModelSpec extends UnitSpec with AwrsTestJson {
+class AwrsModelSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
 
-  "An AwrsModelSpec CorporateBody json" should {
+  "An AwrsModelSpec CorporateBody json" must {
     "transform correctly to valid SubscriptionType Object for Corporate Body" in {
       val awrsModel = api4FrontendLTDJson.as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
@@ -233,7 +235,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
   }
 
-  "A AwrsFrontEndModel CorporateBody json with isBusinessIncorporated Yes" should {
+  "A AwrsFrontEndModel CorporateBody json with isBusinessIncorporated Yes" must {
     "transform correctly to valid  SubscriptionType Object for Corporate Body" in {
 
       val awrsModel = api4FrontendLTDJson.as[AWRSFEModel]
@@ -245,7 +247,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel Partnership json" should {
+  "A AwrsFrontEndModel Partnership json" must {
     "transform correctly to valid SubscriptionType Object with missing VRN for Partnership business details" in {
 
       val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "businessRegistrationDetails" \ "doYouHaveVRN", api4FrontendPartnershipString)
@@ -343,7 +345,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel Soletrader json" should {
+  "A AwrsFrontEndModel Soletrader json" must {
     "transform correctly to valid  SubscriptionType for Sole Trader" in {
 
       val awrsModel = api4FrontendSOPJson.as[AWRSFEModel]
@@ -649,7 +651,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
 
   }
 
-  "A AwrsFrontEndModel with Premises Address json" should {
+  "A AwrsFrontEndModel with Premises Address json" must {
     "transform correctly to valid  SubscriptionType for Sole Trader" in {
 
       val awrsModel = api4FrontendSOPJson.as[AWRSFEModel]
@@ -661,7 +663,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel with Premises Address json" should {
+  "A AwrsFrontEndModel with Premises Address json" must {
     "transform correctly to valid  SubscriptionType for PARTNERSHIP" in {
 
       val awrsModel = api4FrontendPartnershipJson.as[AWRSFEModel]
@@ -672,7 +674,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel with LLP details" should {
+  "A AwrsFrontEndModel with LLP details" must {
 
     "transform correctly to valid SubscriptionType for LLP without Groups" in {
       val awrsModel = api4FrontendLLPJson.as[AWRSFEModel]
@@ -683,7 +685,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel with LP details" should {
+  "A AwrsFrontEndModel with LP details" must {
 
     "transform correctly to valid SubscriptionType for LP without groups" in {
 
@@ -705,7 +707,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel with LTD details" should {
+  "A AwrsFrontEndModel with LTD details" must {
     "transform correctly to valid SubscriptionType for LTD without groups" in {
       val awrsModel = api4FrontendLTDJson.as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
@@ -726,7 +728,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel with Partnership details" should {
+  "A AwrsFrontEndModel with Partnership details" must {
 
     "transform correctly to valid  SubscriptionType for Partnership without groups" in {
       val awrsModel = api4FrontendPartnershipJson.as[AWRSFEModel]
@@ -737,7 +739,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "A AwrsFrontEndModel with SOP details" should {
+  "A AwrsFrontEndModel with SOP details" must {
 
     "transform correctly to valid SubscriptionType for SOP without groups" in {
       val awrsModel = api4FrontendSOPJson.as[AWRSFEModel]
@@ -748,7 +750,7 @@ class AwrsModelSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "An API6 CorporateBody json" should {
+  "An API6 CorporateBody json" must {
     "transform correctly to valid Corporate Body" in {
 
       val awrsModel = api6FrontendLTDJson.as[AWRSFEModel]

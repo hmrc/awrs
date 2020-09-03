@@ -21,7 +21,10 @@ import java.util.UUID
 import connectors.EtmpConnector
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.libs.json.{JsValue, Json}
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -32,7 +35,7 @@ import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class EtmpConnectorTest extends BaseSpec {
+class EtmpConnectorTest extends BaseSpec with MustMatchers with WordSpecLike {
 
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
@@ -46,11 +49,10 @@ class EtmpConnectorTest extends BaseSpec {
     reset(mockWSHttp)
   }
 
-  "EtmpConnector" should {
+  "EtmpConnector" must {
 
     "create correct AWRS subscription POST request" in {
       val safeId = "XA0001234567890"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val expectedPostRequest = "http://localhost:9912/alcohol-wholesaler-register/subscription/XA0001234567890"
       val createdPostRequest = TestEtmpConnector.serviceURL + TestEtmpConnector.baseURI + TestEtmpConnector.subscriptionURI + safeId
       createdPostRequest should be(expectedPostRequest)
@@ -59,8 +61,8 @@ class EtmpConnectorTest extends BaseSpec {
     "for a successful submission, return AWRS Registration Number response" in {
       val api4Json = api4EtmpSOPJson
       val safeId = "XA0001234567890"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api4SuccessResponse))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api4SuccessResponse, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.subscribe(api4Json, safeId)
       await(result).json should be(api4SuccessResponse)
     }
@@ -68,15 +70,14 @@ class EtmpConnectorTest extends BaseSpec {
     "lookup an application with a valid reference number " in {
       val lookupSuccess = Json.parse( """{"Reason": "All ok"}""")
       val awrsRefNo = "XAAW0000012345"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(lookupSuccess))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, lookupSuccess, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.lookup(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
 
     "create correct AWRS subscription PUT request" in {
       val awrsRefNo = "XAAW000003457890"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val expectedPutRequest = "http://localhost:9912/alcohol-wholesaler-register/subscription/XAAW000003457890"
       val createdPutRequest = TestEtmpConnector.serviceURL + TestEtmpConnector.baseURI + TestEtmpConnector.subscriptionURI + awrsRefNo
       createdPutRequest should be(expectedPutRequest)
@@ -84,16 +85,16 @@ class EtmpConnectorTest extends BaseSpec {
 
     "for a successful API6 submission, return etmp processing date and form bundle number in response" in {
       val awrsRefNo = "XAAW000003457890"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api6SuccessResponseJson))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api6SuccessResponseJson, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.updateSubscription(api6FrontendLTDJson, awrsRefNo)
       await(result).json should be(api6SuccessResponseJson)
     }
 
     "check status of an application with a valid reference number " in {
       val awrsRefNo = "XAAW0000010001"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api9SuccessfulResponseJson))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api9SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.checkStatus(awrsRefNo)
       await(result).json shouldBe api9SuccessfulResponseJson
     }
@@ -102,8 +103,8 @@ class EtmpConnectorTest extends BaseSpec {
       val awrsRefNo = "XAAW0000010001"
       val contactNumber = "0123456789"
       val expectedURL: String = s"/alcohol-wholesaler-register/secure-comms/reg-number/$awrsRefNo/contact-number/$contactNumber"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.endsWith(expectedURL))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api11SuccessfulResponseJson))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.endsWith(expectedURL))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api11SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.getStatusInfo(awrsRefNo, contactNumber)
       await(result).json shouldBe api11SuccessfulResponseJson // if the URL is correct then getStatusInfoSuccess should be returned
     }
@@ -112,24 +113,24 @@ class EtmpConnectorTest extends BaseSpec {
       val awrsRefNo = "XAAW0000010001"
       val dummyData: JsValue = Json.parse("true") // dummy data does not matter since the call is mocked
       val expectedURL: String = s"/alcohol-wholesaler-register/subscription/$awrsRefNo/deregistration"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.endsWith(expectedURL), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api10SuccessfulResponseJson))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.endsWith(expectedURL), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api10SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.deRegister(awrsRefNo, dummyData)
       await(result).json shouldBe api10SuccessfulResponseJson // if the URL is correct then deRegisterSuccess should be returned
     }
 
     "for a successful withdrawal, return a success response" in {
       val awrsRefNo = "XAAW0000010001"
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(api8SuccessfulResponseJson))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.withdrawal(awrsRefNo, api8RequestJson)
       await(result).json should be(api8SuccessfulResponseJson)
     }
 
     "for a successful API3 submission, return processing date in ETMP response" in {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
-      implicit val hc = new HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, responseJson = Some(updateSuccessResponse))))
+      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+      when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, updateSuccessResponse, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.updateGrpRepRegistrationDetails(testRefNo, api3FrontendJson)
       await(result).json should be(updateSuccessResponse)
     }

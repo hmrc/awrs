@@ -16,12 +16,14 @@
 
 package models
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
 
-class WithdrawalReaderSpec extends UnitSpec {
+class WithdrawalReaderSpec extends PlaySpec with WordSpecLike with MustMatchers{
 
-  "WithdrawalReaderSpec " should {
+  "WithdrawalReaderSpec " must {
 
     "transform correctly to Withdrawal Model " in {
       val inputJsonAPI8 = Json.parse( """{"reason":"Something"}""")

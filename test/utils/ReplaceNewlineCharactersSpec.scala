@@ -16,11 +16,13 @@
 
 package utils
 
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 
-class ReplaceNewlineCharactersSpec extends UnitSpec {
+class ReplaceNewlineCharactersSpec extends PlaySpec with WordSpecLike with MustMatchers {
 
-  "ReplaceNewlineCharacters" should {
+  "ReplaceNewlineCharacters" must {
     "replace new lines with html break" in {
       val newlineText = "<P>Abcdefghijklmnopqrstuvwxyz\n\n0123456789110720182</P>"
       val expectedText = "<P>Abcdefghijklmnopqrstuvwxyz<br><br>0123456789110720182</P>"

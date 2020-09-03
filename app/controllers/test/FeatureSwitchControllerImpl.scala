@@ -27,13 +27,14 @@ import scala.concurrent.Future
 @Singleton
 class FeatureSwitchControllerImpl @Inject()(val actorSystem: ActorSystem,
                                             cc: ControllerComponents) extends BackendController(cc) {
-  def switch(featureName : String, featureState : String) = Action.async {
-    implicit request =>
-      def feature = (featureName, featureState) match {
-        case (jobName, "enable")  =>
-          BooleanFeatureSwitch(featureName, true)
-        case (jobName, "disable") =>
-          BooleanFeatureSwitch(featureName, false)
+  def switch(featureName : String, featureState : String): Any = Action.async {
+    _ =>
+      def feature: BooleanFeatureSwitch = (featureName, featureState) match {
+        case (_, "enable")  =>
+          BooleanFeatureSwitch(featureName, enabled = true)
+        case (_, "disable") =>
+          BooleanFeatureSwitch(featureName, enabled = false)
+        case _ => throw new Exception("")
       }
 
       FeatureSwitch.enable(feature)
@@ -41,7 +42,7 @@ class FeatureSwitchControllerImpl @Inject()(val actorSystem: ActorSystem,
   }
 
   def show: Action[AnyContent] = Action.async {
-    implicit request =>
+    _ =>
       val f = AWRSFeatureSwitches.all.foldLeft("")((s: String, fs: FeatureSwitch) => s + s"""${fs.name} ${fs.enabled}\n""")
       Future.successful(Ok(f))
   }

@@ -16,12 +16,14 @@
 
 package models
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
 
-class NewBusinessSpec extends UnitSpec {
+class NewBusinessSpec extends PlaySpec with WordSpecLike with MustMatchers {
 
-  "NewBusinessSpec" should {
+  "NewBusinessSpec" must {
 
     val etmpFormatDate = "2016-07-31"
     val feFormatDate = "31/07/2016"

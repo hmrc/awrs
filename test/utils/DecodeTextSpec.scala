@@ -16,11 +16,13 @@
 
 package utils
 
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 
-class DecodeTextSpec extends UnitSpec {
+class DecodeTextSpec extends PlaySpec with WordSpecLike with MustMatchers {
 
-  "decodeText" should {
+  "decodeText" must {
     "be able to decode a message into String" when {
       "base64 encoding" in {
         val encodedText = "Q29udGVudCBmb3Igc2VjdXJlIGNvbW11bmljYXRpb24gbWVzc2FnZSB0ZXh0"

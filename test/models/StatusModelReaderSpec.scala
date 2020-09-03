@@ -16,12 +16,14 @@
 
 package models
 
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 import utils.AwrsTestJson
 
-class StatusModelReaderSpec extends UnitSpec with AwrsTestJson {
+class StatusModelReaderSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
 
-  "StatusModelReaderSpec " should {
+  "StatusModelReaderSpec " must {
 
     "transform correctly to SubscriptionStatusType Frontend Model " in {
       val subscriptionStatusTypeDetails = api9SuccessfulResponseJson.as[SubscriptionStatusType](SubscriptionStatusType.reader)

@@ -16,14 +16,15 @@
 
 package utils
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{MustMatchers, WordSpecLike}
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.Utility._
 
-class UtilitySpec extends MockitoSugar with ScalaFutures with UnitSpec {
+class UtilitySpec extends  MockitoSugar with ScalaFutures  with WordSpecLike with MustMatchers {
 
-  "UtilitySpec" should {
+  "UtilitySpec" must {
 
     "convert years correctly from string dd/MM/yyyy to yyyy-MM-dd (mdtp to etmp)" in {
       for(i <- 2000 to 3000){

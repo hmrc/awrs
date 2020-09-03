@@ -16,11 +16,13 @@
 
 package utils
 
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 
-class StripDataTagsSpec extends UnitSpec with AwrsTestJson {
+class StripDataTagsSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
 
-  "isInCDATATag" should {
+  "isInCDATATag" must {
     "return true" when {
       "the tags are present" in {
         val secureCommentText = (api11SuccessfulCDATAResponseJson \ "secureCommText").as[String]
@@ -36,7 +38,7 @@ class StripDataTagsSpec extends UnitSpec with AwrsTestJson {
     }
   }
 
-  "Strip CData tag" should {
+  "Strip CData tag" must {
     "remove the data tag" when {
       "the tag is present" in {
         val secureCommText = (api11SuccessfulCDATAResponseJson \ "secureCommText").as[String]

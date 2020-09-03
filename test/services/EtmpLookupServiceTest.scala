@@ -21,6 +21,8 @@ import java.util.UUID
 import connectors.EtmpConnector
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -29,7 +31,7 @@ import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class EtmpLookupServiceTest extends BaseSpec {
+class EtmpLookupServiceTest extends BaseSpec with WordSpecLike with MustMatchers {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
@@ -38,18 +40,18 @@ class EtmpLookupServiceTest extends BaseSpec {
   object TestEtmpLookupService extends EtmpLookupService(mockEtmpConnector)
 
 
-  "EtmpLookupService " should {
+  "EtmpLookupService " must {
 
     "successfully lookup application when passed a valid reference number" in {
       val awrsRefNo = testRefNo
-      when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, None)))
+      when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "", Map.empty[String, Seq[String]])))
       val result = TestEtmpLookupService.lookupApplication(awrsRefNo)
       await(result).status shouldBe 200
     }
 
     "return Bad Request when passed an invalid reference number" in {
       val invalidAwrsRefNo = "AAW00000123456"
-      when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, None)))
+      when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "", Map.empty[String, Seq[String]])))
       val result = TestEtmpLookupService.lookupApplication(invalidAwrsRefNo)
       await(result).status shouldBe 400
     }

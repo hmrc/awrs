@@ -22,8 +22,11 @@ import connectors.{EnrolmentStoreConnector, EtmpConnector}
 import models._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.libs.json.{JsObject, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers
+import play.api.test.Helpers.{await, _}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector}
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -32,7 +35,7 @@ import utils.{AWRSFeatureSwitches, AwrsTestJson, BaseSpec, FeatureSwitch}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class EtmpRegimeServiceTest extends BaseSpec {
+class EtmpRegimeServiceTest extends BaseSpec with WordSpecLike with MustMatchers {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
@@ -45,10 +48,10 @@ class EtmpRegimeServiceTest extends BaseSpec {
   object TestEtmpRegimeService extends EtmpRegimeService(mockEtmpConnector, mockEnrolmentStore, mockAuthConnector)
 
 
-  "getEtmpBusinessDetails" should {
+  "getEtmpBusinessDetails" must {
     "successfully return a regimeRefNumber" in {
       when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime)))))
+        .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime),Map.empty[String, Seq[String]])))
       val result = TestEtmpRegimeService.getEtmpBusinessDetails(safeId)
 
       val registrationDetails = {
@@ -62,23 +65,23 @@ class EtmpRegimeServiceTest extends BaseSpec {
       val json: JsObject = Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime).as[JsObject].-("regimeIdentifiers")
 
       when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(json))))
+        .thenReturn(Future.successful(HttpResponse(OK, json, Map.empty[String, Seq[String]])))
       val result = TestEtmpRegimeService.getEtmpBusinessDetails(safeId)
 
       await(result) shouldBe None
     }
   }
 
-  "checkETMPApi" should {
+  "checkETMPApi" must {
     "successfully return a regimeRefNumber when the feature switch is enabled" in {
       FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
       when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
       when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime)))))
+        .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime) ,Map.empty[String, Seq[String]])))
       when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT, " ")))
 
       val resp = Json.obj(
         "processingDate" -> "20/01/2010",
@@ -87,12 +90,13 @@ class EtmpRegimeServiceTest extends BaseSpec {
       )
 
       when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(HttpResponse(OK, Some(resp)))
+        .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
       val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
-      val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
+      val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"),
+        "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe Some(registrationDetails)
@@ -104,16 +108,17 @@ class EtmpRegimeServiceTest extends BaseSpec {
       when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
       when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime)))))
+        .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
       when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT, " ")))
       when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(HttpResponse(NOT_FOUND))
+        .thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
 
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
       val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("SOP"), businessAddress, "1234567890",
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
-      val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
+      val registrationDetails = EtmpRegistrationDetails(Some("ACME Trading"),
+        "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "SOP")
 
       await(result) shouldBe Some(registrationDetails)
@@ -130,9 +135,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
           when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(
             ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
           when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-            .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime)))))
+            .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
           when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-            .thenReturn(Future.successful(HttpResponse(NO_CONTENT)))
+            .thenReturn(Future.successful(HttpResponse(NO_CONTENT, "")))
 
           val resp = Json.obj(
             "processingDate" -> "20/01/2010",
@@ -141,7 +146,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
           )
 
           when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-            .thenReturn(HttpResponse(OK, Some(resp)))
+            .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
           val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
           val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
@@ -156,10 +161,10 @@ class EtmpRegimeServiceTest extends BaseSpec {
       FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
       when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(
+        .thenReturn(Future.successful(HttpResponse(OK, Json.parse(
           """
             |{}
-          """.stripMargin)))))
+          """.stripMargin), Map.empty[String, Seq[String]])))
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
       val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
         "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
@@ -176,7 +181,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         .thenReturn(Future.failed(new RuntimeException("test")))
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
       val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-        "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
+        "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe None
@@ -186,7 +191,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
       FeatureSwitch.disable(AWRSFeatureSwitches.regimeCheck())
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
       val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-        "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
+        "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
       val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
       await(result) shouldBe None
@@ -198,7 +203,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
       when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
       when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, Some(Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime)))))
+        .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
       when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.failed(new RuntimeException("failure to return registration details")))
 
@@ -211,7 +216,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
     }
   }
 
-  "handleDuplicateSubscription" should {
+  "handleDuplicateSubscription" must {
     "return ETMP registration details for an organisation" when {
       "the regimeRefNumber in ETMP matches the one in business matching" in {
 
@@ -222,7 +227,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
             Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
         val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-          "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
+          "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
         val result = TestEtmpRegimeService.handleDuplicateSubscription(etmpRegistrationDetails, businessCustomerDetails)
 
         await(result) shouldBe Some(etmpRegistrationDetails)
@@ -239,7 +244,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
             Some("ACME Trading"), "1", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), None, None)
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
         val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-          "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
+          "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
         val result = TestEtmpRegimeService.handleDuplicateSubscription(etmpRegistrationDetails, businessCustomerDetails)
 
         await(result) shouldBe None
@@ -255,7 +260,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
             Some("ACME Trading"), "1", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
         val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-          "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
+          "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
         val result = TestEtmpRegimeService.handleDuplicateSubscription(etmpRegistrationDetails, businessCustomerDetails)
 
         await(result) shouldBe None
@@ -270,11 +275,11 @@ class EtmpRegimeServiceTest extends BaseSpec {
             Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
         val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-          "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
+          "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
 
         val result = TestEtmpRegimeService.getEtmpRegistrationDetails(Some(AffinityGroup.Individual), businessCustomerDetails, etmpRegistrationDetails)
 
-        await(result) shouldBe Some(etmpRegistrationDetails)
+        result shouldBe Some(etmpRegistrationDetails)
       }
 
       "passed affinity group organisation" in {
@@ -283,11 +288,11 @@ class EtmpRegimeServiceTest extends BaseSpec {
             Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
         val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-          "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
+          "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
 
         val result = TestEtmpRegimeService.getEtmpRegistrationDetails(Some(AffinityGroup.Organisation), businessCustomerDetails, etmpRegistrationDetails)
 
-        await(result) shouldBe Some(etmpRegistrationDetails)
+        result shouldBe Some(etmpRegistrationDetails)
       }
     }
 
@@ -298,16 +303,18 @@ class EtmpRegimeServiceTest extends BaseSpec {
             Some("ACME Trading"), "1234567890", "XE0001234567890", Some(false), "XAAW00000123456", Some("AARN1234567"), Some("first"), Some("last"))
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
         val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-          "XE0001234567890", false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
+          "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), Some("first"), Some("last"))
 
         val result = TestEtmpRegimeService.getEtmpRegistrationDetails(Some(AffinityGroup.Agent), businessCustomerDetails, etmpRegistrationDetails)
 
-        await(result) shouldBe None
+        result shouldBe None
       }
     }
   }
 
-  def makeBusinessCustomerDetails(businessName: String, sapNumber: String, safeId: String, isAGroup: Boolean, regimeRefNumber: String, agentRefNumber: Option[String], firstName: Option[String], lastName: Option[String]): BusinessCustomerDetails =
+  def makeBusinessCustomerDetails(businessName: String, sapNumber: String, safeId: String, isAGroup: Boolean,
+                                  regimeRefNumber: String, agentRefNumber: Option[String], firstName: Option[String],
+                                  lastName: Option[String]): BusinessCustomerDetails =
     BusinessCustomerDetails(
       businessName,
       None,
@@ -321,7 +328,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
       lastName
     )
 
-  def makeEtmpDetails(businessName: String, sapNumber: String, safeId: String, isAGroup: Boolean, regimeRefNumber: String, agentRefNumber: Option[String], firstName: Option[String], lastName: Option[String]): EtmpRegistrationDetails =
+  def makeEtmpDetails(businessName: String, sapNumber: String, safeId: String, isAGroup: Boolean,
+                      regimeRefNumber: String, agentRefNumber: Option[String], firstName: Option[String],
+                      lastName: Option[String]): EtmpRegistrationDetails =
     EtmpRegistrationDetails(
       Some(businessName),
       sapNumber,
@@ -333,32 +342,32 @@ class EtmpRegimeServiceTest extends BaseSpec {
       lastName
     )
 
-  "matchIndividual" should {
+  "matchIndividual" must {
     "return true" when {
       "all elements match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe true
       }
 
       "all elements match where case is different" in {
-        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", true, "regimeRef", Some("AGENTREF"), Some("first"), Some("LAST"))
-        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", true, "REGIMEREF", Some("agentRef"), Some("FIRST"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", isAGroup = true, "regimeRef", Some("AGENTREF"), Some("first"), Some("LAST"))
+        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", isAGroup = true, "REGIMEREF", Some("agentRef"), Some("FIRST"), Some("last"))
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe true
       }
 
       "first name are both None" in {
-        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", true, "regimeRef", None, None, Some("LAST"))
-        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", true, "REGIMEREF", None, None, Some("last"))
+        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", isAGroup = true, "regimeRef", None, None, Some("LAST"))
+        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", isAGroup = true, "REGIMEREF", None, None, Some("last"))
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe true
       }
 
       "last name are both None" in {
-        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", true, "regimeRef", None, Some("first"), None)
-        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", true, "REGIMEREF", None, Some("first"), None)
+        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", isAGroup = true, "regimeRef", None, Some("first"), None)
+        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", isAGroup = true, "REGIMEREF", None, Some("first"), None)
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe true
       }
@@ -366,61 +375,61 @@ class EtmpRegimeServiceTest extends BaseSpec {
 
     "return false" when {
       "sapNumber does not match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumberAltered", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumberAltered", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe false
       }
 
       "safeId and regimeRef do not match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRefAlt", Some("agentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeIdAlt", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRefAlt", Some("agentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeIdAlt", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe false
       }
 
       "first and last names do not match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("lastFirst"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("firstLast"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("lastFirst"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("firstLast"), Some("last"))
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe false
       }
 
       "first and last does not match None" in {
-        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", true, "regimeRef", None, None, None)
-        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", true, "REGIMEREF", None, Some("first"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("BUSINESSNAME", "sapNumber", "SAFEID", isAGroup = true, "regimeRef", None, None, None)
+        val ecd = makeEtmpDetails("businessName", "SAPNUMBER", "safeId", isAGroup = true, "REGIMEREF", None, Some("first"), Some("last"))
 
         TestEtmpRegimeService.matchIndividual(bcd, ecd) shouldBe false
       }
     }
   }
 
-  "matchOrg" should {
+  "matchOrg" must {
     "return true" when {
       "all elements match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe true
       }
 
       "all elements match regardless of case" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "SAPNUMBER", "safeId", true, "REGIMEREF", Some("agentRef"), Some("FIRST"), Some("last"))
-        val ecd = makeEtmpDetails("BUSINESSNAME", "sapNumber", "SAFEID", true, "regimeRef", Some("AGENTREF"), Some("first"), Some("LAST"))
+        val bcd = makeBusinessCustomerDetails("businessName", "SAPNUMBER", "safeId", isAGroup = true, "REGIMEREF", Some("agentRef"), Some("FIRST"), Some("last"))
+        val ecd = makeEtmpDetails("BUSINESSNAME", "sapNumber", "SAFEID", isAGroup = true, "regimeRef", Some("AGENTREF"), Some("first"), Some("LAST"))
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe true
       }
 
       "AgentRef are both None" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", None, Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRef", None, Some("firstLast"), Some("lastFirst"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", None, Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", None, Some("firstLast"), Some("lastFirst"))
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe true
       }
 
       "first and last name are both None" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", None, None, None)
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRef", None, None, None)
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", None, None, None)
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", None, None, None)
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe true
       }
@@ -428,47 +437,47 @@ class EtmpRegimeServiceTest extends BaseSpec {
 
     "return false" when {
       "sapNumber does not match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumberAltered", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumberAltered", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe false
       }
 
       "safeId and regimeRef do not match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeIdAlt", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRefAlt", Some("agentRef"), Some("first"), Some("last"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeIdAlt", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRefAlt", Some("agentRef"), Some("first"), Some("last"))
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe false
       }
 
       "business name does not match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessNameDiff", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("firstLast"), Some("lastFirst"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessNameDiff", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("firstLast"), Some("lastFirst"))
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe false
       }
 
       "AgentRef does not match" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("differentAgentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), Some("firstLast"), Some("lastFirst"))
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("differentAgentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), Some("firstLast"), Some("lastFirst"))
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe false
       }
 
       "first and last does not match None" in {
-        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("differentAgentRef"), Some("first"), Some("last"))
-        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", true, "regimeRef", Some("agentRef"), None, None)
+        val bcd = makeBusinessCustomerDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("differentAgentRef"), Some("first"), Some("last"))
+        val ecd = makeEtmpDetails("businessName", "sapNumber", "safeId", isAGroup = true, "regimeRef", Some("agentRef"), None, None)
 
         TestEtmpRegimeService.matchOrg(bcd, ecd) shouldBe false
       }
     }
   }
 
-  "upsertEacdEnrolment" should {
+  "upsertEacdEnrolment" must {
     "upsert an eacd enrolment" when {
       "provided details to enrol" in {
         when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(OK)))
+          .thenReturn(Future.successful(HttpResponse(OK, "", Map.empty[String, Seq[String]])))
 
         val result = TestEtmpRegimeService.upsertEacdEnrolment("safeId", Some("UTR"), "BusinessType", "postcode", "awrsRefNumber")
 
@@ -486,7 +495,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
     }
   }
 
-  "fetchETMPStatus" should {
+  "fetchETMPStatus" must {
     "provide the status of the registration if it already exists" when {
       "a rejected case" in {
         val resp = Json.obj(
@@ -496,9 +505,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
         )
 
         when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-          .thenReturn(HttpResponse(OK, Some(resp)))
+          .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
-        await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some(Rejected.name)
+        Helpers.await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some(Rejected.name)
       }
 
     }
@@ -506,9 +515,9 @@ class EtmpRegimeServiceTest extends BaseSpec {
     "provide no status" when {
       "the AWRS subscription cannot be found" in {
         when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-          .thenReturn(HttpResponse(NOT_FOUND))
+          .thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
 
-        await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe None
+        Helpers.await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe None
       }
 
       "the status returned from ETMP is not recognised" in {
@@ -519,7 +528,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
         )
 
         when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-          .thenReturn(HttpResponse(OK, Some(resp)))
+          .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
         await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some("not found")
       }
@@ -528,7 +537,7 @@ class EtmpRegimeServiceTest extends BaseSpec {
     "throw an exception" when {
       "a server error status is received" in {
         when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
-          .thenReturn(HttpResponse(INTERNAL_SERVER_ERROR))
+          .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
         intercept[RuntimeException](await(TestEtmpRegimeService.fetchETMPStatus("testRef")))
       }
