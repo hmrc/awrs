@@ -18,8 +18,7 @@ object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val domainVersion = "5.9.0-play-26"
-  private val hmrcTestVersion = "3.9.0-play-26"
+  private val domainVersion = "5.9.0-play-27"
   private val scalaTestplusPlayVersion = "4.0.3"
   private val pegdownVersion = "1.6.0"
   private val json4sJacksonVersion = "3.6.9"
@@ -30,7 +29,7 @@ object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "2.23.0",
+    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "2.24.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
@@ -46,7 +45,6 @@ object AppDependencies {
   object Test {
     def apply(): Seq[ModuleID] = new TestDependencies {
       override lazy val test = Seq(
-        "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
@@ -68,7 +66,6 @@ object AppDependencies {
       override lazy val scope: String = "it"
 
       override lazy val test = Seq(
-        "uk.gov.hmrc" %% "hmrctest" % hmrcTestVersion % scope,
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,

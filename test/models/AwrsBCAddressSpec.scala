@@ -16,11 +16,13 @@
 
 package models
 
-import uk.gov.hmrc.play.test.UnitSpec
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 
-class AwrsBCAddressSpec extends UnitSpec {
+class AwrsBCAddressSpec extends PlaySpec with WordSpecLike with MustMatchers {
 
-   "AwrsAddressSpec" should {
+   "AwrsAddressSpec" must {
      "output valid toString" in {
 
        val address = BCAddress("address line 1", "address line 2", Some("address line 3"),Some("address line 4"), Some("NE1 1AA"), "United Kingdom")

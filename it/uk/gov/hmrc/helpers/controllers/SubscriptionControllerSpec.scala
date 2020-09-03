@@ -18,10 +18,9 @@ package uk.gov.hmrc.helpers.controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import controllers.routes
 import org.scalatest.MustMatchers
 import play.api.http.Status._
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 import utils.{AWRSFeatureSwitches, FeatureSwitch}

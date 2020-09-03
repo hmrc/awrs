@@ -16,13 +16,15 @@
 
 package models
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 
-class DeRegistrationReaderSpec extends UnitSpec with AwrsTestJson {
+class DeRegistrationReaderSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
 
-  "DeRegistrationReaderSpec " should {
+  "DeRegistrationReaderSpec " must {
 
     "transform DeRegistration correctly to etmp" in {
       val deRegistrationData = DeRegistration("2012-02-10", "Group disbanded", None)

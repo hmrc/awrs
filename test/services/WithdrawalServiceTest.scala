@@ -22,6 +22,8 @@ import connectors.EtmpConnector
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -29,17 +31,17 @@ import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class WithdrawalServiceTest extends BaseSpec {
+class WithdrawalServiceTest extends BaseSpec with WordSpecLike with MustMatchers {
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 
   object TestWithdrawalService extends WithdrawalService(app.injector.instanceOf[AwrsMetrics], mockEtmpConnector)
 
-  "Withdrawal Service" should {
+  "Withdrawal Service" must {
     val awrsRefNo = "XAAW0000010001"
     implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
     "perform a withdrawal when passed valid json" in {
-      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api8SuccessfulResponseJson))))
+      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe OK
@@ -47,7 +49,7 @@ class WithdrawalServiceTest extends BaseSpec {
     }
 
     "respond with BadRequest, when withdrawal request fails with a Bad request" in {
-      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(api8FailureResponseJson))))
+      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe BAD_REQUEST

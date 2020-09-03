@@ -859,11 +859,14 @@ object BusinessType {
   def convertLegalEntity(legalEntity: Option[String], creatingAGroup: Boolean): Option[String] =
     (legalEntity.fold("")(x => x), creatingAGroup) match {
       case (LegalEntityType.SOLE_TRADER, false) => Some("SOP")
+      case (LegalEntityType.SOLE_TRADER, true) => Some("Sole Trader")
       case (LegalEntityType.CORPORATE_BODY, false) => Some("LTD")
       case (LegalEntityType.CORPORATE_BODY, true) => Some("LTD_GRP")
       case (LegalEntityType.PARTNERSHIP, false) => Some("Partnership")
+      case (LegalEntityType.PARTNERSHIP, true) => Some("Partnership")
       case (LegalEntityType.LIMITED_LIABILITY_PARTNERSHIP, false) => Some("LLP")
       case (LegalEntityType.LIMITED_LIABILITY_PARTNERSHIP, true) => Some("LLP_GRP")
+      case _ => throw new Exception("")
     }
 
   implicit val formats = Json.format[BusinessType]
@@ -1152,6 +1155,11 @@ object TradingActivity {
       case (Some(true), Some(false)) => Some(List("outsideEU"))
       case (Some(false), Some(true)) => Some(List("euDispatches"))
       case (Some(false), Some(false)) => None
+      case (None, None) => None
+      case (None, Some(false)) => None
+      case (None, Some(true))=> None
+      case (Some(false), None) => None
+      case (Some(true), None) => None
     }
 
   def typeOfWholeSaler(js: JsValue): JsResult[List[String]] =

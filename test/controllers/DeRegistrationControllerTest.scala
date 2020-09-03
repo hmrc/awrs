@@ -20,6 +20,8 @@ import audit.TestAudit
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
@@ -34,7 +36,7 @@ import utils.BaseSpec
 import scala.concurrent.Future
 
 
-class DeRegistrationControllerTest extends BaseSpec {
+class DeRegistrationControllerTest extends BaseSpec with MustMatchers with WordSpecLike {
   val mockEtmpDeRegistrationService: EtmpDeRegistrationService = mock[EtmpDeRegistrationService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
@@ -44,10 +46,10 @@ class DeRegistrationControllerTest extends BaseSpec {
     override val audit: Audit = new TestAudit(mockAuditConnector)
   }
 
-  "For API 10, Status Info Controller " should {
+  "For API 10, Status Info Controller " must {
 
     "check success response is transported correctly" in {
-      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api10SuccessfulResponseJson))))
+      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api10SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestDeRegistrationControllerTest.deRegistration(testRefNo).apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe OK
       await(result)
@@ -56,7 +58,7 @@ class DeRegistrationControllerTest extends BaseSpec {
     }
 
     "check failure response is transported correctly" in {
-      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(api10FailureResponseJson))))
+      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api10FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestDeRegistrationControllerTest.deRegistration(testRefNo).apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe OK
       await(result)
@@ -66,7 +68,7 @@ class DeRegistrationControllerTest extends BaseSpec {
 
     "check corrupt etmp response is not passed as OK" in {
       val failureResponse = Json.parse("false")
-      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, Some(failureResponse))))
+      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, failureResponse, Map.empty[String, Seq[String]])))
       val result = TestDeRegistrationControllerTest.deRegistration(testRefNo).apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
       await(result)
@@ -75,25 +77,25 @@ class DeRegistrationControllerTest extends BaseSpec {
     }
 
     "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, Some(api10FailureResponseJson))))
+      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api10FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestDeRegistrationControllerTest.deRegistration(testRefNo).apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe BAD_REQUEST
     }
 
     "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, Some(api10FailureResponseJson))))
+      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, api10FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestDeRegistrationControllerTest.deRegistration(testRefNo).apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe NOT_FOUND
     }
 
     "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, Some(api10FailureResponseJson))))
+      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, api10FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestDeRegistrationControllerTest.deRegistration(testRefNo).apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
     "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, Some(api10FailureResponseJson))))
+      when(mockEtmpDeRegistrationService.deRegistration(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, api10FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestDeRegistrationControllerTest.deRegistration(testRefNo).apply(FakeRequest().withJsonBody(api10RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }

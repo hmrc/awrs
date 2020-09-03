@@ -16,17 +16,19 @@
 
 package models
 
+import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsPath, Json}
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.AwrsTestJson
 import utils.AwrsTestJson._
 import utils.TestUtil._
 
 import scala.collection.GenSeq
 
-class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
+class AwrsFrontEndModelsReaderSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
 
-  "AwrsFrontEndModelsReaderSpec " should {
+  "AwrsFrontEndModelsReaderSpec " must  {
 
     "transform ETMP LTD Json correctly to AWRSFEModel Frontend Model " in {
       val awrsFEModelDetails = api4EtmpLTDJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
@@ -600,7 +602,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
           obj("businessAddressForAwrs" -> Json.
             obj("differentOperatingAddresslnLast3Years" -> false))), api4EtmpSOPString)
       val previousAddressPath = JsPath \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress"
-      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson.toString)
+      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson)
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
 
@@ -627,7 +629,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
           obj("businessAddressForAwrs" -> Json.
             obj("differentOperatingAddresslnLast3Years" -> false))), api4EtmpLTDString)
       val previousAddressPath = JsPath \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress"
-      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson.toString)
+      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson)
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
 
@@ -654,7 +656,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
           obj("businessAddressForAwrs" -> Json.
             obj("differentOperatingAddresslnLast3Years" -> false))), api4EtmpPartnershipString)
       val previousAddressPath = JsPath \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress"
-      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson.toString)
+      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson)
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
 
@@ -681,7 +683,7 @@ class AwrsFrontEndModelsReaderSpec extends UnitSpec with AwrsTestJson {
           obj("businessAddressForAwrs" -> Json.
             obj("differentOperatingAddresslnLast3Years" -> false))), api4EtmpLLPString)
       val previousAddressPath = JsPath \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress"
-      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson.toString)
+      val updatedJson = deleteFromJson(previousAddressPath, differentOperatingAddresslnLast3YearsJson)
 
       val awrsFEModel = Json.parse(updatedJson).as[AWRSFEModel](AWRSFEModel.etmpReader)
 
