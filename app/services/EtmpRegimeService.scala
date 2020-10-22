@@ -33,15 +33,15 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                                   val enrolmentStoreConnector: EnrolmentStoreConnector,
                                   val authConnector: AuthConnector) extends AuthorisedFunctions
                                   with NonSelfHealStatus
-                                  with Logging{
+                                  with Logging {
 
   private val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
 
   def getEtmpBusinessDetails(safeId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
     etmpConnector.awrsRegime(safeId).map { response =>
       Try(EtmpRegistrationDetails.etmpReader.reads(response.json)) match {
-        case Success(value)   => value.asOpt
-        case Failure(e)       =>
+        case Success(value) => value.asOpt
+        case Failure(e) =>
           logger.info(s"[EtmpRegimeService][getEtmpBusinessDetails] Could not read ETMP response - $e")
           None
       }
@@ -51,7 +51,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
   def handleDuplicateSubscription(etmpRegistrationDetails: EtmpRegistrationDetails,
                                   businessCustomerDetails: BusinessCustomerDetails)
                                  (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
-    authorised(User).retrieve(Retrievals.affinityGroup){ affGroup =>
+    authorised(User).retrieve(Retrievals.affinityGroup) { affGroup =>
       Future(getEtmpRegistrationDetails(affGroup, businessCustomerDetails, etmpRegistrationDetails))
     } recover {
       case _ =>
@@ -85,11 +85,11 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
   def fetchETMPStatus(refNoNumber: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[String]] = {
     etmpConnector.checkStatus(refNoNumber) map { response =>
       response.status match {
-        case OK        =>
+        case OK =>
           val statusType = response.json.as[SubscriptionStatusType](SubscriptionStatusType.reader)
           Some(statusType.formBundleStatus.name)
         case NOT_FOUND => None
-        case status    =>
+        case status =>
           logger.warn(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status")
           throw new RuntimeException(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status")
       }
@@ -140,17 +140,15 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                 case _ => trySelfHealOnValidCase(businessCustomerDetails, etmpRegDetails, legalEntity)
               }
           }
-        case _ => throw new Exception("")
-      } recover {
-        case e: Exception =>
-          logger.warn(s"[EtmpRegimeService][checkETMPApi] Failed to check ETMP api :${e.getMessage}")
-          None
+        case None =>
+          logger.warn(s"[EtmpRegimeService][checkETMPApi] Did not receive etmp details")
+          Future.successful(None)
       }
     }
   }
 
   def compareOptionalStrings(bcdValue: Option[String], erdValue: Option[String]): Boolean = {
-    if(bcdValue.isEmpty && erdValue.isEmpty) {
+    if (bcdValue.isEmpty && erdValue.isEmpty) {
       true
     } else {
       bcdValue.map(_.toUpperCase).contains(erdValue.map(_.toUpperCase).getOrElse(""))
@@ -159,11 +157,11 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
 
   private[services] def matchIndividual(bcd: BusinessCustomerDetails, erd: EtmpRegistrationDetails): Boolean = {
     Map(
-      "sapNum"    -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
-      "safeId"    -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
+      "sapNum" -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
+      "safeId" -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
       "firstName" -> compareOptionalStrings(bcd.firstName, erd.firstName),
-      "lastName"  -> compareOptionalStrings(bcd.lastName, erd.lastName)
-    ).partition{case (_,v) => v} match {
+      "lastName" -> compareOptionalStrings(bcd.lastName, erd.lastName)
+    ).partition { case (_, v) => v } match {
       case (_, failures) if failures.isEmpty => true
       case (_, failures) =>
         logger.warn(s"[matchIndividual] Could not match following details for individual: $failures")
@@ -175,10 +173,10 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
   private[services] def matchOrg(bcd: BusinessCustomerDetails, erd: EtmpRegistrationDetails): Boolean = {
     Map(
       "businessName" -> erd.organisationName.map(_.toUpperCase).contains(bcd.businessName.toUpperCase),
-      "sapNumber"    -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
-      "safeId"       -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
-      "agentRef"     -> compareOptionalStrings(bcd.agentReferenceNumber, erd.agentReferenceNumber)
-    ).partition{case (_, v) => v} match {
+      "sapNumber" -> (bcd.sapNumber.toUpperCase == erd.sapNumber.toUpperCase),
+      "safeId" -> (bcd.safeId.toUpperCase == erd.safeId.toUpperCase),
+      "agentRef" -> compareOptionalStrings(bcd.agentReferenceNumber, erd.agentReferenceNumber)
+    ).partition { case (_, v) => v } match {
       case (_, failures) if failures.isEmpty => true
       case (_, failures) =>
         logger.warn(s"[matchOrg] Could not match following details for organisation: $failures")
@@ -190,8 +188,8 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                                                    bcd: BusinessCustomerDetails,
                                                    erd: EtmpRegistrationDetails): Option[EtmpRegistrationDetails] = {
     affinityGroup match {
-      case Some(AffinityGroup.Individual)   if matchIndividual(bcd, erd) => Some(erd)
-      case Some(AffinityGroup.Organisation) if matchOrg(bcd, erd)        => Some(erd)
+      case Some(AffinityGroup.Individual) if matchIndividual(bcd, erd) => Some(erd)
+      case Some(AffinityGroup.Organisation) if matchOrg(bcd, erd) => Some(erd)
       case _ => None
     }
   }
