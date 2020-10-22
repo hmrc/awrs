@@ -18,18 +18,18 @@ object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val domainVersion = "5.9.0-play-27"
+  private val domainVersion = "5.10.0-play-27"
   private val scalaTestplusPlayVersion = "4.0.3"
   private val pegdownVersion = "1.6.0"
-  private val json4sJacksonVersion = "3.6.9"
+  private val json4sJacksonVersion = "3.6.10"
   private val jsonSchemaValidatorVersion = "2.2.6"
-  private val json4sNativeVersion = "3.6.9"
+  private val json4sNativeVersion = "3.6.10"
   private val mockitoCoreVersion = "3.3.3"
   private val webbitServerVersion = "0.4.15"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "2.24.0",
+    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "2.25.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
@@ -48,7 +48,7 @@ object AppDependencies {
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
-        "org.scalatest" %% "scalatest" % "3.0.8" % scope,
+        "org.scalatest" %% "scalatest" % "3.0.9" % scope,
         "org.scalacheck" %% "scalacheck" % "1.14.3" % scope,
         "org.jsoup" % "jsoup" % "1.11.3" % scope,
         "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
@@ -76,4 +76,3 @@ object AppDependencies {
 
   def apply(): Seq[ModuleID] = compile ++ Test() ++ IntegrationTest()
 }
-

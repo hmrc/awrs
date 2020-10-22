@@ -64,11 +64,11 @@ class SubscriptionServiceTest extends BaseSpec with WordSpecLike with MustMatche
   }
 
   def subscriptionServicesPart2EMAC(testSubscriptionService: => SubscriptionService): Unit = {
-    "subscribe when we are passed valid json" in {
+    "subscribe when we are passed valid json and the subscription and enrolment creation are successful" in {
       when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])))
       when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty[String, Seq[String]])))
 
       val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
       val response = await(result)
@@ -76,15 +76,14 @@ class SubscriptionServiceTest extends BaseSpec with WordSpecLike with MustMatche
       response.json shouldBe successResponse
     }
 
-    "respond with Ok, when subscription works but enrolment store connector request fails with a Bad request but audit the Bad request" in {
+    "respond with BAD_REQUEST, when subscription works but enrolment store connector request fails with a Bad request but audit the Bad request" in {
       when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])))
       when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
       val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
       val response = await(result)
-      response.status shouldBe OK
-      response.json shouldBe successResponse
+      response.status shouldBe BAD_REQUEST
     }
   }
 

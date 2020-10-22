@@ -18,7 +18,7 @@ package connectors
 
 import javax.inject.{Inject, Named}
 import models.EnrolmentVerifiers
-import play.api.http.Status.NO_CONTENT
+import play.api.http.Status.{NO_CONTENT, BAD_REQUEST}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
@@ -46,19 +46,22 @@ class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
       http.PUT(url, verifiers)(implicitly, readRaw, implicitly, implicitly).flatMap {
         response =>
           response.status match {
-            case NO_CONTENT => Future.successful(response)
+            case NO_CONTENT => Future(response)
+            case BAD_REQUEST => handleFailure(response)
             case _ if tries < retryLimit => Future {
               warn(s"Retrying upsertEnrolment - call number: $tries")
               Thread.sleep(retryWait)
             }.flatMap(_ => trySend(tries + 1))
-            case status@_ =>
-              // The upsertEnrolment failure will need to be sorted out manually until an automated service is introduced (currently in the pipeline).
-              // The manual process will take place after the failure is picked up in Splunk.
-              audit(enrolmentStoreTxName, Map("enrolmentKey" -> enrolmentKey, "FailureStatusCode" -> status.toString), eventTypeFailure)
-              warn(s"Retrying upsertEnrolment - retry limit exceeded")
-              Future.successful(response)
+            case _ =>
+              handleFailure(response)
           }
       }
+    }
+
+    def handleFailure(response: HttpResponse): Future[HttpResponse] = {
+      audit(enrolmentStoreTxName, Map("enrolmentKey" -> enrolmentKey, "FailureStatusCode" -> response.status.toString), eventTypeFailure)
+      warn("upsertEnrolment failed - retry limit exceeded")
+      Future(response)
     }
 
     trySend(0)

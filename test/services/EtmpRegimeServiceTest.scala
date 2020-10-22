@@ -174,19 +174,6 @@ class EtmpRegimeServiceTest extends BaseSpec with WordSpecLike with MustMatchers
       await(result) shouldBe None
     }
 
-    "fail to return if the etmp call throws an exception" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
-
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.failed(new RuntimeException("test")))
-      val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
-      val businessCustomerDetails = BusinessCustomerDetails("ACME Trading", Some("Corporate Body"), businessAddress, "1234567890",
-        "XE0001234567890", isAGroup = false, Some("XAAW00000123456"), Some("AARN1234567"), None, None)
-      val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
-
-      await(result) shouldBe None
-    }
-
     "fail to return a regimeRefNumber when the feature switch is disabled" in {
       FeatureSwitch.disable(AWRSFeatureSwitches.regimeCheck())
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
