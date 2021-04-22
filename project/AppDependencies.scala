@@ -18,12 +18,12 @@ object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val domainVersion = "5.10.0-play-27"
+  private val domainVersion = "5.11.0-play-27"
   private val scalaTestplusPlayVersion = "4.0.3"
   private val pegdownVersion = "1.6.0"
   private val json4sJacksonVersion = "3.6.10"
   private val jsonSchemaValidatorVersion = "2.2.6"
-  private val json4sNativeVersion = "3.6.10"
+  private val json4sNativeVersion = "3.6.11"
   private val mockitoCoreVersion = "3.3.3"
   private val webbitServerVersion = "0.4.15"
 
