@@ -16,6 +16,7 @@ trait IntegrationApplication extends GuiceOneServerPerSuite with WireMockConfig 
 
 
   def appConfig(extraConfig: (String,String)*): Map[String, Any] = Map(
+    "play.http.router"                    -> "testOnlyDoNotUseInAppConf.Routes",
     "microservice.services.auth.host"       -> wireMockHost,
     "microservice.services.auth.port"       -> wireMockPort,
     "auditing.consumer.baseUri.host"        -> wireMockHost,

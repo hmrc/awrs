@@ -16,8 +16,6 @@
 
 package services
 
-import java.util.UUID
-
 import connectors.{EnrolmentStoreConnector, EtmpConnector}
 import models._
 import org.mockito.ArgumentMatchers
@@ -28,10 +26,10 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers
 import play.api.test.Helpers.{await, _}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector}
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import utils.{AWRSFeatureSwitches, AwrsTestJson, BaseSpec, FeatureSwitch}
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 

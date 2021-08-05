@@ -16,15 +16,14 @@
 
 package connectors
 
-import javax.inject.{Inject, Named}
 import play.api.libs.json.{JsValue, Writes}
-import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.LoggingUtils
 
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpConnector @Inject()(http: DefaultHttpClient,
@@ -46,14 +45,19 @@ class EtmpConnector @Inject()(http: DefaultHttpClient,
   val urlHeaderEnvironment: String = config.getConfString("etmp-hod.environment", "")
   val urlHeaderAuthorization: String = s"Bearer ${config.getConfString("etmp-hod.authorization-token", "")}"
 
-  @inline def cPOST[I, O](url: String, body: I, headers: Seq[(String, String)] = Seq.empty)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
-    http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
+  val headers = Seq(
+    "Environment" -> urlHeaderEnvironment,
+    "Authorization" -> urlHeaderAuthorization
+  )
+
+  @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
+    http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = hc, ec = ExecutionContext.global)
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
-    http.GET[A](url)(rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
+    http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ExecutionContext.global)
 
   @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
-    http.PUT[I, O](url, body)(wts, rds, hc = createHeaderCarrier(hc), ec = ExecutionContext.global)
+    http.PUT[I, O](url, body, headers)(wts, rds, hc = hc, ec = ExecutionContext.global)
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$safeId""", registerData)
@@ -61,10 +65,6 @@ class EtmpConnector @Inject()(http: DefaultHttpClient,
 
   def awrsRegime(safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET(s"""$serviceURL$regimeURI?safeid=$safeId&regime=AWRS""")
-  }
-
-  def createHeaderCarrier(headerCarrier: HeaderCarrier): HeaderCarrier = {
-    headerCarrier.withExtraHeaders("Environment" -> urlHeaderEnvironment).copy(authorization = Some(Authorization(urlHeaderAuthorization)))
   }
 
   def lookup(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {

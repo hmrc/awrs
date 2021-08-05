@@ -21,6 +21,8 @@ import play.api.libs.json.{Format, Json, _}
 import utils.Bool._
 import utils.EtmpConstants
 import utils.Utility._
+import scala.language.reflectiveCalls
+import scala.language.implicitConversions
 
 import scala.util.{Failure, Success, Try}
 

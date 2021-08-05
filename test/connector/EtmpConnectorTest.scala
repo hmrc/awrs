@@ -16,8 +16,6 @@
 
 package connector
 
-import java.util.UUID
-
 import connectors.EtmpConnector
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
@@ -26,13 +24,13 @@ import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.logging.SessionId
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class EtmpConnectorTest extends BaseSpec with MustMatchers with WordSpecLike {
@@ -71,7 +69,7 @@ class EtmpConnectorTest extends BaseSpec with MustMatchers with WordSpecLike {
       val lookupSuccess = Json.parse( """{"Reason": "All ok"}""")
       val awrsRefNo = "XAAW0000012345"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, lookupSuccess, Map.empty[String, Seq[String]])))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, lookupSuccess, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.lookup(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
@@ -94,7 +92,7 @@ class EtmpConnectorTest extends BaseSpec with MustMatchers with WordSpecLike {
     "check status of an application with a valid reference number " in {
       val awrsRefNo = "XAAW0000010001"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api9SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api9SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.checkStatus(awrsRefNo)
       await(result).json shouldBe api9SuccessfulResponseJson
     }
@@ -104,7 +102,7 @@ class EtmpConnectorTest extends BaseSpec with MustMatchers with WordSpecLike {
       val contactNumber = "0123456789"
       val expectedURL: String = s"/alcohol-wholesaler-register/secure-comms/reg-number/$awrsRefNo/contact-number/$contactNumber"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.endsWith(expectedURL))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api11SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.endsWith(expectedURL), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api11SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestEtmpConnector.getStatusInfo(awrsRefNo, contactNumber)
       await(result).json shouldBe api11SuccessfulResponseJson // if the URL is correct then getStatusInfoSuccess should be returned
     }

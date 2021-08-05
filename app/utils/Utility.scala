@@ -19,6 +19,8 @@ package utils
 import java.text.SimpleDateFormat
 import java.util.Date
 
+import scala.language.implicitConversions
+
 object Utility {
 
   def awrsToEtmpDateFormatter(stringDate: String): String = {
