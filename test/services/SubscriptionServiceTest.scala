@@ -16,8 +16,6 @@
 
 package services
 
-import java.util.UUID
-
 import connectors.{EnrolmentStoreConnector, EtmpConnector}
 import metrics.AwrsMetrics
 import models._
@@ -27,13 +25,13 @@ import org.scalatest.Matchers.convertToAnyShouldWrapper
 import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson._
 import utils.BaseSpec
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class SubscriptionServiceTest extends BaseSpec with WordSpecLike with MustMatchers {

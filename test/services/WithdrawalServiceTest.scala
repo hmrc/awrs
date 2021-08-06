@@ -16,8 +16,6 @@
 
 package services
 
-import java.util.UUID
-
 import connectors.EtmpConnector
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
@@ -25,10 +23,10 @@ import org.mockito.Mockito._
 import org.scalatest.Matchers.convertToAnyShouldWrapper
 import org.scalatest.{MustMatchers, WordSpecLike}
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import utils.BaseSpec
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class WithdrawalServiceTest extends BaseSpec with WordSpecLike with MustMatchers {

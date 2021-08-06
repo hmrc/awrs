@@ -21,7 +21,7 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(play.sbt.PlayScala,SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin) ++ plugins : _*)
+  .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins : _*)
   .settings(playSettings ++ scoverageSettings : _*)
   .settings( majorVersion := 2 )
   .settings(scalaSettings: _*)
@@ -32,8 +32,8 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= appDependencies,
     parallelExecution in Test := false,
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     scalacOptions += "-P:silencer:pathFilters=views;routes",
+    scalacOptions ++= Seq("-feature"),
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % silencerVersion cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % silencerVersion % Provided cross CrossVersion.full
@@ -43,7 +43,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(inConfig(TemplateItTest)(Defaults.itSettings): _*)
   .configs(IntegrationTest)
   .settings(
-    Keys.fork in IntegrationTest := false,
+    Keys.fork in IntegrationTest := true,
     unmanagedSourceDirectories in IntegrationTest := (baseDirectory in IntegrationTest)(base => Seq(base / "it")).value,
     addTestReportOption(IntegrationTest, "int-test-reports"),
     parallelExecution in IntegrationTest := false)

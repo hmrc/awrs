@@ -17,6 +17,7 @@
 package services
 
 import connectors.{EnrolmentStoreConnector, EtmpConnector}
+
 import javax.inject.Inject
 import metrics.AwrsMetrics
 import models.{EnrolmentVerifiers, _}

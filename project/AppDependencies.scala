@@ -24,17 +24,17 @@ object AppDependencies {
   private val json4sJacksonVersion = "3.6.10"
   private val jsonSchemaValidatorVersion = "2.2.6"
   private val json4sNativeVersion = "3.6.11"
-  private val mockitoCoreVersion = "3.3.3"
+  private val mockitoCoreVersion = "3.11.2"
   private val webbitServerVersion = "0.4.15"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "2.25.0",
+    "uk.gov.hmrc" %% "bootstrap-backend-play-27" % "5.8.0",
     "uk.gov.hmrc" %% "domain" % domainVersion,
     "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
     "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
-    "org.json4s" %% "json4s-native" %json4sNativeVersion,
-    "com.typesafe.play" %% "play-json-joda" % "2.6.14"
+    "org.json4s" %% "json4s-native" % json4sNativeVersion,
+    "com.typesafe.play" %% "play-json-joda" % "2.7.4"
   )
 
   trait TestDependencies {
@@ -48,9 +48,8 @@ object AppDependencies {
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
-        "org.scalatest" %% "scalatest" % "3.0.9" % scope,
-        "org.scalacheck" %% "scalacheck" % "1.14.3" % scope,
-        "org.jsoup" % "jsoup" % "1.11.3" % scope,
+        "org.scalacheck" %% "scalacheck" % "1.15.4" % scope,
+        "org.jsoup" % "jsoup" % "1.14.1" % scope,
         "org.json4s" %% "json4s-jackson" % json4sJacksonVersion,
         "com.github.fge" % "json-schema-validator" % jsonSchemaValidatorVersion,
         "org.json4s" %% "json4s-native" % json4sNativeVersion,
@@ -69,7 +68,7 @@ object AppDependencies {
         "org.pegdown" % "pegdown" % pegdownVersion % scope,
         "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
         "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestplusPlayVersion % scope,
-        "com.github.tomakehurst" % "wiremock-jre8" % "2.23.2" % scope
+        "com.github.tomakehurst" % "wiremock-jre8" % "2.29.1" % scope
       )
     }.test
   }
