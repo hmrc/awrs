@@ -854,7 +854,23 @@ class EtmpModelHelperSpec extends PlaySpec with AwrsTestJson with WordSpecLike w
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
 
-      etmpJson should include("\"llpCorporateBody\":{\"incorporationDetails\":{\"isBusinessIncorporated\":true,\"companyRegistrationNumber\":\"7HKJHJH\"")
+      etmpJson should include("\"llpCorporateBody\":{\"incorporationDetails\":{\"isBusinessIncorporated\":true,\"companyRegistrationNumber\":\"07HKJHJH\"")
+    }
+
+    "transform to correct toEtmpCorporateBusinessDetails with company Registration Number padded to 8 digits" in {
+      val deletedJson = deleteFromJson(JsPath \ "subscriptionTypeFrontEnd" \ "businessRegistrationDetails" \ "companyRegDetails" \ "companyRegistrationNumber", api4FrontendLTDString)
+
+      val updatedJson = updateJson(Json.
+        obj("subscriptionTypeFrontEnd" -> Json.
+          obj("businessRegistrationDetails" -> Json.
+            obj("companyRegDetails" -> Json.obj("companyRegistrationNumber" -> "short")
+            ))),
+        deletedJson)
+
+      val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
+      val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
+
+      etmpJson should include("\"llpCorporateBody\":{\"incorporationDetails\":{\"isBusinessIncorporated\":true,\"companyRegistrationNumber\":\"000SHORT\"")
     }
   }
 

@@ -28,6 +28,11 @@ trait EtmpModelHelper extends EtmpConstants {
   private lazy val VrnPrefix = "GB"
   private lazy val EmptyString = ""
 
+  private def padCRN(crn: String): String = {
+    val overPaddedCRN = "00000000" + crn.replace(" ","").toUpperCase
+    overPaddedCRN.drop(overPaddedCRN.length - 8)
+  }
+
   def identificationIndividualIdNumbersType(identification: IndividualIdNumbersType): JsObject =
     Json.obj("doYouHaveNino" -> yestoTrue(identification.doYouHaveNino.fold("")(x => x)))
       .++(identification.nino.fold(Json.obj())(x => Json.obj("nino" -> x)))
@@ -43,30 +48,17 @@ trait EtmpModelHelper extends EtmpConstants {
     identificationCorpNumbersType(identification) // this adds the vrn and utr
       .++(Json.obj("doYouHaveCRN" -> yestoTrue(identification.doYouHaveCRN.fold("")(x => x))))
       .++(identification.companyRegNumber.fold(Json.obj()) {companyRegNo =>
-        val regexPattern = """^[0-9]{7}$"""
-        val paddedCompanyRegNumber = if (companyRegNo.matches(regexPattern)) {
-          "0" + companyRegNo
-        } else {
-          companyRegNo
-        }
-
-        Json.obj("companyRegNumber" -> paddedCompanyRegNumber)
+        Json.obj("companyRegNumber" -> padCRN(companyRegNo))
       })
 
   def identificationIncorporationDetails(identification: IncorporationDetails): JsObject =
     identification.isBusinessIncorporated match {
       case Some("Yes") =>
         val crn = identification.companyRegDetails.reduceLeft((x, y) => x).companyRegistrationNumber.toUpperCase
-        val regexPattern = """^[0-9]{7}$"""
-        val paddedCompanyRegNumber = if (crn.matches(regexPattern)) {
-          "0" + crn
-        } else {
-          crn
-        }
 
         Json.obj(
           "isBusinessIncorporated" -> true,
-          "companyRegistrationNumber" -> paddedCompanyRegNumber,
+          "companyRegistrationNumber" -> padCRN(crn),
           "dateOfIncorporation" -> Utility.awrsToEtmpDateFormatter(identification.companyRegDetails.reduceLeft((x, y) => x).dateOfIncorporation)
         )
       case _ => Json.obj("isBusinessIncorporated" -> false)
