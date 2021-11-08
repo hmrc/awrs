@@ -16,17 +16,16 @@
 
 package models
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 
-class AwrsAddressSpec extends PlaySpec with WordSpecLike with MustMatchers {
+class AwrsAddressSpec extends PlaySpec with AnyWordSpecLike {
 
   "AwrsAddressSpec" must {
     "output valid toString" in {
 
       val address = Address(Some("NE1 1AA"), "address line 1", "address line 2", Some("address line 3"),Some("address line 4"), Some("GB"))
-      address.toString should include("address line 1, address line 2, address line 3, address line 4, NE1 1AA, ")
+      address.toString must include("address line 1, address line 2, address line 3, address line 4, NE1 1AA, ")
 
     }
 

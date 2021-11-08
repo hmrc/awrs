@@ -16,13 +16,13 @@
 
 package services
 
+
 import connectors.{EnrolmentStoreConnector, EtmpConnector}
 import metrics.AwrsMetrics
 import models._
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
@@ -34,7 +34,7 @@ import utils.BaseSpec
 import java.util.UUID
 import scala.concurrent.Future
 
-class SubscriptionServiceTest extends BaseSpec with WordSpecLike with MustMatchers {
+class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockEnrolmentStoreConnector: EnrolmentStoreConnector = mock[EnrolmentStoreConnector]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]

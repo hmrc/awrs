@@ -17,8 +17,8 @@
 package models
 
 import org.joda.time.LocalDate
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
@@ -26,7 +26,7 @@ import utils.AwrsTestJson.testNino
 import utils.TestUtil._
 import utils.{AwrsTestJson, TestUtil}
 
-class EtmpModelHelperSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
+class EtmpModelHelperSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {
 
   val grpJoinDate: LocalDate = LocalDate.now()
 

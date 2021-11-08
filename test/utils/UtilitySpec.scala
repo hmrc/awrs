@@ -16,13 +16,13 @@
 
 package utils
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
+import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{MustMatchers, WordSpecLike}
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import utils.Utility._
 
-class UtilitySpec extends  MockitoSugar with ScalaFutures  with WordSpecLike with MustMatchers {
+class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
 
   "UtilitySpec" must {
 

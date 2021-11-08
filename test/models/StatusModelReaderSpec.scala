@@ -16,12 +16,12 @@
 
 package models
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 import utils.AwrsTestJson
 
-class StatusModelReaderSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
+class StatusModelReaderSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {
 
   "StatusModelReaderSpec " must {
 

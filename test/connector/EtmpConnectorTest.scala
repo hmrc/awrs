@@ -18,9 +18,8 @@ package connector
 
 import connectors.EtmpConnector
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.http._
@@ -33,7 +32,7 @@ import utils.BaseSpec
 import java.util.UUID
 import scala.concurrent.Future
 
-class EtmpConnectorTest extends BaseSpec with MustMatchers with WordSpecLike {
+class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
 
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 

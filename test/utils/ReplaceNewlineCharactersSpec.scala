@@ -16,11 +16,11 @@
 
 package utils
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 
-class ReplaceNewlineCharactersSpec extends PlaySpec with WordSpecLike with MustMatchers {
+class ReplaceNewlineCharactersSpec extends PlaySpec with AnyWordSpecLike {
 
   "ReplaceNewlineCharacters" must {
     "replace new lines with html break" in {

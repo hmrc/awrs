@@ -1,5 +1,6 @@
 {
-  "deregistrationDate": "2012-02-10",
-  "deregReasonOther": "other reason",
   "acknowledgementReference": "$ackRef",
-  "deregistrationReason": "Others"}
+  "deregistrationDate": "2012-02-10",
+  "deregistrationReason": "Others",
+  "deregReasonOther": "other reason"
+}

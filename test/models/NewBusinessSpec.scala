@@ -16,12 +16,12 @@
 
 package models
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.Json
 
-class NewBusinessSpec extends PlaySpec with WordSpecLike with MustMatchers {
+class NewBusinessSpec extends PlaySpec with AnyWordSpecLike {
 
   "NewBusinessSpec" must {
 

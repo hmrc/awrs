@@ -16,11 +16,11 @@
 
 package models
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import utils.BaseSpec
 
-class StatusInfoModelReaderSpec extends BaseSpec with WordSpecLike with MustMatchers {
+class StatusInfoModelReaderSpec extends BaseSpec with AnyWordSpecLike {
 
   "StatusInfoModelReaderSpec " must {
 

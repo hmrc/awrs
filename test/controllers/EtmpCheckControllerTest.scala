@@ -18,10 +18,8 @@ package controllers
 
 import models.EtmpRegistrationDetails
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
@@ -31,7 +29,7 @@ import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class EtmpCheckControllerTest extends BaseSpec with MockitoSugar with MustMatchers with WordSpecLike {
+class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
 
   val mockEtmpRegimeService: EtmpRegimeService = mock[EtmpRegimeService]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]

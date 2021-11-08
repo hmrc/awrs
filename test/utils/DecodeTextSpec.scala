@@ -16,11 +16,11 @@
 
 package utils
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 
-class DecodeTextSpec extends PlaySpec with WordSpecLike with MustMatchers {
+class DecodeTextSpec extends PlaySpec with AnyWordSpecLike {
 
   "decodeText" must {
     "be able to decode a message into String" when {
