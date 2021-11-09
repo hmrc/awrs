@@ -18,14 +18,14 @@ package uk.gov.hmrc.helpers.controllers
 
 import controllers.routes
 import models.{Approved, Rejected}
-import org.scalatest.MustMatchers
-import play.api.http.Status.{NO_CONTENT, OK, NOT_FOUND}
+import org.scalatest.matchers.must.Matchers
+import play.api.http.Status.{NOT_FOUND, NO_CONTENT, OK}
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.utils.Stubs
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 import utils.{AWRSFeatureSwitches, FeatureSwitch}
 
-class EtmpCheckControllerSpec extends IntegrationSpec with AuthHelpers with MustMatchers with Stubs {
+class EtmpCheckControllerSpec extends IntegrationSpec with AuthHelpers with Matchers with Stubs {
 
   val controllerUrl: String = routes.EtmpCheckController.checkEtmp().url
 

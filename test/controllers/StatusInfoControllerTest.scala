@@ -19,9 +19,8 @@ package controllers
 import audit.TestAudit
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
@@ -36,7 +35,7 @@ import utils.BaseSpec
 import scala.concurrent.Future
 
 
-class StatusInfoControllerTest extends BaseSpec with MustMatchers with WordSpecLike {
+class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
 
   val mockEtmpStatusInfoService: EtmpStatusInfoService = mock[EtmpStatusInfoService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]

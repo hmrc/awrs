@@ -16,10 +16,10 @@
 
 package utils
 
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 
-class SessionUtilsSpec extends PlaySpec with WordSpecLike with MustMatchers {
+class SessionUtilsSpec extends PlaySpec with AnyWordSpecLike {
 
   "SessionUtils" must {
     "getUniqueAckNo return 32 char long ack no" in {

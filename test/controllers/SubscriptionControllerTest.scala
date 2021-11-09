@@ -20,9 +20,8 @@ import audit.TestAudit
 import metrics.AwrsMetrics
 import models._
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
@@ -37,7 +36,7 @@ import utils.BaseSpec
 
 import scala.concurrent.Future
 
-class SubscriptionControllerTest extends BaseSpec with MustMatchers with WordSpecLike {
+class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
   val mockEtmpStatusService: EtmpStatusService = mock[EtmpStatusService]

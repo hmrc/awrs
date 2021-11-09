@@ -18,7 +18,7 @@ package uk.gov.hmrc.helpers.controllers
 
 import akka.util.Timeout
 import models.Approved
-import org.scalatest.MustMatchers
+import org.scalatest.matchers.must.Matchers
 import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.utils.{IntegrationData, Stubs}
@@ -27,7 +27,7 @@ import utils.{AWRSFeatureSwitches, FeatureSwitch}
 
 import scala.concurrent.duration.FiniteDuration
 
-class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with MustMatchers with IntegrationData with Stubs {
+class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with Matchers with IntegrationData with Stubs {
 
   val secondsToWait: Int = 20
 

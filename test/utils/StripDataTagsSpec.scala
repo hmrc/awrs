@@ -16,11 +16,11 @@
 
 package utils
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 
-class StripDataTagsSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
+class StripDataTagsSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {
 
   "isInCDATATag" must {
     "return true" when {

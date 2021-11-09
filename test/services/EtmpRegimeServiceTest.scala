@@ -19,9 +19,8 @@ package services
 import connectors.{EnrolmentStoreConnector, EtmpConnector}
 import models._
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito.when
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers
 import play.api.test.Helpers.{await, _}
@@ -33,7 +32,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class EtmpRegimeServiceTest extends BaseSpec with WordSpecLike with MustMatchers {
+class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 

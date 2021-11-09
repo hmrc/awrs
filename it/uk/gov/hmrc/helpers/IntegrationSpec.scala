@@ -3,6 +3,7 @@ package uk.gov.hmrc.helpers
 
 import akka.util.Timeout
 import org.scalatest._
+import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.ws.WSRequest
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import uk.gov.hmrc.helpers.application.IntegrationApplication
@@ -14,7 +15,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 trait IntegrationSpec
-  extends WordSpecLike
+  extends AnyWordSpecLike
     with OptionValues
     with FutureAwaits
     with DefaultAwaitTimeout

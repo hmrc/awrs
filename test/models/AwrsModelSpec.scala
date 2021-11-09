@@ -17,15 +17,15 @@
 package models
 
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsObject, JsPath, Json}
 import utils.AwrsTestJson._
 import utils.TestUtil._
 import utils.{AwrsTestJson, TestUtil}
 
-class AwrsModelSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
+class AwrsModelSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {
 
   "An AwrsModelSpec CorporateBody json" must {
     "transform correctly to valid SubscriptionType Object for Corporate Body" in {
@@ -256,7 +256,7 @@ class AwrsModelSpec extends PlaySpec with AwrsTestJson with WordSpecLike with Mu
       val awrsModel = Json.parse(finalDeletedJson).as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
 
-      etmpJson should include(s""""nonProprietor":{"tradingName":"asddsad","identification":{"utr":"${AwrsTestJson.testUtr}","doYouHaveVRN":false,"doYouHaveUTR":true""")
+      etmpJson should include(s""""nonProprietor":{"tradingName":"asddsad","identification":{"doYouHaveVRN":false,"doYouHaveUTR":true,"utr":"${AwrsTestJson.testUtr}"""")
       etmpJson should not include "\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":false,\"vrn\":\"000000000\""
 
       TestUtil.validateJson(schemaPath, etmpJson) shouldBe true
@@ -270,7 +270,7 @@ class AwrsModelSpec extends PlaySpec with AwrsTestJson with WordSpecLike with Mu
       val awrsModel = Json.parse(finalDeletedJson).as[AWRSFEModel]
       val etmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter).toString()
 
-      etmpJson should include("\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"vrn\":\"000000000\",\"doYouHaveVRN\":true,\"doYouHaveUTR\":false")
+      etmpJson should include("\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":true,\"vrn\":\"000000000\",\"doYouHaveUTR\":false")
       etmpJson should not include "\"nonProprietor\":{\"tradingName\":\"asddsad\",\"identification\":{\"doYouHaveVRN\":true,\"vrn\":\"000000000\",\"doYouHaveUTR\":true,\"utr\":\"1111111111\""
 
       TestUtil.validateJson(schemaPath, etmpJson) shouldBe true

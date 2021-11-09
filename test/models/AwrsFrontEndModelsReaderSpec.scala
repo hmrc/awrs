@@ -16,8 +16,9 @@
 
 package models
 
-import org.scalatest.Matchers.convertToAnyShouldWrapper
-import org.scalatest.{MustMatchers, WordSpecLike}
+
+import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsPath, Json}
 import utils.AwrsTestJson
@@ -26,7 +27,7 @@ import utils.TestUtil._
 
 import scala.collection.GenSeq
 
-class AwrsFrontEndModelsReaderSpec extends PlaySpec with AwrsTestJson with WordSpecLike with MustMatchers {
+class AwrsFrontEndModelsReaderSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {
 
   "AwrsFrontEndModelsReaderSpec " must  {
 
