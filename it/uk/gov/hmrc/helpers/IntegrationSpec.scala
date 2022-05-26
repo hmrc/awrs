@@ -32,6 +32,14 @@ trait IntegrationSpec
   def client(path: String): WSRequest = ws.url(s"http://localhost:$port$path")
     .withFollowRedirects(false)
 
+  def authorisedClient(path: String): WSRequest = {
+    val sessionId = "X-Session-ID" -> "testSessionId"
+    val authorisation = "Authorization" -> "Bearer 123"
+    val headers = List(sessionId, authorisation)
+    client(path)
+      .withHttpHeaders(headers:_*)
+  }
+
   override def beforeAll(): Unit = {
     super.beforeAll()
     startWmServer()
