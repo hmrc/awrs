@@ -46,7 +46,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
               stubAwrsSubscriptionResponse(OK, Some(subscriptionSuccessResponse))
               stubUpsertAwrsEnrolment(NO_CONTENT)
 
-              val resp: WSResponse = await(client(controllerUrl).post(awrsSubscriptionDataOrg))
+              val resp: WSResponse = await(authorisedClient(controllerUrl).post(awrsSubscriptionDataOrg))
               resp.status mustBe 200
             }
           }
@@ -81,7 +81,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
             stubGetSubscriptionStatus(OK, Some(Approved.name))
             stubUpsertAwrsEnrolment(NO_CONTENT)
 
-            val resp: WSResponse = await(client(controllerUrl).post(awrsSubscriptionDataOrg))
+            val resp: WSResponse = await(authorisedClient(controllerUrl).post(awrsSubscriptionDataOrg))
             resp.status mustBe 202
           }
 
@@ -95,7 +95,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
             stubAwrsSubscriptionResponse(BAD_REQUEST)
             stubUpsertAwrsEnrolment(NO_CONTENT)
 
-            val resp: WSResponse = await(client(controllerUrl).post(awrsSubscriptionDataInd))
+            val resp: WSResponse = await(authorisedClient(controllerUrl).post(awrsSubscriptionDataInd))
             resp.status mustBe 202
           }
         }

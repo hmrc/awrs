@@ -53,7 +53,7 @@ class EtmpCheckControllerSpec extends IntegrationSpec with AuthHelpers with Matc
                   stubGetSubscriptionStatus(OK, Some(Approved.name))
                   stubUpsertAwrsEnrolment(NO_CONTENT)
 
-                  val resp: WSResponse = await(client(controllerUrl).post(checkEtmpPostDataOrg))
+                  val resp: WSResponse = await(authorisedClient(controllerUrl).post(checkEtmpPostDataOrg))
                   resp.status mustBe 200
                 }
 
@@ -67,7 +67,7 @@ class EtmpCheckControllerSpec extends IntegrationSpec with AuthHelpers with Matc
                   stubGetSubscriptionStatus(OK, Some(Approved.name))
                   stubUpsertAwrsEnrolment(NO_CONTENT)
 
-                  val resp: WSResponse = await(client(controllerUrl).post(checkEtmpPostDataInd))
+                  val resp: WSResponse = await(authorisedClient(controllerUrl).post(checkEtmpPostDataInd))
                   resp.status mustBe 200
                 }
               }
