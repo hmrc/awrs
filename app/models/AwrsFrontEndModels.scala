@@ -1012,8 +1012,9 @@ case class SubscriptionTypeFrontEnd(
                                      products: Option[Products],
                                      suppliers: Option[Suppliers],
                                      applicationDeclaration: Option[ApplicationDeclaration],
-                                     changeIndicators: Option[ChangeIndicators],
-                                     modelVersion: String = SubscriptionTypeFrontEnd.latestModelVersion
+                                     awrsRegistrationNumber: Option[String] = None,
+                                     modelVersion: String = SubscriptionTypeFrontEnd.latestModelVersion,
+                                     changeIndicators: Option[ChangeIndicators]
                                    ) extends ModelVersionControl
 
 object BusinessDetails {
@@ -1324,6 +1325,7 @@ object SubscriptionTypeFrontEnd {
         products <- JsSuccess(js.asOpt[Products](Products.reader))
         suppliers <- JsSuccess(js.asOpt[Suppliers](Suppliers.reader))
         applicationDeclaration <- JsSuccess(js.asOpt[ApplicationDeclaration](ApplicationDeclaration.reader))
+        awrsRegistrationNumber <- (js \ "subscriptionType" \ "awrsRegistrationNumber").validateOpt[String]
       } yield {
         SubscriptionTypeFrontEnd(
           legalEntity = legalEntity,
@@ -1351,6 +1353,7 @@ object SubscriptionTypeFrontEnd {
           products = products,
           suppliers = hasSupplier(suppliers),
           applicationDeclaration = applicationDeclaration,
+          awrsRegistrationNumber = awrsRegistrationNumber,
           changeIndicators = None,
           modelVersion = latestModelVersion
         )
