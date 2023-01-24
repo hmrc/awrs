@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,16 @@
 package controllers
 
 import javax.inject.Inject
-import models.CheckRegimeModel
+import models.{CheckRegimeModel, EtmpRegistrationDetails}
 import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.EtmpRegimeService
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpCheckController @Inject()(cc: ControllerComponents,
                                     etmpRegimeService: EtmpRegimeService) extends BackendController(cc) with Logging {
@@ -48,6 +49,19 @@ class EtmpCheckController @Inject()(cc: ControllerComponents,
       case _ =>
         logger.warn("[EtmpCheckController][checkEtmp] Incorrect model for checkEtmp")
         Future.successful(NoContent)
+    }
+  }
+
+  def checkSafeId(safeId: String): Action[AnyContent] = Action.async {
+    implicit request => {
+      println("INSIDE CHECK SAFE ID")
+      etmpRegimeService.getEtmpBusinessDetails(safeId).map { businessDetails =>
+        businessDetails match {
+          case Some(value) =>
+            println("2345678906543267" + value)
+            Ok(value.regimeRefNumber)
+        }
+      }
     }
   }
 }

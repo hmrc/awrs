@@ -16,20 +16,21 @@
 
 package services
 
-import connectors.EtmpConnector
-import javax.inject.Inject
-import metrics.AwrsMetrics
-import models.ApiType
+import com.google.inject.Inject
+import connectors.EnrolmentStoreConnector
 import play.api.libs.json.JsValue
-
-import scala.concurrent.Future
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-class WithdrawalService @Inject()(metrics: AwrsMetrics,
-                                  etmpConnector: EtmpConnector) {
+import scala.concurrent.{ExecutionContext, Future}
 
-  def withdrawal(data: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    metrics.startTimer(ApiType.API8Withdrawal)
-    etmpConnector.withdrawal(awrsRefNo, data)
+class EnrolmentService @Inject()(enrolmentStoreConnector: EnrolmentStoreConnector ) {
+  println("inside Enrolement service***********")
+  def checkEnrolmentStore(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+    enrolmentStoreConnector.checkEnrolmentsConnector(awrsRefNo) map {
+      response =>
+        response.status match {
+          case _ => response
+        }
+    }
   }
 }

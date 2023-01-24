@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,27 @@
 
 package controllers
 
+import connectors.EnrolmentStoreConnector
+
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
-import models.{ApiType, StatusInfoType}
+import models.{ApiType, EtmpRegistrationDetails, StatusInfoType}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 class StatusInfoController @Inject()(val auditConnector: AuditConnector,
                                      metrics: AwrsMetrics,
                                      val statusInfoService: EtmpStatusInfoService,
+                                     val etmpRegimeService: EtmpRegimeService,
+                                     val enrolmentService: EnrolmentService,
                                      cc: ControllerComponents,
                                      @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
@@ -78,5 +84,19 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
               InternalServerError(f"Unsuccessful return of data. Status code: $status")
           }
       }
+  }
+
+  def checkEnrolments(awrsRef: String): Action[AnyContent] = Action.async {
+    implicit request => {
+      enrolmentService.checkEnrolmentStore(awrsRef) map { responseReceived =>
+        responseReceived.status match {
+          case OK => Ok(responseReceived.json)
+          case NOT_FOUND => NotFound(responseReceived.json)
+          case BAD_REQUEST => BadRequest(responseReceived.json)
+          case SERVICE_UNAVAILABLE => ServiceUnavailable(responseReceived.json)
+          case _ => InternalServerError(responseReceived.json)
+        }
+      }
+    }
   }
 }

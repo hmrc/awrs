@@ -5,8 +5,10 @@ PUT   /awrs/update/:awrsRefNo                                        controllers
 PUT   /:awrsRefNo/registration-details/:safeId                       controllers.SubscriptionController.updateGrpRegistrationDetails(awrsRefNo: String,safeId : String)
 
 GET   /awrs/status-info/:awrsRefNo/:contactNumber                    controllers.StatusInfoController.getStatusInfo(awrsRefNo: String, contactNumber: String)
+GET   /awrs/status-info/:awrsRefNo                                   controllers.StatusInfoController.checkEnrolments(awrsRefNo: String)
 
 POST  /awrs/de-registration/:awrsRefNo                               controllers.DeRegistrationController.deRegistration(awrsRefNo:String)
 POST  /awrs/withdrawal/:awrsRefNo                                    controllers.WithdrawalController.withdrawal(awrsRefNo: String)
 
 POST  /regime-etmp-check                                             controllers.EtmpCheckController.checkEtmp()
+GET   /regime-etmp-check/:safeId                                     controllers.EtmpCheckController.checkSafeId(safeId: String)
