@@ -61,6 +61,7 @@ trait AwrsPathConstants {
   lazy val api5EtmpLTDGroup = "/json/API5/etmp/EtmpLTDGroups.json"
   lazy val api5EtmpPartnership = "/json/API5/etmp/EtmpPartnership.json"
   lazy val api5EtmpSOP = "/json/API5/etmp/EtmpSOP.json"
+  lazy val api5EtmpSOPWithRef = "/json/API5/etmp/EtmpSOPWithAWRSRef.json"
   lazy val getRegDetailsOrgJson = "/json/getRegistrationDetails/EtmpNoRegimeOrg.json"
   lazy val getRegDetailsOrgWithRegimeJson = "/json/getRegistrationDetails/EtmpWithRegimeOrg.json"
   lazy val getRegDetailsIndividualJson = "/json/getRegistrationDetails/EtmpNoRegimeIndividual.json"

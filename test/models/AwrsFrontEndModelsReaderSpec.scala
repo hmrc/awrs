@@ -913,6 +913,12 @@ class AwrsFrontEndModelsReaderSpec extends PlaySpec with AwrsTestJson with AnyWo
       awrsFEModelDetails shouldBe a[AWRSFEModel]
       awrsFEModelDetails.subscriptionTypeFrontEnd.businessDetails.get.newAWBusiness.get.proposedStartDate shouldBe Some("30/10/2016")
     }
+
+    "transform correctly to AWRSFEModel Frontend Model with awrsRegistratiomNumber" in {
+      val awrsFEModelDetails = api5EtmpSOPWithRefJson.as[AWRSFEModel](AWRSFEModel.etmpReader)
+      awrsFEModelDetails shouldBe a[AWRSFEModel]
+      awrsFEModelDetails.subscriptionTypeFrontEnd.awrsRegistrationNumber shouldBe Some("XZAW0000000000")
+    }
   }
 
 }
