@@ -241,4 +241,37 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
           }
       }
   }
+
+  def upsertEnrolment(): Action[AnyContent] = Action.async { implicit request =>
+    val feJson = request.body.asJson.get
+    val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
+    val awrsRef = awrsModel.subscriptionTypeFrontEnd.awrsRegistrationNumber.get
+    val safeId: String = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.fold("")(x => x.safeId)
+    val businessReg: BusinessRegistrationDetails = awrsModel.subscriptionTypeFrontEnd.businessRegistrationDetails.get
+    val postcode = awrsModel.subscriptionTypeFrontEnd.businessCustomerDetails.get.businessAddress.postcode.fold("")(x => x).replaceAll("\\s+", "")
+    val utr = businessReg.utr
+    val businessType = businessReg.legalEntity.fold("")(x => x)
+
+    subscriptionService.addKnownFacts(awrsRef, safeId, utr, businessType, postcode).map {
+      response =>
+        response.status match {
+          case NO_CONTENT =>
+            info("[SubscriptionController - upsertEnrolment] - enrolment successfully upserted")
+            NoContent
+          case BAD_REQUEST =>
+            lazy val badRequest = response.json.as[KnownFactsFailure]
+            warn(s"[SubscriptionController - upsertEnrolment] - Bad request on upsert. Code: ${badRequest.code}, reason: ${badRequest.message}")
+            BadRequest(response.body)
+          case SERVICE_UNAVAILABLE =>
+            lazy val unavailable = response.json.as[KnownFactsFailure]
+            warn(s"[SubscriptionController - upsertEnrolment] - Service unavailable. Code: ${unavailable.code}, reason: ${unavailable.message}")
+            ServiceUnavailable(response.body)
+          case _ =>
+            lazy val error = response.json.as[KnownFactsFailure]
+            warn(s"[SubscriptionController - upsertEnrolment] - Error when trying to upsert enrolment. Code: ${error.code}, reason: ${error.message}")
+            InternalServerError(response.body)
+        }
+    }
+
+  }
 }

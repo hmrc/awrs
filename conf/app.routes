@@ -3,6 +3,7 @@ GET   /awrs/lookup/:awrsRefNo                                        controllers
 GET   /awrs/status/:awrsRefNo                                        controllers.SubscriptionController.checkStatus(awrsRefNo: String)
 PUT   /awrs/update/:awrsRefNo                                        controllers.SubscriptionController.updateSubscription(awrsRefNo: String)
 PUT   /:awrsRefNo/registration-details/:safeId                       controllers.SubscriptionController.updateGrpRegistrationDetails(awrsRefNo: String,safeId : String)
+PUT   /awrs/upsert-enrolment                                         controllers.SubscriptionController.upsertEnrolment()
 
 GET   /awrs/status-info/:awrsRefNo/:contactNumber                    controllers.StatusInfoController.getStatusInfo(awrsRefNo: String, contactNumber: String)
 

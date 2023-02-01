@@ -16,8 +16,14 @@
 
 package models
 
+import play.api.libs.json.{Json, OFormat}
+
 sealed trait KnownFactsResponse
 
 object KnownFactsSuccess extends KnownFactsResponse
 
-case class KnownFactsFailure(message: String) extends KnownFactsResponse
+case class KnownFactsFailure(code: String, message: String) extends KnownFactsResponse
+
+object KnownFactsFailure {
+  implicit val formats: OFormat[KnownFactsFailure] = Json.format[KnownFactsFailure]
+}
