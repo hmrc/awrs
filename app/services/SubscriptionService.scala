@@ -44,7 +44,7 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
     val timer = metrics.startTimer(ApiType.API4Subscribe)
     for {
       submitResponse <- etmpConnector.subscribe(data, safeId)
-      enrolmentResponse <- addKnownFacts(submitResponse, safeId, utr, businessType, postcode)
+      enrolmentResponse <- if(submitResponse.status == OK) addKnownFacts(extractAwrsRef(submitResponse.json), safeId, utr, businessType, postcode) else Future.successful(submitResponse)
     } yield {
       (submitResponse.status, enrolmentResponse.status) match {
         case (OK, NO_CONTENT) =>
@@ -62,20 +62,17 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
   def updateSubscription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.updateSubscription(inputJson, awrsRefNo)
 
-  private def addKnownFacts(response: HttpResponse,
+  private def extractAwrsRef(data: JsValue): String = (data \ "awrsRegistrationNumber").as[String]
+
+  def addKnownFacts(awrsRef: String,
                             safeId: String,
                             utr: Option[String],
                             businessType: String,
-                            postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
-    response.status match {
-      case OK =>
-        val json = response.json
-        val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
+                            postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
-        val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
+        val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRef"
         val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
         enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
-      case _ => Future(response)
     }
 
   private def createVerifiers(safeId: String, utr: Option[String], businessType: String, postcode: String) = {
