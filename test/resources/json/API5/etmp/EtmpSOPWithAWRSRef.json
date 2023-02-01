@@ -1,5 +1,6 @@
 {
   "subscriptionType": {
+    "businessPartnerName": "BusinessPartner",
     "legalEntity": "Sole Trader",
     "newAWBusiness": false,
     "businessDetails": {
