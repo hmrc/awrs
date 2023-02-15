@@ -2,7 +2,7 @@ import TestPhases.{TemplateItTest, TemplateTest}
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
-val silencerVersion = "1.7.1"
+val silencerVersion = "1.7.2"
 val appName: String = "awrs"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
