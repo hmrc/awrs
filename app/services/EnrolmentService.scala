@@ -19,13 +19,12 @@ package services
 import connectors.EnrolmentStoreConnector
 import models.AwrsUsers
 import uk.gov.hmrc.http.HeaderCarrier
-
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class EnrolmentService @Inject()(enrolmentStoreConnector: EnrolmentStoreConnector) {
-  def awrsUsers(awrsRefNo: String)
-                         (implicit headerCarrier: HeaderCarrier,
-                          ec: ExecutionContext): Future[Either[Int, AwrsUsers]] =
+
+  def awrsUsers(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[Either[Int, AwrsUsers]] =
     enrolmentStoreConnector.getAWRSUsers(awrsRefNo)
+
 }

@@ -16,7 +16,7 @@
 
 package connector
 
-import connectors.{EnrolmentStoreConnector, EtmpConnector}
+import connectors.EnrolmentStoreConnector
 import models.AwrsUsers
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -70,7 +70,7 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.contains(s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""),
         ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(),
         ArgumentMatchers.any(), ArgumentMatchers.any())).
-        thenReturn(Future.successful(HttpResponse(NO_CONTENT,Json.toJson(testEmptyAwrsUsers) , Map.empty[String, Seq[String]])))
+        thenReturn(Future.successful(HttpResponse(NO_CONTENT, Json.toJson(testEmptyAwrsUsers), Map.empty[String, Seq[String]])))
 
       val result = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
       await(result) should be(Right(testEmptyAwrsUsers))
