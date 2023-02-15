@@ -17,14 +17,13 @@
 package connectors
 
 import javax.inject.{Inject, Named}
-import models.EnrolmentVerifiers
-import play.api.http.Status.{NO_CONTENT, BAD_REQUEST}
+import models.{AwrsUsers, EnrolmentVerifiers}
+import play.api.http.Status._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import utils.LoggingUtils
 import uk.gov.hmrc.http.HttpReads.Implicits._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -65,5 +64,27 @@ class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
     }
 
     trySend(0)
+  }
+
+  def getAWRSUsers(awrsRef: String)(implicit hc: HeaderCarrier): Future[Either[Int, AwrsUsers]] = {
+
+    val url = s"$enrolmentStore/enrolment-store-proxy/enrolment-store/enrolments/HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef/users"
+    http.GET[HttpResponse](url, Seq.empty).map {
+      response =>
+        response.status match {
+          case OK =>
+            logger.info(s"""[EnrolmentStoreConnector][getAWRSUsers]: ES0 Was successful""")
+            response.json.validate[AwrsUsers].fold(_ => Left(INTERNAL_SERVER_ERROR), users => Right(users))
+          case NO_CONTENT =>
+            logger.info(s"""[EnrolmentStoreConnector][getAWRSUsers]: ES0 Returned nothing for $awrsRef""")
+            Right(AwrsUsers(Nil, Nil))
+          case BAD_REQUEST =>
+            logger.warn(s"""[EnrolmentStoreConnector][getAWRSUsers]: Received bad request for ES0 call ${response.status} : ${response.body}""")
+            Left(BAD_REQUEST)
+          case _ =>
+            logger.error(s"[EnrolmentsStoreConnector][getAWRSUsers]: ES0 returned: ${response.status} with body ${response.body}")
+            Left(response.status)
+        }
+    }
   }
 }
