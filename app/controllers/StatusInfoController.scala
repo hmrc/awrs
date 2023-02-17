@@ -16,9 +16,11 @@
 
 package controllers
 
+import connectors.EnrolmentStoreConnector
+
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
-import models.{ApiType, StatusInfoType}
+import models.{ApiType, AwrsUsers, StatusInfoType}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
@@ -31,6 +33,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class StatusInfoController @Inject()(val auditConnector: AuditConnector,
                                      metrics: AwrsMetrics,
                                      val statusInfoService: EtmpStatusInfoService,
+                                     val etmpRegimeService: EtmpRegimeService,
+                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
                                      cc: ControllerComponents,
                                      @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
@@ -79,4 +83,30 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
           }
       }
   }
+
+  def checkIfNewApplication(credID: String, safeID: String): Action[AnyContent] = Action.async {
+    implicit request => {
+      etmpRegimeService.getEtmpBusinessDetails(safeID) map { businessDetails =>
+        businessDetails match {
+          case Some(details) =>
+            enrolmentStoreConnector.getAWRSUsers(details.regimeRefNumber) map {response =>
+              response match {
+                case Left(status) => BadRequest("1234")
+                case Right(users) =>
+              }
+            }
+          case None => NotFound("Business Details not found for ")
+        }
+      }
+    }
+  }
+
+  def isCredIdPresent(awrsUsers: AwrsUsers, credIDs: String): Boolean = {
+    if (awrsUsers.delegatedUserIDList.contains(credIDs) || awrsUsers.principalUserIDList.contains(credIDs)) {
+      true
+    } else {
+      false
+    }
+  }
+
 }

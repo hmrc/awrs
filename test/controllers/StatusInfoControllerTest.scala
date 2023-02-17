@@ -101,4 +101,13 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
     }
 
   }
+
+  "For a given safeId and credId status info controller" must {
+    "return an organisations AWRS reference number when it exists" in {
+
+    }
+    "return a not found if an AWRS reference number is not found" in {
+
+    }
+  }
 }
