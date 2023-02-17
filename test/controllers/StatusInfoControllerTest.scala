@@ -25,11 +25,11 @@ import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.EtmpStatusInfoService
+import services.{EnrolmentService, EtmpStatusInfoService}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
-import utils.AwrsTestJson.testRefNo
+import utils.AwrsTestJson.{testRefNo, testSafeId}
 import utils.BaseSpec
 
 import scala.concurrent.Future
@@ -38,11 +38,12 @@ import scala.concurrent.Future
 class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
 
   val mockEtmpStatusInfoService: EtmpStatusInfoService = mock[EtmpStatusInfoService]
+  val mockEnrolementService: EnrolmentService = mock[EnrolmentService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 
-  object TestStatusInfoControllerTest extends StatusInfoController(mockAuditConnector, awrsMetrics, mockEtmpStatusInfoService, cc, "awrs") {
+  object TestStatusInfoControllerTest extends StatusInfoController(mockAuditConnector, awrsMetrics, mockEtmpStatusInfoService, mockEnrolementService, cc, "awrs") {
     override val audit: Audit = new TestAudit(mockAuditConnector)
   }
 
@@ -100,5 +101,15 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
+  }
+
+  "For a given safeId and credId status info controller" must {
+    "return true if a reference number exists" in {
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, api11FailureResponseJson, Map.empty[String, Seq[String]])))
+      val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
+      status(result) shouldBe OK //Just testing the result
+    }
+    "return false if a reference number exists" in {
+    }
   }
 }

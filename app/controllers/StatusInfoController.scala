@@ -16,12 +16,15 @@
 
 package controllers
 
+import connectors.EnrolmentStoreConnector
+
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
-import models.{ApiType, StatusInfoType}
+import models.{ApiType, AwrsUsers, StatusInfoType}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
+import uk.gov.hmrc.auth.core.Enrolment
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.LoggingUtils
@@ -31,6 +34,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class StatusInfoController @Inject()(val auditConnector: AuditConnector,
                                      metrics: AwrsMetrics,
                                      val statusInfoService: EtmpStatusInfoService,
+                                     val etmpRegimeService: EtmpRegimeService,
+                                     val enrolmentService: EnrolmentService,
+                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
                                      cc: ControllerComponents,
                                      @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
@@ -79,4 +85,24 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
           }
       }
   }
+
+  def checkIfNewApplication(credID: String, safeID: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      etmpRegimeService.getEtmpBusinessDetails(safeID) map {
+          case Some(details) =>
+            enrolmentService.awrsUsers(details.regimeRefNumber) map {
+              _.fold(_ => BadRequest(""), awrsUsers => Ok(isCredIdPresent(awrsUsers, credID).toString))
+            }
+          case None => NotFound(s"""Business Details not found for $safeID""")
+        }
+      }
+
+  def isCredIdPresent(awrsUsers: AwrsUsers, credID: String): Boolean = {
+    if (awrsUsers.delegatedUserIDList.contains(credID) || awrsUsers.principalUserIDList.contains(credID)) {
+      true
+    } else {
+      false
+    }
+  }
+
 }
