@@ -5,6 +5,7 @@ PUT   /awrs/update/:awrsRefNo                                        controllers
 PUT   /:awrsRefNo/registration-details/:safeId                       controllers.SubscriptionController.updateGrpRegistrationDetails(awrsRefNo: String,safeId : String)
 
 GET   /awrs/status-info/:awrsRefNo/:contactNumber                    controllers.StatusInfoController.getStatusInfo(awrsRefNo: String, contactNumber: String)
+GET   /awrs/status-info/user/:safeID/:credID                         controllers.StatusInfoController.checkUsersEnrolment(safeID: String, credID: String)
 
 POST  /awrs/de-registration/:awrsRefNo                               controllers.DeRegistrationController.deRegistration(awrsRefNo:String)
 POST  /awrs/withdrawal/:awrsRefNo                                    controllers.WithdrawalController.withdrawal(awrsRefNo: String)

@@ -18,6 +18,7 @@ package controllers
 
 import audit.TestAudit
 import metrics.AwrsMetrics
+import models.{AwrsUsers, EtmpRegistrationDetails}
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -25,12 +26,13 @@ import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{EnrolmentService, EtmpStatusInfoService}
+import services.{EnrolmentService, EtmpRegimeService, EtmpStatusInfoService}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.{testRefNo, testSafeId}
 import utils.BaseSpec
+import play.api.mvc.Results
 
 import scala.concurrent.Future
 
@@ -39,16 +41,16 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
 
   val mockEtmpStatusInfoService: EtmpStatusInfoService = mock[EtmpStatusInfoService]
   val mockEnrolementService: EnrolmentService = mock[EnrolmentService]
+  val mockRegimeService: EtmpRegimeService = mock[EtmpRegimeService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 
-  object TestStatusInfoControllerTest extends StatusInfoController(mockAuditConnector, awrsMetrics, mockEtmpStatusInfoService, mockEnrolementService, cc, "awrs") {
+  object TestStatusInfoControllerTest extends StatusInfoController(mockAuditConnector, awrsMetrics, mockEtmpStatusInfoService, mockRegimeService, mockEnrolementService, cc, "awrs") {
     override val audit: Audit = new TestAudit(mockAuditConnector)
   }
 
   "For API 11, Status Info Controller " must {
-
     "check success response is transported correctly" in {
       when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api11SuccessfulCDATAEncodedResponseJson, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
@@ -101,15 +103,50 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }
 
-  }
+    "For check users enrolment, Status Info Controller " must {
+      "return a OK response containing true if a reference number exists" in {
+        val testCredId = "awrs-user"
+        val testSafeId = "safeId123"
+        val testBusinessDetails = EtmpRegistrationDetails(
+          Some("testOrganisation"), "test123", "safe123",
+          Some(true), "regime-ref-number-123", Some("agent-ref-number-123"), Some("testFirstName"), Some("testLastName"))
+        val awrsUsers = AwrsUsers(List("awrs-user", "principal-user-two"), List("delegated-user-one", "delegated-user-two"))
+        when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testBusinessDetails)))
+        when(mockEnrolementService.awrsUsers(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Right(awrsUsers)))
 
-  "For a given safeId and credId status info controller" must {
-    "return true if a reference number exists" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, api11FailureResponseJson, Map.empty[String, Seq[String]])))
-      val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
-      status(result) shouldBe OK //Just testing the result
-    }
-    "return false if a reference number exists" in {
+        val result = TestStatusInfoControllerTest.checkUsersEnrolment(testSafeId, testCredId).apply(FakeRequest())
+        status(result) shouldBe OK //TODO check the contents for boolean
+        contentAsString(result) shouldBe "true"
+      }
+
+      "return a OK response containing false if a reference number exists" in {
+        val testCredId = "awrs-user"
+        val testSafeId = "safeId123"
+        val testBusinessDetails = EtmpRegistrationDetails(
+            Some("testOrganisation"), "test123", "safe123",
+            Some(true), "regime-ref-number-123", Some("agent-ref-number-123"), Some("testFirstName"), Some("testLastName"))
+        val awrsUsers = AwrsUsers(List("principal-user-one", "principal-user-two"), List("delegated-user-one", "delegated-user-two"))
+        when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testBusinessDetails)))
+        when(mockEnrolementService.awrsUsers(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Right(awrsUsers)))
+
+        val result = TestStatusInfoControllerTest.checkUsersEnrolment(testSafeId, testCredId).apply(FakeRequest())
+        status(result) shouldBe OK
+        contentAsString(result) shouldBe "false"
+      }
+
+      "return false if a reference number exists" in {
+        val testCredId = "credId123"
+        val testSafeId = "safeId123"
+        val testBusinessDetails = EtmpRegistrationDetails(
+            Some("testOrganisation"), "test123", "safe123",
+            Some(true), "regime-ref-number-123", Some("agent-ref-number-123"), Some("testFirstName"), Some("testLastName"))
+        when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testBusinessDetails)))
+        when(mockEnrolementService.awrsUsers(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Left(BAD_REQUEST)))
+
+        val result = TestStatusInfoControllerTest.checkUsersEnrolment(testSafeId, testCredId).apply(FakeRequest())
+        status(result) shouldBe BAD_REQUEST
+        contentAsString(result) shouldBe "Error when checking enrolment store for regime-ref-number-123"
+      }
     }
   }
 }
