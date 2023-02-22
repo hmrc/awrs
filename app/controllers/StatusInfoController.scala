@@ -16,7 +16,6 @@
 
 package controllers
 
-import connectors.EnrolmentStoreConnector
 
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
@@ -36,7 +35,6 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
                                      val statusInfoService: EtmpStatusInfoService,
                                      val etmpRegimeService: EtmpRegimeService,
                                      val enrolmentService: EnrolmentService,
-                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
                                      cc: ControllerComponents,
                                      @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
@@ -86,23 +84,19 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
       }
   }
 
-  def checkIfNewApplication(credID: String, safeID: String): Action[AnyContent] = Action.async { implicit request =>
+  def checkUsersEnrolment(safeID: String, credID: String): Action[AnyContent] = Action.async { implicit request =>
     etmpRegimeService.getEtmpBusinessDetails(safeID).flatMap {
       case Some(details) =>
-        enrolmentService.awrsUsers(details.regimeRefNumber).map{
-          case Left(err) => BadRequest("")
+        enrolmentService.awrsUsers(details.regimeRefNumber).map {
+          case Left(err) => Status(err)(s"""Error when checking enrolment store for ${details.regimeRefNumber}""")
           case Right(users) => Ok(isCredIdPresent(users, credID).toString)
         }
       case None => Future.successful(NotFound(s"""Business Details not found for $safeID"""))
     }
   }
 
-  def isCredIdPresent(awrsUsers: AwrsUsers, credID: String): Boolean = {
-    if (awrsUsers.delegatedUserIDList.contains(credID) || awrsUsers.principalUserIDList.contains(credID)) {
-      true
-    } else {
-      false
-    }
-  }
+  private def isCredIdPresent(awrsUsers: AwrsUsers, credID: String): Boolean =
+    if (awrsUsers.delegatedUserIDList.contains(credID) || awrsUsers.principalUserIDList.contains(credID)) true else false
+
 
 }
