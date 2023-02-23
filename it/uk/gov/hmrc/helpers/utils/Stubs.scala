@@ -22,6 +22,8 @@ import play.api.http.Status.OK
 import play.api.libs.json.Json
 import uk.gov.hmrc.helpers.IntegrationSpec
 
+import scala.concurrent.Future
+
 trait Stubs extends IntegrationSpec with IntegrationData {
 
   def stubShowAndRedirectExternalCalls(affinityGroup: String): StubMapping = {

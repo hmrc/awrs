@@ -18,8 +18,10 @@ package uk.gov.hmrc.helpers.controllers
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.routes
+import models.EtmpRegistrationDetails
 import org.scalatest.matchers.must.Matchers
 import play.api.http.Status.OK
+import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.utils.Stubs
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
@@ -29,16 +31,18 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
   val testSafeId = "testSafeId123"
   val testCredId = "testCredId123"
   val controllerUrl: String = routes.StatusInfoController.checkUsersEnrolment(testSafeId, testCredId).url
-  val listOfCredIds: String = "{principalIDs: 123, delegatedID: 123}"
+  val listOfCredIds: String = """{"principalIDs": ["123"], "delegatedID": ["123"]}"""
+  val businessDetails: String = etmpBusinessDetailsData
+
   override val enrolmentRef = "XAAW00000123456"
   override val enrolmentKey = s"HMRC-AWRS-ORG~AWRSRefNumber~$enrolmentRef"
 
   def stubCheckAwrsEnrolment(status: Int): StubMapping = {
-    stubbedGet(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey", status, listOfCredIds)
+    stubbedGetUrlEqual(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey/users", status, listOfCredIds)
   }
 
   def stubGetEtmpBusinessDetails(status: Int): StubMapping = {
-    stubbedGet(s"""/registration/details?safeid=testSafeId123&regime=AWRS""", status, listOfCredIds)
+    stubbedGetUrlEqual("/registration/details?safeid=testSafeId123&regime=AWRS", status, businessDetails)
   }
 
   "checkUsersEnrolment" should {
@@ -51,6 +55,22 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe 200
+    }
+    "return a 204" in {
+      stubAuditPosts
+      stubCheckAwrsEnrolment(OK)
+      stubGetEtmpBusinessDetails(OK)
+
+      val resp: WSResponse = await(authorisedClient(controllerUrl).get)
+      resp.status mustBe 400
+    }
+    "return a 400" in {
+      stubAuditPosts
+      stubCheckAwrsEnrolment(OK)
+      stubGetEtmpBusinessDetails(OK)
+
+      val resp: WSResponse = await(authorisedClient(controllerUrl).get)
+      resp.status mustBe 400
     }
   }
 }

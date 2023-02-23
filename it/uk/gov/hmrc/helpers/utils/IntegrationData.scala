@@ -454,4 +454,47 @@ trait IntegrationData {
       |""".stripMargin
   )
 
+  val etmpBusinessDetailsData: String = s"""{
+    "sapNumber": "1234567890",
+    "safeId": "XE0001234567890",
+    "agentReferenceNumber": "AARN1234567",
+    "regimeIdentifiers": [
+    {
+      "regimeName": "AWRS",
+      "regimeRefNumber": "XAAW00000123456"
+    },
+    {
+      "regimeRefNumber": "XAML00000123456"
+    }
+    ],
+    "nonUKIdentification": {
+      "idNumber": "123456",
+      "issuingInstitution": "France Institution",
+      "issuingCountryCode": "FR"
+    },
+    "isEditable": true,
+    "isAnAgent": false,
+    "isAnIndividual": false,
+    "organisation": {
+      "organisationName": "ACME Trading",
+      "isAGroup": false,
+      "organisationType": "Corporate body"
+    },
+    "addressDetails": {
+      "addressLine1": "100 SomeStreet",
+      "addressLine2": "Wokingham",
+      "addressLine3": "Surrey",
+      "addressLine4": "London",
+      "postalCode": "DH14EJ",
+      "countryCode": "GB"
+    },
+    "contactDetails": {
+      "regimeName": "AWRS",
+      "phoneNumber": "01332752856",
+      "mobileNumber": "07782565326",
+      "faxNumber": "01332754256",
+      "emailAddress": "stephen@manncorpone.co.uk"
+    }
+  }""".stripMargin
+
 }

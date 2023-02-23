@@ -98,5 +98,4 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
   private def isCredIdPresent(awrsUsers: AwrsUsers, credID: String): Boolean =
     if (awrsUsers.delegatedUserIDList.contains(credID) || awrsUsers.principalUserIDList.contains(credID)) true else false
 
-
 }
