@@ -88,10 +88,14 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
     etmpRegimeService.getEtmpBusinessDetails(safeID).flatMap {
       case Some(details) =>
         enrolmentService.awrsUsers(details.regimeRefNumber).map {
-          case Left(err) => Status(err)(s"""Error when checking enrolment store for ${details.regimeRefNumber}""")
+          case Left(err) =>
+            warn(s"[AWRS][checkUsersEnrolment] - returned ${Status(err)} $err when retrieving awrs users")
+            Status(err)(s"""Error when checking enrolment store for ${details.regimeRefNumber}""")
           case Right(users) => Ok(isCredIdPresent(users, credID).toString)
         }
-      case None => Future.successful(NotFound(s"""Business Details not found for $safeID"""))
+      case None =>
+        warn(s"""[AWRS][checkUsersEnrolment] - No business details found for safeID $safeID""")
+        Future.successful(NotFound(s"""Business Details not found for $safeID"""))
     }
   }
 

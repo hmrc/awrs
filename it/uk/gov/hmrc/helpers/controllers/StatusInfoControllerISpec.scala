@@ -18,30 +18,30 @@ package uk.gov.hmrc.helpers.controllers
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.routes
-import models.EtmpRegistrationDetails
+import models.AwrsUsers
 import org.scalatest.matchers.must.Matchers
-import play.api.http.Status.OK
+import play.api.http.Status._
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.utils.Stubs
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 
-class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Matchers with Stubs{
+class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Matchers with Stubs {
 
   val testSafeId = "testSafeId123"
   val testCredId = "testCredId123"
   val controllerUrl: String = routes.StatusInfoController.checkUsersEnrolment(testSafeId, testCredId).url
   val listOfCredIds: String = """{"principalIDs": ["123"], "delegatedID": ["123"]}"""
-  val businessDetails: String = etmpBusinessDetailsData
-
+  val testBusinessDetails: String = etmpBusinessDetailsData
+  val testAwrsUsers = Json.toJson(AwrsUsers(List("api10"), Nil)).toString
   override val enrolmentRef = "XAAW00000123456"
   override val enrolmentKey = s"HMRC-AWRS-ORG~AWRSRefNumber~$enrolmentRef"
 
   def stubCheckAwrsEnrolment(status: Int): StubMapping = {
-    stubbedGetUrlEqual(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey/users", status, listOfCredIds)
+    stubbedGetUrlEqual(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey/users", status, testAwrsUsers)
   }
 
-  def stubGetEtmpBusinessDetails(status: Int): StubMapping = {
+  def stubGetEtmpBusinessDetails(status: Int, businessDetails: String): StubMapping = {
     stubbedGetUrlEqual("/registration/details?safeid=testSafeId123&regime=AWRS", status, businessDetails)
   }
 
@@ -51,26 +51,33 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
       //stubbed get business details call
       stubAuditPosts
       stubCheckAwrsEnrolment(OK)
-      stubGetEtmpBusinessDetails(OK)
+      stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
-      resp.status mustBe 200
+      resp.status mustBe OK
     }
-    "return a 204" in {
+    "return a 204 when the credID is not present" in {
       stubAuditPosts
-      stubCheckAwrsEnrolment(OK)
-      stubGetEtmpBusinessDetails(OK)
+      stubCheckAwrsEnrolment(NO_CONTENT)
+      stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
-      resp.status mustBe 400
+      resp.status mustBe OK
     }
-    "return a 400" in {
+    "return a BAD_REQUEST when check awrs users enrolment returns a BAD REQUEST" in {
       stubAuditPosts
-      stubCheckAwrsEnrolment(OK)
-      stubGetEtmpBusinessDetails(OK)
+      stubCheckAwrsEnrolment(BAD_REQUEST)
+      stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
-      resp.status mustBe 400
+      resp.status mustBe BAD_REQUEST
+    }
+    "return a NOT_FOUND when no business details are found" in {
+      stubAuditPosts
+      stubGetEtmpBusinessDetails(OK, "")
+
+      val resp: WSResponse = await(authorisedClient(controllerUrl).get)
+      resp.status mustBe NOT_FOUND
     }
   }
 }
