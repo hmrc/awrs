@@ -29,48 +29,48 @@ import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Matchers with Stubs {
 
   val testSafeId = "testSafeId123"
-  val testCredId = "testCredId123"
+  val testCredId = "awrsUserCredId"
   val controllerUrl: String = routes.StatusInfoController.checkUsersEnrolment(testSafeId, testCredId).url
-  val listOfCredIds: String = """{"principalIDs": ["123"], "delegatedID": ["123"]}"""
   val testBusinessDetails: String = etmpBusinessDetailsData
-  val testAwrsUsers = Json.toJson(AwrsUsers(List("api10"), Nil)).toString
+  val testAwrsUsers = Json.toJson(AwrsUsers(List("awrsUserCredId"), Nil)).toString
   override val enrolmentRef = "XAAW00000123456"
-  override val enrolmentKey = s"HMRC-AWRS-ORG~AWRSRefNumber~$enrolmentRef"
+  override val enrolmentKey = s"""HMRC-AWRS-ORG~AWRSRefNumber~$enrolmentRef"""
 
   def stubCheckAwrsEnrolment(status: Int): StubMapping = {
     stubbedGetUrlEqual(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey/users", status, testAwrsUsers)
   }
 
   def stubGetEtmpBusinessDetails(status: Int, businessDetails: String): StubMapping = {
-    stubbedGetUrlEqual("/registration/details?safeid=testSafeId123&regime=AWRS", status, businessDetails)
+    stubbedGetUrlEqual(s"""/registration/details?safeid=$testSafeId&regime=AWRS""", status, businessDetails)
   }
 
   "checkUsersEnrolment" should {
-    "return a 200 OK when the credId is present in the list of AWRS user enrolments" in {
-      //stubbed enrolment store call
-      //stubbed get business details call
+    "return a 200 OK containing true when the user already has an AWRS account" in {
       stubAuditPosts
       stubCheckAwrsEnrolment(OK)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe OK
+      resp.body mustBe "true"
     }
-    "return a 204 when the credID is not present" in {
+    "return a 204 containing false when the user does not have an AWRS account" in {
       stubAuditPosts
       stubCheckAwrsEnrolment(NO_CONTENT)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe OK
+      resp.body mustBe "false"
     }
-    "return a BAD_REQUEST when check awrs users enrolment returns a BAD REQUEST" in {
+    "return a BAD_REQUEST when check AWRS users enrolment returns a BAD REQUEST" in {
       stubAuditPosts
       stubCheckAwrsEnrolment(BAD_REQUEST)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe BAD_REQUEST
+      resp.body mustBe s"""Error when checking enrolment store for $enrolmentRef"""
     }
     "return a NOT_FOUND when no business details are found" in {
       stubAuditPosts
@@ -78,6 +78,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe NOT_FOUND
+      resp.body mustBe s"""Business Details not found for $testSafeId"""
     }
   }
 }
