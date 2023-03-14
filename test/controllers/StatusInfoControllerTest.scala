@@ -18,6 +18,7 @@ package controllers
 
 import audit.TestAudit
 import metrics.AwrsMetrics
+import models.{AwrsUsers, EtmpRegistrationDetails}
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -25,7 +26,7 @@ import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.EtmpStatusInfoService
+import services.{EnrolmentService, EtmpRegimeService, EtmpStatusInfoService}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
@@ -38,12 +39,39 @@ import scala.concurrent.Future
 class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
 
   val mockEtmpStatusInfoService: EtmpStatusInfoService = mock[EtmpStatusInfoService]
+  val mockEnrolementService: EnrolmentService = mock[EnrolmentService]
+  val mockRegimeService: EtmpRegimeService = mock[EtmpRegimeService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 
-  object TestStatusInfoControllerTest extends StatusInfoController(mockAuditConnector, awrsMetrics, mockEtmpStatusInfoService, cc, "awrs") {
+  object TestStatusInfoControllerTest extends StatusInfoController(mockAuditConnector, awrsMetrics, mockEtmpStatusInfoService, mockRegimeService, mockEnrolementService, cc, "awrs") {
     override val audit: Audit = new TestAudit(mockAuditConnector)
+  }
+
+  "For enrolledUsers, Status Info Controller " must {
+    "return a OK response containing true if a reference number exists" in {
+      val testSafeId = "safeId123"
+      val testBusinessDetails = EtmpRegistrationDetails(
+        Some("testOrganisation"), "test123", "safe123",
+        Some(true), "regime-ref-number-123", Some("agent-ref-number-123"), Some("testFirstName"), Some("testLastName"))
+      val awrsUsers = AwrsUsers(List("awrs-user", "principal-user-two"), List("delegated-user-one", "delegated-user-two"))
+      when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testBusinessDetails)))
+      when(mockEnrolementService.awrsUsers(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Right(awrsUsers)))
+
+      val result = TestStatusInfoControllerTest.enrolledUsers(testSafeId).apply(FakeRequest())
+      status(result) shouldBe OK
+
+      contentAsJson(result) shouldBe Json.toJson(Some(awrsUsers))
+    }
+
+    "return None if a reference number doesnt exist" in {
+      val testSafeId = "safeId123"
+      when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+
+      val result = TestStatusInfoControllerTest.enrolledUsers(testSafeId).apply(FakeRequest())
+      status(result) shouldBe NOT_FOUND
+    }
   }
 
   "For API 11, Status Info Controller " must {

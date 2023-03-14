@@ -16,6 +16,7 @@
 
 package controllers
 
+
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models.{ApiType, StatusInfoType}
@@ -25,12 +26,15 @@ import services._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.LoggingUtils
+import scala.concurrent.Future
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class StatusInfoController @Inject()(val auditConnector: AuditConnector,
                                      metrics: AwrsMetrics,
                                      val statusInfoService: EtmpStatusInfoService,
+                                     val etmpRegimeService: EtmpRegimeService,
+                                     val enrolmentService: EnrolmentService,
                                      cc: ControllerComponents,
                                      @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
 
@@ -79,4 +83,20 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
           }
       }
   }
+
+  def enrolledUsers(safeID: String): Action[AnyContent] = Action.async { implicit request =>
+    etmpRegimeService.getEtmpBusinessDetails(safeID).flatMap {
+      case Some(details) =>
+        enrolmentService.awrsUsers(details.regimeRefNumber).map {
+          case Right(users) => Ok(Json.toJson(users))
+          case Left(err) =>
+            warn(s"[AWRS][enrolledUsers for safeId] - returned ${Status(err)} $err when retrieving awrs users")
+            Status(err)(s"""Error when checking enrolment store for ${details.regimeRefNumber}""")
+        }
+      case None =>
+        warn(s"""[AWRS][enrolledUsers for safeID] - No business details found for safeID $safeID""")
+        Future.successful(NotFound(s"""AWRS enrolled Business Details not found for $safeID"""))
+    }
+  }
+
 }

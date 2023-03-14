@@ -6,6 +6,16 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 
 trait StubbedBasicHttpCalls {
 
+  def stubbedGetUrlEqual(url: String, statusCode: Int, responseBody: String): StubMapping = {
+    stubFor(get(urlEqualTo(url))
+      .willReturn(
+        aResponse()
+          .withStatus(statusCode)
+          .withBody(responseBody)
+      )
+    )
+  }
+
   def stubbedGet(url: String, statusCode: Int, responseBody: String): StubMapping = {
     stubFor(get(urlPathMatching(url))
       .willReturn(

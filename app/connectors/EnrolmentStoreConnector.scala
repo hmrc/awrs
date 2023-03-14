@@ -73,7 +73,7 @@ class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
       response =>
         response.status match {
           case OK =>
-            logger.info(s"""[EnrolmentStoreConnector][getAWRSUsers]: ES0 Was successful""")
+            logger.info(s"""[EnrolmentStoreConnector][getAWRSUsers]: ES0 Was successful for $awrsRef""")
             response.json.validate[AwrsUsers].fold(_ => Left(INTERNAL_SERVER_ERROR), users => Right(users))
           case NO_CONTENT =>
             logger.info(s"""[EnrolmentStoreConnector][getAWRSUsers]: ES0 Returned nothing for $awrsRef""")
