@@ -18,7 +18,7 @@ package models
 
 import play.api.libs.json._
 
-case class AwrsUsers(principalUserIDList: List[String], delegatedUserIDList: List[String])
+case class AwrsUsers(principalUserIds: List[String], delegatedUserIds: List[String])
 
 object AwrsUsers {
   implicit val format: OFormat[AwrsUsers] = Json.format[AwrsUsers]

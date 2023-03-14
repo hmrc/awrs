@@ -19,7 +19,7 @@ package controllers
 
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
-import models.{ApiType, AwrsUsers, StatusInfoType}
+import models.{ApiType, StatusInfoType}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
@@ -98,24 +98,5 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
         Future.successful(NotFound(s"""AWRS enrolled Business Details not found for $safeID"""))
     }
   }
-
-
-  def checkUsersEnrolment(safeID: String, credID: String): Action[AnyContent] = Action.async { implicit request =>
-    etmpRegimeService.getEtmpBusinessDetails(safeID).flatMap {
-      case Some(details) =>
-        enrolmentService.awrsUsers(details.regimeRefNumber).map {
-          case Left(err) =>
-            warn(s"[AWRS][checkUsersEnrolment] - returned ${Status(err)} $err when retrieving awrs users")
-            Status(err)(s"""Error when checking enrolment store for ${details.regimeRefNumber}""")
-          case Right(users) => Ok(isCredIdPresent(users, credID).toString)
-        }
-      case None =>
-        warn(s"""[AWRS][checkUsersEnrolment] - No business details found for safeID $safeID""")
-        Future.successful(NotFound(s"""Business Details not found for $safeID"""))
-    }
-  }
-
-  private def isCredIdPresent(awrsUsers: AwrsUsers, credID: String): Boolean =
-    if (awrsUsers.delegatedUserIDList.contains(credID) || awrsUsers.principalUserIDList.contains(credID)) true else false
 
 }

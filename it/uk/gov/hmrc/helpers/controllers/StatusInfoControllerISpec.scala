@@ -30,13 +30,15 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
   val testSafeId = "testSafeId123"
   val testCredId = "awrsUserCredId"
-  val controllerUrl: String = routes.StatusInfoController.checkUsersEnrolment(testSafeId, testCredId).url
+  val controllerUrl: String = routes.StatusInfoController.enrolledUsers(testSafeId).url
   val testBusinessDetails: String = etmpBusinessDetailsData
   val testAwrsUsers = Json.toJson(AwrsUsers(List("awrsUserCredId"), Nil)).toString
   override val enrolmentRef = "XAAW00000123456"
   override val enrolmentKey = s"""HMRC-AWRS-ORG~AWRSRefNumber~$enrolmentRef"""
+  val usersJson = """{"principalUserIds":["awrsUserCredId"],"delegatedUserIds":[]}"""
+  val emptyUsersJson = """{"principalUserIds":[],"delegatedUserIds":[]}"""
 
-  def stubCheckAwrsEnrolment(status: Int): StubMapping = {
+  def stubGetEnrolledUsers(status: Int): StubMapping = {
     stubbedGetUrlEqual(s"/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey/users", status, testAwrsUsers)
   }
 
@@ -47,25 +49,25 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
   "checkUsersEnrolment" should {
     "return a 200 OK containing true when the user already has an AWRS account" in {
       stubAuditPosts
-      stubCheckAwrsEnrolment(OK)
+      stubGetEnrolledUsers(OK)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe OK
-      resp.body mustBe "true"
+      resp.body mustBe usersJson
     }
     "return a 204 containing false when the user does not have an AWRS account" in {
       stubAuditPosts
-      stubCheckAwrsEnrolment(NO_CONTENT)
+      stubGetEnrolledUsers(NO_CONTENT)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe OK
-      resp.body mustBe "false"
+      resp.body mustBe emptyUsersJson
     }
     "return a BAD_REQUEST when check AWRS users enrolment returns a BAD REQUEST" in {
       stubAuditPosts
-      stubCheckAwrsEnrolment(BAD_REQUEST)
+      stubGetEnrolledUsers(BAD_REQUEST)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
@@ -78,7 +80,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get)
       resp.status mustBe NOT_FOUND
-      resp.body mustBe s"""Business Details not found for $testSafeId"""
+      resp.body mustBe s"""AWRS enrolled Business Details not found for $testSafeId"""
     }
   }
 }

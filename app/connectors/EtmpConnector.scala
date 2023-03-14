@@ -64,7 +64,6 @@ class EtmpConnector @Inject()(http: DefaultHttpClient,
   }
 
   def awrsRegime(safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    println(s""" ***** CALLING $serviceURL$regimeURI?safeid=$safeId&regime=AWRS""")
     cGET(s"""$serviceURL$regimeURI?safeid=$safeId&regime=AWRS""")
   }
 
