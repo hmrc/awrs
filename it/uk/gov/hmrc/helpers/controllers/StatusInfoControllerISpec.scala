@@ -52,7 +52,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
       stubGetEnrolledUsers(OK)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
-      val resp: WSResponse = await(authorisedClient(controllerUrl).get)
+      val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe OK
       resp.body mustBe usersJson
     }
@@ -61,7 +61,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
       stubGetEnrolledUsers(NO_CONTENT)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
-      val resp: WSResponse = await(authorisedClient(controllerUrl).get)
+      val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe OK
       resp.body mustBe emptyUsersJson
     }
@@ -70,7 +70,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
       stubGetEnrolledUsers(BAD_REQUEST)
       stubGetEtmpBusinessDetails(OK, testBusinessDetails)
 
-      val resp: WSResponse = await(authorisedClient(controllerUrl).get)
+      val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe BAD_REQUEST
       resp.body mustBe s"""Error when checking enrolment store for $enrolmentRef"""
     }
@@ -78,7 +78,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
       stubAuditPosts
       stubGetEtmpBusinessDetails(OK, "")
 
-      val resp: WSResponse = await(authorisedClient(controllerUrl).get)
+      val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe NOT_FOUND
       resp.body mustBe s"""AWRS enrolled Business Details not found for $testSafeId"""
     }

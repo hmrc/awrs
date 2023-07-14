@@ -21,9 +21,9 @@ import play.api.libs.json.{Format, Json, _}
 import utils.Bool._
 import utils.EtmpConstants
 import utils.Utility._
+
 import scala.language.reflectiveCalls
 import scala.language.implicitConversions
-
 import scala.util.{Failure, Success, Try}
 
 trait ModelVersionControl {
@@ -31,23 +31,23 @@ trait ModelVersionControl {
 }
 
 sealed trait CorpNumbersType {
-  def doYouHaveVRN: Option[String]
+  def doYouHaveVRN(): Option[String]
 
   def vrn: Option[String]
 
-  def doYouHaveUTR: Option[String]
+  def doYouHaveUTR(): Option[String]
 
   def utr: Option[String]
 }
 
 sealed trait IndividualIdNumbersType extends CorpNumbersType {
-  def doYouHaveNino: Option[String]
+  def doYouHaveNino(): Option[String]
 
   def nino: Option[String]
 }
 
 sealed trait CorpNumbersWithCRNType extends CorpNumbersType {
-  def doYouHaveCRN: Option[String]
+  def doYouHaveCRN(): Option[String]
 
   def companyRegNumber: Option[String]
 }
@@ -127,7 +127,7 @@ case class Address(
                     addressCountryCode: Option[String] = None
                   ) {
 
-  override def toString = {
+  override def toString: String = {
     val line3display = addressLine3.fold("")(x => s"$x, ")
     val line4display = addressLine4.fold("")(x => s"$x, ")
     val postcodeDisplay = postcode.fold("")(x => s"$x, ")
@@ -146,7 +146,7 @@ case class BCAddress(
                       postcode: Option[String] = None,
                       country: String) {
 
-  override def toString = {
+  override def toString: String = {
     val line3display = line_3.fold("")(x => s"$x, ")
     val line4display = line_4.fold("")(x => s"$x, ")
     val postcodeDisplay = postcode.fold("")(x => s"$x, ")
@@ -191,7 +191,7 @@ case class GroupMember(companyNames: CompanyNames,
 
 object BCAddress {
 
-  val reader = new Reads[BCAddress] {
+  val reader: Reads[BCAddress] = new Reads[BCAddress] {
 
     def reads(js: JsValue): JsResult[BCAddress] =
       for {
@@ -207,7 +207,7 @@ object BCAddress {
 
   }
 
-  implicit val formats = Json.format[BCAddress]
+  implicit val formats: OFormat[BCAddress] = Json.format[BCAddress]
 
 }
 
@@ -268,7 +268,7 @@ object BusinessCustomerDetails {
 
 
 
-  val reader = new Reads[BusinessCustomerDetails] {
+  val reader: Reads[BusinessCustomerDetails] = new Reads[BusinessCustomerDetails] {
 
     def reads(js: JsValue): JsResult[BusinessCustomerDetails] =
       JsSuccess(BusinessCustomerDetails(businessName = "", businessType = None, businessAddress = BCAddress("", "", None, None, None, ""),
@@ -276,13 +276,13 @@ object BusinessCustomerDetails {
 
   }
 
-  implicit val formats = Json.format[BusinessCustomerDetails]
+  implicit val formats: OFormat[BusinessCustomerDetails] = Json.format[BusinessCustomerDetails]
 
 }
 
 object EtmpAddress {
 
-  val reader = new Reads[EtmpAddress] {
+  val reader: Reads[EtmpAddress] = new Reads[EtmpAddress] {
 
     def reads(js: JsValue): JsResult[EtmpAddress] =
       for {
@@ -293,13 +293,13 @@ object EtmpAddress {
 
   }
 
-  implicit val formats = Json.format[Address]
+  implicit val formats: OFormat[Address] = Json.format[Address]
 
 }
 
 object Address {
 
-  val reader = new Reads[Address] {
+  val reader: Reads[Address] = new Reads[Address] {
 
     def reads(js: JsValue): JsResult[Address] =
       for {
@@ -316,13 +316,13 @@ object Address {
 
   }
 
-  implicit val formats = Json.format[Address]
+  implicit val formats: OFormat[Address] = Json.format[Address]
 
 }
 
 object NewAWBusiness {
 
-  val reader = new Reads[NewAWBusiness] {
+  val reader: Reads[NewAWBusiness] = new Reads[NewAWBusiness] {
 
     def reads(js: JsValue): JsResult[NewAWBusiness] =
       for {
@@ -340,13 +340,13 @@ object NewAWBusiness {
 
   }
 
-  implicit val formats = Json.format[NewAWBusiness]
+  implicit val formats: OFormat[NewAWBusiness] = Json.format[NewAWBusiness]
 
 }
 
 object CompanyRegDetails {
 
-  val reader = new Reads[CompanyRegDetails] {
+  val reader: Reads[CompanyRegDetails] = new Reads[CompanyRegDetails] {
 
     def reads(js: JsValue): JsResult[CompanyRegDetails] =
       for {
@@ -358,12 +358,12 @@ object CompanyRegDetails {
 
   }
 
-  implicit val formats = Json.format[CompanyRegDetails]
+  implicit val formats: OFormat[CompanyRegDetails] = Json.format[CompanyRegDetails]
 }
 
 object BusinessRegistrationDetails {
 
-  val reader = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
+  val reader: Option[String] => Reads[BusinessRegistrationDetails] = (legalEntity: Option[String]) => new Reads[BusinessRegistrationDetails] {
 
     def toBusinessRegistrationDetails(legalEntity: Option[String],
                                       doYouHaveNino: Option[String],
@@ -373,7 +373,7 @@ object BusinessRegistrationDetails {
                                       doYouHaveVRN: Option[String],
                                       vrn: Option[String],
                                       doYouHaveUTR: Option[String],
-                                      utr: Option[String]) = {
+                                      utr: Option[String]): BusinessRegistrationDetails = {
       BusinessRegistrationDetails(legalEntity = legalEntity,
         doYouHaveNino = doYouHaveNino,
         nino = nino,
@@ -409,7 +409,7 @@ object BusinessRegistrationDetails {
         val isBusinessIncorporatedString = booleanToString(isBusinessIncorporated.fold(false)(x => x))
         val doYouHaveVRNString = booleanToString(doYouHaveVRN.fold(false)(x => x))
         val doYouHaveUTRString = booleanToString(doYouHaveUTR.fold(false)(x => x))
-        etmpLegalEntity.get.fold("")(x => x) match {
+        (etmpLegalEntity.get.fold("")(x => x): @unchecked) match {
           case (LegalEntityType.SOLE_TRADER) => toBusinessRegistrationDetails(legalEntity, doYouHaveNinoString, nino, None, None, doYouHaveVRNString, vrn, doYouHaveUTRString, utr)
           case (LegalEntityType.CORPORATE_BODY) => toBusinessRegistrationDetails(legalEntity, None, None, isBusinessIncorporatedString, companyRegDetails, doYouHaveVRNString, vrn, doYouHaveUTRString, utr)
           case (LegalEntityType.PARTNERSHIP) => toBusinessRegistrationDetails(legalEntity, None, None, None, None, doYouHaveVRNString, vrn, doYouHaveUTRString, utr)
@@ -420,13 +420,13 @@ object BusinessRegistrationDetails {
 
   }
 
-  implicit val formats = Json.format[BusinessRegistrationDetails]
+  implicit val formats: OFormat[BusinessRegistrationDetails] = Json.format[BusinessRegistrationDetails]
 
 }
 
 object CompanyNames {
 
-  val reader = new Reads[CompanyNames] {
+  val reader: Reads[CompanyNames] = new Reads[CompanyNames] {
 
     def reads(js: JsValue): JsResult[CompanyNames] =
       for {
@@ -445,7 +445,7 @@ object CompanyNames {
 
   }
 
-  implicit val formats = Json.format[CompanyNames]
+  implicit val formats: OFormat[CompanyNames] = Json.format[CompanyNames]
 
   implicit class CompanyNamesGetUtil(companyNames: Option[CompanyNames]) {
     def businessName: Option[String] = companyNames.fold(None: Option[String])(_.businessName)
@@ -497,7 +497,7 @@ object CompanyNamesFact {
 
 object GroupMember {
 
-  val reader = new Reads[GroupMember] {
+  val reader: Reads[GroupMember] = new Reads[GroupMember] {
 
     def reads(js: JsValue): JsResult[GroupMember] =
       for {
@@ -527,13 +527,13 @@ object GroupMember {
 
   }
 
-  implicit val formats = Json.format[GroupMember]
+  implicit val formats: OFormat[GroupMember] = Json.format[GroupMember]
 
 }
 
 object GroupMembers {
   val latestModelVersion = "1.0"
-  val reader = new Reads[GroupMembers] {
+  val reader: Reads[GroupMembers] = new Reads[GroupMembers] {
 
     def reads(js: JsValue): JsResult[GroupMembers] =
       for {
@@ -550,13 +550,13 @@ object GroupMembers {
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[GroupMembers]
+  implicit val formats: OFormat[GroupMembers] = Json.format[GroupMembers]
 
 }
 
 object GroupDeclaration {
 
-  val reader = new Reads[GroupDeclaration] {
+  val reader: Reads[GroupDeclaration] = new Reads[GroupDeclaration] {
 
     def reads(js: JsValue): JsResult[GroupDeclaration] =
       for {
@@ -567,13 +567,13 @@ object GroupDeclaration {
 
   }
 
-  implicit val formats = Json.format[GroupDeclaration]
+  implicit val formats: OFormat[GroupDeclaration] = Json.format[GroupDeclaration]
 
 }
 
 object AdditionalBusinessPremises {
 
-  val reader = new Reads[AdditionalBusinessPremises] {
+  val reader: Reads[AdditionalBusinessPremises] = new Reads[AdditionalBusinessPremises] {
 
     def reads(js: JsValue): JsResult[AdditionalBusinessPremises] =
       for {
@@ -588,13 +588,13 @@ object AdditionalBusinessPremises {
 
   }
 
-  implicit val formats = Json.format[AdditionalBusinessPremises]
+  implicit val formats: OFormat[AdditionalBusinessPremises] = Json.format[AdditionalBusinessPremises]
 
 }
 
 object AdditionalBusinessPremisesList {
 
-  val reader = new Reads[AdditionalBusinessPremisesList] {
+  val reader: Reads[AdditionalBusinessPremisesList] = new Reads[AdditionalBusinessPremisesList] {
 
     def reads(js: JsValue): JsResult[AdditionalBusinessPremisesList] =
       for {
@@ -607,7 +607,7 @@ object AdditionalBusinessPremisesList {
   }
 
   def isAdditionalPremises(premises: List[AdditionalBusinessPremises]): List[AdditionalBusinessPremises] =
-    premises match {
+    (premises: @unchecked) match {
       case h :: xt if premises.size == 1 => List(h, AdditionalBusinessPremises(additionalPremises = Some("No"), None, None))
       case h :: t =>
         premises.zipWithIndex.map {
@@ -616,13 +616,13 @@ object AdditionalBusinessPremisesList {
         }
     }
 
-  implicit val formats = Json.format[AdditionalBusinessPremisesList]
+  implicit val formats: OFormat[AdditionalBusinessPremisesList] = Json.format[AdditionalBusinessPremisesList]
 
 }
 
 object Partner {
 
-  val reader = new Reads[Partner] {
+  val reader: Reads[Partner] = new Reads[Partner] {
 
     def toPartnerDetail(entityType: Option[String],
                         partnerAddress: Option[Address],
@@ -638,7 +638,7 @@ object Partner {
                         vrn: Option[String],
                         doYouHaveUTR: Option[String],
                         utr: Option[String],
-                        otherPartners: Option[String]) =
+                        otherPartners: Option[String]): Partner =
       Partner(
         entityType = entityType,
         partnerAddress = partnerAddress,
@@ -683,7 +683,7 @@ object Partner {
         soldoYouHaveUTR <- JsSuccess((js \ "soleProprietor" \ "identification" \ "doYouHaveUTR").asOpt[Boolean])
         solUtr <- JsSuccess((js \ "soleProprietor" \ "identification" \ "utr").asOpt[String])
       } yield {
-        entityType.fold("")(x => x) match {
+        (entityType.fold("")(x => x):  @unchecked) match {
           case PartnerDetailType.Individual => toPartnerDetail(entityType, partnerAddress, firstName, lastName,
             booleanToString(doYouHaveNino.fold(false)(x => x)), nino, None, None, None, None, None, None, None, None, Some("Yes"))
           case PartnerDetailType.Sole_Trader => toPartnerDetail(entityType, partnerAddress, solFirstName, solLastName,
@@ -703,7 +703,7 @@ object Partner {
 
 object BusinessDirector {
 
-  val reader = new Reads[BusinessDirector] {
+  val reader: Reads[BusinessDirector] = new Reads[BusinessDirector] {
 
     def reads(js: JsValue): JsResult[BusinessDirector] =
       for {
@@ -760,7 +760,7 @@ object BusinessDirectors {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[BusinessDirectors] {
+  val reader: Reads[BusinessDirectors] = new Reads[BusinessDirectors] {
 
     def reads(js: JsValue): JsResult[BusinessDirectors] =
       for {
@@ -771,13 +771,13 @@ object BusinessDirectors {
 
   }
 
-  implicit val formats = Json.format[BusinessDirectors]
+  implicit val formats: OFormat[BusinessDirectors] = Json.format[BusinessDirectors]
 
 }
 
 object Supplier {
 
-  val reader = new Reads[Supplier] {
+  val reader: Reads[Supplier] = new Reads[Supplier] {
 
     def reads(js: JsValue): JsResult[Supplier] =
       for {
@@ -799,13 +799,13 @@ object Supplier {
 
   }
 
-  implicit val formats = Json.format[Supplier]
+  implicit val formats: OFormat[Supplier] = Json.format[Supplier]
 
 }
 
 object Suppliers {
 
-  val reader = new Reads[Suppliers] {
+  val reader: Reads[Suppliers] = new Reads[Suppliers] {
 
     def reads(js: JsValue): JsResult[Suppliers] =
       for {
@@ -822,13 +822,13 @@ object Suppliers {
       case (x, i) => x
     }
 
-  implicit val formats = Json.format[Suppliers]
+  implicit val formats: OFormat[Suppliers] = Json.format[Suppliers]
 
 }
 
 object ApplicationDeclaration {
 
-  val reader = new Reads[ApplicationDeclaration] {
+  val reader: Reads[ApplicationDeclaration] = new Reads[ApplicationDeclaration] {
 
     def reads(js: JsValue): JsResult[ApplicationDeclaration] =
       for {
@@ -840,13 +840,13 @@ object ApplicationDeclaration {
 
   }
 
-  implicit val formats = Json.format[ApplicationDeclaration]
+  implicit val formats: OFormat[ApplicationDeclaration] = Json.format[ApplicationDeclaration]
 
 }
 
 object BusinessType {
 
-  val reader = new Reads[BusinessType] {
+  val reader: Reads[BusinessType] = new Reads[BusinessType] {
 
     def reads(js: JsValue): JsResult[BusinessType] =
       for {
@@ -871,7 +871,7 @@ object BusinessType {
       case _ => throw new Exception("")
     }
 
-  implicit val formats = Json.format[BusinessType]
+  implicit val formats: OFormat[BusinessType] = Json.format[BusinessType]
 
 }
 
@@ -883,7 +883,7 @@ object Partners {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[Partners] {
+  val reader: Reads[Partners] = new Reads[Partners] {
 
     def reads(js: JsValue): JsResult[Partners] =
       for {
@@ -900,26 +900,26 @@ object Partners {
       case (x, i) => x
     }
 
-  val writer = new Writes[Partners] {
+  val writer: Writes[Partners] = new Writes[Partners] {
     def writes(partners: Partners): JsValue = Json.obj("partners" -> Json.toJson(partners.partners))
   }
 
-  implicit val formats = Json.format[Partners]
+  implicit val formats: OFormat[Partners] = Json.format[Partners]
 
 }
 
 object ChangeIndicators {
-  implicit val formats = Json.format[ChangeIndicators]
+  implicit val formats: OFormat[ChangeIndicators] = Json.format[ChangeIndicators]
 }
 
 object BusinessDetailsEntityTypes extends Enumeration {
-  val SoleTrader = Value("SoleTrader")
-  val CorporateBody = Value("CorporateBody")
-  val GroupRep = Value("GroupRep")
-  val Llp = Value("Llp")
-  val Partnership = Value("Partnership")
+  val SoleTrader: BusinessDetailsEntityTypes.Value = Value("SoleTrader")
+  val CorporateBody: BusinessDetailsEntityTypes.Value = Value("CorporateBody")
+  val GroupRep: BusinessDetailsEntityTypes.Value = Value("GroupRep")
+  val Llp: BusinessDetailsEntityTypes.Value = Value("Llp")
+  val Partnership: BusinessDetailsEntityTypes.Value = Value("Partnership")
 
-  val reader = new Reads[BusinessDetailsEntityTypes.Value] {
+  val reader: Reads[BusinessDetailsEntityTypes.Value] = new Reads[BusinessDetailsEntityTypes.Value] {
 
     def reads(js: JsValue): JsResult[BusinessDetailsEntityTypes.Value] = js match {
       case JsString(s) =>
@@ -932,7 +932,7 @@ object BusinessDetailsEntityTypes extends Enumeration {
 
   }
 
-  implicit val writer = new Writes[BusinessDetailsEntityTypes.Value] {
+  implicit val writer: Writes[BusinessDetailsEntityTypes.Value] = new Writes[BusinessDetailsEntityTypes.Value] {
 
     def writes(entityType: BusinessDetailsEntityTypes.Value): JsValue = Json.toJson(entityType.toString)
 
@@ -1018,7 +1018,7 @@ case class SubscriptionTypeFrontEnd(
 
 object BusinessDetails {
 
-  val reader = (legalEntity: Option[String]) => new Reads[BusinessDetails] {
+  val reader: Option[String] => Reads[BusinessDetails] = (legalEntity: Option[String]) => new Reads[BusinessDetails] {
 
     def reads(js: JsValue): JsResult[BusinessDetails] =
       for {
@@ -1048,7 +1048,7 @@ object BusinessContacts {
 
   val latestModelVersion = "1.1"
 
-  val reader = new Reads[BusinessContacts] {
+  val reader: Reads[BusinessContacts] = new Reads[BusinessContacts] {
 
     def reads(js: JsValue): JsResult[BusinessContacts] =
       for {
@@ -1079,7 +1079,7 @@ object PlaceOfBusiness extends EtmpConstants {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[PlaceOfBusiness] {
+  val reader: Reads[PlaceOfBusiness] = new Reads[PlaceOfBusiness] {
 
     def reads(js: JsValue): JsResult[PlaceOfBusiness] =
       for {
@@ -1106,7 +1106,7 @@ object PlaceOfBusiness extends EtmpConstants {
 
 object TradingActivity {
 
-  val reader = new Reads[TradingActivity] {
+  val reader: Reads[TradingActivity] = new Reads[TradingActivity] {
 
     def reads(js: JsValue): JsResult[TradingActivity] =
       for {
@@ -1151,7 +1151,7 @@ object TradingActivity {
       typeOfExports(alcoholGoodsExported, euDispatches)
     }
 
-  def typeOfExports(alcoholGoodsExported: Option[Boolean], euDispatches: Option[Boolean]) =
+  def typeOfExports(alcoholGoodsExported: Option[Boolean], euDispatches: Option[Boolean]): Option[List[String]] =
     (alcoholGoodsExported, euDispatches) match {
       case (Some(true), Some(true)) => Some(List("euDispatches", "outsideEU"))
       case (Some(true), Some(false)) => Some(List("outsideEU"))
@@ -1194,7 +1194,7 @@ object TradingActivity {
         other ? AlcoholOrdersType.other | "").filter(_ != "")
     }
 
-  def typeOfCustomers(js: JsValue) =
+  def typeOfCustomers(js: JsValue): JsResult[List[String]] =
     for {
       pubs <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "pubs").validate[Boolean]
       nightClubs <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "nightClubs").validate[Boolean]
@@ -1223,13 +1223,13 @@ object TradingActivity {
         other ? TypeOfCustomers.other | "").filter(_ != "")
     }
 
-  implicit val formats = Json.format[TradingActivity]
+  implicit val formats: OFormat[TradingActivity] = Json.format[TradingActivity]
 
 }
 
 object Products {
 
-  val reader = new Reads[Products] {
+  val reader: Reads[Products] = new Reads[Products] {
 
     def reads(js: JsValue): JsResult[Products] =
       for {
@@ -1296,7 +1296,7 @@ object Products {
         other ? ProductsSold.other | "").filter(_ != "")
     }
 
-  implicit val formats = Json.format[Products]
+  implicit val formats: OFormat[Products] = Json.format[Products]
 
 }
 
@@ -1304,7 +1304,7 @@ object SubscriptionTypeFrontEnd {
 
   val latestModelVersion = "1.0"
 
-  val reader = new Reads[SubscriptionTypeFrontEnd] {
+  val reader: Reads[SubscriptionTypeFrontEnd] = new Reads[SubscriptionTypeFrontEnd] {
 
     def reads(js: JsValue): JsResult[SubscriptionTypeFrontEnd] =
       for {
@@ -1370,6 +1370,6 @@ object SubscriptionTypeFrontEnd {
       case _ => Some(Suppliers(List(Supplier(alcoholSuppliers = Some("No"), None, None, None, None, None, None))))
     }
 
-  implicit val formats = Json.format[SubscriptionTypeFrontEnd]
+  implicit val formats: OFormat[SubscriptionTypeFrontEnd] = Json.format[SubscriptionTypeFrontEnd]
 
 }
