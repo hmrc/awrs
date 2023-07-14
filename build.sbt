@@ -2,7 +2,6 @@ import TestPhases.{TemplateItTest, TemplateTest}
 import sbt.Keys.parallelExecution
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 
-val silencerVersion = "1.7.12"
 val appName: String = "awrs"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
@@ -27,7 +26,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(scalaSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.13.8",
     libraryDependencies ++= appDependencies,
     Test / parallelExecution := false,
     retrieveManaged := true,
@@ -40,7 +39,8 @@ lazy val microservice = Project(appName, file("."))
     IntegrationTest / Keys.fork := true,
     IntegrationTest / unmanagedSourceDirectories := (IntegrationTest / baseDirectory)(base => Seq(base / "it")).value,
     addTestReportOption(IntegrationTest, "int-test-reports"),
-    IntegrationTest / parallelExecution:= false)
+    IntegrationTest / parallelExecution:= false,
+    scalacOptions += "-Wconf:src=routes/.*:s")
   .settings(
     resolvers += Resolver.jcenterRepo
   )

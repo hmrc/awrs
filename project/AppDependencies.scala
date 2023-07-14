@@ -9,7 +9,7 @@ object AppDependencies {
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val json4sNativeVersion = "4.0.5"
   private val mockitoScalatestVersion = "1.17.7"
-  private val microserviceBootstrapVersion = "5.24.0"
+  private val microserviceBootstrapVersion = "7.19.0"
   private val playJsonJodaVersion = "2.9.2"
   private val jsoupVersion = "1.15.1"
   private val wiremockJre8Version = "2.33.2"

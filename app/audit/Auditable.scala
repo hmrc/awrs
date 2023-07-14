@@ -21,6 +21,8 @@ import uk.gov.hmrc.play.audit.AuditExtensions
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.{Audit, DataEvent}
 
+import scala.concurrent.ExecutionContext
+
 trait Auditable {
 
   val auditConnector: AuditConnector
@@ -32,7 +34,7 @@ trait Auditable {
   def sendDataEvent(transactionName: String, path: String = "N/A",
                     tags: Map[String, String] = Map.empty[String, String],
                     detail: Map[String, String], eventType: String)
-                   (implicit hc: HeaderCarrier): Unit =
+                   (implicit hc: HeaderCarrier, ec: ExecutionContext): Unit =
     audit.sendDataEvent(DataEvent(appName, auditType = eventType,
       tags = AuditExtensions.auditHeaderCarrier(hc).toAuditTags(transactionName, path) ++ tags,
       detail = AuditExtensions.auditHeaderCarrier(hc).toAuditDetails(detail.toSeq: _*)))
