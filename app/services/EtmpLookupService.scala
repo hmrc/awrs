@@ -17,13 +17,12 @@
 package services
 
 import connectors.EtmpConnector
-import javax.inject.Inject
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-class EtmpLookupService @Inject()(etmpConnector: EtmpConnector) {
+class EtmpLookupService @Inject()(etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
 
   def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     etmpConnector.lookup(awrsRefNo) map {

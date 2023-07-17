@@ -26,8 +26,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.LoggingUtils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionController @Inject()(val auditConnector: AuditConnector,
                                        val metrics: AwrsMetrics,
@@ -36,7 +35,7 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
                                        val statusService: EtmpStatusService,
                                        val regimeService: EtmpRegimeService,
                                        cc: ControllerComponents,
-                                       @Named("appName") val appName: String) extends BackendController(cc) with LoggingUtils {
+                                       @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 

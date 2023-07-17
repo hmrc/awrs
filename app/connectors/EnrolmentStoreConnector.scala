@@ -24,13 +24,13 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import utils.LoggingUtils
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
                                         http: HttpClient,
                                         config: ServicesConfig,
-                                        @Named("appName") val appName: String) extends LoggingUtils {
+                                        @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends LoggingUtils {
   val retryLimit = 7
   val retryWait = 1000 // milliseconds
 

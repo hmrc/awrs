@@ -26,12 +26,11 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.SessionUtils
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionService @Inject()(metrics: AwrsMetrics,
                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
-                                    val etmpConnector: EtmpConnector) {
+                                    val etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
 
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   val notFound: JsValue = Json.parse( """{"Reason": "Resource not found"}""")

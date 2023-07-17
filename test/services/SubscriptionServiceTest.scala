@@ -32,9 +32,11 @@ import utils.AwrsTestJson._
 import utils.BaseSpec
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockEnrolmentStoreConnector: EnrolmentStoreConnector = mock[EnrolmentStoreConnector]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]

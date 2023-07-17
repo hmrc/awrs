@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class EtmpConnector @Inject()(http: DefaultHttpClient,
                               val auditConnector: AuditConnector,
                               config: ServicesConfig,
-                              @Named("appName") val appName: String) extends RawResponseReads with LoggingUtils {
+                              @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends RawResponseReads with LoggingUtils {
 
   lazy val serviceURL: String = config.baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
@@ -51,13 +51,13 @@ class EtmpConnector @Inject()(http: DefaultHttpClient,
   )
 
   @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
-    http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = hc, ec = ExecutionContext.global)
+    http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = hc, ec = ec)
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
-    http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ExecutionContext.global)
+    http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ec)
 
   @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
-    http.PUT[I, O](url, body, headers)(wts, rds, hc = hc, ec = ExecutionContext.global)
+    http.PUT[I, O](url, body, headers)(wts, rds, hc = hc, ec = ec)
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$safeId""", registerData)

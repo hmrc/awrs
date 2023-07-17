@@ -31,9 +31,11 @@ import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val mockWithdrawalService: WithdrawalService = mock[WithdrawalService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]

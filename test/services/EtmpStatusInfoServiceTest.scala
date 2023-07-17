@@ -26,11 +26,12 @@ import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpStatusInfoServiceTest extends BaseSpec with AnyWordSpecLike {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 
