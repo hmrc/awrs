@@ -34,9 +34,11 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]
   val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
   val mockEtmpStatusService: EtmpStatusService = mock[EtmpStatusService]
@@ -244,7 +246,7 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
       "check submitted application status from HODS when passed a valid awrs reference" in {
 
         def checkStatus(json: JsValue, expected: FormBundleStatus): Unit = {
-          when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(OK, json, Map.empty[String, Seq[String]])))
+          when(mockEtmpStatusService.checkStatus(any())(any(), any())).thenReturn(Future.successful(HttpResponse(OK, json, Map.empty[String, Seq[String]])))
           val result = TestSubscriptionController.checkStatus(testRefNo).apply(FakeRequest())
           status(result) shouldBe OK
           await(result)
@@ -261,25 +263,25 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
       }
 
       "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, statusFailure, Map.empty[String, Seq[String]])))
+        when(mockEtmpStatusService.checkStatus(any())(any(), any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, statusFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe BAD_REQUEST
       }
 
       "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, statusFailure, Map.empty[String, Seq[String]])))
+        when(mockEtmpStatusService.checkStatus(any())(any(), any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, statusFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe NOT_FOUND
       }
 
       "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, statusFailure, Map.empty[String, Seq[String]])))
+        when(mockEtmpStatusService.checkStatus(any())(any(), any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, statusFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe SERVICE_UNAVAILABLE
       }
 
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpStatusService.checkStatus(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, statusFailure, Map.empty[String, Seq[String]])))
+        when(mockEtmpStatusService.checkStatus(any())(any(), any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, statusFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.checkStatus("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }

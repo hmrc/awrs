@@ -24,11 +24,10 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.EtmpRegimeService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpCheckController @Inject()(cc: ControllerComponents,
-                                    etmpRegimeService: EtmpRegimeService) extends BackendController(cc) with Logging {
+                                    etmpRegimeService: EtmpRegimeService)(implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
 
 
   def checkEtmp(): Action[AnyContent] = Action.async { implicit request =>

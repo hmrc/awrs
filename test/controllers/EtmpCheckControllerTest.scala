@@ -27,10 +27,11 @@ import play.api.test.Helpers._
 import services.EtmpRegimeService
 import utils.BaseSpec
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
 
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val mockEtmpRegimeService: EtmpRegimeService = mock[EtmpRegimeService]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 

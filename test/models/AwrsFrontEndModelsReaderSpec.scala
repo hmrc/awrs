@@ -25,8 +25,6 @@ import utils.AwrsTestJson
 import utils.AwrsTestJson._
 import utils.TestUtil._
 
-import scala.collection.GenSeq
-
 class AwrsFrontEndModelsReaderSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {
 
   "AwrsFrontEndModelsReaderSpec " must  {
@@ -382,8 +380,8 @@ class AwrsFrontEndModelsReaderSpec extends PlaySpec with AwrsTestJson with AnyWo
 
     "transform correctly to Trading Acitivity Frontend Model " in {
       val tradingActivity = api4EtmpSOPJson.as[TradingActivity](TradingActivity.reader)
-      tradingActivity.wholesalerType.containsSlice(GenSeq("01", "02", "03", "06")) shouldBe true
-      tradingActivity.typeOfAlcoholOrders.containsSlice(GenSeq("02", "03", "04", "01")) shouldBe true
+      tradingActivity.wholesalerType.containsSlice(Seq("01", "02", "03", "06")) shouldBe true
+      tradingActivity.typeOfAlcoholOrders.containsSlice(Seq("02", "03", "04", "01")) shouldBe true
       tradingActivity.doesBusinessImportAlcohol.get shouldBe "Yes"
       tradingActivity.otherWholesaler.fold("")(x => x) shouldBe ""
       tradingActivity.otherTypeOfAlcoholOrders.fold("")(x => x) shouldBe ""
@@ -391,8 +389,8 @@ class AwrsFrontEndModelsReaderSpec extends PlaySpec with AwrsTestJson with AnyWo
 
     "transform correctly to Products Frontend Model " in {
       val products = api4EtmpSOPJson.as[Products](Products.reader)
-      products.mainCustomers.containsSlice(GenSeq("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "13")) shouldBe true
-      products.productType.containsSlice(GenSeq("05", "02", "03", "04", "06", "01")) shouldBe true
+      products.mainCustomers.containsSlice(Seq("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "13")) shouldBe true
+      products.productType.containsSlice(Seq("05", "02", "03", "04", "06", "01")) shouldBe true
       products.otherMainCustomers.fold("")(x => x) shouldBe ""
       products.otherProductType.fold("")(x => x) shouldBe ""
     }

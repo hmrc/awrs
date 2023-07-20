@@ -28,13 +28,13 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
 
     "convert years correctly from string dd/MM/yyyy to yyyy-MM-dd (mdtp to etmp)" in {
       for(i <- 2000 to 3000){
-        awrsToEtmpDateFormatter("03/01/" + i ) shouldBe (i + "-01-03" )
+        awrsToEtmpDateFormatter(s"03/01/$i") shouldBe (s"$i-01-03")
       }
     }
 
     "convert years correctly from yyyy-MM-dd to string dd/MM/yyyy (etmp to mdtp)" in {
       for(i <- 2000 to 3000){
-        etmpToAwrsDateFormatter(i + "-01-03") shouldBe ("03/01/" + i)
+        etmpToAwrsDateFormatter(s"$i-01-03") shouldBe (s"03/01/$i")
       }
     }
   }

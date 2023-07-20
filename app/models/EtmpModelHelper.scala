@@ -34,19 +34,19 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def identificationIndividualIdNumbersType(identification: IndividualIdNumbersType): JsObject =
-    Json.obj("doYouHaveNino" -> yestoTrue(identification.doYouHaveNino.fold("")(x => x)))
+    Json.obj("doYouHaveNino" -> yestoTrue(identification.doYouHaveNino().fold("")(x => x)))
       .++(identification.nino.fold(Json.obj())(x => Json.obj("nino" -> x)))
       .++(identificationCorpNumbersType(identification)) // this adds the vrn and utr
 
   def identificationCorpNumbersType(identification: CorpNumbersType): JsObject =
-    Json.obj("doYouHaveVRN" -> yestoTrue(identification.doYouHaveVRN.fold("")(x => x)))
+    Json.obj("doYouHaveVRN" -> yestoTrue(identification.doYouHaveVRN().fold("")(x => x)))
       .++(identification.vrn.fold(Json.obj())(x => Json.obj("vrn" -> removeVrnPrefix(x))))
-      .++(Json.obj("doYouHaveUTR" -> yestoTrue(identification.doYouHaveUTR.fold("")(x => x))))
+      .++(Json.obj("doYouHaveUTR" -> yestoTrue(identification.doYouHaveUTR().fold("")(x => x))))
       .++(identification.utr.fold(Json.obj())(x => Json.obj("utr" -> x)))
 
   def identificationCorpNumbersWithCRNType(identification: CorpNumbersWithCRNType): JsObject =
     identificationCorpNumbersType(identification) // this adds the vrn and utr
-      .++(Json.obj("doYouHaveCRN" -> yestoTrue(identification.doYouHaveCRN.fold("")(x => x))))
+      .++(Json.obj("doYouHaveCRN" -> yestoTrue(identification.doYouHaveCRN().fold("")(x => x))))
       .++(identification.companyRegNumber.fold(Json.obj()) {companyRegNo =>
         Json.obj("companyRegNumber" -> padCRN(companyRegNo))
       })
@@ -64,7 +64,7 @@ trait EtmpModelHelper extends EtmpConstants {
       case _ => Json.obj("isBusinessIncorporated" -> false)
     }
 
-  @inline def ifExistsThenPopulate(key: String, value: Option[String]) =
+  @inline def ifExistsThenPopulate(key: String, value: Option[String]): JsObject =
     value match {
       case Some(v) => Json.obj(key -> v)
       case _ => Json.obj()
@@ -100,13 +100,13 @@ trait EtmpModelHelper extends EtmpConstants {
       .++(dateJsonObject)
   }
 
-  val yestoTrue = (s: String) => s match {
+  val yestoTrue: String => Boolean = (s: String) => s match {
     case "Yes" => true
     case "No" => false
     case _ => false
   }
 
-  val NotoTrue = (s: String) => s match {
+  val NotoTrue: String => Boolean = (s: String) => s match {
     case "No" => true
     case "Yes" => false
     case _ => false
@@ -124,7 +124,7 @@ trait EtmpModelHelper extends EtmpConstants {
       "groupRepConfirmation" -> groupDeclarationFlag)
   }
 
-  def createLLPCorporateBody(st: SubscriptionTypeFrontEnd) =
+  def createLLPCorporateBody(st: SubscriptionTypeFrontEnd): JsObject =
     st.legalEntity.reduceLeft((x, y) => x).legalEntity match {
       case Some("Partnership") => Json.obj()
       case _ =>
@@ -234,7 +234,7 @@ trait EtmpModelHelper extends EtmpConstants {
       "telephone" -> preTelephoneNumberRegex.replaceFirstIn(businessContacts.telephone, preTelephoneNumber))
   }
 
-  val getPlaceOfBusinessLast3Years = (placeOfBusinessLast3Years: String, placeOfBusinessAddressLast3Years: Option[Address]) =>
+  val getPlaceOfBusinessLast3Years: (String, Option[Address]) => (Boolean, JsObject) = (placeOfBusinessLast3Years: String, placeOfBusinessAddressLast3Years: Option[Address]) =>
     placeOfBusinessLast3Years match {
       case "No" => (true, Json.obj("previousAddress" -> toEtmpAddress(placeOfBusinessAddressLast3Years.reduceLeft((x, y) => y))))
       case _ => (false, Json.obj())
@@ -458,7 +458,7 @@ trait EtmpModelHelper extends EtmpConstants {
       .++(Json.obj("all" -> all))
   }
 
-  def createEtmpSupplierJson(st: SubscriptionTypeFrontEnd) =
+  def createEtmpSupplierJson(st: SubscriptionTypeFrontEnd): JsObject =
     st.suppliers match {
       case Some(_) =>
         st.suppliers.get.suppliers.head.alcoholSuppliers match {
@@ -468,9 +468,9 @@ trait EtmpModelHelper extends EtmpConstants {
       case _ => Json.obj()
     }
 
-  def toEtmpSuppliers(st: SubscriptionTypeFrontEnd) = Json.obj("suppliers" -> toEtmpSupplier(st))
+  def toEtmpSuppliers(st: SubscriptionTypeFrontEnd): JsObject = Json.obj("suppliers" -> toEtmpSupplier(st))
 
-  def toEtmpPartnership(st: SubscriptionTypeFrontEnd) = {
+  def toEtmpPartnership(st: SubscriptionTypeFrontEnd): JsObject = {
     val partners = st.partnership
 
     partners match {
@@ -493,7 +493,7 @@ trait EtmpModelHelper extends EtmpConstants {
       case _ => throw new Exception("")
     }
 
-  def toEtmpPartnerDetailsIndividual(partnerDetail: Partner) = {
+  def toEtmpPartnerDetailsIndividual(partnerDetail: Partner): JsObject = {
     val name = Json.obj("firstName" -> partnerDetail.firstName, "lastName" -> partnerDetail.lastName)
     val individual =
       Json.obj(
@@ -507,7 +507,7 @@ trait EtmpModelHelper extends EtmpConstants {
       "individual" -> individual)
   }
 
-  def toEtmpPartnerDetailsCompany(partnerDetail: Partner) = {
+  def toEtmpPartnerDetailsCompany(partnerDetail: Partner): JsObject = {
     val names = ifExistsThenPopulate("companyName", partnerDetail.companyNames.businessName) ++
       ifExistsThenPopulate("tradingName", partnerDetail.companyNames.tradingName)
     val incorporationDetails = identificationIncorporationDetails(partnerDetail)
@@ -521,7 +521,7 @@ trait EtmpModelHelper extends EtmpConstants {
       "incorporationDetails" -> incorporationDetails)
   }
 
-  def toEtmpPartnerDetailsSoleTrader(partnerDetail: Partner) = {
+  def toEtmpPartnerDetailsSoleTrader(partnerDetail: Partner): JsObject = {
     val name = ifExistsThenPopulate("firstName", partnerDetail.firstName) ++ ifExistsThenPopulate("lastName", partnerDetail.lastName)
     val identification = identificationCorpNumbersType(partnerDetail)
     val soleProprietor =
@@ -600,7 +600,7 @@ trait EtmpModelHelper extends EtmpConstants {
     Json.obj("company" -> company)
   }
 
-  def toEtmpAdditionalBusinessInfoPartnerCorporateBody(st: SubscriptionTypeFrontEnd) = {
+  def toEtmpAdditionalBusinessInfoPartnerCorporateBody(st: SubscriptionTypeFrontEnd): JsObject = {
     val businessDirectors = st.businessDirectors
 
     businessDirectors match {
@@ -618,7 +618,7 @@ trait EtmpModelHelper extends EtmpConstants {
     }
   }
 
-  def toEtmpChangeIndicators(st: SubscriptionTypeFrontEnd) = {
+  def toEtmpChangeIndicators(st: SubscriptionTypeFrontEnd): JsObject = {
     val changeIndicator = st.changeIndicators.reduceLeft((x, y) => x)
 
     Json.obj(

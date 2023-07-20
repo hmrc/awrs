@@ -4,16 +4,16 @@ object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val domainVersion = "8.1.0-play-28"
-  private val json4sJacksonVersion = "4.0.5"
+  private val domainVersion = "8.3.0-play-28"
+  private val json4sJacksonVersion = "4.0.6"
   private val jsonSchemaValidatorVersion = "2.2.14"
-  private val json4sNativeVersion = "4.0.5"
-  private val mockitoScalatestVersion = "1.17.7"
-  private val microserviceBootstrapVersion = "5.24.0"
-  private val playJsonJodaVersion = "2.9.2"
-  private val jsoupVersion = "1.15.1"
+  private val json4sNativeVersion = "4.0.6"
+  private val mockitoScalatestVersion = "1.17.14"
+  private val microserviceBootstrapVersion = "7.19.0"
+  private val playJsonJodaVersion = "2.9.4"
+  private val jsoupVersion = "1.16.1"
   private val wiremockJre8Version = "2.33.2"
-  private val jacksonModuleVersion = "2.13.3"
+  private val jacksonModuleVersion = "2.15.2"
 
   val compile = Seq(
     ws,

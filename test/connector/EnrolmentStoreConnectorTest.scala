@@ -31,9 +31,11 @@ import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.BaseSpec
 
 import java.util.UUID
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
+
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
