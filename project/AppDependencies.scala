@@ -10,7 +10,6 @@ object AppDependencies {
   private val json4sNativeVersion = "4.0.6"
   private val mockitoScalatestVersion = "1.17.14"
   private val microserviceBootstrapVersion = "7.19.0"
-  private val playJsonJodaVersion = "2.9.4"
   private val jsoupVersion = "1.16.1"
   private val wiremockJre8Version = "2.33.2"
   private val jacksonModuleVersion = "2.15.2"
@@ -22,7 +21,6 @@ object AppDependencies {
     "org.json4s"                    %% "json4s-jackson"              % json4sJacksonVersion,
     "com.github.java-json-tools"    %  "json-schema-validator"       % jsonSchemaValidatorVersion,
     "org.json4s"                    %% "json4s-native"               % json4sNativeVersion,
-    "com.typesafe.play"             %% "play-json-joda"              % playJsonJodaVersion,
     "com.fasterxml.jackson.module"  %% "jackson-module-scala"        % jacksonModuleVersion
   )
 

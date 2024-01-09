@@ -16,8 +16,9 @@
 
 package utils
 
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, DateTimeZone}
+import java.time.format.DateTimeFormatter
+import java.time.{ZoneId, ZonedDateTime}
+import scala.util.matching.Regex
 
 sealed trait FeatureSwitch {
   def name: String
@@ -26,9 +27,9 @@ sealed trait FeatureSwitch {
 
 trait TimedFeatureSwitch extends FeatureSwitch {
 
-  def start: Option[DateTime]
-  def end: Option[DateTime]
-  def target: DateTime
+  def start: Option[ZonedDateTime]
+  def end: Option[ZonedDateTime]
+  def target: ZonedDateTime
 
   override def enabled: Boolean = (start, end) match {
     case (Some(s), Some(e)) => !target.isBefore(s) && !target.isAfter(e)
@@ -40,26 +41,31 @@ trait TimedFeatureSwitch extends FeatureSwitch {
 
 case class BooleanFeatureSwitch(name: String, enabled: Boolean) extends FeatureSwitch
 
-case class EnabledTimedFeatureSwitch(name: String, start: Option[DateTime], end: Option[DateTime], target: DateTime) extends TimedFeatureSwitch
-case class DisabledTimedFeatureSwitch(name: String, start: Option[DateTime], end: Option[DateTime], target: DateTime) extends TimedFeatureSwitch {
-  override def enabled = !super.enabled
+case class EnabledTimedFeatureSwitch(name: String, start: Option[ZonedDateTime], end: Option[ZonedDateTime], target: ZonedDateTime) extends TimedFeatureSwitch
+case class DisabledTimedFeatureSwitch(name: String, start: Option[ZonedDateTime], end: Option[ZonedDateTime], target: ZonedDateTime) extends TimedFeatureSwitch {
+  override def enabled: Boolean = !super.enabled
 }
 
 
 object FeatureSwitch {
 
-  val DisabledIntervalExtractor = """!(\S+)_(\S+)""".r
-  val EnabledIntervalExtractor = """(\S+)_(\S+)""".r
+  val DisabledIntervalExtractor: Regex = """!(\S+)_(\S+)""".r
+  val EnabledIntervalExtractor: Regex = """(\S+)_(\S+)""".r
   val UNSPECIFIED = "X"
-  val dateFormat = ISODateTimeFormat.dateTimeNoMillis()
+//  val dateFormat: DateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis()
+  val dateFormat: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+
 
   private[utils] def getProperty(name: String): FeatureSwitch = {
     val value = sys.props.get(systemPropertyName(name))
 
     value match {
       case Some("true") => BooleanFeatureSwitch(name, enabled = true)
-      case Some(DisabledIntervalExtractor(start, end)) => DisabledTimedFeatureSwitch(name, toDate(start), toDate(end), DateTime.now(DateTimeZone.UTC))
-      case Some(EnabledIntervalExtractor(start, end)) => EnabledTimedFeatureSwitch(name, toDate(start), toDate(end), DateTime.now(DateTimeZone.UTC))
+//      case Some(DisabledIntervalExtractor(start, end)) => DisabledTimedFeatureSwitch(name, toDate(start), toDate(end), DateTime.now(DateTimeZone.UTC))
+//      case Some(EnabledIntervalExtractor(start, end)) => EnabledTimedFeatureSwitch(name, toDate(start), toDate(end), DateTime.now(DateTimeZone.UTC))
+      case Some(DisabledIntervalExtractor(start, end)) => DisabledTimedFeatureSwitch(name, toDate(start), toDate(end), ZonedDateTime.now(ZoneId.of("UTC")))
+      case Some(EnabledIntervalExtractor(start, end)) => EnabledTimedFeatureSwitch(name, toDate(start), toDate(end), ZonedDateTime.now(ZoneId.of("UTC")))
+
       case _ => BooleanFeatureSwitch(name, enabled = false)
     }
   }
@@ -69,10 +75,14 @@ object FeatureSwitch {
     getProperty(name)
   }
 
-  private[utils] def toDate(text: String) : Option[DateTime] = {
+  private[utils] def toDate(text: String) : Option[ZonedDateTime] = {
+//    def parseDateTime(string: String): ZonedDateTime = ZonedDateTime.parse(string, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+
     text match {
       case UNSPECIFIED => None
-      case _ => Some(dateFormat.parseDateTime(text))
+//      case _ => Some(dateFormat.parseDateTime(text))
+//      case _ => Some(parseDateTime(text))
+      case _ => Some(ZonedDateTime.parse(text, DateTimeFormatter.ISO_OFFSET_DATE_TIME))
     }
   }
 
