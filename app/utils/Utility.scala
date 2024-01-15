@@ -16,42 +16,23 @@
 
 package utils
 
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.format.DateTimeFormatter
+import java.time.LocalDate
 
 import scala.language.implicitConversions
 
 object Utility {
 
-  def awrsToEtmpDateFormatter(stringDate: String): String = {
-    val ddMMyyyyFormat = new SimpleDateFormat("dd/MM/yyyy")
-    val date: Date = ddMMyyyyFormat.parse(stringDate)
-    new SimpleDateFormat("yyyy-MM-dd").format(date).toString
-  }
+  def awrsToEtmpDateFormatter(stringDate: String): String = toAndFromDateFormat(stringDate, "yyyy-MM-dd", "dd/MM/yyyy")
 
-  def etmpToAwrsDateFormatter(date: String): String = {
-    toAndFromDateFormat(date, "dd/MM/yyyy", "yyyy-MM-dd")
-  }
+  def etmpToAwrsDateFormatter(date: String): String = toAndFromDateFormat(date, "dd/MM/yyyy", "yyyy-MM-dd")
 
-  def formatOptionalDate(optionalDate: Option[String])(f: String => String): Option[String] = {
-    optionalDate match {
-      case Some(date) => Some(f(date))
-      case _ => None
-    }
-  }
+  def formatOptionalDate(optionalDate: Option[String])(f: String => String): Option[String] = optionalDate.map(f)
 
-  def toAndFromDateFormat(date: String, toFormat: String, fromFormat: String): String = {
-    val fromDate = new SimpleDateFormat(fromFormat)
-    val toDate = new SimpleDateFormat(toFormat)
-    toDate.format(fromDate.parse(date))
-  }
+  def toAndFromDateFormat(date: String, toFormat: String, fromFormat: String): String = 
+    LocalDate.parse(date, DateTimeFormatter.ofPattern(fromFormat)).format(DateTimeFormatter.ofPattern(toFormat))
 
-  def etmpToAwrsDateFormatterOrNone(date: Option[String]): Option[String] = {
-    date match {
-      case Some(date) => Some(etmpToAwrsDateFormatter(date))
-      case _ => None
-    }
-  }
+  def etmpToAwrsDateFormatterOrNone(date: Option[String]): Option[String] = date.map(etmpToAwrsDateFormatter)
 
   def booleanToString = (s: Boolean) => s match {
     case true => Some("Yes")
