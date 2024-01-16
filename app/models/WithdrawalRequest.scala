@@ -32,7 +32,6 @@ case class WithdrawalRequest(reason: Option[String], reasonOther: Option[String]
         val returnJson =
           Json.obj()
             .++(Json.obj("acknowledgmentReference" -> SessionUtils.getUniqueAckNo))
-//            .++(Json.obj("withdrawalDate" -> LocalDate.now().toString("yyyy-MM-dd")))
             .++(Json.obj("withdrawalDate" -> LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
             .++(feModel.reason.fold(Json.obj())(x => Json.obj("withdrawalReason" -> feModel.reason)))
             .++(feModel.reasonOther.fold(Json.obj())(x => Json.obj("withdrawalReasonOthers" -> feModel.reasonOther)))

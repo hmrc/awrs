@@ -29,17 +29,17 @@ object Utility {
 
   def formatOptionalDate(optionalDate: Option[String])(f: String => String): Option[String] = optionalDate.map(f)
 
-  def toAndFromDateFormat(date: String, toFormat: String, fromFormat: String): String = 
+  def toAndFromDateFormat(date: String, toFormat: String, fromFormat: String): String =
     LocalDate.parse(date, DateTimeFormatter.ofPattern(fromFormat)).format(DateTimeFormatter.ofPattern(toFormat))
 
   def etmpToAwrsDateFormatterOrNone(date: Option[String]): Option[String] = date.map(etmpToAwrsDateFormatter)
 
-  def booleanToString = (s: Boolean) => s match {
+  def booleanToString: Boolean => Some[String] = (s: Boolean) => s match {
     case true => Some("Yes")
     case false => Some("No")
   }
 
-  def trueToNoOrFalseToYes = (s: Boolean) => s match {
+  def trueToNoOrFalseToYes: Boolean => Some[String] = (s: Boolean) => s match {
     case true => Some("No")
     case false => Some("Yes")
   }
@@ -51,5 +51,5 @@ case class Bool(b: Boolean) {
 }
 
 object Bool {
-  implicit def BooleanBool(b: Boolean) = Bool(b)
+  implicit def BooleanBool(b: Boolean): Bool = Bool(b)
 }
