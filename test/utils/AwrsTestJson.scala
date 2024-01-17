@@ -16,7 +16,7 @@
 
 package utils
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.domain._
 import utils.TestUtil._
@@ -25,7 +25,7 @@ object AwrsTestJson extends AwrsTestJson {
   // We only want one test nino and utr throughout, therefore assign a value in the object declaration
   lazy val testNino: String = new Generator().nextNino.nino
   lazy val testUtr: String = new SaUtrGenerator().nextSaUtr.utr
-  lazy val testGrpJoinDate: String = LocalDate.now().toString()
+  lazy val testGrpJoinDate: String = LocalDate.now().toString
   lazy val testRefNo = "DummmyRef"
   lazy val testSafeId = "DummmyRef"
 }

@@ -16,10 +16,9 @@
 
 package models
 
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import play.api.libs.json._
 import utils.{EtmpConstants, Utility}
-import play.api.libs.json.JodaWrites._
 
 object EtmpModelHelper extends EtmpModelHelper
 
