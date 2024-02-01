@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 
 /**
@@ -30,14 +30,14 @@ case class ContactDetails(phoneNumber: Option[String] = None,
                           emailAddress: Option[String] = None)
 
 object ContactDetails {
-  implicit val formats = Json.format[ContactDetails]
+  implicit val formats: OFormat[ContactDetails] = Json.format[ContactDetails]
 }
 
 
 case class Organisation(organisationName: String)
 
 object Organisation {
-  implicit val formats = Json.format[Organisation]
+  implicit val formats: OFormat[Organisation] = Json.format[Organisation]
 }
 
 case class BCAddressApi3(addressLine1: String,
@@ -48,7 +48,7 @@ case class BCAddressApi3(addressLine1: String,
                          countryCode: Option[String] = None)
 
 object BCAddressApi3 {
-  implicit val formats = Json.format[BCAddressApi3]
+  implicit val formats: OFormat[BCAddressApi3] = Json.format[BCAddressApi3]
 }
 
 case class UpdateRegistrationDetailsRequest(acknowledgementReference: Option[String],
@@ -60,5 +60,5 @@ case class UpdateRegistrationDetailsRequest(acknowledgementReference: Option[Str
                                             isAGroup: Boolean)
 
 object UpdateRegistrationDetailsRequest {
-  implicit val formats = Json.format[UpdateRegistrationDetailsRequest]
+  implicit val formats: OFormat[UpdateRegistrationDetailsRequest] = Json.format[UpdateRegistrationDetailsRequest]
 }

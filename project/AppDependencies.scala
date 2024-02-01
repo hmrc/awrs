@@ -4,20 +4,20 @@ object AppDependencies {
   import play.sbt.PlayImport._
   import play.core.PlayVersion
 
-  private val domainVersion = "8.3.0-play-28"
+  private val domainVersion = "9.0.0"
   private val json4sJacksonVersion = "4.0.6"
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val json4sNativeVersion = "4.0.6"
   private val mockitoScalatestVersion = "1.17.14"
-  private val microserviceBootstrapVersion = "7.19.0"
+  private val microserviceBootstrapVersion = "8.4.0"
   private val jsoupVersion = "1.16.1"
   private val wiremockJre8Version = "2.33.2"
   private val jacksonModuleVersion = "2.15.2"
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc"                   %% "bootstrap-backend-play-28"   % microserviceBootstrapVersion,
-    "uk.gov.hmrc"                   %% "domain"                      % domainVersion,
+    "uk.gov.hmrc"                   %% "bootstrap-backend-play-30"   % microserviceBootstrapVersion,
+    "uk.gov.hmrc"                   %% "domain-play-30"              % domainVersion,
     "org.json4s"                    %% "json4s-jackson"              % json4sJacksonVersion,
     "com.github.java-json-tools"    %  "json-schema-validator"       % jsonSchemaValidatorVersion,
     "org.json4s"                    %% "json4s-native"               % json4sNativeVersion,

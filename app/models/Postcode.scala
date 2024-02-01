@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class Postcode(post_code: String)
 
 object Postcode {
-  implicit val formats = Json.format[Postcode]
+  implicit val formats: OFormat[Postcode] = Json.format[Postcode]
 }

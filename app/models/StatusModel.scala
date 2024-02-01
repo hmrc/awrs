@@ -50,7 +50,7 @@ object SubscriptionStatusType {
       }
     }
   }
-  implicit val formats = Json.format[SubscriptionStatusType]
+  implicit val formats: OFormat[SubscriptionStatusType] = Json.format[SubscriptionStatusType]
 }
 
 sealed trait FormBundleStatus {

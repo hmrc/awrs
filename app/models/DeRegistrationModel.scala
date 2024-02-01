@@ -19,7 +19,6 @@ package models
 import play.api.libs.json._
 import utils.SessionUtils
 
-
 case class DeRegistration(deregistrationDate: String, deregistrationReason: String, deregReasonOther: Option[String])
 
 sealed trait DeRegistrationResponseType
@@ -32,7 +31,7 @@ case class DeRegistrationFailureResponseType(reason: String) extends DeRegistrat
 
 object DeRegistration {
 
-  implicit val writer = new Writes[DeRegistration] {
+  implicit val writer: Writes[DeRegistration] = new Writes[DeRegistration] {
 
     def writes(feModel: DeRegistration): JsValue = {
       val returnJson =
@@ -45,11 +44,11 @@ object DeRegistration {
       returnJson
     }
   }
-  implicit val reader = Json.reads[DeRegistration]
+  implicit val reader: Reads[DeRegistration] = Json.reads[DeRegistration]
 }
 
 object DeRegistrationSuccessResponseType {
-  implicit val etmpReader = new Reads[DeRegistrationSuccessResponseType] {
+  implicit val etmpReader: Reads[DeRegistrationSuccessResponseType] = new Reads[DeRegistrationSuccessResponseType] {
 
     def reads(js: JsValue): JsResult[DeRegistrationSuccessResponseType] =
       for {
@@ -60,11 +59,11 @@ object DeRegistrationSuccessResponseType {
 
   }
 
-  implicit val etmpWriter = Json.writes[DeRegistrationSuccessResponseType]
+  implicit val etmpWriter: OWrites[DeRegistrationSuccessResponseType] = Json.writes[DeRegistrationSuccessResponseType]
 }
 
 object DeRegistrationFailureResponseType {
-  implicit val etmpReader = new Reads[DeRegistrationFailureResponseType] {
+  implicit val etmpReader: Reads[DeRegistrationFailureResponseType] = new Reads[DeRegistrationFailureResponseType] {
 
     def reads(js: JsValue): JsResult[DeRegistrationFailureResponseType] =
       for {
@@ -74,13 +73,13 @@ object DeRegistrationFailureResponseType {
       }
 
   }
-  implicit val etmpWriter = Json.writes[DeRegistrationFailureResponseType]
+  implicit val etmpWriter: OWrites[DeRegistrationFailureResponseType] = Json.writes[DeRegistrationFailureResponseType]
 }
 
 
 object DeRegistrationType {
 
-  implicit val etmpReader = new Reads[DeRegistrationType] {
+  implicit val etmpReader: Reads[DeRegistrationType] = new Reads[DeRegistrationType] {
 
     def reads(js: JsValue): JsResult[DeRegistrationType] = {
       for {
@@ -96,7 +95,7 @@ object DeRegistrationType {
     }
   }
 
-  implicit val etmpWriter = new Writes[DeRegistrationType] {
+  implicit val etmpWriter: Writes[DeRegistrationType] = new Writes[DeRegistrationType] {
     def writes(info: DeRegistrationType) =
       info.response match {
         case Some(r: DeRegistrationSuccessResponseType) => DeRegistrationSuccessResponseType.etmpWriter.writes(r)

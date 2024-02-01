@@ -33,7 +33,7 @@ case class StatusInfoFailureResponseType(reason: String) extends StatusInfoRespo
 
 object StatusInfoSuccessResponseType {
 
-  implicit val reader = new Reads[StatusInfoSuccessResponseType] {
+  implicit val reader: Reads[StatusInfoSuccessResponseType] = new Reads[StatusInfoSuccessResponseType] {
 
     def reads(js: JsValue): JsResult[StatusInfoSuccessResponseType] = {
       for {
@@ -47,12 +47,12 @@ object StatusInfoSuccessResponseType {
     }
   }
 
-  implicit val writer = Json.writes[StatusInfoSuccessResponseType]
+  implicit val writer: OWrites[StatusInfoSuccessResponseType] = Json.writes[StatusInfoSuccessResponseType]
 }
 
 object StatusInfoFailureResponseType {
 
-  implicit val reader = new Reads[StatusInfoFailureResponseType] {
+  implicit val reader: Reads[StatusInfoFailureResponseType] = new Reads[StatusInfoFailureResponseType] {
 
     def reads(js: JsValue): JsResult[StatusInfoFailureResponseType] = {
       for {
@@ -62,13 +62,13 @@ object StatusInfoFailureResponseType {
       }
     }
   }
-  implicit val writer = Json.writes[StatusInfoFailureResponseType]
+  implicit val writer: OWrites[StatusInfoFailureResponseType] = Json.writes[StatusInfoFailureResponseType]
 }
 
 
 object StatusInfoType {
 
-  implicit val reader = new Reads[StatusInfoType] {
+  implicit val reader: Reads[StatusInfoType] = new Reads[StatusInfoType] {
 
     def reads(js: JsValue): JsResult[StatusInfoType] = {
       for {
@@ -84,7 +84,7 @@ object StatusInfoType {
     }
   }
 
-  implicit val writer = new Writes[StatusInfoType] {
+  implicit val writer: Writes[StatusInfoType] = new Writes[StatusInfoType] {
     def writes(info: StatusInfoType) =
       info.response match {
         case Some(r: StatusInfoSuccessResponseType) => StatusInfoSuccessResponseType.writer.writes(r)
