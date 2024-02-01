@@ -16,13 +16,11 @@
 
 package utils
 
-import com.kenshoo.play.metrics.Metrics
-import org.scalatest.BeforeAndAfter
 import org.mockito.MockitoSugar
+import org.scalatest.BeforeAndAfter
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 
 trait BaseSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with BeforeAndAfter with AwrsTestJson {
@@ -32,7 +30,5 @@ trait BaseSpec extends PlaySpec with GuiceOneAppPerSuite with MockitoSugar with 
       "metrics.enabled" -> false,
       "microservice.metrics.graphite.enabled" -> false
     )
-  .overrides(bind[Metrics].toInstance(MockMetrics))
   .build()
-
 }
