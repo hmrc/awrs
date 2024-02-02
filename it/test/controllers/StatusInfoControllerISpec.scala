@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.helpers.controllers
+package controllers
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import controllers.routes
 import models.AwrsUsers
 import org.scalatest.matchers.must.Matchers
 import play.api.http.Status._
@@ -32,7 +31,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
   val testCredId = "awrsUserCredId"
   val controllerUrl: String = routes.StatusInfoController.enrolledUsers(testSafeId).url
   val testBusinessDetails: String = etmpBusinessDetailsData
-  val testAwrsUsers = Json.toJson(AwrsUsers(List("awrsUserCredId"), Nil)).toString
+  val testAwrsUsers: String = Json.toJson(AwrsUsers(List("awrsUserCredId"), Nil)).toString
   override val enrolmentRef = "XAAW00000123456"
   override val enrolmentKey = s"""HMRC-AWRS-ORG~AWRSRefNumber~$enrolmentRef"""
   val usersJson = """{"principalUserIds":["awrsUserCredId"],"delegatedUserIds":[]}"""

@@ -23,30 +23,15 @@ object AppDependencies {
     "com.fasterxml.jackson.module"  %% "jackson-module-scala"        % jacksonModuleVersion
   )
 
-  trait TestDependencies {
-    lazy val scope: String = "test"
-    lazy val test : Seq[ModuleID] = ???
-  }
+  val test: Seq[ModuleID] = Seq(
+    "uk.gov.hmrc" %% "bootstrap-test-play-30"  % microserviceBootstrapVersion % "test",
+    "org.jsoup"   %  "jsoup"                   % jsoupVersion                 % "test",
+    "org.mockito" %% "mockito-scala-scalatest" % mockitoScalatestVersion      % "test"
+  )
 
-  object Test {
-    def apply(): Seq[ModuleID] = new TestDependencies {
-      override lazy val test: Seq[ModuleID] = Seq(
-        "uk.gov.hmrc" %% "bootstrap-test-play-28"  % microserviceBootstrapVersion % scope,
-        "org.jsoup"   %  "jsoup"                   % jsoupVersion                 % scope,
-        "org.mockito" %% "mockito-scala-scalatest" % mockitoScalatestVersion      % scope
-      )
-    }.test
-  }
+  val itDependencies: Seq[ModuleID] = Seq(
+    "org.wiremock" % "wiremock" % wiremockVersion % Test
+  )
 
-  object IntegrationTest {
-    def apply(): Seq[ModuleID] = new TestDependencies {
-      override lazy val scope: String = "it"
-      override lazy val test: Seq[sbt.ModuleID] = Seq(
-        "uk.gov.hmrc"  %% "bootstrap-test-play-28" % microserviceBootstrapVersion % scope,
-        "org.wiremock" %  "wiremock"               % wiremockVersion              % scope
-      )
-    }.test
-  }
-
-  def apply(): Seq[ModuleID] = compile ++ Test() ++ IntegrationTest()
+  def apply(): Seq[ModuleID] = compile ++ test
 }

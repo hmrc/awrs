@@ -70,8 +70,6 @@
     <logger name="WireMock" level="INFO"/>
     <logger name="com.codahale.metrics.graphite.GraphiteReporter" level="OFF" />
     <logger name="play.core.netty.utils.ServerCookieDecoder" level="INFO" />
-    <logger name="akka.stream" level="INFO" />
-
 
     <logger name="connector" level="INFO">
         <appender-ref ref="STDOUT"/>

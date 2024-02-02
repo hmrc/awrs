@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.helpers.controllers
+package controllers
 
-import akka.util.Timeout
+import org.apache.pekko.util.Timeout
 import models.Approved
 import org.scalatest.matchers.must.Matchers
 import play.api.http.Status._
