@@ -20,7 +20,7 @@ import play.api.libs.json._
 import utils.SessionUtils
 
 object StatusOfPerson {
-  val listOfStatus = List("Director",
+  val listOfStatus: Seq[String] = List("Director",
     "Company Secretary",
     "Director and Company Secretary",
     "Authorised Signatory")
@@ -92,7 +92,7 @@ object LegalEntityType {
 case class SuccessfulSubscriptionResponse(processingDate: String, awrsRegistrationNumber: String, etmpFormBundleNumber: String)
 
 object SuccessfulSubscriptionResponse {
-  implicit val formats = Json.format[SuccessfulSubscriptionResponse]
+  implicit val formats: OFormat[SuccessfulSubscriptionResponse] = Json.format[SuccessfulSubscriptionResponse]
 }
 
 case class AWRSFEModel(subscriptionTypeFrontEnd: SubscriptionTypeFrontEnd)
@@ -112,7 +112,7 @@ object AWRSFEModel extends EtmpModelHelper {
       case _ => Json.obj()
     }
 
-  implicit val etmpWriter = new Writes[AWRSFEModel] {
+  implicit val etmpWriter: Writes[AWRSFEModel] = new Writes[AWRSFEModel] {
 
     def writes(feModel: AWRSFEModel): JsValue = {
 
@@ -145,7 +145,7 @@ object AWRSFEModel extends EtmpModelHelper {
 
   }
 
-  val etmpReader = new Reads[AWRSFEModel] {
+  val etmpReader: Reads[AWRSFEModel] = new Reads[AWRSFEModel] {
 
     def reads(js: JsValue): JsResult[AWRSFEModel] =
       for {
@@ -156,6 +156,6 @@ object AWRSFEModel extends EtmpModelHelper {
 
   }
 
-  implicit val formats = Json.format[AWRSFEModel]
+  implicit val formats: OFormat[AWRSFEModel] = Json.format[AWRSFEModel]
 
 }

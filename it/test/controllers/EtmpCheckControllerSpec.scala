@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.helpers.controllers
+package controllers
 
-import controllers.routes
 import models.{Approved, Rejected}
 import org.scalatest.matchers.must.Matchers
 import play.api.http.Status.{NOT_FOUND, NO_CONTENT, OK}
@@ -54,6 +53,7 @@ class EtmpCheckControllerSpec extends IntegrationSpec with AuthHelpers with Matc
                   stubUpsertAwrsEnrolment(NO_CONTENT)
 
                   val resp: WSResponse = await(authorisedClient(controllerUrl).post(checkEtmpPostDataOrg))
+
                   resp.status mustBe 200
                 }
 

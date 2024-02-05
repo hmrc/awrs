@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package models
+package uk.gov.hmrc.helpers
 
-import play.api.libs.json.{Json, OFormat}
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import play.api.test.Helpers.OK
+import uk.gov.hmrc.helpers.http.StubbedBasicHttpCalls
 
-case class Postcode(post_code: String)
+trait AuthHelpers extends StubbedBasicHttpCalls {
 
-object Postcode {
-  implicit val formats: OFormat[Postcode] = Json.format[Postcode]
+  def mockAuthedCall: StubMapping = {
+    stubbedPost("/write/audit", OK, """{"x":2}""")
+    stubbedPost("/write/audit/merged", OK, """{"x":2}""")
+    stubbedPost("/auth/authorise", OK, """{}""")
+  }
+
 }

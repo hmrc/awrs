@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package utils
+package uk.gov.hmrc.helpers.wiremock
 
-import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
-
-object MockMetrics extends Metrics {
-  override def defaultRegistry: MetricRegistry = new MetricRegistry
-
-  override def toJson: String = ""
+trait WireMockConfig {
+  val wireMockPort: Int    = 11111
+  val wireMockHost: String = "localhost"
+  val wireMockUrl: String  = s"http://$wireMockPort:$wireMockPort"
 }
