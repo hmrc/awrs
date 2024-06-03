@@ -1,17 +1,17 @@
-import sbt._
+import sbt.*
 
 object AppDependencies {
-  import play.sbt.PlayImport._
+  import play.sbt.PlayImport.*
 
   private val domainVersion = "9.0.0"
   private val json4sJacksonVersion = "4.0.7"
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val json4sNativeVersion = "4.0.7"
-  private val mockitoScalatestVersion = "1.17.30"
-  private val microserviceBootstrapVersion = "8.4.0"
+  private val mockitoScalatestVersion = "1.17.31"
+  private val microserviceBootstrapVersion = "8.6.0"
   private val jsoupVersion = "1.17.2"
-  private val wiremockVersion = "3.3.1"
-  private val jacksonModuleVersion = "2.16.1"
+  private val wiremockVersion = "3.5.4"
+  private val jacksonModuleVersion = "2.17.1"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -24,9 +24,9 @@ object AppDependencies {
   )
 
   val test: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc" %% "bootstrap-test-play-30"  % microserviceBootstrapVersion % "test",
-    "org.jsoup"   %  "jsoup"                   % jsoupVersion                 % "test",
-    "org.mockito" %% "mockito-scala-scalatest" % mockitoScalatestVersion      % "test"
+    "uk.gov.hmrc" %% "bootstrap-test-play-30"  % microserviceBootstrapVersion % Test,
+    "org.jsoup"   %  "jsoup"                   % jsoupVersion                 % Test,
+    "org.mockito" %% "mockito-scala-scalatest" % mockitoScalatestVersion      % Test
   )
 
   val itDependencies: Seq[ModuleID] = Seq(
