@@ -23,10 +23,10 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins : _*)
-  .settings(playSettings ++ scoverageSettings : _*)
-  .settings(scalaSettings: _*)
-  .settings(defaultSettings(): _*)
+  .enablePlugins((Seq(play.sbt.PlayScala, SbtDistributablesPlugin) ++ plugins) *)
+  .settings((playSettings ++ scoverageSettings) *)
+  .settings(scalaSettings *)
+  .settings(defaultSettings() *)
   .settings(
     libraryDependencies ++= appDependencies,
     Test / parallelExecution := false,
