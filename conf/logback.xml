@@ -24,8 +24,6 @@
 
     <logger name="uk.gov" level="INFO"/>
 
-    <logger name="org.asynchttpclient.netty" level="INFO"/>
-
     <logger name="com.google.inject" level="INFO"/>
 
     <logger name="application" level="INFO"/>
@@ -39,16 +37,12 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="io.netty.util" level="INFO"/>
     <logger name="org.apache.http" level="INFO"/>
-    <logger name="org.asynchttpclient.netty" level="INFO"/>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="org.mortbay.log" level="INFO"/>
-    <logger name="play.core.netty" level="INFO"/>
     <logger name="uk.gov" level="INFO"/>
     <logger name="WireMock" level="INFO"/>
     <logger name="com.codahale.metrics.graphite.GraphiteReporter" level="OFF" />
-    <logger name="play.core.netty.utils.ServerCookieDecoder" level="INFO" />
 
     <logger name="connector" level="INFO">
         <appender-ref ref="STDOUT"/>

@@ -28,8 +28,7 @@ object AppDependencies {
     "org.mockito" %% "mockito-scala-scalatest" % mockitoScalatestVersion      % Test
   )
 
-  val itDependencies: Seq[ModuleID] = Seq(
-  )
+  val itDependencies: Seq[ModuleID] = Seq()
 
   def apply(): Seq[ModuleID] = compile ++ test
 }
