@@ -10,7 +10,6 @@ object AppDependencies {
   private val mockitoScalatestVersion = "1.17.31"
   private val microserviceBootstrapVersion = "8.6.0"
   private val jsoupVersion = "1.17.2"
-  private val wiremockVersion = "3.5.4"
   private val jacksonModuleVersion = "2.17.1"
 
   val compile: Seq[ModuleID] = Seq(
@@ -29,9 +28,7 @@ object AppDependencies {
     "org.mockito" %% "mockito-scala-scalatest" % mockitoScalatestVersion      % Test
   )
 
-  val itDependencies: Seq[ModuleID] = Seq(
-    "org.wiremock" % "wiremock" % wiremockVersion % Test
-  )
+  val itDependencies: Seq[ModuleID] = Seq()
 
   def apply(): Seq[ModuleID] = compile ++ test
 }
