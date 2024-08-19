@@ -44,9 +44,6 @@ class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
 
     val url = s"$enrolmentStore/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey"
 
-//    implicit val bw: BodyWritable[EnrolmentVerifiers] = play.api.libs.ws.BodyWritable[EnrolmentVerifiers]
-
-
     def trySend(tries: Int): Future[HttpResponse] = {
       http.put(url"$url").withBody(Json.toJson(verifiers)).execute[HttpResponse].flatMap {
         response =>

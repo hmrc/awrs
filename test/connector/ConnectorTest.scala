@@ -69,4 +69,12 @@ trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSu
     when(mockPostRequestBuilder.withBody(ArgumentMatchers.eq(body))(any(), any(), any())).thenReturn(mockPostRequestBuilder)
     mockPostRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
   }
+
+  def executePutNoBody[A]: Future[A] = {
+    val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+    when(mockHttpClient.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockRequestBuilder)
+    when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
+    mockRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
+  }
 }

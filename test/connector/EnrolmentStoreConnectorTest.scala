@@ -48,11 +48,6 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
       val awrsRef = "XAAW00000120001"
       val testAwrsUsers: AwrsUsers = AwrsUsers(List("api10"), Nil)
 
-//      when(mockHttpClient.GET[HttpResponse](ArgumentMatchers.contains(s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""),
-//        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(),
-//        ArgumentMatchers.any(), ArgumentMatchers.any())).
-//        thenReturn(Future.successful(HttpResponse(OK, Json.toJson(testAwrsUsers), Map.empty[String, Seq[String]])))
-
       when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
         .thenReturn(Future.successful(HttpResponse(OK, Json.toJson(testAwrsUsers), Map.empty[String, Seq[String]])))
 
@@ -64,11 +59,6 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "NO-CONTENT-AWRS-REF"
       val testEmptyAwrsUsers: AwrsUsers = AwrsUsers(Nil, Nil)
-
-//      when(mockHttpClient.GET[HttpResponse](ArgumentMatchers.contains(s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""),
-//        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(),
-//        ArgumentMatchers.any(), ArgumentMatchers.any())).
-//        thenReturn(Future.successful(HttpResponse(NO_CONTENT, Json.toJson(testEmptyAwrsUsers), Map.empty[String, Seq[String]])))
 
       when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT, Json.toJson(testEmptyAwrsUsers), Map.empty[String, Seq[String]])))
@@ -82,14 +72,8 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "ERROR-AWRS-REF"
 
-//      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.contains(s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""),
-//        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(),
-//        ArgumentMatchers.any(), ArgumentMatchers.any())).
-//        thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "Some Bad Json", Map.empty[String, Seq[String]])))
-
       when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "Some Bad Json", Map.empty[String, Seq[String]])))
-
 
       val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
       await(result) should be(Left(BAD_REQUEST))
