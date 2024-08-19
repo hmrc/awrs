@@ -55,13 +55,15 @@ trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSu
     mockDeleteRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
   }
 
-  def executePostNoBody[A]: Future[A] = {
+  def executePostNoBody[A](urlElement: Option[String] = None): Future[A] = {
     val requestBuilder: RequestBuilder = mock[RequestBuilder]
-    when(mockHttpClient.post(any[URL])(any[HeaderCarrier])).thenReturn(requestBuilder)
+    val urlMatcher = urlElement.fold(any[URL])(elem => argThat(UrlMatcher(elem)))
+    when(mockHttpClient.post(urlMatcher)(any[HeaderCarrier])).thenReturn(requestBuilder)
     when(requestBuilder.setHeader(any[(String, String)])).thenReturn(requestBuilder)
     when(requestBuilder.withBody(any())(any(), any(), any())).thenReturn(requestBuilder)
     requestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
   }
+
   def executePost[A](body: JsValue): Future[A] = {
     val mockPostRequestBuilder: RequestBuilder = mock[RequestBuilder]
     when(mockPostRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockPostRequestBuilder)
@@ -72,7 +74,7 @@ trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSu
 
   def executePutNoBody[A]: Future[A] = {
     val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
-    when(mockHttpClient.post(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
+    when(mockHttpClient.put(any[URL])(any[HeaderCarrier])).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockRequestBuilder)
     when(mockRequestBuilder.withBody(any())(any(), any(), any())).thenReturn(mockRequestBuilder)
     mockRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])

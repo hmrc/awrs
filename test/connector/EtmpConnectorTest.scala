@@ -56,7 +56,7 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
       val safeId = "XA0001234567890"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 //      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api4SuccessResponse, Map.empty[String, Seq[String]])))
-      when(executePostNoBody[HttpResponse]).thenReturn(Future.successful(HttpResponse(200, api4SuccessResponse, Map.empty[String, Seq[String]])))
+      when(executePostNoBody[HttpResponse]()).thenReturn(Future.successful(HttpResponse(200, api4SuccessResponse, Map.empty[String, Seq[String]])))
 
       val result: Future[HttpResponse] = TestEtmpConnector.subscribe(api4Json, safeId)
       await(result).json should be(api4SuccessResponse)
@@ -114,7 +114,7 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
       val expectedURL: String = s"/alcohol-wholesaler-register/subscription/$awrsRefNo/deregistration"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 //      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.endsWith(expectedURL), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api10SuccessfulResponseJson, Map.empty[String, Seq[String]])))
-      when(executePost[HttpResponse](Json.toJson(expectedURL))).thenReturn(Future.successful(HttpResponse(200, api10SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+      when(executePostNoBody[HttpResponse](Some(expectedURL))).thenReturn(Future.successful(HttpResponse(200, api10SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result: Future[HttpResponse] = TestEtmpConnector.deRegister(awrsRefNo, dummyData)
       await(result).json shouldBe api10SuccessfulResponseJson // if the URL is correct then deRegisterSuccess should be returned
     }
@@ -123,7 +123,7 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
       val awrsRefNo = "XAAW0000010001"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 //      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
-      when(executePostNoBody[HttpResponse]).thenReturn(Future.successful(HttpResponse(200, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+      when(executePostNoBody[HttpResponse]()).thenReturn(Future.successful(HttpResponse(200, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result: Future[HttpResponse] = TestEtmpConnector.withdrawal(awrsRefNo, api8RequestJson)
       await(result).json should be(api8SuccessfulResponseJson)
     }
