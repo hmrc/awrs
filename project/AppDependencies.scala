@@ -3,14 +3,14 @@ import sbt.*
 object AppDependencies {
   import play.sbt.PlayImport.*
 
-  private val domainVersion = "9.0.0"
+  private val domainVersion = "10.0.0"
   private val json4sJacksonVersion = "4.0.7"
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val json4sNativeVersion = "4.0.7"
-  private val mockitoScalatestVersion = "1.17.31"
-  private val microserviceBootstrapVersion = "8.6.0"
-  private val jsoupVersion = "1.17.2"
-  private val jacksonModuleVersion = "2.17.1"
+  private val mockitoScalatestVersion = "1.17.37"
+  private val microserviceBootstrapVersion = "9.3.0"
+  private val jsoupVersion = "1.18.1"
+  private val jacksonModuleVersion = "2.17.2"
 
   val compile: Seq[ModuleID] = Seq(
     ws,

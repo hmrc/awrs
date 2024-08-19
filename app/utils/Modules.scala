@@ -20,8 +20,6 @@ import play.api.inject.{Binding, Module, bind => playBind}
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
-import uk.gov.hmrc.http.HttpClient
 
 class Modules extends Module {
 
@@ -30,7 +28,6 @@ class Modules extends Module {
   }
 
   private def bindControllers: Seq[Binding[_]] = Seq(
-    playBind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector]),
-    playBind(classOf[HttpClient]).to(classOf[DefaultHttpClient])
+    playBind(classOf[AuthConnector]).to(classOf[DefaultAuthConnector])
   )
 }
