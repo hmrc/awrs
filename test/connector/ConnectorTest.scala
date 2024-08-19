@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2024 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,36 @@
 
 package connector
 
-import org.mockito.ArgumentMatchers
+import org.mockito.{ArgumentMatchers, ArgumentMatcher}
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import play.api.libs.json._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.HeaderCarrier
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, argThat}
 import org.mockito.Mockito.when
-
 import java.net.URL
 import uk.gov.hmrc.http.HttpReads
+import scala.concurrent.{Future, ExecutionContext}
 
-import scala.concurrent.{ExecutionContext, Future}
+case class UrlMatcher(stringElement: String) extends ArgumentMatcher[URL] {
+  def matches(url: URL): Boolean = url.getPath().contains(stringElement)
+}
 
 trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSugar {
   val mockHttpClient: HttpClientV2 = mock[HttpClientV2]
-
-  def executePostNoBody[A]: Future[A] = {
-    val requestBuilder: RequestBuilder = mock[RequestBuilder]
-    when(mockHttpClient.post(any[URL])(any[HeaderCarrier])).thenReturn(requestBuilder)
-    when(requestBuilder.setHeader(any[(String, String)])).thenReturn(requestBuilder)
-    when(requestBuilder.withBody(any())(any(), any(), any())).thenReturn(requestBuilder)
-    requestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
-  }
 
   def executeGet[A]: Future[A] = {
     val mockGetRequestBuilder: RequestBuilder = mock[RequestBuilder]
     when(mockGetRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockGetRequestBuilder)
     when(mockHttpClient.get(any[URL])(any[HeaderCarrier])).thenReturn(mockGetRequestBuilder)
+    mockGetRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
+  }
+
+  def executeGet[A](urlElement: String): Future[A] = {
+    val mockGetRequestBuilder: RequestBuilder = mock[RequestBuilder]
+    when(mockGetRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockGetRequestBuilder)
+    when(mockHttpClient.get(argThat(UrlMatcher(urlElement)))(any[HeaderCarrier])).thenReturn(mockGetRequestBuilder)
     mockGetRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
   }
 
@@ -54,6 +55,13 @@ trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSu
     mockDeleteRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
   }
 
+  def executePostNoBody[A]: Future[A] = {
+    val requestBuilder: RequestBuilder = mock[RequestBuilder]
+    when(mockHttpClient.post(any[URL])(any[HeaderCarrier])).thenReturn(requestBuilder)
+    when(requestBuilder.setHeader(any[(String, String)])).thenReturn(requestBuilder)
+    when(requestBuilder.withBody(any())(any(), any(), any())).thenReturn(requestBuilder)
+    requestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
+  }
   def executePost[A](body: JsValue): Future[A] = {
     val mockPostRequestBuilder: RequestBuilder = mock[RequestBuilder]
     when(mockPostRequestBuilder.setHeader(any[(String, String)])).thenReturn(mockPostRequestBuilder)
@@ -61,5 +69,4 @@ trait ConnectorTest extends FutureAwaits with DefaultAwaitTimeout with MockitoSu
     when(mockPostRequestBuilder.withBody(ArgumentMatchers.eq(body))(any(), any(), any())).thenReturn(mockPostRequestBuilder)
     mockPostRequestBuilder.execute[A](any[HttpReads[A]], any[ExecutionContext])
   }
-
 }
