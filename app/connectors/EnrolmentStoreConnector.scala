@@ -16,19 +16,21 @@
 
 package connectors
 
-import javax.inject.{Inject, Named}
 import models.{AwrsUsers, EnrolmentVerifiers}
 import play.api.http.Status._
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 import utils.LoggingUtils
-import uk.gov.hmrc.http.HttpReads.Implicits._
 
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
-                                        http: HttpClient,
+                                        http: HttpClientV2,
                                         config: ServicesConfig,
                                         @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends LoggingUtils {
   val retryLimit = 7
@@ -39,10 +41,11 @@ class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
   def upsertEnrolment(enrolmentKey: String,
                       verifiers: EnrolmentVerifiers
                      )(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+
     val url = s"$enrolmentStore/enrolment-store-proxy/enrolment-store/enrolments/$enrolmentKey"
 
     def trySend(tries: Int): Future[HttpResponse] = {
-      http.PUT(url, verifiers)(implicitly, readRaw, implicitly, implicitly).flatMap {
+      http.put(url"$url").withBody(Json.toJson(verifiers)).execute[HttpResponse].flatMap {
         response =>
           response.status match {
             case NO_CONTENT => Future(response)
@@ -69,7 +72,7 @@ class EnrolmentStoreConnector @Inject()(val auditConnector: AuditConnector,
   def getAWRSUsers(awrsRef: String)(implicit hc: HeaderCarrier): Future[Either[Int, AwrsUsers]] = {
 
     val url = s"$enrolmentStore/enrolment-store-proxy/enrolment-store/enrolments/HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef/users"
-    http.GET[HttpResponse](url, Seq.empty).map {
+    http.get(url"$url").execute[HttpResponse].map {
       response =>
         response.status match {
           case OK =>

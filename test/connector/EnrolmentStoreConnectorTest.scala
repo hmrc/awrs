@@ -18,16 +18,13 @@ package connector
 
 import connectors.EnrolmentStoreConnector
 import models.AwrsUsers
-import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import utils.BaseSpec
 
 import java.util.UUID
@@ -39,58 +36,46 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
 
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
-  val mockWSHttp: DefaultHttpClient = mock[DefaultHttpClient]
+  trait Setup extends ConnectorTest {
+    object TestEnrolmentStoreConnector extends EnrolmentStoreConnector(mockAuditConnector, mockHttpClient, config, "awrs")
+  }
 
   val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-  object TestEnrolmentStoreConnector extends EnrolmentStoreConnector(mockAuditConnector, mockWSHttp, config, "awrs")
-
-  before {
-    reset(mockWSHttp)
-  }
-
   "Enrolment store connector" must {
-    "Return a list of userIDs when given an awrs reference" in {
+    "Return a list of userIDs when given an awrs reference" in new Setup {
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "XAAW00000120001"
-      val testAwrsUsers = AwrsUsers(List("api10"), Nil)
+      val testAwrsUsers: AwrsUsers = AwrsUsers(List("api10"), Nil)
 
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.contains(s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""),
-        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(),
-        ArgumentMatchers.any(), ArgumentMatchers.any())).
-        thenReturn(Future.successful(HttpResponse(OK, Json.toJson(testAwrsUsers), Map.empty[String, Seq[String]])))
+      when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
+        .thenReturn(Future.successful(HttpResponse(OK, Json.toJson(testAwrsUsers), Map.empty[String, Seq[String]])))
 
-      val result = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
+      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
       await(result) should be(Right(testAwrsUsers))
     }
 
-    "Return no content when given an awrs enrolment and there are no users in enrolment store" in {
+    "Return no content when given an awrs enrolment and there are no users in enrolment store" in new Setup {
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "NO-CONTENT-AWRS-REF"
-      val testEmptyAwrsUsers = AwrsUsers(Nil, Nil)
+      val testEmptyAwrsUsers: AwrsUsers = AwrsUsers(Nil, Nil)
 
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.contains(s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""),
-        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(),
-        ArgumentMatchers.any(), ArgumentMatchers.any())).
-        thenReturn(Future.successful(HttpResponse(NO_CONTENT, Json.toJson(testEmptyAwrsUsers), Map.empty[String, Seq[String]])))
+      when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
+        .thenReturn(Future.successful(HttpResponse(NO_CONTENT, Json.toJson(testEmptyAwrsUsers), Map.empty[String, Seq[String]])))
 
-      val result = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
+      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
       await(result) should be(Right(testEmptyAwrsUsers))
-
     }
 
-    "Return an error when given an invalid enrolment key" in {
+    "Return an error when given an invalid enrolment key" in new Setup {
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "ERROR-AWRS-REF"
 
-      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.contains(s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""),
-        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(),
-        ArgumentMatchers.any(), ArgumentMatchers.any())).
-        thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "Some Bad Json", Map.empty[String, Seq[String]])))
+      when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
+        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "Some Bad Json", Map.empty[String, Seq[String]])))
 
-      val result = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
+      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
       await(result) should be(Left(BAD_REQUEST))
-
     }
   }
 }
