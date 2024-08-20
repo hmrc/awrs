@@ -51,15 +51,12 @@ class EtmpConnector @Inject()(http: HttpClientV2,
   )
 
   @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
-//    http.POST[I, O](url, body, headers)(wts = wts, rds = rds, hc = hc, ec = ec)
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
-//    http.GET[A](url, Seq.empty, headers)(rds, hc = hc, ec = ec)
   http.get(url"$url").setHeader(headers: _*).execute[A]
 
   @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
-//    http.PUT[I, O](url, body, headers)(wts, rds, hc = hc, ec = ec)
   http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {

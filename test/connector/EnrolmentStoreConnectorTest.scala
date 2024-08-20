@@ -65,7 +65,6 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
 
       val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
       await(result) should be(Right(testEmptyAwrsUsers))
-
     }
 
     "Return an error when given an invalid enrolment key" in new Setup {
@@ -77,7 +76,6 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
 
       val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
       await(result) should be(Left(BAD_REQUEST))
-
     }
   }
 }

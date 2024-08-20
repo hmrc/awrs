@@ -41,7 +41,6 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
 
   val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-
   "EtmpConnector" must {
 
     "create correct AWRS subscription POST request" in new Setup {
@@ -55,7 +54,6 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
       val api4Json: JsValue = api4EtmpSOPJson
       val safeId = "XA0001234567890"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api4SuccessResponse, Map.empty[String, Seq[String]])))
       when(executePostNoBody[HttpResponse]()).thenReturn(Future.successful(HttpResponse(200, api4SuccessResponse, Map.empty[String, Seq[String]])))
 
       val result: Future[HttpResponse] = TestEtmpConnector.subscribe(api4Json, safeId)
@@ -66,8 +64,8 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
       val lookupSuccess: JsValue = Json.parse( """{"Reason": "All ok"}""")
       val awrsRefNo = "XAAW0000012345"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, lookupSuccess, Map.empty[String, Seq[String]])))
       when(executeGet[HttpResponse]).thenReturn(Future.successful(HttpResponse(200, lookupSuccess, Map.empty[String, Seq[String]])))
+
       val result: Future[HttpResponse] = TestEtmpConnector.lookup(awrsRefNo)
       await(result).json shouldBe lookupSuccess
     }
@@ -82,8 +80,8 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
     "for a successful API6 submission, return etmp processing date and form bundle number in response" in new Setup {
       val awrsRefNo = "XAAW000003457890"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api6SuccessResponseJson, Map.empty[String, Seq[String]])))
       when(executePutNoBody[HttpResponse]).thenReturn(Future.successful(HttpResponse(200, api6SuccessResponseJson, Map.empty[String, Seq[String]])))
+
       val result: Future[HttpResponse] = TestEtmpConnector.updateSubscription(api6FrontendLTDJson, awrsRefNo)
       await(result).json should be(api6SuccessResponseJson)
     }
@@ -91,8 +89,8 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
     "check status of an application with a valid reference number " in new Setup {
       val awrsRefNo = "XAAW0000010001"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api9SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       when(executeGet[HttpResponse]).thenReturn(Future.successful(HttpResponse(200, api9SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+
       val result: Future[HttpResponse] = TestEtmpConnector.checkStatus(awrsRefNo)
       await(result).json shouldBe api9SuccessfulResponseJson
     }
@@ -102,8 +100,8 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
       val contactNumber = "0123456789"
       val expectedURL: String = s"/alcohol-wholesaler-register/secure-comms/reg-number/$awrsRefNo/contact-number/$contactNumber"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.endsWith(expectedURL), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api11SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       when(executeGet[HttpResponse](expectedURL)).thenReturn(Future.successful(HttpResponse(200, api11SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+
       val result: Future[HttpResponse] = TestEtmpConnector.getStatusInfo(awrsRefNo, contactNumber)
       await(result).json shouldBe api11SuccessfulResponseJson // if the URL is correct then getStatusInfoSuccess should be returned
     }
@@ -113,8 +111,8 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
       val dummyData: JsValue = Json.parse("true") // dummy data does not matter since the call is mocked
       val expectedURL: String = s"/alcohol-wholesaler-register/subscription/$awrsRefNo/deregistration"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.endsWith(expectedURL), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api10SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       when(executePostNoBody[HttpResponse](Some(expectedURL))).thenReturn(Future.successful(HttpResponse(200, api10SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+
       val result: Future[HttpResponse] = TestEtmpConnector.deRegister(awrsRefNo, dummyData)
       await(result).json shouldBe api10SuccessfulResponseJson // if the URL is correct then deRegisterSuccess should be returned
     }
@@ -122,8 +120,8 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
     "for a successful withdrawal, return a success response" in new Setup {
       val awrsRefNo = "XAAW0000010001"
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       when(executePostNoBody[HttpResponse]()).thenReturn(Future.successful(HttpResponse(200, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+
       val result: Future[HttpResponse] = TestEtmpConnector.withdrawal(awrsRefNo, api8RequestJson)
       await(result).json should be(api8SuccessfulResponseJson)
     }
@@ -131,8 +129,8 @@ class EtmpConnectorTest extends BaseSpec with AnyWordSpecLike {
     "for a successful API3 submission, return processing date in ETMP response" in new Setup {
       val updateSuccessResponse: JsValue = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-//      when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, updateSuccessResponse, Map.empty[String, Seq[String]])))
       when(executePutNoBody[HttpResponse]).thenReturn(Future.successful(HttpResponse(200, updateSuccessResponse, Map.empty[String, Seq[String]])))
+
       val result: Future[HttpResponse] = TestEtmpConnector.updateGrpRepRegistrationDetails(testRefNo, api3FrontendJson)
       await(result).json should be(updateSuccessResponse)
     }
