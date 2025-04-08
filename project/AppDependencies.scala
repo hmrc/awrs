@@ -3,7 +3,7 @@ import sbt.*
 object AppDependencies {
   import play.sbt.PlayImport.*
 
-  private val domainVersion = "10.0.0"
+  private val domainVersion = "11.0.0"
   private val json4sJacksonVersion = "4.0.7"
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val json4sNativeVersion = "4.0.7"
