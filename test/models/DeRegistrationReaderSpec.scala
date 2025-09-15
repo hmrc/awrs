@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ class DeRegistrationReaderSpec extends PlaySpec with AwrsTestJson with AnyWordSp
   "DeRegistrationReaderSpec " must {
 
     "transform DeRegistration correctly to etmp" in {
-      val deRegistrationData = DeRegistration("2012-02-10", "Group disbanded", None)
+      val deRegistrationData = DeRegistration("2012-02-10", "Group ended", None)
       val deRegistration = Json.toJson(deRegistrationData)
       val expectedJson = api10RequestJson.toString().replace("$ackRef", deRegistration.\("acknowledgementReference").get.toString().replace("\"", ""))
       deRegistration.toString() shouldBe expectedJson
