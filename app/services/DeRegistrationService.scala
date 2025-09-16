@@ -21,7 +21,7 @@ import play.api.Logging
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.AWRSFeatureSwitches
+import utils.{AWRSFeatureSwitches, Utility}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -30,6 +30,20 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
                                       hipConnector: HipConnector)
                                      (implicit ec: ExecutionContext)
   extends Logging {
+
+  //DES: request fields
+  private val deregReasonOther: String = "deregReasonOther"
+  private val acknowledgementReference: String = "acknowledgementReference"
+
+  //DES: response field
+  private val processingDate: String = "processingDate"
+
+  //HIP: request fields
+  private val deregistrationReason: String = "deregistrationReason"
+  private val deregistrationOther: String = "deregistrationOther"
+
+  //HIP: response field
+  private val processingDateTime: String = "processingDateTime"
 
   private val deRegistrationReasonCodes: Map[String, String] = Map(
     "Ceases to be registerable for the scheme" -> "01",
@@ -40,6 +54,8 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
     "Partnership disbanded" -> "06",
     "Others" -> "99"
   )
+
+  private val othersDeregistrationCode: String = "Others"
 
   def deRegistration(awrsRefNo: String,
                      deRegistration: JsValue)
@@ -55,7 +71,7 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
               response.status match {
                 case Status.CREATED =>
                   HttpResponse(
-                    status = response.status,
+                    status = Status.OK,
                     body = Json.stringify(updateResponseForHip(responseJson = Json.parse(response.body))),
                     headers = response.headers
                   )
@@ -83,16 +99,17 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
 
   def updateRequestForHip(deRegistration: JsValue): JsResult[JsObject] = {
 
-    (deRegistration \ "deregistrationReason").validate[String].flatMap { reasonString =>
-      val reasonCode = deRegistrationReasonCodes.getOrElse(reasonString, reasonString)
+    (deRegistration \ deregistrationReason).validate[String].flatMap { reasonString =>
+      val reasonCode = deRegistrationReasonCodes(reasonString)
 
       deRegistration.validate[JsObject].map { requestJsObject =>
-        val updatedRequest: JsObject = requestJsObject + ("deregistrationReason" -> JsString(reasonCode))
+        val updatedRequest: JsObject = requestJsObject + (deregistrationReason -> JsString(reasonCode))
 
-        if (reasonCode == "99") {
-          (requestJsObject \ "deregReasonOther").toOption match {
-            case Some(otherReasonValue) => (updatedRequest + ("deregistrationOther" -> otherReasonValue)) - "deregReasonOther"
-            case None => throw new RuntimeException("'deregReasonOther' is not set when deregistrationReason is set to 'Others'")
+        if (reasonCode == deRegistrationReasonCodes(othersDeregistrationCode)) {
+          (requestJsObject \ deregReasonOther).toOption match {
+            case Some(otherReasonValue) =>
+              (updatedRequest + (deregistrationOther -> otherReasonValue)) - deregReasonOther - acknowledgementReference
+            case None => throw new RuntimeException(s"'$deregReasonOther' is not set when $deregistrationReason is set to 'Others'")
           }
         } else {
           updatedRequest
@@ -103,20 +120,12 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
 
   def updateResponseForHip(responseJson: JsValue): JsValue = {
 
-    val successNodeLookup = responseJson \ "success"
+    val successJsObject = Utility.stripSuccessNode(responseJson)
 
-    if (successNodeLookup.isDefined) {
-      val successJsObject = successNodeLookup.as[JsObject]
-
-      (successJsObject \ "processingDateTime").toOption match {
-        case Some(processingDateTimeValue) => (successJsObject + ("processingDate" -> processingDateTimeValue)) - "processingDateTime"
-        case None => throw new RuntimeException("Received response is missing the 'processingDateTime' key in the 'success' node.")
-      }
-
-    } else {
-      throw new RuntimeException("Received response does not contain a 'success' node.")
+    (successJsObject \ processingDateTime).toOption match {
+      case Some(processingDateTimeValue) => (successJsObject + (processingDate -> processingDateTimeValue)) - processingDateTime
+      case None => throw new RuntimeException(s"Received response is missing the '$processingDateTime' key in the 'success' node.")
     }
-
   }
 
 }

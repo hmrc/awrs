@@ -19,7 +19,7 @@ package services
 import connectors.{EtmpConnector, HipConnector}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsResult, JsValue, Json}
 import utils.BaseSpec
 
 import scala.concurrent.ExecutionContext
@@ -34,22 +34,39 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
   val groupEndedJson: JsValue = api10RequestJson
   val otherReason: JsValue = api10OtherReasonRequestJson
 
-  "Deregistration service" must {
+  "Deregistration service: updateRequestForHip" must {
     "convert the reason to the correct code" in {
-      val result = testDeRegistrationService.updateRequestForHip(groupEndedJson)
+      val result: JsResult[JsObject] = testDeRegistrationService.updateRequestForHip(groupEndedJson)
       result.isSuccess shouldBe true
       (result.get \ "deregistrationReason").as[String] shouldBe "05"
     }
 
     "convert the other reason to code 99 and include the other reason text" in {
-      val result = testDeRegistrationService.updateRequestForHip(otherReason)
+      val result: JsResult[JsObject] = testDeRegistrationService.updateRequestForHip(otherReason)
       result.isSuccess shouldBe true
       (result.get \ "deregistrationReason").as[String] shouldBe "99"
       (result.get \ "deregistrationOther").as[String] shouldBe "other reason"
     }
+
+    "throw an Exception when other reason code is Others and does not include deregReasonOther field" in {
+
+      val inputJson: JsValue = Json.parse(
+        """
+          {
+          |  "acknowledgementReference": "$ackRef",
+          |  "deregistrationDate": "2012-02-10",
+          |  "deregistrationReason": "Others"
+          |}
+          |""".stripMargin)
+
+      val exception: RuntimeException = intercept[RuntimeException] {
+        testDeRegistrationService.updateRequestForHip(inputJson)
+      }
+      exception.getMessage shouldBe "'deregReasonOther' is not set when deregistrationReason is set to 'Others'"
+    }
   }
 
-  "updateResponseForHip" must {
+  "Deregistration service: updateResponseForHip" must {
     "correctly rename the 'processingDateTime' key to 'processingDate' when present" in {
 
       val inputJson: JsValue = Json.parse(
@@ -70,23 +87,6 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
 
       val resultJson: JsValue = testDeRegistrationService.updateResponseForHip(inputJson)
       resultJson shouldBe expectedJson
-    }
-
-    "throw an Exception when 'success' node is missing" in {
-
-      val inputJson: JsValue = Json.parse(
-        """
-          |{
-          |  "notAsuccessKey": {
-          |    "someOtherTestKey": "testValue"
-          |  }
-          |}
-          |""".stripMargin)
-
-      val exception: RuntimeException = intercept[RuntimeException] {
-        testDeRegistrationService.updateResponseForHip(inputJson)
-      }
-      exception.getMessage shouldBe "Received response does not contain a 'success' node."
     }
 
     "throw an Exception when 'processingDateTime' key is missing from the success node" in {

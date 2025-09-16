@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.LoggingUtils
 
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, ZoneOffset}
+import java.time.{ZoneId, ZonedDateTime}
 import java.util.{Base64, UUID}
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,23 +40,23 @@ class HipConnector @Inject() (http: HttpClientV2,
   val baseURI: String = "/etmp/RESTadapter/awrs"
   val subscriptionURI: String = "/subscription"
   val deRegistrationURI: String = "/deregistration/"
+  private val transmittingSystem = "HIP"
 
-  private val clientId: String = config.getString("hip.clientId")
-  private val clientSecret: String = config.getString("hip.clientSecret")
-  private val encoded: String = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes("UTF-8"))
+  private val clientId: String = config.getConfString("hip.clientId", "")
+  private val clientSecret: String = config.getConfString("hip.clientSecret", "")
+  private val authorizationToken: String = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes("UTF-8"))
 
   val headers: Seq[(String, String)] = Seq(
     "correlationid" -> UUID.randomUUID().toString,
     "X-Originating-System" -> appName,
-    "X-Receipt-Date" -> formatInstantToHipTimestamp,
-    "X-Transmitting-System" -> "HIP",
-    "Authorization" -> s"Basic $encoded"
+    "X-Receipt-Date" -> retrieveCurrentUkTimestamp,
+    "X-Transmitting-System" -> transmittingSystem,
+    "Authorization" -> s"Basic $authorizationToken"
   )
 
-  private def formatInstantToHipTimestamp: String = {
+  private def retrieveCurrentUkTimestamp: String = {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val zonedDateTime = Instant.now().atZone(ZoneOffset.UTC)
-    formatter.format(zonedDateTime)
+    formatter.format(ZonedDateTime.now(ZoneId.of("Europe/London")))
   }
 
   def deRegister(awrsRefNo: String, deRegDetails: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
