@@ -107,12 +107,12 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
       val reasonCode: String = deRegistrationReasonCodes.getOrElse(reasonString, throw new NoSuchElementException("Invalid deregistration code received"))
 
       deRegistration.validate[JsObject].map { requestJsObject =>
-        val updatedRequest: JsObject = requestJsObject + (deregistrationReason -> JsString(reasonCode))
+        val updatedRequest: JsObject = requestJsObject + (deregistrationReason -> JsString(reasonCode)) - acknowledgementReference
 
         if (reasonCode == deRegistrationReasonCodes(othersDeregistrationCode)) {
           (requestJsObject \ deregReasonOther).toOption match {
             case Some(otherReasonValue) =>
-              (updatedRequest + (deregistrationOther -> otherReasonValue)) - deregReasonOther - acknowledgementReference
+              (updatedRequest + (deregistrationOther -> otherReasonValue)) - deregReasonOther
             case None => throw new RuntimeException(s"'$deregReasonOther' is not set when $deregistrationReason is set to 'Others'")
           }
         } else {
