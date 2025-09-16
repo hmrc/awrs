@@ -54,11 +54,21 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
       val expectedURL: Option[String] = Some(s"/etmp/RESTadapter/awrs/subscription/deregistration/$awrsRefNo")
 
       implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+
+      val responseJson: JsValue = Json.parse(
+        """
+          |{
+          |  "success": {
+          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |  }
+          |}
+          |""".stripMargin)
+
       when(executePost[HttpResponse](expectedURL, testJson))
-        .thenReturn(Future.successful(HttpResponse(Status.CREATED, api10SuccessfulResponseJson, Map.empty)))
+        .thenReturn(Future.successful(HttpResponse(Status.CREATED, responseJson, Map.empty)))
 
       val result: Future[HttpResponse] = TestHipConnector.deRegister(awrsRefNo, testJson)
-      await(result).json shouldBe api10SuccessfulResponseJson
+      await(result).json shouldBe responseJson
     }
   }
 }
