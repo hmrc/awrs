@@ -17,22 +17,91 @@
 package services
 
 import connectors.{EtmpConnector, HipConnector}
+import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsObject, JsResult, JsValue, Json}
-import utils.BaseSpec
+import play.api.test.Helpers.{await, defaultAwaitTimeout}
+import play.mvc.Http.Status
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import utils.AwrsTestJson.testRefNo
+import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+
+  object TestEtmpLookupService extends EtmpLookupService(mockEtmpConnector)
+
   val testDeRegistrationService: DeRegistrationService = new DeRegistrationService(mockEtmpConnector, mockHipConnector)(ec)
 
   val groupEndedJson: JsValue = api10RequestJson
   val otherReason: JsValue = api10OtherReasonRequestJson
+
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+
+  "Deregistration service: deRegistration" must {
+
+    "successfully process the deregistration request" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+      val responseJson: JsValue = Json.parse(
+        """
+          |{
+          |  "success": {
+          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |  }
+          |}
+          |""".stripMargin)
+
+      when(mockHipConnector.deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.CREATED, responseJson, Map.empty[String, Seq[String]])))
+
+      val result = testDeRegistrationService.deRegistration(testRefNo, groupEndedJson)
+      await(result).status shouldBe Status.OK
+    }
+
+    "respond the caller with appropriate failure status code for a deregistration request" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+      val responseJson: JsValue = Json.parse(
+        """
+          |{
+          |  "success": {
+          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |  }
+          |}
+          |""".stripMargin)
+
+      when(mockHipConnector.deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        .thenReturn(Future.successful(HttpResponse(Status.SERVICE_UNAVAILABLE, responseJson, Map.empty[String, Seq[String]])))
+
+      val result = testDeRegistrationService.deRegistration(testRefNo, groupEndedJson)
+      await(result).status shouldBe Status.SERVICE_UNAVAILABLE
+    }
+
+    "throw an exception for an invalid deregistration request" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+      val inputJson: JsValue = Json.parse(
+        """
+          {
+          |  "acknowledgementReference": "$ackRef",
+          |  "deregistrationDate": "2012-02-10",
+          |  "deregistrationReason": "Others"
+          |}
+          |""".stripMargin)
+
+      val exception: RuntimeException = intercept[RuntimeException] {
+        testDeRegistrationService.deRegistration(testRefNo, inputJson)
+      }
+      exception.getMessage shouldBe "'deregReasonOther' is not set when deregistrationReason is set to 'Others'"
+    }
+  }
 
   "Deregistration service: updateRequestForHip" must {
     "convert the reason to the correct code" in {

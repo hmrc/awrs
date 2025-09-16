@@ -77,8 +77,12 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
                   )
 
                 case failedStatusCode =>
-                  logger.info(s"[DeRegistrationService][deRegistration] Failure response from HIP endpoint: $failedStatusCode")
-                  throw new RuntimeException(s"Failure response from HIP endpoint: $failedStatusCode")
+                  logger.error(s"[DeRegistrationService][deRegistration] Failure response from HIP endpoint: $failedStatusCode")
+                  HttpResponse(
+                    status = failedStatusCode,
+                    body = response.body,
+                    headers = response.headers
+                  )
               }
           }
         case JsError(errors) =>
