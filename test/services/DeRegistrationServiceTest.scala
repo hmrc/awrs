@@ -133,6 +133,23 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
       }
       exception.getMessage shouldBe "'deregReasonOther' is not set when deregistrationReason is set to 'Others'"
     }
+
+    "throw an Exception when other reason code is invalid" in {
+
+      val inputJson: JsValue = Json.parse(
+        """
+          {
+          |  "acknowledgementReference": "$ackRef",
+          |  "deregistrationDate": "2012-02-10",
+          |  "deregistrationReason": "Invalid"
+          |}
+          |""".stripMargin)
+
+      val exception: NoSuchElementException = intercept[NoSuchElementException] {
+        testDeRegistrationService.updateRequestForHip(inputJson)
+      }
+      exception.getMessage shouldBe "Invalid deregistration code received"
+    }
   }
 
   "Deregistration service: updateResponseForHip" must {

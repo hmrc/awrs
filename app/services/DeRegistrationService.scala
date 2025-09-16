@@ -104,7 +104,7 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
   def updateRequestForHip(deRegistration: JsValue): JsResult[JsObject] = {
 
     (deRegistration \ deregistrationReason).validate[String].flatMap { reasonString =>
-      val reasonCode = deRegistrationReasonCodes(reasonString)
+      val reasonCode: String = deRegistrationReasonCodes.getOrElse(reasonString, throw new NoSuchElementException("Invalid deregistration code received"))
 
       deRegistration.validate[JsObject].map { requestJsObject =>
         val updatedRequest: JsObject = requestJsObject + (deregistrationReason -> JsString(reasonCode))
@@ -124,7 +124,7 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
 
   def updateResponseForHip(responseJson: JsValue): JsValue = {
 
-    val successJsObject = Utility.stripSuccessNode(responseJson)
+    val successJsObject: JsObject = Utility.stripSuccessNode(responseJson)
 
     (successJsObject \ processingDateTime).toOption match {
       case Some(processingDateTimeValue) => (successJsObject + (processingDate -> processingDateTimeValue)) - processingDateTime
