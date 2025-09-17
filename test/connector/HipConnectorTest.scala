@@ -59,5 +59,37 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
       TestHipConnector.deRegister(awrsRefNo, testJson)
       Mockito.verify(mockHttpClient, times(1)).post(URI.create(s"http://localhost:9912$expectedURL").toURL)(hc)
     }
+
+    "post the withdrawal request to the correct URL and receive a successful response" in new Setup {
+      val awrsRefNo = "XAAW0000010001"
+      val withdrawalJson: JsValue = Json.parse(
+        """
+          |{
+          |  "withdrawalReason": "99",
+          |  "withdrawalDate": "2025-09-22",
+          |  "withdrawalReasonOthers": "other reason"
+          |}
+          |""".stripMargin)
+      val expectedURL: String = s"/etmp/RESTadapter/awrs/subscription/withdrawal/$awrsRefNo"
+      implicit val hc: HeaderCarrier = HeaderCarrier()
+      val responseJson: JsValue = Json.parse(
+        """
+          |{
+          |  "Success": {
+          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |   }
+          |}
+          |""".stripMargin)
+      val mockResponse = HttpResponse(Status.OK, responseJson, Map.empty)
+
+      when(executePost[HttpResponse](Some(expectedURL), withdrawalJson))
+        .thenReturn(Future.successful(mockResponse))
+      TestHipConnector.withdrawal(awrsRefNo, withdrawalJson)
+
+      Mockito.verify(mockHttpClient, times(1)).post(URI.create(s"http://localhost:9912$expectedURL").toURL)(hc)
+      val result: HttpResponse = await(TestHipConnector.withdrawal(awrsRefNo, withdrawalJson))
+      result.status mustBe Status.OK
+      result.body must include("Success")
+    }
   }
 }

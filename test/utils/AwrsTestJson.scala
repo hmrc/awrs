@@ -101,6 +101,7 @@ trait AwrsTestJson extends AwrsPathConstants {
   // Request Json
 
   lazy val api8RequestJson: JsValue = loadAndParseJsonWithDummyData(api8Request)
+  lazy val api8ValidRequestJson: JsValue = loadAndParseJsonWithDummyData(api8ValidRequest)
   lazy val api10RequestJson: JsValue = loadAndParseJsonWithDummyData(api10Request)
   lazy val api10OtherReasonRequestJson: JsValue = loadAndParseJsonWithDummyData(api10OtherReasonRequest)
 

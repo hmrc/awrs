@@ -80,6 +80,7 @@ trait AwrsPathConstants {
   // Request Json paths
 
   lazy val api8Request = "/json/API8/request/Reason.json"
+  lazy val api8ValidRequest = "/json/API8/request/Input.json"
   lazy val api10Request = "/json/API10/request/GroupEnded.json"
   lazy val api10OtherReasonRequest = "/json/API10/request/OtherReason.json"
 
