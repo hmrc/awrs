@@ -16,10 +16,11 @@
 
 package utils
 
-import play.api.libs.json.{JsLookupResult, JsObject, JsValue}
+import play.api.libs.json._
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import scala.collection.immutable.ListMap
 import scala.language.implicitConversions
 
 object Utility {
@@ -55,10 +56,58 @@ object Utility {
       throw new RuntimeException(s"Received response does not contain a '$success' node.")
     }
   }
+
+  //  def removeFields(fields: List[String], parentObject: JsObject): JsObject = fields
+  //    .foldLeft(parentObject) { (jsObj, field) =>
+  //      (jsObj \ field).toOption match {
+  //        case Some(_) => jsObj - field
+  //        case None => throw new RuntimeException(s"Received response is missing the '$field' key in the 'success' node.")
+  //      }
+  //    }
+
+  def removeFields(fields: List[String], parentObject: JsObject): JsObject = fields
+    .foldLeft(parentObject) { (jsObj, field) =>
+      val targetPath = parseJsPath(field)
+
+      jsObj.validate(targetPath.json.prune) match {
+        case JsSuccess(result, _) => result
+        case JsError(errors) => throw new RuntimeException(s"Failed to delete field '$field': $errors")
+      }
+    }
+
+  // Map contains the before and after value of the key
+  //  def alterFields(fields: Map[String, String], parentObject: JsObject): JsObject = fields
+  //    .foldLeft(parentObject) { (jsObj, field) =>
+  //      (jsObj \ field._1).toOption match {
+  //        case Some(value) => (jsObj + (field._2 -> value)) - field._1
+  //        case None => throw new RuntimeException(s"Received response is missing the '${field._1}' key in the 'success' node.")
+  //      }
+  //    }
+
+  def alterFieldKeys(fieldKeys: ListMap[String, String], parentObject: JsObject): JsObject = {
+    fieldKeys
+      .foldLeft(parentObject) { (jsObj, fieldKey) =>
+        val sourcePath = parseJsPath(fieldKey._1)
+        val targetPath = parseJsPath(fieldKey._2)
+
+        (for {
+          picked <- jsObj.validate(sourcePath.json.pick)
+          transformed <- jsObj.transform(__.json.update(targetPath.json.put(picked)))
+          pruned <- transformed.validate(sourcePath.json.prune)
+        } yield pruned) match {
+          case JsSuccess(result, _) => result
+          case JsError(errors) => throw new RuntimeException(s"Failed to alter field '${fieldKey._1}' to '${fieldKey._2}': $errors")
+        }
+      }
+  }
+
+  private def parseJsPath(pathStr: String): JsPath = pathStr.split("\\.").foldLeft(JsPath())(_ \ _)
+
 }
 
 case class Bool(b: Boolean) {
-  def ?[X](t: => X) = new {def | (f: => X) = if(b) t else f
+  def ?[X](t: => X) = new {
+    def |(f: => X) = if (b) t else f
   }
 }
 

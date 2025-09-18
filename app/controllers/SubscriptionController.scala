@@ -21,7 +21,7 @@ import metrics.AwrsMetrics
 import models._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.{EtmpLookupService, EtmpRegimeService, EtmpStatusService, SubscriptionService}
+import services.{LookupService, EtmpRegimeService, StatusService, SubscriptionService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.LoggingUtils
@@ -31,8 +31,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class SubscriptionController @Inject()(val auditConnector: AuditConnector,
                                        val metrics: AwrsMetrics,
                                        val subscriptionService: SubscriptionService,
-                                       val lookupService: EtmpLookupService,
-                                       val statusService: EtmpStatusService,
+                                       val lookupService: LookupService,
+                                       val statusService: StatusService,
                                        val regimeService: EtmpRegimeService,
                                        cc: ControllerComponents,
                                        @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {

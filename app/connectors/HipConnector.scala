@@ -39,7 +39,12 @@ class HipConnector @Inject() (http: HttpClientV2,
   lazy val serviceURL: String = config.baseUrl("hip")
   val baseURI: String = "/etmp/RESTadapter/awrs"
   val subscriptionURI: String = "/subscription"
+  val lookupURI: String = "/alcohol-wholesalers/lookup"
   val deRegistrationURI: String = "/deregistration/"
+  val withdrawalURI = "/withdrawal"
+  val creationURI = "/create"
+  val updateURI = "/update"
+  val statusURI = "/status"
   private val transmittingSystem = "HIP"
 
   private val clientId: String = config.getConfString("hip.clientId", "")
@@ -63,8 +68,29 @@ class HipConnector @Inject() (http: HttpClientV2,
     cPOST(s"""$serviceURL$baseURI$subscriptionURI$deRegistrationURI$awrsRefNo""", deRegDetails)
   }
 
+  def withdrawal(awrsRefNo: String, withdrawalDetails: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+    cPOST(s"$serviceURL$baseURI$subscriptionURI$withdrawalURI/$awrsRefNo", withdrawalDetails)
+
+  def create(awrsRefNo: String, creationDetails: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+    cPOST(s"$serviceURL$baseURI$subscriptionURI$creationURI/$awrsRefNo", creationDetails)
+
+  def updateSubscription(updateData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cPUT(s"$serviceURL$baseURI$subscriptionURI$updateURI/$awrsRefNo", updateData)
+  }
+
+  def lookup(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+    cGET(s"$serviceURL$baseURI$lookupURI$awrsRefNo")
+
+  def status(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+    cGET(s"$serviceURL$baseURI$subscriptionURI$statusURI/$awrsRefNo")
+
   @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
   }
 
+  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
+    http.get(url"$url").setHeader(headers: _*).execute[A]
+
+  @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
+    http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 }

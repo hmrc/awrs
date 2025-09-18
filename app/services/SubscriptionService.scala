@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,35 @@
 
 package services
 
-import connectors.{EnrolmentStoreConnector, EtmpConnector}
+import connectors.{EnrolmentStoreConnector, EtmpConnector, HipConnector}
 
 import javax.inject.Inject
 import metrics.AwrsMetrics
 import models.{EnrolmentVerifiers, _}
+import play.api.Logging
+import play.api.http.Status
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.SessionUtils
+import utils.{AWRSFeatureSwitches, SessionUtils, Utility}
 
+import scala.collection.immutable.ListMap
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success, Try}
+
+private object SubscriptionService {
+  private val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
+
+  private def transformationError(ex: Throwable) = s"JSON transformation failed: ${ex.toString}"
+
+}
 
 class SubscriptionService @Inject()(metrics: AwrsMetrics,
                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
-                                    val etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
+                                    val etmpConnector: EtmpConnector,
+                                    val hipConnector: HipConnector)(implicit ec: ExecutionContext) extends Logging {
 
-  val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
-  val notFound: JsValue = Json.parse( """{"Reason": "Resource not found"}""")
+  import SubscriptionService._
 
   def subscribe(data: JsValue,
                 safeId: String,
@@ -42,7 +53,33 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
                 postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
     for {
-      submitResponse <- etmpConnector.subscribe(data, safeId)
+      submitResponse <- if (AWRSFeatureSwitches.hipSwitch().enabled) {
+        Try(updateCreateRequestForHip(data)) match {
+          case Success(value) =>
+            hipConnector.create(safeId, value) map {
+              case HttpResponse(Status.CREATED, body, headers) =>
+                HttpResponse(
+                  status = Status.OK,
+                  body = Json.stringify(updateCreateResponseForHip(Json.parse(body))),
+                  headers = headers
+                )
+              case HttpResponse(failedStatusCode, body, headers) =>
+                logger.error(s"[DeRegistrationService][deRegistration] Failure response from HIP endpoint: $failedStatusCode")
+                HttpResponse(
+                  status = failedStatusCode,
+                  body = body,
+                  headers = headers
+                )
+            }
+          case Failure(ex) =>
+            Future.successful(HttpResponse(
+              status = Status.BAD_REQUEST,
+              body = transformationError(ex)
+            ))
+        }
+      } else {
+        etmpConnector.subscribe(data, safeId)
+      }
       enrolmentResponse <- addKnownFacts(submitResponse, safeId, utr, businessType, postcode)
     } yield {
       (submitResponse.status, enrolmentResponse.status) match {
@@ -59,7 +96,32 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
   }
 
   def updateSubscription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
-    etmpConnector.updateSubscription(inputJson, awrsRefNo)
+    if (AWRSFeatureSwitches.hipSwitch().enabled) {
+      Try(updateUpdateRequestForHip(inputJson)) match {
+        case Success(value) => hipConnector.updateSubscription(value, awrsRefNo) map {
+          case HttpResponse(Status.OK, body, headers) =>
+            HttpResponse(
+              status = Status.OK,
+              body = Json.stringify(updateUpdateResponseForHip(Json.parse(body))),
+              headers = headers
+            )
+          case HttpResponse(failedStatusCode, body, headers) =>
+            logger.error(s"[DeRegistrationService][deRegistration] Failure response from HIP endpoint: $failedStatusCode")
+            HttpResponse(
+              status = failedStatusCode,
+              body = body,
+              headers = headers
+            )
+        }
+        case Failure(ex) =>
+          Future.successful(HttpResponse(
+            status = Status.BAD_REQUEST,
+            body = transformationError(ex)
+          ))
+      }
+    } else {
+      etmpConnector.updateSubscription(inputJson, awrsRefNo)
+    }
 
   private def addKnownFacts(response: HttpResponse,
                             safeId: String,
@@ -94,5 +156,67 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
                                      (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val request = updateData.copy(acknowledgementReference = Some(SessionUtils.getUniqueAckNo))
     etmpConnector.updateGrpRepRegistrationDetails(safeId, Json.toJson(request))
+  }
+
+  // subscription/create
+  private def updateCreateRequestForHip(data: JsValue): JsObject = {
+    // remove fields
+    val jsObjFieldsRemoved = Utility.removeFields(List(
+      "acknowledgmentReference",
+      "subscriptionType.businessDetails.soleProprietor.identification.doYouHaveANINO"
+    ), data.as[JsObject])
+
+    // update fields
+    Utility.alterFieldKeys(ListMap(
+      "subscriptionType.businessDetails.soleProprietor.identification.doYouHaveVRN" -> "subscriptionType.businessDetails.soleProprietor.identification.doYouHaveAVRN",
+      "subscriptionType.businessDetails.partnership.numberOfPartners" -> "subscriptionType.businessDetails.partnership.noOfPartners",
+      "subscriptionType.businessAddressForAwrs.currentAddress" -> "subscriptionType.busAddressForAWRS.currAddress",
+      "subscriptionType.businessAddressForAwrs.communicationDetails" -> "subscriptionType.businessAddressForAwrs.commDetails",
+      "subscriptionType.businessAddressForAwrs.differentOperatingAddresslnLast3Years" -> "subscriptionType.businessAddressForAwrs.diffOpAddrInLast3Years",
+      "subscriptionType.businessAddressForAwrs" -> "subscriptionType.busAddressForAWRS",
+      "contactDetails.useAlternateContactAddress" -> "contactDetails.useAltContactAddress",
+      "contactDetails.communicationDetails" -> "contactDetails.commDetails",
+    ), jsObjFieldsRemoved)
+  }
+
+  // subscription/create
+  private def updateCreateResponseForHip(responseJson: JsValue): JsValue = {
+    val successJsObject = Utility.stripSuccessNode(responseJson)
+
+    val updated = Utility.alterFieldKeys(ListMap(
+      "processingDateTime" -> "processingDate"
+    ), successJsObject)
+
+    Utility.removeFields(List("awrsRegNumber"), updated)
+  }
+
+  // subscription/update
+  private def updateUpdateRequestForHip(data: JsValue): JsObject = {
+    // remove fields
+    val removed = Utility.removeFields(List("acknowledgmentReference"), data.as[JsObject])
+
+    // alter fields
+    Utility.alterFieldKeys(ListMap(
+      "changeIndicators.businessDetailsChanged" -> "changeIndicators.businesDetailsChanged",
+      "changeIndicators.businessAddressChanged" -> "changeIndicators.busAddressChanged",
+      "changeIndicators.additionalBusinessInfoChanged" -> "changeIndicators.addBusInfoChanged",
+      "subscriptionType.businessDetails.soleProprietor.identification.doYouHaveVRN" -> "subscriptionType.businessDetails.soleProprietor.identification.doYouHaveAVRN",
+      "subscriptionType.businessDetails.soleProprietor.identification.doYouHaveNino" -> "subscriptionType.businessDetails.soleProprietor.identification.doYouHaveANINO",
+      "subscriptionType.businessAddressForAwrs.currentAddress" -> "subscriptionType.businessAddressForAwrs.currAddress",
+      "subscriptionType.businessAddressForAwrs.communicationDetails" -> "subscriptionType.businessAddressForAwrs.commDetails",
+      "subscriptionType.businessAddressForAwrs.differentOperatingAddresslnLast3Years" -> "subscriptionType.businessAddressForAwrs.diffOpAddrInLast3Years",
+      "subscriptionType.businessAddressForAwrs" -> "subscriptionType.busAddressForAWRS",
+      "subscriptionType.contactDetails.useAlternateContactAddress" -> "subscriptionType.contactDetails.useAltContactAddress",
+      "subscriptionType.contactDetails.communicationDetails" -> "subscriptionType.contactDetails.commDetails"
+    ), removed)
+  }
+
+  // subscription/update
+  private def updateUpdateResponseForHip(responseJson: JsValue): JsValue = {
+    val successJsObject = Utility.stripSuccessNode(responseJson)
+
+    Utility.alterFieldKeys(ListMap(
+      "processingDateTime" -> "processingDate"
+    ), successJsObject)
   }
 }
