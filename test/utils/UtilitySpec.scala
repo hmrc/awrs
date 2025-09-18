@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.mockito.MockitoSugar
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
+import play.api.libs.json.{JsValue, Json}
 import utils.Utility._
 
 class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
@@ -36,6 +37,42 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
       for(i <- 2000 to 3000){
         etmpToAwrsDateFormatter(s"$i-01-03") shouldBe (s"03/01/$i")
       }
+    }
+
+    "extract JsObject successfully for a given successful HIP response payload" in {
+      val hipResponsePayload: JsValue = Json.parse(
+        """
+          |{
+          |  "success": {
+          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |  }
+          |}
+          |""".stripMargin)
+
+      val expectedUpdatedJson: JsValue = Json.parse(
+        """
+          |{
+          | "processingDateTime": "2025-09-11T10:30:00Z"
+          |}
+          |""".stripMargin)
+
+      stripSuccessNode(hipResponsePayload) shouldBe expectedUpdatedJson
+    }
+
+    "throw an Exception when 'success' node is missing" in {
+      val hipResponsePayload: JsValue = Json.parse(
+        """
+          |{
+          |  "notAsuccessKey": {
+          |    "someOtherTestKey": "testValue"
+          |  }
+          |}
+          |""".stripMargin)
+
+      val exception: RuntimeException = intercept[RuntimeException] {
+        stripSuccessNode(hipResponsePayload)
+      }
+      exception.getMessage shouldBe "Received response does not contain a 'success' node."
     }
   }
 }

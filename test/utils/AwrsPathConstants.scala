@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ trait AwrsPathConstants {
   // Request Json paths
 
   lazy val api8Request = "/json/API8/request/Reason.json"
-  lazy val api10Request = "/json/API10/request/GroupDisbanded.json"
+  lazy val api10Request = "/json/API10/request/GroupEnded.json"
   lazy val api10OtherReasonRequest = "/json/API10/request/OtherReason.json"
 
   // Success Json paths
