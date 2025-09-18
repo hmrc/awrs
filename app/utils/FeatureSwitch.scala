@@ -93,11 +93,11 @@ object AWRSFeatureSwitches extends AWRSFeatureSwitches
 trait AWRSFeatureSwitches {
 
   def regimeCheck(): FeatureSwitch = FeatureSwitch.getProperty("regimeCheck")
-  private def hipEnabled(): FeatureSwitch = FeatureSwitch.getProperty("hipEnabled")
+  def hipSwitch(): FeatureSwitch = FeatureSwitch.getProperty("hipSwitch")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case "regimeCheck" => Some(regimeCheck())
-    case "hipEnabled" => Some(hipEnabled())
+    case "hipSwitch" => Some(hipSwitch())
     case _ => None
   }
 

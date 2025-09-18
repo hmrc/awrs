@@ -16,12 +16,15 @@
 
 package utils
 
-import java.time.format.DateTimeFormatter
-import java.time.LocalDate
+import play.api.libs.json.{JsLookupResult, JsObject, JsValue}
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.language.implicitConversions
 
 object Utility {
+
+  private val success: String = "success"
 
   def awrsToEtmpDateFormatter(stringDate: String): String = toAndFromDateFormat(stringDate, "yyyy-MM-dd", "dd/MM/yyyy")
 
@@ -42,6 +45,15 @@ object Utility {
   def trueToNoOrFalseToYes: Boolean => Some[String] = (s: Boolean) => s match {
     case true => Some("No")
     case false => Some("Yes")
+  }
+
+  def stripSuccessNode(hipResponsePayload: JsValue): JsObject = {
+    val successNodeLookup: JsLookupResult = hipResponsePayload \ success
+    if (successNodeLookup.isDefined) {
+      successNodeLookup.as[JsObject]
+    } else {
+      throw new RuntimeException(s"Received response does not contain a '$success' node.")
+    }
   }
 }
 
