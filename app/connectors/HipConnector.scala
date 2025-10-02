@@ -39,6 +39,7 @@ class HipConnector @Inject() (http: HttpClientV2,
   lazy val serviceURL: String = config.baseUrl("hip")
   val baseURI: String = "/etmp/RESTadapter/awrs"
   val subscriptionURI: String = "/subscription"
+  val withdrawalURI = "/withdrawal/"
   val deRegistrationURI: String = "/deregistration/"
   private val transmittingSystem = "HIP"
 
@@ -65,6 +66,10 @@ class HipConnector @Inject() (http: HttpClientV2,
 
   @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
+  }
+
+  def withdrawal(awrsRefNo: String, withdrawalData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cPOST( s"""$serviceURL$baseURI$subscriptionURI$withdrawalURI$awrsRefNo""", withdrawalData)
   }
 
 }
