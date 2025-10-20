@@ -25,7 +25,7 @@ import play.api.test.Helpers.{await, defaultAwaitTimeout}
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.AwrsTestJson.testRefNo
-import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
+import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch, Utility}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -53,7 +53,7 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
         """
           |{
           |  "success": {
-          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |    "processingDate": "2025-09-11T10:30:00Z"
           |  }
           |}
           |""".stripMargin)
@@ -65,14 +65,14 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
       await(result).status shouldBe Status.OK
     }
 
-    "respond the caller with appropriate failure status code for a deregistration request" in {
+    "respond with appropriate failure status code for a deregistration request" in {
       FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = Json.parse(
         """
           |{
           |  "success": {
-          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |    "processingDate": "2025-09-11T10:30:00Z"
           |  }
           |}
           |""".stripMargin)
@@ -83,83 +83,41 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
       val result = testDeRegistrationService.deRegistration(testRefNo, groupEndedJson)
       await(result).status shouldBe Status.SERVICE_UNAVAILABLE
     }
-
-    "throw an exception for an invalid deregistration request" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
-
-      val inputJson: JsValue = Json.parse(
-        """
-          {
-          |  "acknowledgementReference": "$ackRef",
-          |  "deregistrationDate": "2012-02-10",
-          |  "deregistrationReason": "Others"
-          |}
-          |""".stripMargin)
-
-      val exception: RuntimeException = intercept[RuntimeException] {
-        testDeRegistrationService.deRegistration(testRefNo, inputJson)
-      }
-      exception.getMessage shouldBe "'deregReasonOther' is not set when deregistrationReason is set to 'Others'"
-    }
   }
 
   "Deregistration service: updateRequestForHip" must {
-    "convert the reason to the correct code" in {
+    "remove the acknowledgement reference in updated request" in {
       val result: JsResult[JsObject] = testDeRegistrationService.updateRequestForHip(groupEndedJson)
+
+      val expectedJson: JsValue = Json.parse(
+        """
+          |{
+          | "deregistrationDate": "2012-02-10",
+          | "deregistrationReason": "Group ended"
+          |}
+          |""".stripMargin)
+
       result.isSuccess shouldBe true
-      (result.get \ "deregistrationReason").as[String] shouldBe "05"
+      result.get shouldBe expectedJson
     }
 
-    "convert the other reason to code 99 and include the other reason text" in {
+    "deregReasonOther should have text if 'Others' is selected in deregistrationReason" in {
       val result: JsResult[JsObject] = testDeRegistrationService.updateRequestForHip(otherReason)
       result.isSuccess shouldBe true
-      (result.get \ "deregistrationReason").as[String] shouldBe "99"
-      (result.get \ "deregistrationOther").as[String] shouldBe "other reason"
-    }
-
-    "throw an Exception when other reason code is Others and does not include deregReasonOther field" in {
-
-      val inputJson: JsValue = Json.parse(
-        """
-          {
-          |  "acknowledgementReference": "$ackRef",
-          |  "deregistrationDate": "2012-02-10",
-          |  "deregistrationReason": "Others"
-          |}
-          |""".stripMargin)
-
-      val exception: RuntimeException = intercept[RuntimeException] {
-        testDeRegistrationService.updateRequestForHip(inputJson)
-      }
-      exception.getMessage shouldBe "'deregReasonOther' is not set when deregistrationReason is set to 'Others'"
-    }
-
-    "throw an Exception when other reason code is invalid" in {
-
-      val inputJson: JsValue = Json.parse(
-        """
-          {
-          |  "acknowledgementReference": "$ackRef",
-          |  "deregistrationDate": "2012-02-10",
-          |  "deregistrationReason": "Invalid"
-          |}
-          |""".stripMargin)
-
-      val exception: NoSuchElementException = intercept[NoSuchElementException] {
-        testDeRegistrationService.updateRequestForHip(inputJson)
-      }
-      exception.getMessage shouldBe "Invalid deregistration code received"
+      (result.get \ "deregistrationReason").as[String] shouldBe "Others"
+      (result.get \ "deregReasonOther").as[String] shouldBe "other reason"
     }
   }
 
   "Deregistration service: updateResponseForHip" must {
-    "correctly rename the 'processingDateTime' key to 'processingDate' when present" in {
+
+    "remove the success node from the input json" in {
 
       val inputJson: JsValue = Json.parse(
         """
           |{
           |  "success": {
-          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |    "processingDate": "2025-09-11T10:30:00Z"
           |  }
           |}
           |""".stripMargin)
@@ -167,29 +125,14 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
       val expectedJson: JsValue = Json.parse(
         """
           |{
-          | "processingDate": "2025-09-11T10:30:00Z"
+          |    "processingDate": "2025-09-11T10:30:00Z"
           |}
           |""".stripMargin)
 
-      val resultJson: JsValue = testDeRegistrationService.updateResponseForHip(inputJson)
-      resultJson shouldBe expectedJson
-    }
+      val result = Utility.stripSuccessNode(inputJson)
 
-    "throw an Exception when 'processingDateTime' key is missing from the success node" in {
+      result shouldEqual(expectedJson)
 
-      val inputJson: JsValue = Json.parse(
-        """
-          |{
-          |  "success": {
-          |    "someOtherTestKey": "testValue"
-          |  }
-          |}
-          |""".stripMargin)
-
-      val exception: RuntimeException = intercept[RuntimeException] {
-        testDeRegistrationService.updateResponseForHip(inputJson)
-      }
-      exception.getMessage shouldBe "Received response is missing the 'processingDateTime' key in the 'success' node."
     }
   }
 }

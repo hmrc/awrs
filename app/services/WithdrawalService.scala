@@ -32,14 +32,6 @@ import utils.{AWRSFeatureSwitches, Utility}
 class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConnector, hipConnector: HipConnector)
                                  (implicit ec: ExecutionContext) extends Logging {
 
-  private val withdrawalReasonCodes: Map[String, String] = Map(
-    "Applied in error" -> "01",
-    "No Longer trading" -> "02",
-    "Duplicate Application" -> "03",
-    "Joined AWRS Group" -> "04",
-    "Others" -> "99"
-  )
-
   def withdrawal(withdrawalData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     if (AWRSFeatureSwitches.hipSwitch().enabled) {
       val hipRequestJson: JsResult[JsValue] = updateRequestForHip(withdrawalData)
@@ -52,7 +44,7 @@ class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConne
                 case Status.CREATED =>
                   HttpResponse(
                     status = Status.OK,
-                    body = Json.stringify(updateResponseForHip(responseJson = Json.parse(response.body))),
+                    body = Json.stringify(Utility.stripSuccessNode(Json.parse(response.body))),
                     headers = response.headers
                   )
 
@@ -78,32 +70,9 @@ class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConne
   }
 
   def updateRequestForHip(withdrawalData: JsValue): JsResult[JsObject] = {
-
-    (withdrawalData \ "withdrawalReason").validate[String].flatMap { reasonString =>
-      val reasonCode = withdrawalReasonCodes.getOrElse(reasonString, throw new NoSuchElementException("Invalid withdrawalReason received"))
-
       withdrawalData.validate[JsObject].map { requestJsObject =>
-        val updatedRequest: JsObject = requestJsObject + ("withdrawalReason" -> JsString(reasonCode)) - "acknowledgmentReference"
-
-        if (reasonCode == "99") {
-          (requestJsObject \ "withdrawalReasonOthers").toOption match {
-            case Some(otherReasonValue) => updatedRequest + ("withdrawalReasonOthers" -> otherReasonValue)
-            case None => throw new RuntimeException(s"Missing 'withdrawalReasonOthers'- this field is required when 'withdrawalReason' is set to 'Others'")
-          }
-        } else {
-          updatedRequest
-        }
+        val updatedRequest: JsObject = requestJsObject - "acknowledgementReference"
+        updatedRequest
       }
     }
-  }
-
-  def updateResponseForHip(responseJson: JsValue): JsValue = {
-
-    val successJsObject: JsObject = Utility.stripSuccessNode(responseJson)
-
-    (successJsObject \ "processingDateTime").toOption match {
-      case Some(processingDateTimeValue) => (successJsObject + ("processingDate" -> processingDateTimeValue)) - "processingDateTime"
-      case None => throw new RuntimeException("Received response is missing the 'processingDateTime' key in the 'success' node.")
-    }
-  }
 }
