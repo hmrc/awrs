@@ -37,12 +37,13 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
 
   trait Setup extends ConnectorTest {
     object TestHipConnector extends HipConnector (mockHttpClient, mockAuditConnector, config, "awrs")
+    val awrsRefNo = "XAAW0000010001"
+    implicit val hc: HeaderCarrier = HeaderCarrier()
   }
 
   "HipConnector" must {
 
     "post the deregistration request to the correct URL" in new Setup {
-      val awrsRefNo = "XAAW0000010001"
       val testJson: JsValue = Json.parse(
         """
           |{
@@ -53,7 +54,6 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
           |""".stripMargin)
       val expectedURL: String = s"/etmp/RESTadapter/awrs/subscription/deregistration/$awrsRefNo"
 
-      implicit val hc: HeaderCarrier = HeaderCarrier()
       when(executePost[HttpResponse](Some(expectedURL), testJson))
         .thenReturn(Future.successful(HttpResponse(Status.NOT_FOUND, "{}", Map.empty)))
       TestHipConnector.deRegister(awrsRefNo, testJson)
@@ -61,7 +61,6 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "post the withdrawal request to the correct URL and receive a successful response" in new Setup {
-      val awrsRefNo = "XAAW0000010001"
       val withdrawalJson: JsValue = Json.parse(
         """
           |{
@@ -71,7 +70,6 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
           |}
           |""".stripMargin)
       val expectedURL: String = s"/etmp/RESTadapter/awrs/subscription/withdrawal/$awrsRefNo"
-      implicit val hc: HeaderCarrier = HeaderCarrier()
       val responseJson: JsValue = Json.parse(
         """
           |{
@@ -90,6 +88,17 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
       val result: HttpResponse = await(TestHipConnector.withdrawal(awrsRefNo, withdrawalJson))
       result.status mustBe Status.OK
       result.body must include("Success")
+    }
+
+    "check status of an application with a valid reference number" in new Setup {
+      val expectedURL: String = s"/etmp/RESTadapter/awrs/subscription/status/$awrsRefNo"
+
+      when(executeGet[HttpResponse](expectedURL))
+        .thenReturn(Future.successful(HttpResponse(200, api9SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+
+      val result: Future[HttpResponse] = TestHipConnector.checkStatus(awrsRefNo)
+      await(result).json mustBe api9SuccessfulResponseJson
+      Mockito.verify(mockHttpClient, times(1)).get(URI.create(s"http://localhost:9912$expectedURL").toURL)(hc)
     }
   }
 }
