@@ -35,7 +35,7 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
   val mockHipConnector: HipConnector = mock[HipConnector]
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  object TestEtmpLookupService extends EtmpLookupService(mockEtmpConnector)
+  object TestLookupService$ extends LookupService(mockEtmpConnector, mockHipConnector)
 
   val testDeRegistrationService: DeRegistrationService = new DeRegistrationService(mockEtmpConnector, mockHipConnector)(ec)
 
