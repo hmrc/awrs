@@ -43,6 +43,7 @@ class HipConnector @Inject() (http: HttpClientV2,
   val withdrawalURI = "/withdrawal/"
   val deRegistrationURI: String = "/deregistration/"
   val statusURI = "/status/"
+  val subscriptionCreateURI: String = "/create"
   private val transmittingSystem = "HIP"
 
   private val clientId: String = config.getConfString("hip.clientId", "")
@@ -84,6 +85,10 @@ class HipConnector @Inject() (http: HttpClientV2,
 
   def lookup(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET( s"""$serviceURL$baseURI$subscriptionURI$displayURI$awrsRef""")
+  }
+
+  def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cPOST( s"""$serviceURL$baseURI$subscriptionURI$subscriptionCreateURI$safeId""", registerData)
   }
 
 }

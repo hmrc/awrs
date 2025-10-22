@@ -16,24 +16,27 @@
 
 package services
 
-import connectors.{EnrolmentStoreConnector, EtmpConnector}
+import connectors.{EnrolmentStoreConnector, EtmpConnector, HipConnector}
 
 import javax.inject.Inject
 import metrics.AwrsMetrics
 import models.{EnrolmentVerifiers, _}
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsError, JsObject, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.SessionUtils
+import utils.{AWRSFeatureSwitches, SessionUtils, Utility}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionService @Inject()(metrics: AwrsMetrics,
                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
-                                    val etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
+                                    val etmpConnector: EtmpConnector,
+                                    val hipConnector: HipConnector)(implicit ec: ExecutionContext) {
 
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   val notFound: JsValue = Json.parse( """{"Reason": "Resource not found"}""")
+  private val processingDate: String = "processingDate"
+  private val acknowledgementReference: String = "acknowledgementReference"
 
   def subscribe(data: JsValue,
                 safeId: String,
@@ -41,19 +44,47 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
                 businessType: String,
                 postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
-    for {
-      submitResponse <- etmpConnector.subscribe(data, safeId)
-      enrolmentResponse <- addKnownFacts(submitResponse, safeId, utr, businessType, postcode)
-    } yield {
-      (submitResponse.status, enrolmentResponse.status) match {
-        case (OK, NO_CONTENT) =>
-          timer.stop()
-          metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
-          submitResponse
-        case _ =>
-          timer.stop()
-          metrics.incrementFailedCounter(ApiType.API4AddKnownFacts)
-          enrolmentResponse
+
+    if(AWRSFeatureSwitches.hipSwitch().enabled) {
+      val updatedHipData = updateRequestForHip(data)
+      for {
+        submitResponse <- hipConnector.subscribe(updatedHipData, safeId)
+        enrolmentResponse <- addKnownFacts(submitResponse, safeId, utr, businessType, postcode)
+      } yield {
+        (submitResponse.status, enrolmentResponse.status) match {
+          case (OK, NO_CONTENT) =>
+            timer.stop()
+            metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
+            HttpResponse (
+              status = OK,
+              body = Json.stringify(updateResponseForHip(responseJson = Json.parse(submitResponse.body))),
+              headers = submitResponse.headers
+            )
+          case _ =>
+            timer.stop()
+            metrics.incrementFailedCounter(ApiType.API4AddKnownFacts)
+            HttpResponse (
+              status = enrolmentResponse.status,
+              body = Json.stringify(updateResponseForHip(responseJson = Json.parse(enrolmentResponse.body))),
+              headers = enrolmentResponse.headers
+            )
+        }
+      }
+    } else {
+      for {
+        submitResponse <- etmpConnector.subscribe(data, safeId)
+        enrolmentResponse <- addKnownFacts(submitResponse, safeId, utr, businessType, postcode)
+      } yield {
+        (submitResponse.status, enrolmentResponse.status) match {
+          case (OK, NO_CONTENT) =>
+            timer.stop()
+            metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
+            submitResponse
+          case _ =>
+            timer.stop()
+            metrics.incrementFailedCounter(ApiType.API4AddKnownFacts)
+            enrolmentResponse
+        }
       }
     }
   }
@@ -94,5 +125,24 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
                                      (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val request = updateData.copy(acknowledgementReference = Some(SessionUtils.getUniqueAckNo))
     etmpConnector.updateGrpRepRegistrationDetails(safeId, Json.toJson(request))
+  }
+
+
+  def updateRequestForHip(requestJson: JsValue): JsValue = {
+    val removeAckRef = requestJson.validate[JsObject].map { requestJsObject =>
+      requestJsObject - acknowledgementReference
+    }
+    removeAckRef match {
+      case JsSuccess(value,_) => value
+      case JsError(errors) => throw new RuntimeException(s"[updateRequestForHip] failed to parse JsValue error: $errors")
+    }
+  }
+
+  def updateResponseForHip(responseJson: JsValue): JsValue = {
+    val successJsObject: JsObject = Utility.stripSuccessNode(responseJson)
+    (successJsObject \ processingDate).toOption match {
+      case Some(_) => successJsObject
+      case None => throw new RuntimeException(s"Received response is missing the '$processingDate' key in the 'success' node.")
+    }
   }
 }
