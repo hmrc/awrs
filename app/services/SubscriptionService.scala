@@ -28,34 +28,22 @@ import utils.{AWRSFeatureSwitches, SessionUtils, Utility}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubscriptionService @Inject() (
-    metrics: AwrsMetrics,
-    val enrolmentStoreConnector: EnrolmentStoreConnector,
-    val etmpConnector: EtmpConnector,
-    val hipConnector: HipConnector
-)(implicit ec: ExecutionContext) extends Logging {
+class SubscriptionService @Inject()(
+                                     metrics: AwrsMetrics,
+                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
+                                     val etmpConnector: EtmpConnector,
+                                     val hipConnector: HipConnector
+                                   )(implicit ec: ExecutionContext) extends Logging {
 
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   private val acknowledgmentReference: String = "acknowledgmentReference"
 
 
-  def subscribe(data: JsValue,
-      safeId: String,
-      utr: Option[String],
-      businessType: String,
-      postcode: String
-  )(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def subscribe(inputJson: JsValue, safeId: String, utr: Option[String], businessType: String, postcode: String)
+               (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
-    for {
-      submitResponse <- etmpConnector.subscribe(data, safeId)
-      enrolmentResponse <- addKnownFacts(
-        submitResponse,
-        safeId,
-        utr,
-        businessType,
-        postcode
-      )
-    } yield {
+
+    def handleSubscriptionResponse(submitResponse: HttpResponse, enrolmentResponse: HttpResponse) = {
       (submitResponse.status, enrolmentResponse.status) match {
         case (OK, NO_CONTENT) =>
           timer.stop()
@@ -67,24 +55,50 @@ class SubscriptionService @Inject() (
           enrolmentResponse
       }
     }
+
+    def processHipData(): Future[HttpResponse] = {
+      updateRequestForHip(inputJson) match {
+        case JsSuccess(updatedInputJson, _) =>
+          for {
+            submitResponse <- hipConnector.subscribe(updatedInputJson, safeId)
+            jsonWithoutSuccessNode = Utility.stripSuccessNode(submitResponse.json)
+            modifiedSubmitResponse = HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
+            enrolmentResponse <- addKnownFacts(modifiedSubmitResponse, safeId, utr, businessType, postcode)
+          } yield handleSubscriptionResponse(modifiedSubmitResponse, enrolmentResponse)
+        case JsError(errors) =>
+          Future.successful(HttpResponse(
+          status = BAD_REQUEST,
+          body = s"JSON transformation failed: ${JsError.toJson(errors)}"
+        ))
+      }
+    }
+
+    def processDesData(): Future[HttpResponse] = {
+      for {
+        submitResponse <- etmpConnector.subscribe(inputJson, safeId)
+        enrolmentResponse <- addKnownFacts(submitResponse, safeId, utr, businessType, postcode)
+      } yield handleSubscriptionResponse(submitResponse, enrolmentResponse)
+    }
+
+    if (AWRSFeatureSwitches.hipSwitch().enabled) {
+      processHipData()
+    } else {
+      processDesData()
+    }
   }
 
   def updateSubscription(inputJson: JsValue, awrsRefNo: String)(implicit
-      headerCarrier: HeaderCarrier
+                                                                headerCarrier: HeaderCarrier
   ): Future[HttpResponse] = {
     if (AWRSFeatureSwitches.hipSwitch().enabled) {
       val hipRequestJson: JsResult[JsValue] = updateRequestForHip(inputJson)
       hipRequestJson match {
-        case JsSuccess(hipRequest,_) =>
+        case JsSuccess(hipRequest, _) =>
           hipConnector.updateSubscription(hipRequest, awrsRefNo).map { response =>
             response.status match {
               case OK =>
                 val strippedSuccessBody = Utility.stripSuccessNode(response.json)
-                HttpResponse(
-                  status = response.status,
-                  body = strippedSuccessBody.toString(),
-                  headers = response.headers
-                )
+                HttpResponse(response.status, strippedSuccessBody.toString(), response.headers)
               case status@_ =>
                 logger.error(s"[SubscriptionService][updateSubscription] Failure response from HIP endpoint : $status")
                 response
@@ -95,42 +109,26 @@ class SubscriptionService @Inject() (
           body = s"JSON transformation failed: ${JsError.toJson(errors)}"
         ))
       }
-    } else { etmpConnector.updateSubscription(inputJson, awrsRefNo) }
+    } else {
+      etmpConnector.updateSubscription(inputJson, awrsRefNo)
+    }
   }
 
-  private def addKnownFacts(
-      response: HttpResponse,
-      safeId: String,
-      utr: Option[String],
-      businessType: String,
-      postcode: String
-  )(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  private def addKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String, postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     response.status match {
       case OK =>
         val json = response.json
-        val awrsRegistrationNumber =
-          (json \ "awrsRegistrationNumber").as[String]
-
-        val enrolmentKey =
-          s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
-        val enrolmentVerifiers =
-          createVerifiers(safeId, utr, businessType, postcode)
-        enrolmentStoreConnector.upsertEnrolment(
-          enrolmentKey,
-          enrolmentVerifiers
-        )
+        val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
+        val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
+        val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
+        enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
       case _ => Future(response)
     }
 
-  private def createVerifiers(
-      safeId: String,
-      utr: Option[String],
-      businessType: String,
-      postcode: String
-  ) = {
+  private def createVerifiers(safeId: String, utr: Option[String], businessType: String, postcode: String) = {
     val utrTuple = businessType match {
       case "SOP" => "SAUTR" -> utr.getOrElse("")
-      case _     => "CTUTR" -> utr.getOrElse("")
+      case _ => "CTUTR" -> utr.getOrElse("")
     }
     val verifierTuples = Seq(
       "Postcode" -> postcode,

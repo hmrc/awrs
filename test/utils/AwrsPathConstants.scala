@@ -54,6 +54,9 @@ trait AwrsPathConstants {
   lazy val api4EtmpLLPGRP = "/json/API4/etmp/EtmpLLPGroup.json"
   lazy val api4EtmpLTDNewBusiness = "/json/API4/etmp/EtmpLTDNewBusiness.json"
 
+  lazy val api4hipLTDNewBusiness = "/json/API4/hip/HipLTD.json"
+  lazy val api4hipSuccessfulResponse = "/json/API4/hip/HipSuccessfulResponse.json"
+
   lazy val api5EtmpLLP = "/json/API5/etmp/EtmpLLP.json"
   lazy val api5EtmpLP = "/json/API5/etmp/EtmpLP.json"
   lazy val api5EtmpLLPGroup = "/json/API5/etmp/EtmpLLPGroups.json"
