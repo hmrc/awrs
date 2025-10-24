@@ -31,13 +31,7 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
                                      (implicit ec: ExecutionContext)
   extends Logging {
 
-  // request fields
-  private val deregReasonOther: String = "deregReasonOther"
   private val acknowledgementReference: String = "acknowledgementReference"
-  private val deregistrationReason: String = "deregistrationReason"
-
-  // response field
-  private val processingDate: String = "processingDate"
 
   def deRegistration(awrsRefNo: String,
                      deRegistration: JsValue)
@@ -45,7 +39,6 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
 
     if (AWRSFeatureSwitches.hipSwitch().enabled) {
       val hipRequestJson: JsResult[JsValue] = updateRequestForHip(deRegistration)
-
       hipRequestJson match {
         case JsSuccess(transformedRequestJson, _) =>
           hipConnector.deRegister(awrsRefNo, transformedRequestJson) map {

@@ -19,7 +19,6 @@ package services
 import connectors.{EtmpConnector, HipConnector}
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.any
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
@@ -52,6 +51,8 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
       val response = await(result)
       response.status shouldBe OK
       response.json shouldBe api8SuccessfulResponseJson
+      verify(mockEtmpConnector, times(1)).withdrawal(ArgumentMatchers.eq(awrsRefNo), ArgumentMatchers.any())(ArgumentMatchers.any())
+      verify(mockHipConnector, never).withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
     }
 
     "DES connector: returns BAD_REQUEST when feature flag is off and request is invalid" in {
@@ -124,6 +125,18 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
       result.status mustBe Status.INTERNAL_SERVER_ERROR
       Json.parse(result.body) mustBe responseJson
     }
+
+    "return BAD_REQUEST when JSON transformation fails" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+      val invalidJson = Json.parse("""["invalid","json"]""")
+
+      val result = TestWithdrawalService.withdrawal(invalidJson, awrsRefNo)
+      val response = await(result)
+
+      response.status shouldBe Status.BAD_REQUEST
+      response.body should include("JSON transformation failed")
+    }
+
   }
 
 
@@ -142,25 +155,6 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
       val result = TestWithdrawalService.updateRequestForHip(requestJson).get
       result mustBe expectedJson
 
-    }
-  }
-
-  "updateResponseForHip" must {
-    "remove the success node" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
-      val responseJson = Json.parse(
-        """
-          |{
-          |  "success": {
-          |    "processingDate": "2025-07-17T10:00:00Z"
-          |  }
-          |}
-      """.stripMargin)
-
-      val result = Utility.stripSuccessNode(responseJson)
-
-      (result \ "processingDate").as[String] mustBe "2025-07-17T10:00:00Z"
-      result.toString must not include "success"
     }
   }
 }

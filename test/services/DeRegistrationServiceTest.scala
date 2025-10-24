@@ -21,7 +21,7 @@ import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsObject, JsResult, JsValue, Json}
-import play.api.test.Helpers.{await, defaultAwaitTimeout}
+import play.api.test.Helpers.{OK, await, defaultAwaitTimeout}
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.AwrsTestJson.testRefNo
@@ -41,12 +41,28 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
 
   val groupEndedJson: JsValue = api10RequestJson
   val otherReason: JsValue = api10OtherReasonRequestJson
+  val successResponse: JsValue = api10SuccessfulResponseJson
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   "Deregistration service: deRegistration" must {
 
-    "successfully process the deregistration request" in {
+    "call etmpConnector(des) when HIP feature switch is disabled" in {
+      FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+      when(mockEtmpConnector.deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])))
+      val result = testDeRegistrationService.deRegistration(testRefNo, groupEndedJson)
+      val response = await(result)
+
+      response.status shouldBe Status.OK
+      val expectedJson = successResponse
+      val actualJson = Json.parse(response.body)
+      actualJson shouldBe expectedJson
+
+      verify(mockEtmpConnector, times(1)).deRegister(ArgumentMatchers.eq(testRefNo), ArgumentMatchers.any())(ArgumentMatchers.any())
+      verify(mockHipConnector, never).deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+    }
+
+    "successfully process the deregistration request when HIP feature switch is enabled" in {
       FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = Json.parse(
@@ -65,14 +81,16 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
       await(result).status shouldBe Status.OK
     }
 
-    "respond with appropriate failure status code for a deregistration request" in {
+    "respond with appropriate failure status code for a deregistration request when HIP feature switch is enabled" in {
       FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = Json.parse(
         """
           |{
-          |  "success": {
-          |    "processingDate": "2025-09-11T10:30:00Z"
+          |  "error": {
+          |    "code": "400",
+          |    "message": "string",
+          |    "logID": "24B56DEABD748EB11C66897AB601D222"
           |  }
           |}
           |""".stripMargin)
@@ -82,6 +100,18 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
 
       val result = testDeRegistrationService.deRegistration(testRefNo, groupEndedJson)
       await(result).status shouldBe Status.SERVICE_UNAVAILABLE
+    }
+
+    "return BAD_REQUEST when JSON transformation fails (JsError case) when HIP feature switch is enabled" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+      val invalidJson: JsValue = Json.parse("""["invalid", "json"]""")
+
+      val result = testDeRegistrationService.deRegistration(testRefNo, invalidJson)
+      val response = await(result)
+
+      response.status shouldBe Status.BAD_REQUEST
+      response.body should include("JSON transformation failed")
     }
   }
 
@@ -106,33 +136,6 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
       result.isSuccess shouldBe true
       (result.get \ "deregistrationReason").as[String] shouldBe "Others"
       (result.get \ "deregReasonOther").as[String] shouldBe "other reason"
-    }
-  }
-
-  "Deregistration service: updateResponseForHip" must {
-
-    "remove the success node from the input json" in {
-
-      val inputJson: JsValue = Json.parse(
-        """
-          |{
-          |  "success": {
-          |    "processingDate": "2025-09-11T10:30:00Z"
-          |  }
-          |}
-          |""".stripMargin)
-
-      val expectedJson: JsValue = Json.parse(
-        """
-          |{
-          |    "processingDate": "2025-09-11T10:30:00Z"
-          |}
-          |""".stripMargin)
-
-      val result = Utility.stripSuccessNode(inputJson)
-
-      result shouldEqual(expectedJson)
-
     }
   }
 }
