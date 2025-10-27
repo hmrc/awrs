@@ -26,7 +26,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.ControllerComponents
 import play.api.test.Helpers._
 import play.api.test.{FakeHeaders, FakeRequest}
-import services.{EtmpLookupService, EtmpRegimeService, EtmpStatusService, SubscriptionService}
+import services.{LookupService, EtmpRegimeService, EtmpStatusService, SubscriptionService}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
@@ -40,7 +40,7 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val mockSubcriptionService: SubscriptionService = mock[SubscriptionService]
-  val mockEtmpLookupService: EtmpLookupService = mock[EtmpLookupService]
+  val mockLookupService: LookupService = mock[LookupService]
   val mockEtmpStatusService: EtmpStatusService = mock[EtmpStatusService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val mockEtmpRegimeService: EtmpRegimeService = mock[EtmpRegimeService]
@@ -61,7 +61,7 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
     mockAuditConnector,
     awrsMetrics,
     mockSubcriptionService,
-    mockEtmpLookupService,
+    mockLookupService,
     mockEtmpStatusService,
     mockEtmpRegimeService,
     cc,
@@ -140,31 +140,31 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
     "Subscription Controller " must {
 
       "lookup submitted application from HODS when passed a valid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(OK, api4EtmpLTDJson, Map.empty[String, Seq[String]])))
+        when(mockLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(OK, api4EtmpLTDJson, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.lookupApplication(testRefNo).apply(FakeRequest())
         status(result) shouldBe OK
       }
 
       "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, lookupFailure, Map.empty[String, Seq[String]])))
+        when(mockLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, lookupFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe BAD_REQUEST
       }
 
       "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, lookupFailure, Map.empty[String, Seq[String]])))
+        when(mockLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, lookupFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe NOT_FOUND
       }
 
       "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, lookupFailure, Map.empty[String, Seq[String]])))
+        when(mockLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, lookupFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe SERVICE_UNAVAILABLE
       }
 
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-        when(mockEtmpLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, lookupFailure, Map.empty[String, Seq[String]])))
+        when(mockLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, lookupFailure, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.lookupApplication("AAW00000123456").apply(FakeRequest())
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
