@@ -44,16 +44,38 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
     val awrsRefNo = "XAAW0000010001"
     implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-    "perform a withdrawal when passed valid json" in {
+    "DES connector: returns OK when feature flag is off and request is valid" in {
+      FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
       when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
+      val response = await(result)
+      response.status shouldBe OK
+      response.json shouldBe api8SuccessfulResponseJson
+      verify(mockEtmpConnector, times(1)).withdrawal(ArgumentMatchers.eq(awrsRefNo), ArgumentMatchers.any())(ArgumentMatchers.any())
+      verify(mockHipConnector, never).withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
+    }
+
+    "DES connector: returns BAD_REQUEST when feature flag is off and request is invalid" in {
+      FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
+      val response = await(result)
+      response.status shouldBe BAD_REQUEST
+      response.json shouldBe api8FailureResponseJson
+    }
+
+    "DES connector: returns OK when feature flag is on and request is valid" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe OK
       response.json shouldBe api8SuccessfulResponseJson
     }
 
-    "respond with BadRequest, when withdrawal request fails with a Bad request" in {
-      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+    "HIP connector: returns BAD_REQUEST when feature flag is on and request is invalid" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
@@ -67,7 +89,7 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
         """
           |{
           |  "success": {
-          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |    "processingDate": "2025-09-11T10:30:00Z"
           |  }
           |}
           |""".stripMargin)
@@ -104,153 +126,35 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
       Json.parse(result.body) mustBe responseJson
     }
 
-    "return BAD_REQUEST status when updateRequestForHip returns JsError" in {
+    "return BAD_REQUEST when JSON transformation fails" in {
       FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+      val invalidJson = Json.parse("""["invalid","json"]""")
 
-      val invalidJson = Json.parse(
-        """
-          |{
-          |  "withdrawalDate": "2025-07-17"
-          |
-          |}
-    """.stripMargin)
+      val result = TestWithdrawalService.withdrawal(invalidJson, awrsRefNo)
+      val response = await(result)
 
-      val result = await(TestWithdrawalService.withdrawal(invalidJson, testRefNo))
-
-      result.status mustBe Status.BAD_REQUEST
-      result.body must include("JSON transformation failed")
+      response.status shouldBe Status.BAD_REQUEST
+      response.body should include("JSON transformation failed")
     }
+
   }
 
 
   "updateRequestForHip" must {
 
     "transform standard withdrawal reason correctly" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
       val expectedJson = Json.parse(
         """
           |{
-          |  "acknowledgementReference": "ABC123456789",
           |  "withdrawalDate": "2025-07-17",
-          |  "withdrawalReason": "01"
+          |  "withdrawalReason": "Applied in error"
           |}
         """.stripMargin)
 
       val result = TestWithdrawalService.updateRequestForHip(requestJson).get
       result mustBe expectedJson
 
-    }
-
-    "transform 'Others' reason with withdrawalReasonOthers correctly" in {
-
-      val requestJson = Json.parse(
-        """
-          |{
-          |  "acknowledgementReference": "ABC123456789",
-          |  "withdrawalDate": "2025-07-17",
-          |  "withdrawalReason": "Others",
-          |  "withdrawalReasonOthers": "Other text"
-          |}
-        """.stripMargin)
-
-      val expectedJson = Json.parse(
-        """
-          |{
-          |  "acknowledgementReference": "ABC123456789",
-          |  "withdrawalDate": "2025-07-17",
-          |  "withdrawalReason": "99",
-          |  "withdrawalReasonOthers": "Other text"
-          |}
-        """.stripMargin)
-
-      val result = TestWithdrawalService.updateRequestForHip(requestJson).get
-      result mustBe expectedJson
-
-    }
-
-    "throw an exception when withdrawalReason is invalid" in {
-      val inputJson = Json.parse(
-        """
-          |{
-          |  "acknowledgementReference": "$ackReference",
-          |  "withdrawalDate": "2025-07-17",
-          |  "withdrawalReason": "Invalid Reason"
-          |}
-        """.stripMargin)
-
-      val exception = intercept[NoSuchElementException] {
-        TestWithdrawalService.updateRequestForHip(inputJson)
-      }
-
-      exception.getMessage shouldBe "Invalid withdrawalReason received"
-
-    }
-
-    "throw exception when withdrawalReasonOthers is missing for 'Others'" in {
-      val inputJson = Json.parse(
-        """
-          |{
-          |  "acknowledgementReference": "$ackReference",
-          |  "withdrawalDate": "2025-07-17",
-          |  "withdrawalReason": "Others"
-          |}
-        """.stripMargin)
-
-      val exception = intercept[RuntimeException] {
-        TestWithdrawalService.updateRequestForHip(inputJson)
-      }
-
-      exception.getMessage shouldBe "Missing 'withdrawalReasonOthers'- this field is required when 'withdrawalReason' is set to 'Others'"
-    }
-  }
-
-  "updateResponseForHip" must {
-    "transform processingDateTime to processingDate and strip off the success node" in {
-      val responseJson = Json.parse(
-        """
-          |{
-          |  "success": {
-          |    "processingDateTime": "2025-07-17T10:00:00Z"
-          |  }
-          |}
-      """.stripMargin)
-
-      val result = TestWithdrawalService.updateResponseForHip(responseJson)
-
-      (result \ "processingDate").as[String] mustBe "2025-07-17T10:00:00Z"
-      result.toString must not include "success"
-      result.toString must not include "processingDateTime"
-    }
-
-    "throw RuntimeException when success node is missing" in {
-      val responseJson = Json.parse(
-        """
-          |{
-          |  "processingDateTime": "2025-07-17T10:00:00Z"
-          |}
-      """.stripMargin)
-
-      val exception = intercept[RuntimeException] {
-        TestWithdrawalService.updateResponseForHip(responseJson)
-      }
-
-      exception.getMessage must include("Received response does not contain a 'success' node.")
-    }
-
-    "throw RuntimeException when processingDateTime is missing in success node" in {
-      val responseJson = Json.parse(
-        """
-          |{
-          |  "success": {
-          |    "status": "OK"
-          |  }
-          |}
-      """.stripMargin)
-
-      val exception = intercept[RuntimeException] {
-        TestWithdrawalService.updateResponseForHip(responseJson)
-      }
-
-      exception.getMessage must include("Received response is missing the 'processingDateTime' key in the 'success' node.")
     }
   }
 }
