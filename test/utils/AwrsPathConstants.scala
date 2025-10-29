@@ -79,6 +79,8 @@ trait AwrsPathConstants {
 
   // Request Json paths
 
+  lazy val api6updateJsonWithAck = "/json/API6/hip/RequestJsonFromFe.json"
+  lazy val api6updateJsonWithAckRemoved = "/json/API6/hip/HipRequestUpdateSubscription.json"
   lazy val api8Request = "/json/API8/request/Reason.json"
   lazy val api8ValidRequest = "/json/API8/request/Input.json"
   lazy val api10Request = "/json/API10/request/GroupEnded.json"
@@ -89,6 +91,7 @@ trait AwrsPathConstants {
   lazy val api4SuccessfulResponse = "/json/API4/etmp/SuccessfullResponse.json"
 
   lazy val api6SuccessfulResponse = "/json/API6/etmp/SuccessfulResponse.json"
+  lazy val api6SuccessfulResponseHip = "/json/API6/hip/SuccessfulResponseHip.json"
 
   lazy val api8SuccessfulResponse = "/json/API8/response/Successful.json"
 
@@ -106,7 +109,7 @@ trait AwrsPathConstants {
   lazy val api11SuccessfulCDATAEncodedResponseWithNewLine = "/json/API11/SuccessfulCDATAEncodedResponseWithNewLine.json"
 
   // Failure Json paths
-
+  lazy val api6FailureResponseHip = "/json/API6/hip/ErrorResponseHip.json"
   lazy val api8FailureResponse = "/json/API8/response/Failure.json"
   lazy val api10FailureResponse = "/json/API10/response/FailureResponse.json"
   lazy val api11FailureResponse = "/json/API11/FailureResponse.json"

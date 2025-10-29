@@ -21,20 +21,23 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
+import utils.AwrsTestJson.{ackRemovedJson, api4EtmpLTDJson}
 import utils.Utility._
 
 class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
+  val desRequestJson: JsValue = api4EtmpLTDJson
+  val hipRequestJson: JsValue = ackRemovedJson
 
   "UtilitySpec" must {
 
     "convert years correctly from string dd/MM/yyyy to yyyy-MM-dd (mdtp to etmp)" in {
-      for(i <- 2000 to 3000){
+      for (i <- 2000 to 3000) {
         awrsToEtmpDateFormatter(s"03/01/$i") shouldBe (s"$i-01-03")
       }
     }
 
     "convert years correctly from yyyy-MM-dd to string dd/MM/yyyy (etmp to mdtp)" in {
-      for(i <- 2000 to 3000){
+      for (i <- 2000 to 3000) {
         etmpToAwrsDateFormatter(s"$i-01-03") shouldBe (s"03/01/$i")
       }
     }
@@ -59,7 +62,7 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
       stripSuccessNode(hipResponsePayload) shouldBe expectedUpdatedJson
     }
 
-    "throw an Exception when 'success' node is missing" in {
+    "Return the original json when 'success' node is missing in response" in {
       val hipResponsePayload: JsValue = Json.parse(
         """
           |{
@@ -69,10 +72,20 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
           |}
           |""".stripMargin)
 
-      val exception: RuntimeException = intercept[RuntimeException] {
-        stripSuccessNode(hipResponsePayload)
-      }
-      exception.getMessage shouldBe "Received response does not contain a 'success' node."
+      stripSuccessNode(hipResponsePayload) shouldBe hipResponsePayload
+    }
+    "not throw an Exception when 'acknowledgmentReference' node is missing in response" in {
+      val hipResponsePayload: JsValue = Json.parse(
+        """
+          |{
+          |  "notAcknowledgmentReference": {
+          |    "someOtherTestKey": "testValue"
+          |  }
+          |}
+          |""".stripMargin)
+
+      stripSuccessNode(hipResponsePayload) shouldBe hipResponsePayload
     }
   }
 }
+

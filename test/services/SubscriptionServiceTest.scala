@@ -16,47 +16,73 @@
 
 package services
 
-
-import connectors.{EnrolmentStoreConnector, EtmpConnector}
+import connectors.{EnrolmentStoreConnector, EtmpConnector, HipConnector}
 import metrics.AwrsMetrics
 import models._
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsSuccess, JsValue, Json}
 import play.api.test.Helpers._
+import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson._
-import utils.BaseSpec
+import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  implicit val ec: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
-  val mockEnrolmentStoreConnector: EnrolmentStoreConnector = mock[EnrolmentStoreConnector]
+  val mockHipConnector: HipConnector = mock[HipConnector]
+  val mockEnrolmentStoreConnector: EnrolmentStoreConnector =
+    mock[EnrolmentStoreConnector]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   val inputJson: JsValue = api4EtmpLTDJson
+  val inputJsonUpdate: JsValue = api6RequestUpdateJsonWithAck
+  val inputJsonWithAckRemovedUpdate: JsValue = ackRemovedJson
   val safeId = "XA0001234567890"
   val successResponse: JsValue = Json.parse(
-    s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "$testRefNo"}""")
-  val ggEnrolResponse: JsValue = Json.parse( """{}""")
-  val failureResponse: JsValue = Json.parse( """{"Reason": "Resource not found"}""")
-  val address: BCAddressApi3 = BCAddressApi3(addressLine1 = "", addressLine2 = "")
-  val updatedData = new UpdateRegistrationDetailsRequest(None, false, Some(Organisation("testName")), address, ContactDetails(), false, false)
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+    s"""{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345","awrsRegistrationNumber": "$testRefNo"}"""
+  )
+  val ggEnrolResponse: JsValue = Json.parse("""{}""")
+  val failureResponse: JsValue =
+    Json.parse("""{"Reason": "Resource not found"}""")
+  val address: BCAddressApi3 =
+    BCAddressApi3(addressLine1 = "", addressLine2 = "")
+  val updatedData = new UpdateRegistrationDetailsRequest(
+    None,
+    false,
+    Some(Organisation("testName")),
+    address,
+    ContactDetails(),
+    false,
+    false
+  )
+  implicit val hc: HeaderCarrier =
+    HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-  object TestSubscriptionServiceEMAC extends SubscriptionService(
+  val testSubscriptionService: SubscriptionService = new SubscriptionService(
     app.injector.instanceOf[AwrsMetrics],
     mockEnrolmentStoreConnector,
-    mockEtmpConnector
+    mockEtmpConnector,
+    mockHipConnector
   )
+
+  object TestSubscriptionServiceEMAC
+      extends SubscriptionService(
+        app.injector.instanceOf[AwrsMetrics],
+        mockEnrolmentStoreConnector,
+        mockEtmpConnector,
+        mockHipConnector
+      )
 
   "Subscription Service with EMAC switched on" must {
     behave like subscriptionServicesPart1(TestSubscriptionServiceEMAC)
@@ -64,6 +90,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
   }
 
   def subscriptionServicesPart2EMAC(testSubscriptionService: => SubscriptionService): Unit = {
+    FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
     "subscribe when we are passed valid json and the subscription and enrolment creation are successful" in {
       when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])))
@@ -81,14 +108,14 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
         .thenReturn(Future.successful(HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])))
       when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
-      val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
+      val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP","postcode")
       val response = await(result)
       response.status shouldBe BAD_REQUEST
     }
   }
 
   def subscriptionServicesPart1(testSubscriptionService: => SubscriptionService): Unit = {
-
+    FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
     "respond with BadRequest, when subscription request fails with a Bad request" in {
       when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
@@ -115,8 +142,9 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "respond with Ok, when a valid update Group Partner registration json is supplied" in {
-      val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z"}""")
-      when(mockEtmpConnector.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      val updateSuccessResponse = Json.parse("""{"processingDate":"2015-12-17T09:30:47Z"}""")
+      when(mockEtmpConnector.updateGrpRepRegistrationDetails(
+          ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, updateSuccessResponse, Map.empty[String, Seq[String]])))
       val result = testSubscriptionService.updateGrpRepRegistrationDetails(testSafeId, updatedData)
       val response = await(result)
@@ -132,4 +160,89 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
     }
   }
 
+  "SubscriptionService.updateSubscription" must {
+    "respond with Ok, when a valid update subscription json is supplied" when {
+      "HipConnector switch is enabled" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+        when(mockHipConnector.updateSubscription(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                OK,
+                api6SuccessResponseHipJson,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result = mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
+        val response = await(result)
+        response.status shouldBe OK
+      }
+    }
+    "respond with BadRequest when response status from Hip is BAD_REQUEST" when {
+      "HipConnector switch is enabled" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockHipConnector.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                BAD_REQUEST,
+                api6FailureResponseJson,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result = mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
+        val response = await(result)
+        response.status shouldBe BAD_REQUEST
+      }
+    }
+    "respond with appropriate failure status code for an update request" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+      val responseJson: JsValue = Json.parse("""
+          |{
+          |  "some failure": {
+          |    "processingDateTime": "2025-09-11T10:30:00Z"
+          |  }
+          |}
+          |""".stripMargin)
+
+      when(
+        mockHipConnector.updateSubscription(
+          ArgumentMatchers.any(),
+          ArgumentMatchers.any()
+        )(ArgumentMatchers.any())
+      )
+        .thenReturn(
+          Future.successful(
+            HttpResponse(
+              Status.SERVICE_UNAVAILABLE,
+              responseJson,
+              Map.empty[String, Seq[String]]
+            )
+          )
+        )
+
+      val result = mockHipConnector.updateSubscription(inputJsonWithAckRemovedUpdate, testRefNo)
+      await(result).status shouldBe Status.SERVICE_UNAVAILABLE
+    }
+    "subscriptionService.updateRequestForHip" must {
+      "remove the acknowledgementReference field from the request json" in {
+        val resultJson = testSubscriptionService.updateRequestForHip(inputJsonUpdate)
+        resultJson shouldBe JsSuccess(inputJsonWithAckRemovedUpdate)
+      }
+    }
+    "subscriptionService.updateRequestForHip" must {
+      "return original json if no acknowledgementReference field is found" in {
+        val resultJson = testSubscriptionService.updateRequestForHip(inputJsonWithAckRemovedUpdate)
+        resultJson shouldBe JsSuccess(inputJsonWithAckRemovedUpdate)
+      }
+    }
+  }
 }
