@@ -20,7 +20,6 @@ import connectors.{EnrolmentStoreConnector, EtmpConnector, HipConnector}
 import metrics.AwrsMetrics
 import models._
 import play.api.Logging
-import play.api.http.Status
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsObject, JsResult, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -92,7 +91,7 @@ class SubscriptionService @Inject() (
             }
           }
         case JsError(errors) => Future.successful(HttpResponse(
-          status = Status.BAD_REQUEST,
+          status = BAD_REQUEST,
           body = s"JSON transformation failed: ${JsError.toJson(errors)}"
         ))
       }

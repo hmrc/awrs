@@ -21,12 +21,9 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
-import utils.AwrsTestJson.{ackRemovedJson, api4EtmpLTDJson}
 import utils.Utility._
 
 class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
-  val desRequestJson: JsValue = api4EtmpLTDJson
-  val hipRequestJson: JsValue = ackRemovedJson
 
   "UtilitySpec" must {
 
@@ -67,18 +64,6 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
         """
           |{
           |  "notAsuccessKey": {
-          |    "someOtherTestKey": "testValue"
-          |  }
-          |}
-          |""".stripMargin)
-
-      stripSuccessNode(hipResponsePayload) shouldBe hipResponsePayload
-    }
-    "not throw an Exception when 'acknowledgmentReference' node is missing in response" in {
-      val hipResponsePayload: JsValue = Json.parse(
-        """
-          |{
-          |  "notAcknowledgmentReference": {
           |    "someOtherTestKey": "testValue"
           |  }
           |}

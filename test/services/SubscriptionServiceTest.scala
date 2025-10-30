@@ -22,8 +22,9 @@ import models._
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
-import play.api.libs.json.{JsObject, JsSuccess, JsValue, Json}
+import play.api.libs.json.{JsSuccess, JsValue, Json}
 import play.api.test.Helpers._
+import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -308,7 +309,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
             )
           )
         val result =
-          mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
+          testSubscriptionService.updateSubscription(inputJsonUpdate, testRefNo)
         val response = await(result)
         response.status shouldBe OK
       }
@@ -330,11 +331,23 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
             )
           )
         val result =
-          mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
+          testSubscriptionService.updateSubscription(inputJsonUpdate, testRefNo)
         val response = await(result)
         response.status shouldBe BAD_REQUEST
       }
-      "respond with appropriate failure status code for an update request" in {
+
+      "return BAD_REQUEST when JSON transformation fails" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+        val invalidJson = Json.parse("""["invalid","json"]""")
+
+        val result = testSubscriptionService.updateSubscription(invalidJson, safeId)
+        val response = await(result)
+
+        response.status shouldBe Status.BAD_REQUEST
+        response.body should include("JSON transformation failed")
+      }
+
+    "respond with appropriate failure status code for an update request" in {
         FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         val errorStatusMap = Map(
           400 -> "Bad Request",
@@ -358,7 +371,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
               )
             )
 
-          val result = mockHipConnector.updateSubscription(
+          val result = testSubscriptionService.updateSubscription(
             inputJsonWithAckRemovedUpdate,
             testRefNo
           )
