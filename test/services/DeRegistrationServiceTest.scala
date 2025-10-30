@@ -25,7 +25,7 @@ import play.api.test.Helpers.{OK, await, defaultAwaitTimeout}
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.AwrsTestJson.testRefNo
-import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch, Utility}
+import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
 
 import scala.concurrent.{ExecutionContext, Future}
 

@@ -22,9 +22,8 @@ import models._
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
-import play.api.libs.json.{JsSuccess, JsValue, Json}
+import play.api.libs.json.{JsObject, JsSuccess, JsValue, Json}
 import play.api.test.Helpers._
-import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -76,95 +75,225 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
     mockHipConnector
   )
 
-  object TestSubscriptionServiceEMAC
-      extends SubscriptionService(
-        app.injector.instanceOf[AwrsMetrics],
-        mockEnrolmentStoreConnector,
-        mockEtmpConnector,
-        mockHipConnector
-      )
+  "SubscriptionService.subscribe" when {
+    "Hip connector is disabled" must {
+      "subscribe when we are passed valid json and the subscription and enrolment creation are successful" in {
+        FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockEtmpConnector.subscribe(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])
+            )
+          )
+        when(
+          mockEnrolmentStoreConnector.upsertEnrolment(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                NO_CONTENT,
+                ggEnrolResponse,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
 
-  "Subscription Service with EMAC switched on" must {
-    behave like subscriptionServicesPart1(TestSubscriptionServiceEMAC)
-    behave like subscriptionServicesPart2EMAC(TestSubscriptionServiceEMAC)
+        val result = testSubscriptionService.subscribe(
+          inputJson,
+          safeId,
+          Some(testUtr),
+          "SOP",
+          "postcode"
+        )
+        val response = await(result)
+        response.status shouldBe OK
+        response.json shouldBe successResponse
+      }
+
+      "respond with BAD_REQUEST, when subscription works but enrolment store connector request fails with a Bad request but audit the Bad request" in {
+        FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockEtmpConnector.subscribe(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])
+            )
+          )
+        when(
+          mockEnrolmentStoreConnector.upsertEnrolment(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                BAD_REQUEST,
+                failureResponse,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result = testSubscriptionService.subscribe(
+          inputJson,
+          safeId,
+          Some(testUtr),
+          "SOP",
+          "postcode"
+        )
+        val response = await(result)
+        response.status shouldBe BAD_REQUEST
+      }
+      "respond with BadRequest, when subscription request fails with a Bad request" in {
+        FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockEtmpConnector.subscribe(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                BAD_REQUEST,
+                failureResponse,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result = testSubscriptionService.subscribe(
+          inputJson,
+          safeId,
+          Some(testUtr),
+          "SOP",
+          "postcode"
+        )
+        val response = await(result)
+        response.status shouldBe BAD_REQUEST
+        response.json shouldBe failureResponse
+      }
+    }
   }
-
-  def subscriptionServicesPart2EMAC(testSubscriptionService: => SubscriptionService): Unit = {
-    FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
-    "subscribe when we are passed valid json and the subscription and enrolment creation are successful" in {
-      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])))
-      when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty[String, Seq[String]])))
-
-      val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
-      val response = await(result)
-      response.status shouldBe OK
-      response.json shouldBe successResponse
-    }
-
-    "respond with BAD_REQUEST, when subscription works but enrolment store connector request fails with a Bad request but audit the Bad request" in {
-      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, successResponse, Map.empty[String, Seq[String]])))
-      when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
-      val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP","postcode")
-      val response = await(result)
-      response.status shouldBe BAD_REQUEST
-    }
-  }
-
-  def subscriptionServicesPart1(testSubscriptionService: => SubscriptionService): Unit = {
-    FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
-    "respond with BadRequest, when subscription request fails with a Bad request" in {
-      when(mockEtmpConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
-      val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
-      val response = await(result)
-      response.status shouldBe BAD_REQUEST
-      response.json shouldBe failureResponse
-    }
-
-    "respond with Ok, when a valid update subscription json is supplied" in {
-      when(mockEtmpConnector.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, api6SuccessResponseJson, Map.empty[String, Seq[String]])))
-      val result = testSubscriptionService.updateSubscription(inputJson, testRefNo)
-      val response = await(result)
-      response.status shouldBe OK
-    }
-
-    "respond with BadRequest when update subscription json is invalid" in {
-      when(mockEtmpConnector.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
-      val result = testSubscriptionService.updateSubscription(inputJson, testRefNo)
-      val response = await(result)
-      response.status shouldBe BAD_REQUEST
-    }
-
-    "respond with Ok, when a valid update Group Partner registration json is supplied" in {
-      val updateSuccessResponse = Json.parse("""{"processingDate":"2015-12-17T09:30:47Z"}""")
-      when(mockEtmpConnector.updateGrpRepRegistrationDetails(
-          ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK, updateSuccessResponse, Map.empty[String, Seq[String]])))
-      val result = testSubscriptionService.updateGrpRepRegistrationDetails(testSafeId, updatedData)
-      val response = await(result)
-      response.status shouldBe OK
-    }
-
-    "respond with BadRequest when update Group Partner registration json is invalid" in {
-      when(mockEtmpConnector.updateGrpRepRegistrationDetails(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
-      val result = testSubscriptionService.updateGrpRepRegistrationDetails(testSafeId, updatedData)
-      val response = await(result)
-      response.status shouldBe BAD_REQUEST
+  "SubscriptionService.update" when {
+    "Hip connector is disabled" must {
+      "respond with Ok, when a valid update subscription json is supplied" in {
+        FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockEtmpConnector.updateSubscription(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                OK,
+                api6SuccessResponseJson,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result =
+          testSubscriptionService.updateSubscription(inputJson, testRefNo)
+        val response = await(result)
+        response.status shouldBe OK
+      }
+      "respond with BadRequest when update subscription json is invalid" in {
+        FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockEtmpConnector.updateSubscription(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                BAD_REQUEST,
+                failureResponse,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result =
+          testSubscriptionService.updateSubscription(inputJson, testRefNo)
+        val response = await(result)
+        response.status shouldBe BAD_REQUEST
+      }
     }
   }
-
-  "SubscriptionService.updateSubscription" must {
-    "respond with Ok, when a valid update subscription json is supplied" when {
-      "HipConnector switch is enabled" in {
+  "SubscriptionService.updateGrpRepRegistrationDetails" when {
+    "Hip connector is disabled" must {
+      "respond with Ok, when a valid update Group Partner registration json is supplied" in {
+        FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+        val updateSuccessResponse =
+          Json.parse("""{"processingDate":"2015-12-17T09:30:47Z"}""")
+        when(
+          mockEtmpConnector.updateGrpRepRegistrationDetails(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                OK,
+                updateSuccessResponse,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result = testSubscriptionService.updateGrpRepRegistrationDetails(
+          testSafeId,
+          updatedData
+        )
+        val response = await(result)
+        response.status shouldBe OK
+      }
+      "respond with BadRequest when update Group Partner registration json is invalid" in {
+        FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockEtmpConnector.updateGrpRepRegistrationDetails(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                BAD_REQUEST,
+                failureResponse,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result = testSubscriptionService.updateGrpRepRegistrationDetails(
+          testSafeId,
+          updatedData
+        )
+        val response = await(result)
+        response.status shouldBe BAD_REQUEST
+      }
+    }
+  }
+  "SubscriptionService.updateSubscription" when {
+    "HipConnector switch is enabled" must {
+      "respond with Ok, when a valid update subscription json is supplied" in {
         FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
-        when(mockHipConnector.updateSubscription(
+        when(
+          mockHipConnector.updateSubscription(
             ArgumentMatchers.any(),
             ArgumentMatchers.any()
           )(ArgumentMatchers.any())
@@ -178,16 +307,19 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
               )
             )
           )
-        val result = mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
+        val result =
+          mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
         val response = await(result)
         response.status shouldBe OK
       }
-    }
-    "respond with BadRequest when response status from Hip is BAD_REQUEST" when {
-      "HipConnector switch is enabled" in {
+      "respond with BadRequest when response status from Hip is BAD_REQUEST" in {
         FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         when(
-          mockHipConnector.updateSubscription(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          mockHipConnector.updateSubscription(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
           .thenReturn(
             Future.successful(
               HttpResponse(
@@ -197,52 +329,59 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
               )
             )
           )
-        val result = mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
+        val result =
+          mockHipConnector.updateSubscription(inputJsonUpdate, testRefNo)
         val response = await(result)
         response.status shouldBe BAD_REQUEST
       }
-    }
-    "respond with appropriate failure status code for an update request" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
-
-      val responseJson: JsValue = Json.parse("""
-          |{
-          |  "some failure": {
-          |    "processingDateTime": "2025-09-11T10:30:00Z"
-          |  }
-          |}
-          |""".stripMargin)
-
-      when(
-        mockHipConnector.updateSubscription(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.any()
-        )(ArgumentMatchers.any())
-      )
-        .thenReturn(
-          Future.successful(
-            HttpResponse(
-              Status.SERVICE_UNAVAILABLE,
-              responseJson,
-              Map.empty[String, Seq[String]]
-            )
-          )
+      "respond with appropriate failure status code for an update request" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+        val errorStatusMap = Map(
+          400 -> "Bad Request",
+          401 -> "Unauthorized",
+          403 -> "Forbidden",
+          404 -> "Not Found",
+          415 -> "Unsupported media-type",
+          500 -> "Internal Server Error"
         )
 
-      val result = mockHipConnector.updateSubscription(inputJsonWithAckRemovedUpdate, testRefNo)
-      await(result).status shouldBe Status.SERVICE_UNAVAILABLE
-    }
-    "subscriptionService.updateRequestForHip" must {
-      "remove the acknowledgementReference field from the request json" in {
-        val resultJson = testSubscriptionService.updateRequestForHip(inputJsonUpdate)
-        resultJson shouldBe JsSuccess(inputJsonWithAckRemovedUpdate)
+        errorStatusMap.foreach { error =>
+          when(
+            mockHipConnector.updateSubscription(
+              ArgumentMatchers.any(),
+              ArgumentMatchers.any()
+            )(ArgumentMatchers.any())
+          )
+            .thenReturn(
+              Future.successful(
+                HttpResponse(error._1, error._2, Map.empty[String, Seq[String]])
+              )
+            )
+
+          val result = mockHipConnector.updateSubscription(
+            inputJsonWithAckRemovedUpdate,
+            testRefNo
+          )
+          await(result).status shouldBe error._1
+        }
+
       }
     }
-    "subscriptionService.updateRequestForHip" must {
-      "return original json if no acknowledgementReference field is found" in {
-        val resultJson = testSubscriptionService.updateRequestForHip(inputJsonWithAckRemovedUpdate)
-        resultJson shouldBe JsSuccess(inputJsonWithAckRemovedUpdate)
-      }
+  }
+  "subscriptionService.updateRequestForHip" must {
+    "remove the acknowledgementReference field from the request json" in {
+      val resultJson =
+        testSubscriptionService.updateRequestForHip(inputJsonUpdate)
+      resultJson shouldBe JsSuccess(inputJsonWithAckRemovedUpdate)
+    }
+  }
+
+  "subscriptionService.updateRequestForHip" must {
+    "return original json if no acknowledgementReference field is found" in {
+      val resultJson = testSubscriptionService.updateRequestForHip(
+        inputJsonWithAckRemovedUpdate
+      )
+      resultJson shouldBe JsSuccess(inputJsonWithAckRemovedUpdate)
     }
   }
 }

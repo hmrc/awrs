@@ -40,8 +40,7 @@ class SubscriptionService @Inject() (
   private val acknowledgmentReference: String = "acknowledgmentReference"
 
 
-  def subscribe(
-      data: JsValue,
+  def subscribe(data: JsValue,
       safeId: String,
       utr: Option[String],
       businessType: String,
@@ -142,10 +141,8 @@ class SubscriptionService @Inject() (
     EnrolmentVerifiers(verifierTuples: _*)
   }
 
-  def updateGrpRepRegistrationDetails(
-      safeId: String,
-      updateData: UpdateRegistrationDetailsRequest
-  )(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def updateGrpRepRegistrationDetails(safeId: String, updateData: UpdateRegistrationDetailsRequest
+                                     )(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val request = updateData.copy(acknowledgementReference =
       Some(SessionUtils.getUniqueAckNo)
     )
@@ -155,6 +152,6 @@ class SubscriptionService @Inject() (
   def updateRequestForHip(requestJson: JsValue): JsResult[JsObject] = {
     requestJson.validate[JsObject].map { requestJsObject =>
       requestJsObject - acknowledgmentReference
+    }
   }
-}
 }
