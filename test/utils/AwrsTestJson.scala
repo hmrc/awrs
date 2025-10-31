@@ -85,6 +85,8 @@ trait AwrsTestJson extends AwrsPathConstants {
   lazy val api5EtmpLLPString: String = loadWithDummy(api5EtmpLLP)
 
   lazy val api4EtmpLTDJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpLTD)
+  lazy val api6RequestUpdateJsonWithAck: JsValue = loadAndParseJsonWithDummyData(api6updateJsonWithAck)
+  lazy val ackRemovedJson: JsValue = loadAndParseJsonWithDummyData(api6updateJsonWithAckRemoved)
   lazy val api4EtmpPartnershipJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpPartnership)
   lazy val api4EtmpLLPJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpLLP)
   lazy val api4EtmpLTDGRPJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpLTDGRP)
@@ -110,6 +112,7 @@ trait AwrsTestJson extends AwrsPathConstants {
   lazy val api4SuccessResponse: JsValue = loadAndParseJsonWithDummyData(api4SuccessfulResponse)
 
   lazy val api6SuccessResponseJson: JsValue = loadAndParseJsonWithDummyData(api6SuccessfulResponse)
+  lazy val api6SuccessResponseHipJson: JsValue = loadAndParseJsonWithDummyData(api6SuccessfulResponseHip)
 
   lazy val api8SuccessfulResponseJson: JsValue = loadAndParseJsonWithDummyData(api8SuccessfulResponse)
 
@@ -127,7 +130,7 @@ trait AwrsTestJson extends AwrsPathConstants {
   lazy val api11SuccessfulCDATAEncodedResponseJsonWithNewLine: JsValue = loadAndParseJsonWithDummyData(api11SuccessfulCDATAEncodedResponseWithNewLine)
 
   // Failure Response Json
-
+  lazy val api6FailureResponseJson: JsValue = loadAndParseJsonWithDummyData(api6FailureResponseHip)
   lazy val api11FailureResponseString: String = loadWithDummy(api11FailureResponse)
 
   lazy val api8FailureResponseJson: JsValue = loadAndParseJsonWithDummyData(api8FailureResponse)

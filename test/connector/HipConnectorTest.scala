@@ -90,6 +90,14 @@ class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
       result.body must include("Success")
     }
 
+    "post the Subscription.update request to the correct URL" in new Setup {
+      val expectedURL: String = s"/etmp/RESTadapter/awrs/subscription/update/$awrsRefNo"
+      when(executePutNoBody[HttpResponse]).thenReturn(Future.successful(HttpResponse(200, api6SuccessResponseJson, Map.empty[String, Seq[String]])))
+
+      TestHipConnector.updateSubscription(api6FrontendLTDJson, awrsRefNo)
+      Mockito.verify(mockHttpClient, times(1)).put(URI.create(s"http://localhost:9912$expectedURL").toURL)(hc)
+    }
+
     "check status of an application with a valid reference number" in new Setup {
       val expectedURL: String = s"/etmp/RESTadapter/awrs/subscription/status/$awrsRefNo"
 

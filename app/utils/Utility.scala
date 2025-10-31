@@ -16,6 +16,7 @@
 
 package utils
 
+import play.api.Logger
 import play.api.libs.json.{JsLookupResult, JsObject, JsValue}
 
 import java.time.LocalDate
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter
 import scala.language.implicitConversions
 
 object Utility {
+  lazy val logger: Logger = Logger(this.getClass)
 
   private val success: String = "success"
 
@@ -52,11 +54,12 @@ object Utility {
     if (successNodeLookup.isDefined) {
       successNodeLookup.as[JsObject]
     } else {
-      throw new RuntimeException(s"Received response does not contain a '$success' node.")
+      logger.warn(s"Received response does not contain a '$success' node.")
+      hipResponsePayload.as[JsObject]
     }
   }
-}
 
+}
 case class Bool(b: Boolean) {
   def ?[X](t: => X) = new {def | (f: => X) = if(b) t else f
   }
