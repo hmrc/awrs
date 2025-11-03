@@ -43,6 +43,7 @@ class HipConnector @Inject() (http: HttpClientV2,
   val withdrawalURI = "/withdrawal/"
   val deRegistrationURI: String = "/deregistration/"
   val statusURI = "/status/"
+  val updateURI: String = "/update/"
   private val transmittingSystem = "HIP"
 
   private val clientId: String = config.getConfString("hip.clientId", "")
@@ -63,6 +64,8 @@ class HipConnector @Inject() (http: HttpClientV2,
   @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
   }
+  @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
+    http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
   private def retrieveCurrentUkTimestamp: String = {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -85,5 +88,7 @@ class HipConnector @Inject() (http: HttpClientV2,
   def lookup(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET( s"""$serviceURL$baseURI$subscriptionURI$displayURI$awrsRef""")
   }
-
+  def updateSubscription(updateData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    cPUT(s"""$serviceURL$baseURI$subscriptionURI$updateURI$awrsRefNo""", updateData)
+  }
 }
