@@ -187,3 +187,27 @@ and possible responses are:-
 | POST | /org/3984535715/awrs/withdrawal/XOAW00000111007 |
 | POST | /org/3984535715/XOAW00000111007/registration-details/XE0001234567890 |
 
+### All tests and checks
+
+> `sbt runAllChecks`
+
+This is a sbt command alias specific to this project. It will run
+
+- clean
+- compile
+- unit tests
+- integration tests
+- and produce a coverage report.
+
+You can view the coverage report in the browser by pasting the generated url.
+
+#### Installing sbt plugin to check for library updates.
+To check for dependency updates locally you will need to create this file locally ~/.sbt/1.0/plugins/sbt-updates.sbt
+and paste - addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.3") - into the file.
+Then run:
+
+> `sbt dependencyUpdates `
+
+To view library update suggestions - this does not cover sbt plugins.
+It is not advised to install the plugin for the project.
+
