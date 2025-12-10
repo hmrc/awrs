@@ -17,15 +17,18 @@
 package services
 
 import connectors.{EtmpConnector, HipConnector}
+import play.api.http.Status
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.AWRSFeatureSwitches
+import utils.Utility.logger
+import utils.{AWRSFeatureSwitches, Utility}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class LookupService @Inject()(etmpConnector: EtmpConnector, hipConnector: HipConnector)(implicit ec: ExecutionContext) {
-
-  val awrsRegistrationNumber = "awrsRegistrationNumber"
+class LookupService @Inject()(etmpConnector: EtmpConnector,
+                              hipConnector: HipConnector)
+                             (implicit ec: ExecutionContext) {
 
   def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
@@ -33,7 +36,20 @@ class LookupService @Inject()(etmpConnector: EtmpConnector, hipConnector: HipCon
       hipConnector.lookup(awrsRefNo) map {
         response: HttpResponse =>
           response.status match {
-            case _: Int => response
+            case Status.OK =>
+              HttpResponse(
+                status = Status.OK,
+                body = Json.stringify(Utility.stripSuccessNode(Json.parse(response.body))),
+                headers = response.headers
+              )
+
+            case failedStatusCode =>
+              logger.error(s"[LookupService][lookupApplication] Failure response from HIP endpoint: $failedStatusCode")
+              HttpResponse(
+                status = failedStatusCode,
+                body = response.body,
+                headers = response.headers
+              )
           }
       }
     } else {
@@ -45,5 +61,4 @@ class LookupService @Inject()(etmpConnector: EtmpConnector, hipConnector: HipCon
       }
     }
   }
-
 }
