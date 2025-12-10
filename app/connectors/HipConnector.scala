@@ -21,80 +21,78 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.LoggingUtils
 
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
 import java.util.{Base64, UUID}
-import javax.inject.{Inject, Named}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HipConnector @Inject() (http: HttpClientV2,
                               val auditConnector: AuditConnector,
-                              config: ServicesConfig,
-                              @Named("appName") val appName: String)
+                              config: ServicesConfig)
                              (implicit ec: ExecutionContext)
-  extends RawResponseReads with LoggingUtils {
+  extends RawResponseReads {
 
   lazy val serviceURL: String = config.baseUrl("hip")
-  val baseURI: String = "/etmp/RESTadapter/awrs"
+  val baseURI: String = "/etmp/RESTAdapter/awrs"
   val subscriptionURI: String = "/subscription"
-  private val displayURI: String = "/display/"
-  val withdrawalURI = "/withdrawal/"
-  val deRegistrationURI: String = "/deregistration/"
-  val statusURI = "/status/"
+  private val displayURI: String = "/display"
+  val withdrawalURI = "/withdrawal"
+  val deRegistrationURI: String = "/deregistration"
+  val statusURI = "/status"
   val subscriptionCreateURI: String = "/create"
-  val updateURI: String = "/update/"
-  private val transmittingSystem = "HIP"
+  val updateURI: String = "/update"
 
+  private val transmittingSystem = "HIP"
   private val clientId: String = config.getConfString("hip.clientId", "")
   private val clientSecret: String = config.getConfString("hip.clientSecret", "")
   private val authorizationToken: String = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes("UTF-8"))
+  private val originatingSystem: String = config.getConfString("hip.originatingSystem", "AWRS")
 
   val headers: Seq[(String, String)] = Seq(
     "correlationid" -> UUID.randomUUID().toString,
-    "X-Originating-System" -> appName,
-    "X-Receipt-Date" -> retrieveCurrentUkTimestamp,
+    "X-Originating-System" -> originatingSystem,
+    "X-Receipt-Date" -> retrieveCurrentTime,
     "X-Transmitting-System" -> transmittingSystem,
     "Authorization" -> s"Basic $authorizationToken"
   )
 
+  private def retrieveCurrentTime: String = {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    formatter.format(ZonedDateTime.now(ZoneId.of("UTC")))
+  }
+
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
     http.get(url"$url").setHeader(headers: _*).execute[A]
 
-  @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
+  @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
-  }
+
   @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
     http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
-  private def retrieveCurrentUkTimestamp: String = {
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    formatter.format(ZonedDateTime.now(ZoneId.of("Europe/London")))
-  }
-
   def deRegister(awrsRefNo: String, deRegDetails: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cPOST(s"""$serviceURL$baseURI$subscriptionURI$deRegistrationURI$awrsRefNo""", deRegDetails)
+    cPOST(s"""$serviceURL$baseURI$subscriptionURI$deRegistrationURI/$awrsRefNo""", deRegDetails)
   }
 
   def withdrawal(awrsRefNo: String, withdrawalData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cPOST( s"""$serviceURL$baseURI$subscriptionURI$withdrawalURI$awrsRefNo""", withdrawalData)
+    cPOST( s"""$serviceURL$baseURI$subscriptionURI$withdrawalURI/$awrsRefNo""", withdrawalData)
   }
 
   def checkStatus(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET( s"""$serviceURL$baseURI$subscriptionURI$statusURI$awrsRef""")
-
+    cGET( s"""$serviceURL$baseURI$subscriptionURI$statusURI/$awrsRef""")
   }
 
   def lookup(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cGET( s"""$serviceURL$baseURI$subscriptionURI$displayURI$awrsRef""")
+    cGET( s"""$serviceURL$baseURI$subscriptionURI$displayURI/$awrsRef""")
   }
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cPOST( s"""$serviceURL$baseURI$subscriptionURI$subscriptionCreateURI$safeId""", registerData)
+    cPOST( s"""$serviceURL$baseURI$subscriptionURI$subscriptionCreateURI/$safeId""", registerData)
   }
 
   def updateSubscription(updateData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    cPUT(s"""$serviceURL$baseURI$subscriptionURI$updateURI$awrsRefNo""", updateData)
+    cPUT(s"""$serviceURL$baseURI$subscriptionURI$updateURI/$awrsRefNo""", updateData)
   }
 }
