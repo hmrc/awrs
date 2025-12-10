@@ -38,7 +38,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
 
-  object TestLookupService$ extends LookupService(mockEtmpConnector, mockHipConnector)
+  object TestLookupService extends LookupService(mockEtmpConnector, mockHipConnector)
 
 
   "LookupService " must {
@@ -48,7 +48,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
       val awrsRefNo = testRefNo
       when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, "", Map.empty[String, Seq[String]])))
-      val result = TestLookupService$.lookupApplication(awrsRefNo)
+      val result = TestLookupService.lookupApplication(awrsRefNo)
       await(result).status shouldBe 200
     }
 
@@ -57,7 +57,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
       val invalidAwrsRefNo = "AAW00000123456"
       when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "", Map.empty[String, Seq[String]])))
-      val result = TestLookupService$.lookupApplication(invalidAwrsRefNo)
+      val result = TestLookupService.lookupApplication(invalidAwrsRefNo)
       await(result).status shouldBe 400
     }
 
@@ -191,7 +191,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
       when(mockHipConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
 
-      val result = TestLookupService$.lookupApplication(testRefNo)
+      val result = TestLookupService.lookupApplication(testRefNo)
       await(result).status shouldBe Status.OK
     }
 
