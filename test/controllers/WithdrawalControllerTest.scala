@@ -21,6 +21,7 @@ import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
+import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -89,6 +90,109 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentAsJson(result) shouldBe api8FailureResponseJson
+    }
+
+    "return INTERNAL SERVER ERROR error for 422 with error code 002" in {
+
+      val error = """{
+                    |  "errors": {
+                    |    "processingDate": "2025-12-02T13:14:41Z",
+                    |    "code": "002",
+                    |    "text": "No records found"
+                    |  }
+                    |}
+                    |  """.stripMargin
+
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
+      status(result) shouldBe NOT_FOUND
+      contentAsJson(result) shouldBe Json.parse(error)
+    }
+
+    "return BAD_REQUEST error for 422 with error code 003" in {
+
+      val error = """{
+                    |  "errors": {
+                    |    "processingDate": "2025-12-02T13:14:41Z",
+                    |    "code": "003",
+                    |    "text": "Request could not be processed"
+                    |  }
+                    |}
+                    |  """.stripMargin
+
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
+      status(result) shouldBe BAD_REQUEST
+      contentAsJson(result) shouldBe Json.parse(error)
+    }
+
+    "return BAD_REQUEST error for 422 with error code 004" in {
+
+      val error = """{
+                    |  "errors": {
+                    |    "processingDate": "2025-12-02T13:14:41Z",
+                    |    "code": "004",
+                    |    "text": "Duplicate submission acknowledgment reference"
+                    |  }
+                    |}
+                    |  """.stripMargin
+
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
+      status(result) shouldBe BAD_REQUEST
+      contentAsJson(result) shouldBe Json.parse(error)
+    }
+
+    "return BAD_REQUEST error for 422 with error code 005" in {
+
+      val error = """{
+                    |  "errors": {
+                    |    "processingDate": "2025-12-02T13:14:41Z",
+                    |    "code": "005",
+                    |    "text": "No Form Bundle found"
+                    |  }
+                    |}
+                    |  """.stripMargin
+
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
+      status(result) shouldBe BAD_REQUEST
+      contentAsJson(result) shouldBe Json.parse(error)
+    }
+
+    "return INTERNAL_SERVER_ERROR error for 422 with error code 999" in {
+
+      val error = """{
+                    |  "errors": {
+                    |    "processingDate": "2025-12-02T13:14:41Z",
+                    |    "code": "999",
+                    |    "text": "Technical error"
+                    |  }
+                    |}
+                    |  """.stripMargin
+
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsJson(result) shouldBe Json.parse(error)
+    }
+
+    "return INTERNAL_SERVER_ERROR for 422 with undefined error code 123" in {
+
+      val error = """{
+                    |  "errors": {
+                    |    "processingDate": "2025-12-02T13:14:41Z",
+                    |    "code": "123",
+                    |    "text": "Unknown error code"
+                    |  }
+                    |}
+                    |  """.stripMargin
+
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error, Map.empty[String, Seq[String]])))
+      val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
+      status(result) shouldBe INTERNAL_SERVER_ERROR
+      contentAsString(result).contains(error) shouldBe true
+      contentAsString(result).contains("Unsuccessful return of data.") shouldBe true
     }
 
   }
