@@ -26,9 +26,9 @@ import utils.{AWRSFeatureSwitches, Utility}
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class LookupService @Inject()(etmpConnector: EtmpConnector, hipConnector: HipConnector)(implicit ec: ExecutionContext) {
-
-  val awrsRegistrationNumber = "awrsRegistrationNumber"
+class LookupService @Inject()(etmpConnector: EtmpConnector,
+                              hipConnector: HipConnector)
+                             (implicit ec: ExecutionContext) {
 
   def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
@@ -61,5 +61,4 @@ class LookupService @Inject()(etmpConnector: EtmpConnector, hipConnector: HipCon
       }
     }
   }
-
 }
