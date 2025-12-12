@@ -94,11 +94,19 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
           |}
           |""".stripMargin)
 
+      val expectedJson: JsValue = Json.parse(
+        """
+          |{
+          |  "processingDate": "2025-09-11T10:30:00Z"
+          |}
+          |""".stripMargin)
+
       when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.CREATED, responseJson, Map.empty[String, Seq[String]])))
 
-      val result = TestWithdrawalService.withdrawal(requestJson, testRefNo)
-      await(result).status shouldBe Status.OK
+      val result = await(TestWithdrawalService.withdrawal(requestJson, testRefNo))
+      result.status shouldBe Status.OK
+      Json.parse(result.body)  mustBe expectedJson
     }
 
     "respond with appropriate failure status code for a withdrawal request" in {
@@ -138,7 +146,6 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
     }
 
   }
-
 
   "updateRequestForHip" must {
 
