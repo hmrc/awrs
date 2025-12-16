@@ -34,6 +34,7 @@ class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConne
 
   def withdrawal(withdrawalData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     if (AWRSFeatureSwitches.hipSwitch().enabled) {
+      metrics.startTimer(ApiType.API8Withdrawal)
       val hipRequestJson: JsResult[JsValue] = updateRequestForHip(withdrawalData)
 
       hipRequestJson match {

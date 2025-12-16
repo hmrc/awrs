@@ -17,7 +17,8 @@
 package services
 
 import connectors.{EtmpConnector, HipConnector}
-import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
@@ -25,12 +26,13 @@ import play.api.test.Helpers._
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import utils.AwrsTestJson.testRefNo
+import utils.FeatureSwitch.disable
 import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
-class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
+class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfterEach with BeforeAndAfterAll {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
@@ -38,27 +40,41 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
 
-  object TestLookupService$ extends LookupService(mockEtmpConnector, mockHipConnector)
+  override def beforeEach(): Unit = {
+    disable(AWRSFeatureSwitches.hipSwitch())
+  }
+
+  override def afterAll(): Unit = {
+    disable(AWRSFeatureSwitches.hipSwitch())
+  }
+
+  object TestLookupService extends LookupService(mockEtmpConnector, mockHipConnector)
 
 
   "LookupService " must {
 
     "successfully lookup application when passed a valid reference number" in {
       FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+
       val awrsRefNo = testRefNo
-      when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
+
+      when(mockEtmpConnector.lookup(any())(any()))
         .thenReturn(Future.successful(HttpResponse(OK, "", Map.empty[String, Seq[String]])))
-      val result = TestLookupService$.lookupApplication(awrsRefNo)
-      await(result).status shouldBe 200
+
+      val result = TestLookupService.lookupApplication(awrsRefNo)
+      await(result).status shouldBe OK
     }
 
     "return Bad Request when passed an invalid reference number" in {
       FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
+
       val invalidAwrsRefNo = "AAW00000123456"
-      when(mockEtmpConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
+
+      when(mockEtmpConnector.lookup(any())(any()))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "", Map.empty[String, Seq[String]])))
-      val result = TestLookupService$.lookupApplication(invalidAwrsRefNo)
-      await(result).status shouldBe 400
+
+      val result = TestLookupService.lookupApplication(invalidAwrsRefNo)
+      await(result).status shouldBe BAD_REQUEST
     }
 
     "successfully lookup application when passed a valid reference number v1" in {
@@ -66,133 +82,136 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
 
       val responseJson: JsValue = Json.parse(
         """
-          {
-          |  "subscriptionType": {
-          |    "awrsRegistrationNumber": "XHAW00000123456",
-          |    "businessPartnerName": "BusinessPartner",
-          |    "legalEntity": "Sole Trader",
-          |    "newAWBusiness": false,
-          |    "businessDetails": {
-          |      "soleProprietor": {
-          |        "tradingName": "Trading name",
-          |        "identification": {
-          |          "doYouHaveVRN": true,
-          |          "vrn": "123456789",
-          |          "doYouHaveUTR": false,
-          |          "doYouHaveNino": false
-          |        }
-          |      }
-          |    },
-          |    "businessAddressForAwrs": {
-          |      "currentAddress": {
-          |        "addressLine1": "102, Sutton Street",
-          |        "addressLine2": "Wokingham",
-          |        "postalCode": "DH1 4DJ",
-          |        "countryCode": "GB"
-          |      },
-          |      "communicationDetails": {
-          |        "telephone": "07123456789",
-          |        "mobileNo": "07123456789",
-          |        "email": "John@sky.com"
-          |      },
-          |      "operatingDuration": "over 10 years",
-          |      "differentOperatingAddresslnLast3Years": true
-          |    },
-          |    "contactDetails": {
-          |      "name": {
-          |        "firstName": "John",
-          |        "lastName": "Clark"
-          |      },
-          |      "useAlternateContactAddress": false,
-          |      "communicationDetails": {
-          |        "email": "John@googlemail.com"
-          |      }
-          |    },
-          |    "additionalBusinessInfo": {
-          |      "all": {
-          |        "typeOfWholesaler": {
-          |          "cashAndCarry": true,
-          |          "offTradeSupplierOnly": true,
-          |          "onTradeSupplierOnly": true,
-          |          "all": true,
-          |          "other": false
-          |        },
-          |        "typeOfAlcoholOrders": {
-          |          "onlineOnly": true,
-          |          "onlineAndTel": true,
-          |          "onlineTelAndPhysical": true,
-          |          "all": true,
-          |          "other": false
-          |        },
-          |        "typeOfCustomers": {
-          |          "pubs": true,
-          |          "nightClubs": true,
-          |          "privateClubs": true,
-          |          "hotels": true,
-          |          "hospitalityCatering": true,
-          |          "restaurants": true,
-          |          "indepRetailers": true,
-          |          "nationalRetailers": true,
-          |          "public": true,
-          |          "otherWholesalers": true,
-          |          "all": true,
-          |          "other": false
-          |        },
-          |        "productsSold": {
-          |          "beer": true,
-          |          "wine": true,
-          |          "spirits": true,
-          |          "cider": true,
-          |          "perry": true,
-          |          "all": true,
-          |          "other": false
-          |        },
-          |        "numberOfPremises": "1",
-          |        "premiseAddress": [
-          |          {
-          |            "address": {
-          |              "addressLine1": "100, Sutton Street",
-          |              "addressLine2": "Wokingham",
-          |              "postalCode": "DH1 4EJ",
-          |              "countryCode": "GB"
-          |            }
+          |{
+          |  "success": {
+          |    "subscriptionType": {
+          |      "awrsRegistrationNumber": "XHAW00000123456",
+          |      "businessPartnerName": "BusinessPartner",
+          |      "legalEntity": "Sole Trader",
+          |      "newAWBusiness": false,
+          |      "businessDetails": {
+          |        "soleProprietor": {
+          |          "tradingName": "Trading name",
+          |          "identification": {
+          |            "doYouHaveVRN": true,
+          |            "vrn": "123456789",
+          |            "doYouHaveUTR": false,
+          |            "doYouHaveNino": false
           |          }
-          |        ],
-          |        "thirdPartyStorageUsed": false,
-          |        "suppliers": {
-          |          "supplier": [
+          |        }
+          |      },
+          |      "businessAddressForAwrs": {
+          |        "currentAddress": {
+          |          "addressLine1": "102, Sutton Street",
+          |          "addressLine2": "Wokingham",
+          |          "postalCode": "DH1 4DJ",
+          |          "countryCode": "GB"
+          |        },
+          |        "communicationDetails": {
+          |          "telephone": "07123456789",
+          |          "mobileNo": "07123456789",
+          |          "email": "John@sky.com"
+          |        },
+          |        "operatingDuration": "over 10 years",
+          |        "differentOperatingAddresslnLast3Years": true
+          |      },
+          |      "contactDetails": {
+          |        "name": {
+          |          "firstName": "John",
+          |          "lastName": "Clark"
+          |        },
+          |        "useAlternateContactAddress": false,
+          |        "communicationDetails": {
+          |          "email": "John@googlemail.com"
+          |        }
+          |      },
+          |      "additionalBusinessInfo": {
+          |        "all": {
+          |          "typeOfWholesaler": {
+          |            "cashAndCarry": true,
+          |            "offTradeSupplierOnly": true,
+          |            "onTradeSupplierOnly": true,
+          |            "all": true,
+          |            "other": false
+          |          },
+          |          "typeOfAlcoholOrders": {
+          |            "onlineOnly": true,
+          |            "onlineAndTel": true,
+          |            "onlineTelAndPhysical": true,
+          |            "all": true,
+          |            "other": false
+          |          },
+          |          "typeOfCustomers": {
+          |            "pubs": true,
+          |            "nightClubs": true,
+          |            "privateClubs": true,
+          |            "hotels": true,
+          |            "hospitalityCatering": true,
+          |            "restaurants": true,
+          |            "indepRetailers": true,
+          |            "nationalRetailers": true,
+          |            "public": true,
+          |            "otherWholesalers": true,
+          |            "all": true,
+          |            "other": false
+          |          },
+          |          "productsSold": {
+          |            "beer": true,
+          |            "wine": true,
+          |            "spirits": true,
+          |            "cider": true,
+          |            "perry": true,
+          |            "all": true,
+          |            "other": false
+          |          },
+          |          "numberOfPremises": "1",
+          |          "premiseAddress": [
           |            {
-          |              "name": "Clare",
-          |              "isSupplierVatRegistered": true,
-          |              "vrn": "123456789",
           |              "address": {
-          |                "addressLine1": "101, Sutton Street",
+          |                "addressLine1": "100, Sutton Street",
           |                "addressLine2": "Wokingham",
-          |                "postalCode": "DH1 4BJ",
+          |                "postalCode": "DH1 4EJ",
           |                "countryCode": "GB"
           |              }
           |            }
-          |          ]
-          |        },
-          |        "alcoholGoodsExported": true,
-          |        "euDispatches": true,
-          |        "alcoholGoodsImported": true
+          |          ],
+          |          "thirdPartyStorageUsed": false,
+          |          "suppliers": {
+          |            "supplier": [
+          |              {
+          |                "name": "Clare",
+          |                "isSupplierVatRegistered": true,
+          |                "vrn": "123456789",
+          |                "address": {
+          |                  "addressLine1": "101, Sutton Street",
+          |                  "addressLine2": "Wokingham",
+          |                  "postalCode": "DH1 4BJ",
+          |                  "countryCode": "GB"
+          |                }
+          |              }
+          |            ]
+          |          },
+          |          "alcoholGoodsExported": true,
+          |          "euDispatches": true,
+          |          "alcoholGoodsImported": true
+          |        }
+          |      },
+          |      "declaration": {
+          |        "nameOfPerson": "Lee Hawks",
+          |        "statusOfPerson": "Authorised Signatory",
+          |        "informationIsAccurateAndComplete": true
           |      }
-          |    },
-          |    "declaration": {
-          |      "nameOfPerson": "Lee Hawks",
-          |      "statusOfPerson": "Authorised Signatory",
-          |      "informationIsAccurateAndComplete": true
           |    }
           |  }
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.lookup(any())(any()))
         .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
 
-      val result = TestLookupService$.lookupApplication(testRefNo)
-      await(result).status shouldBe Status.OK
+      val result = await(TestLookupService.lookupApplication(testRefNo))
+      result.status shouldBe Status.OK
+      Json.parse(result.body) shouldBe (responseJson \ "success").get
     }
 
     "respond the caller with appropriate failure status code for a validation failures in lookup request" in {
@@ -203,38 +222,32 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike {
           {
           |  "errors": {
           |    "processingDate": "2022-01-31T09:26:17Z",
-          |    "code": "003",
-          |    "text": "Request could not be processed"
+          |    "code": "002",
+          |    "text": "ID not found"
           |  }
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.lookup(any())(any()))
         .thenReturn(Future.successful(HttpResponse(Status.UNPROCESSABLE_ENTITY, responseJson, Map.empty[String, Seq[String]])))
 
-      val result = mockHipConnector.lookup(testRefNo)
-      await(result).status shouldBe Status.UNPROCESSABLE_ENTITY
+      val result = await(TestLookupService.lookupApplication(testRefNo))
+      result.status shouldBe Status.UNPROCESSABLE_ENTITY
+      Json.parse(result.body) mustBe responseJson
     }
 
-    "respond the caller with appropriate failure status code for a lookup request" in {
+    "respond the caller with BAD_REQUEST if invalid JSON is send" in {
       FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
-      val responseJson: JsValue = Json.parse(
-        """
-          {
-          |  "error": {
-          |    "code": "400",
-          |    "message": "string",
-          |    "logID": "24B56DEABD748EB11C66897AB601D222"
-          |  }
-          |}
-          |""".stripMargin)
+      val response: String =
+        """inavalid JSON""".stripMargin
 
-      when(mockHipConnector.lookup(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, responseJson, Map.empty[String, Seq[String]])))
+      when(mockHipConnector.lookup(any())(any()))
+        .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, response, Map.empty[String, Seq[String]])))
 
-      val result = mockHipConnector.lookup(testRefNo)
-      await(result).status shouldBe Status.BAD_REQUEST
+      val result = await(TestLookupService.lookupApplication(testRefNo))
+      result.status shouldBe Status.BAD_REQUEST
+      result.body mustBe response
     }
   }
 }
