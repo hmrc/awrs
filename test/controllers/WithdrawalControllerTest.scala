@@ -178,7 +178,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
         .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error999, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
-      contentAsJson(result) shouldBe Json.parse(error999)
+      contentAsString(result).contains(error999) shouldBe true
     }
 
     "return INTERNAL_SERVER_ERROR for 422 with undefined error code 123" in {

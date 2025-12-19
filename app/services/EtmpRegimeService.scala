@@ -22,7 +22,6 @@ import javax.inject.Inject
 import models._
 import play.api.Logging
 import play.api.http.Status._
-import play.api.libs.json.{JsString, Json}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisedFunctions, User}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -39,9 +38,6 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                                   with Logging {
 
   private val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
-
-  private val errorsNode = "errors"
-  private val codeNode = "code"
 
   def getEtmpBusinessDetails(safeId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
     etmpConnector.awrsRegime(safeId).map { response =>
