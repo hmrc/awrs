@@ -94,7 +94,7 @@ class WithdrawalController @Inject()(val auditConnector: AuditConnector,
                   metrics.incrementFailedCounter(ApiType.API8Withdrawal)
                   warn(s"[$auditAPI8TxName - $awrsRefNo ] - HIP is currently experiencing problems that require live service intervention: ${result.body}")
                   audit(transactionName = auditWithdrawalTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY,Internal Server Error"), eventType = eventTypeFailure)
-                  InternalServerError(result.body)
+                  InternalServerError(f"Unsuccessful return of data. Status code: ${result.status} with ${result.body}")
                 case status@_ =>
                   metrics.incrementFailedCounter(ApiType.API8Withdrawal)
                   warn(s"[$auditAPI8TxName - $awrsRefNo ] - Unsuccessful return of data. Status code: $status")
