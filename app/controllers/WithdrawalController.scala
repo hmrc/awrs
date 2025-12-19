@@ -24,6 +24,7 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services._
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import utils.HipHelpers.extractHipErrorCode
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext
@@ -77,6 +78,29 @@ class WithdrawalController @Inject()(val auditConnector: AuditConnector,
               warn(s"[$auditAPI8TxName - $awrsRefNo ] - WSO2 is currently experiencing problems that require live service intervention")
               audit(transactionName = auditWithdrawalTxName, detail = auditMap ++ Map("FailureReason" -> "Internal Server Error"), eventType = eventTypeFailure)
               InternalServerError(result.body)
+            case UNPROCESSABLE_ENTITY =>
+              extractHipErrorCode(result.body) match {
+                case Some("002") =>
+                  metrics.incrementFailedCounter(ApiType.API8Withdrawal)
+                  warn(s"[$auditAPI8TxName - $awrsRefNo ] - The remote endpoint has indicated that no data can be found")
+                  audit(transactionName = auditWithdrawalTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Not Found"), eventType = eventTypeFailure)
+                  NotFound(result.body)
+                case Some("003") | Some("004") | Some("005") =>
+                  metrics.incrementFailedCounter(ApiType.API8Withdrawal)
+                  warn(s"[$auditAPI8TxName - $awrsRefNo ] - Bad Request: ${result.body}")
+                  audit(transactionName = auditWithdrawalTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Bad Request", "EtmpJson" -> etmpWithdrawalJson.toString()), eventType = eventTypeFailure)
+                  BadRequest(result.body)
+                case Some("999") =>
+                  metrics.incrementFailedCounter(ApiType.API8Withdrawal)
+                  warn(s"[$auditAPI8TxName - $awrsRefNo ] - HIP is currently experiencing problems that require live service intervention: ${result.body}")
+                  audit(transactionName = auditWithdrawalTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY,Internal Server Error"), eventType = eventTypeFailure)
+                  InternalServerError(f"Unsuccessful return of data. Status code: ${result.status} with ${result.body}")
+                case status@_ =>
+                  metrics.incrementFailedCounter(ApiType.API8Withdrawal)
+                  warn(s"[$auditAPI8TxName - $awrsRefNo ] - Unsuccessful return of data. Status code: $status")
+                  audit(transactionName = auditWithdrawalTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Other Error"), eventType = eventTypeFailure)
+                  InternalServerError(f"Unsuccessful return of data. Status code: $status with ${result.body}")
+              }
             case status@_ =>
               metrics.incrementFailedCounter(ApiType.API8Withdrawal)
               warn(s"[$auditAPI8TxName - $awrsRefNo ] - Unsuccessful return of data. Status code: $status")

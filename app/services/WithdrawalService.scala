@@ -50,7 +50,7 @@ class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConne
                   )
 
                 case failedStatusCode =>
-                  logger.info(s"[WithdrawalService][withdrawal] Failure response from HIP endpoint: $failedStatusCode")
+                  logger.error(s"[WithdrawalService][withdrawal] Failure response from HIP endpoint: $failedStatusCode")
                   HttpResponse(
                     status = failedStatusCode,
                     body = response.body,

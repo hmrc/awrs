@@ -22,11 +22,10 @@ import javax.inject.Inject
 import models._
 import play.api.Logging
 import play.api.http.Status._
-import play.api.libs.json.{JsString, Json}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisedFunctions, User}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.{AWRSFeatureSwitches, Utility}
+import utils.{AWRSFeatureSwitches, HipHelpers, Utility}
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -39,9 +38,6 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                                   with Logging {
 
   private val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
-
-  private val errorsNode = "errors"
-  private val codeNode = "code"
 
   def getEtmpBusinessDetails(safeId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
     etmpConnector.awrsRegime(safeId).map { response =>
@@ -97,7 +93,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
             val statusType = Utility.stripSuccessNode(response.json).as[SubscriptionStatusType](SubscriptionStatusType.reader)
             Some(statusType.formBundleStatus.name)
           case NOT_FOUND => None
-          case UNPROCESSABLE_ENTITY if hipErrorCode(response.body) == Some("002") => None
+          case UNPROCESSABLE_ENTITY if HipHelpers.extractHipErrorCode(response.body) == Some("002") => None
           case status =>
             logger.warn(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status ${response.body}")
             throw new RuntimeException(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status ${response.body}")
@@ -213,16 +209,6 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
       case Some(AffinityGroup.Individual) if matchIndividual(bcd, erd) => Some(erd)
       case Some(AffinityGroup.Organisation) if matchOrg(bcd, erd) => Some(erd)
       case _ => None
-    }
-  }
-
-  private def hipErrorCode(jsonString: String): Option[String] = {
-
-    for {
-      errorMessageBody <- Try(Json.parse(jsonString)).toOption
-      errorCodeNode <- (errorMessageBody \ errorsNode \ codeNode).toOption
-    } yield {
-      errorCodeNode.asInstanceOf[JsString].value
     }
   }
 }
