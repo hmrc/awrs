@@ -20,10 +20,12 @@ import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models.{ApiType, DeRegistration, DeRegistrationType}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
 import services._
+import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import utils.HipHelpers.extractHipErrorCode
 import utils.LoggingUtils
 
 import scala.concurrent.ExecutionContext
@@ -59,7 +61,7 @@ class DeRegistrationController @Inject()(val auditConnector: AuditConnector,
                 // this case should never happen, since at least one of the response types should be returned
                 case DeRegistrationType(None) =>
                   metrics.incrementFailedCounter(apiType)
-                  audit(auditAPI10TxName, Map("awrsRef" -> awrsRef.toString, "Corrupt-ETMP-Data" -> result.json.toString()), eventTypeInternalServerError)
+                  audit(auditAPI10TxName, Map("awrsRef" -> awrsRef, "Corrupt-ETMP-Data" -> result.json.toString()), eventTypeInternalServerError)
                   err(s"[$auditAPI10TxName - $awrsRef ] - corrupt etmp data")
                   InternalServerError(result.body)
               }
@@ -79,11 +81,41 @@ class DeRegistrationController @Inject()(val auditConnector: AuditConnector,
               metrics.incrementFailedCounter(apiType)
               err(s"[$auditAPI10TxName - $awrsRef ] - WSO2 is currently experiencing problems that require live service intervention")
               InternalServerError(result.body)
+            case UNPROCESSABLE_ENTITY =>
+              handle422(awrsRef, result, deRegistrationJsValue)
             case status@_ =>
               metrics.incrementFailedCounter(apiType)
               err(s"[$auditAPI10TxName - $awrsRef ] - Unsuccessful return of data")
               InternalServerError(f"Unsuccessful return of data. Status code: $status")
           }
       }
+  }
+
+  private def handle422(awrsRef: String, result: HttpResponse, deregistrationJsValue: JsValue)(implicit hc: HeaderCarrier): Result = {
+
+    val auditMap: Map[String, String] = Map("AWRS Reference No" -> awrsRef)
+
+    extractHipErrorCode(result.body) match {
+      case Some("002") =>
+        metrics.incrementFailedCounter(ApiType.API10DeRegistration)
+        warn(s"[$auditAPI10TxName - $awrsRef ] - The remote endpoint has indicated that no data can be found")
+        audit(transactionName = auditAPI10TxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Not Found"), eventType = eventTypeFailure)
+        NotFound(result.body)
+      case Some("003") | Some("004") | Some("005") =>
+        metrics.incrementFailedCounter(ApiType.API10DeRegistration)
+        warn(s"[$auditAPI10TxName - $awrsRef ] - Bad Request: ${result.body}")
+        audit(transactionName = auditAPI10TxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Bad Request", "EtmpJson" -> deregistrationJsValue.toString()), eventType = eventTypeFailure)
+        BadRequest(result.body)
+      case Some("999") =>
+        metrics.incrementFailedCounter(ApiType.API10DeRegistration)
+        warn(s"[$auditAPI10TxName - $awrsRef ] - HIP is currently experiencing problems that require live service intervention: ${result.body}")
+        audit(transactionName = auditAPI10TxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY,Internal Server Error"), eventType = eventTypeFailure)
+        InternalServerError(f"Unsuccessful return of data. Status code: ${result.status} with ${result.body}")
+      case status@_ =>
+        metrics.incrementFailedCounter(ApiType.API10DeRegistration)
+        warn(s"[$auditAPI10TxName - $awrsRef ] - Unsuccessful return of data. Status code: $status")
+        audit(transactionName = auditAPI10TxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Other Error"), eventType = eventTypeFailure)
+        InternalServerError(f"Unsuccessful return of data. Status code: $status with ${result.body}")
+    }
   }
 }
