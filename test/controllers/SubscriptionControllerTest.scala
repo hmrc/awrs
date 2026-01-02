@@ -135,9 +135,63 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
         status(result) shouldBe INTERNAL_SERVER_ERROR
         contentAsJson(result) shouldBe serverError
       }
+
+      "for 422 with HIP code 002, return NOT_FOUND" in {
+        val error002 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "002",
+            |    "text": "ID not found"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error002, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
+        status(result) shouldBe NOT_FOUND
+      }
+
+      "for 422 with HIP code 007, return BAD_REQUEST" in {
+        val error007 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "007",
+            |    "text": "Business Partner already has an active AWRS Subscription"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error007, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "for 422 with HIP code 999, return INTERNAL_SERVER_ERROR" in {
+        val error999 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "999",
+            |    "text": "Technical Error"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockSubcriptionService.subscribe(any(), any(), any(), any(), any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error999, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.subscribe().apply(FakeRequest().withJsonBody(api4FrontendLTDJson))
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
     }
 
-    "Subscription Controller " must {
+    "lookupApplication" must {
 
       "lookup submitted application from HODS when passed a valid awrs reference" in {
         when(mockLookupService.lookupApplication(any())(any())).thenReturn(Future.successful(HttpResponse(OK, api4EtmpLTDJson, Map.empty[String, Seq[String]])))
@@ -169,9 +223,62 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
 
+      "return NOT_FOUND for 422 with HIP code 002" in {
+        val error002 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "002",
+            |    "text": "ID not found"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockLookupService.lookupApplication(any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error002, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.lookupApplication(testRefNo).apply(FakeRequest())
+        status(result) shouldBe NOT_FOUND
+      }
+
+      "return BAD_REQUEST for 422 with HIP code 006" in {
+        val error006 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "006",
+            |    "text": "No Records Found"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockLookupService.lookupApplication(any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error006, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.lookupApplication(testRefNo).apply(FakeRequest())
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "return INTERNAL_SERVER_ERROR for 422 with HIP code 999" in {
+        val error999 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "999",
+            |    "text": "Technical Error"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockLookupService.lookupApplication(any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error999, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.lookupApplication(testRefNo).apply(FakeRequest())
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
     }
 
-    "For API6, Subscription Controller " must {
+    "updateSubscription" must {
       val updateSuccessResponse = Json.parse( """{"processingDate":"2015-12-17T09:30:47Z","etmpFormBundleNumber":"123456789012345"}""")
 
       "respond with OK" in {
@@ -202,6 +309,60 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
       "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
         when(mockSubcriptionService.updateSubscription(any(), any())(any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, serverError, Map.empty[String, Seq[String]])))
         val result = TestSubscriptionController.updateSubscription("").apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
+
+      "for 422 with HIP code 002, return NOT_FOUND" in {
+        val error002 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "002",
+            |    "text": "ID not found"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockSubcriptionService.updateSubscription(any(), any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error002, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.updateSubscription(testRefNo).apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
+        status(result) shouldBe NOT_FOUND
+      }
+
+      "for 422 with HIP code 008, return BAD_REQUEST" in {
+        val error008 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "008",
+            |    "text": "Business Partner does not have an active AWRS Subscription"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockSubcriptionService.updateSubscription(any(), any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error008, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.updateSubscription(testRefNo).apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
+        status(result) shouldBe BAD_REQUEST
+      }
+
+      "for 422 with HIP code 999, return INTERNAL_SERVER_ERROR" in {
+        val error999 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "999",
+            |    "text": "Technical Error"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockSubcriptionService.updateSubscription(any(), any())(any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error999, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.updateSubscription(testRefNo).apply(FakeRequest().withJsonBody(api6FrontendLTDJson))
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
     }
@@ -241,7 +402,7 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
       }
     }
 
-    "For API 9, Subscription Controller " must {
+    "checkStatus" must {
 
       "check submitted application status from HODS when passed a valid awrs reference" in {
 
@@ -286,6 +447,41 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
         status(result) shouldBe INTERNAL_SERVER_ERROR
       }
 
+      "return NOT_FOUND for 422 with HIP code 002" in {
+        val error002 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "002",
+            |    "text": "ID not found"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockEtmpStatusService.checkStatus(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error002, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.checkStatus(testRefNo).apply(FakeRequest())
+        status(result) shouldBe NOT_FOUND
+      }
+
+      "return INTERNAL_SERVER_ERROR for 422 with HIP code 999" in {
+        val error999 =
+          """{
+            |  "errors": {
+            |    "processingDate": "2025-12-02T13:14:41Z",
+            |    "code": "999",
+            |    "text": "Technical Error"
+            |  }
+            |}
+            |""".stripMargin
+
+        when(mockEtmpStatusService.checkStatus(any())(any(), any()))
+          .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error999, Map.empty[String, Seq[String]])))
+
+        val result = TestSubscriptionController.checkStatus(testRefNo).apply(FakeRequest())
+        status(result) shouldBe INTERNAL_SERVER_ERROR
+      }
     }
   }
 }
