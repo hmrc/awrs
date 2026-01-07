@@ -93,7 +93,7 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
           metrics.incrementFailedCounter(ApiType.API4Subscribe)
           warn(s"[$auditAPI4TxName - $safeId ] - Unsuccessful return of data")
           audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Other Error"), eventType = eventTypeFailure)
-          Future.successful(InternalServerError(f"Unsuccessful return of data. Status code: $status"))
+          Future.successful(InternalServerError(f"Unsuccessful return of data. Status code: $status, body=${registerData.body}"))
       }
     }
   }

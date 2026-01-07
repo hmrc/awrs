@@ -40,7 +40,7 @@ class EtmpStatusService @Inject()(etmpConnector: EtmpConnector, hipConnector: Hi
                 headers = response.headers
               )
             case failedStatusCode =>
-              logger.error(s"[EtmpStatusService][checkStatus] Failure response from HIP endpoint: $failedStatusCode")
+              logger.error(s"[EtmpStatusService][checkStatus] Failure response from HIP endpoint: $failedStatusCode, body=${response.body}")
               HttpResponse(
                 status = failedStatusCode,
                 body = response.body,

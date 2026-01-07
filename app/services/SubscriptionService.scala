@@ -100,7 +100,7 @@ class SubscriptionService @Inject()(
                 val strippedSuccessBody = Utility.stripSuccessNode(response.json)
                 HttpResponse(response.status, strippedSuccessBody.toString(), response.headers)
               case status@_ =>
-                logger.error(s"[SubscriptionService][updateSubscription] Failure response from HIP endpoint : $status")
+                logger.error(s"[SubscriptionService][updateSubscription] Failure response from HIP endpoint : $status, body=${response.body}")
                 response
             }
           }
