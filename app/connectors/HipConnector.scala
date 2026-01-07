@@ -16,6 +16,7 @@
 
 package connectors
 
+import play.api.Logging
 import play.api.libs.json.{JsValue, Json, Writes}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
@@ -32,7 +33,7 @@ class HipConnector @Inject() (http: HttpClientV2,
                               val auditConnector: AuditConnector,
                               config: ServicesConfig)
                              (implicit ec: ExecutionContext)
-  extends RawResponseReads {
+  extends RawResponseReads  with Logging {
 
   lazy val serviceURL: String = config.baseUrl("hip")
   val baseURI: String = "/etmp/RESTAdapter/awrs"
@@ -73,10 +74,14 @@ class HipConnector @Inject() (http: HttpClientV2,
     http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
   def deRegister(awrsRefNo: String, deRegDetails: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+//    The below log message have to be removed and should not be deployed to production
+    logger.warn(s"Deregistration Request: $deRegDetails")
     cPOST(s"""$serviceURL$baseURI$subscriptionURI$deRegistrationURI/$awrsRefNo""", deRegDetails)
   }
 
   def withdrawal(awrsRefNo: String, withdrawalData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    //    The below log message have to be removed and should not be deployed to production
+    logger.warn(s"Withdrawal Request: $withdrawalData")
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$withdrawalURI/$awrsRefNo""", withdrawalData)
   }
 
