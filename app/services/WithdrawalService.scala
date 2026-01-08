@@ -50,7 +50,7 @@ class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConne
                   )
 
                 case failedStatusCode =>
-                  logger.error(s"[WithdrawalService][withdrawal] Failure response from HIP endpoint: $failedStatusCode")
+                  logger.error(s"[WithdrawalService][withdrawal] Failure response from HIP endpoint: $failedStatusCode,  body=${response.body}")
                   HttpResponse(
                     status = failedStatusCode,
                     body = response.body,
@@ -72,7 +72,7 @@ class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConne
 
   def updateRequestForHip(withdrawalData: JsValue): JsResult[JsObject] = {
       withdrawalData.validate[JsObject].map { requestJsObject =>
-        val updatedRequest: JsObject = requestJsObject - "acknowledgementReference"
+        val updatedRequest: JsObject = requestJsObject - "acknowledgmentReference"
         updatedRequest
       }
     }

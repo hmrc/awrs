@@ -44,7 +44,7 @@ class LookupService @Inject()(etmpConnector: EtmpConnector,
               )
 
             case failedStatusCode =>
-              logger.error(s"[LookupService][lookupApplication] Failure response from HIP endpoint: $failedStatusCode")
+              logger.error(s"[LookupService][lookupApplication] Failure response from HIP endpoint: $failedStatusCode, body=${response.body}")
               HttpResponse(
                 status = failedStatusCode,
                 body = response.body,
