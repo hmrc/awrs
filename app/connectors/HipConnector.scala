@@ -51,7 +51,7 @@ class HipConnector @Inject() (http: HttpClientV2,
   private val authorizationToken: String = Base64.getEncoder.encodeToString(s"$clientId:$clientSecret".getBytes("UTF-8"))
   private val originatingSystem: String = config.getConfString("hip.originatingSystem", "AWRS")
 
-  val headers: Seq[(String, String)] = Seq(
+  def headers: Seq[(String, String)] = Seq(
     "correlationid" -> UUID.randomUUID().toString,
     "X-Originating-System" -> originatingSystem,
     "X-Receipt-Date" -> retrieveCurrentTime,
@@ -67,8 +67,11 @@ class HipConnector @Inject() (http: HttpClientV2,
   @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
     http.get(url"$url").setHeader(headers: _*).execute[A]
 
-  @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
+  @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
+    //For debugging purpose only. Remove this before deploying to production
+    logger.warn(s"[cPOST] Headers being sent: ${headers.mkString(", ")}")
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
+  }
 
   @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
     http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
