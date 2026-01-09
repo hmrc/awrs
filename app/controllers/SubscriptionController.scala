@@ -21,9 +21,10 @@ import metrics.AwrsMetrics
 import models._
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services.{LookupService, EtmpRegimeService, EtmpStatusService, SubscriptionService}
+import services.{EtmpRegimeService, EtmpStatusService, LookupService, SubscriptionService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import utils.HipHelpers.extractHipErrorCode
 import utils.LoggingUtils
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -89,6 +90,34 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
           warn(s"[$auditAPI4TxName - $safeId ] - WSO2 is currently experiencing problems that require live service intervention")
           audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Server error"), eventType = eventTypeFailure)
           Future.successful(InternalServerError(registerData.body))
+        case UNPROCESSABLE_ENTITY =>
+          Future.successful(
+            extractHipErrorCode(registerData.body) match {
+              case Some("002") =>
+                metrics.incrementFailedCounter(ApiType.API4Subscribe)
+                warn(s"[$auditAPI4TxName - $safeId ] - The remote endpoint has indicated that no data from safeId can be found")
+                audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Not Found"), eventType = eventTypeFailure)
+                NotFound(registerData.body)
+
+              case Some("003") | Some("004") | Some("007") =>
+                metrics.incrementFailedCounter(ApiType.API4Subscribe)
+                warn(s"[$auditAPI4TxName - $safeId ] - Bad Request: ${registerData.body}")
+                audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Bad Request", "EtmpJson" -> convertedEtmpJson.toString()), eventType = eventTypeFailure)
+                BadRequest(registerData.body)
+
+              case Some("999") =>
+                metrics.incrementFailedCounter(ApiType.API4Subscribe)
+                warn(s"[$auditAPI4TxName - $safeId ] - HIP is currently experiencing problems that require live service intervention: ${registerData.body}")
+                audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY,Internal Server Error"), eventType = eventTypeFailure)
+                InternalServerError(f"Unsuccessful return of data. Status code: ${registerData.status} with ${registerData.body}")
+
+              case status@_ =>
+                metrics.incrementFailedCounter(ApiType.API4Subscribe)
+                warn(s"[$auditAPI4TxName - $safeId ] - Unsuccessful return of data. Status code: $status")
+                audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Other Error"), eventType = eventTypeFailure)
+                InternalServerError(f"Unsuccessful return of data. Status code: $status with ${registerData.body}")
+            }
+          )
         case status@_ =>
           metrics.incrementFailedCounter(ApiType.API4Subscribe)
           warn(s"[$auditAPI4TxName - $safeId ] - Unsuccessful return of data")
@@ -111,7 +140,7 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
       val changeIndicators = feJson \ subscriptionTypeJSPath \ "changeIndicators"
 
 
-      val auditMap: Map[String, String] = Map("AWRS Reference No" -> awrsRefNo, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType, "change-flags" -> changeIndicators.toString())
+      val auditMap: Map[String, String] = Map("AWRS Reference No" -> awrsRefNo, "UserDetail" -> userOrBusinessName, "legal-entity" -> legalEntityType, "change-flags" -> changeIndicators.toString)
       val timer = metrics.startTimer(ApiType.API6UpdateSubscription)
       subscriptionService.updateSubscription(convertedEtmpJson, awrsRefNo).map {
         updatedData =>
@@ -143,6 +172,32 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
               warn(s"[$auditAPI6TxName - $awrsRefNo ] - WSO2 is currently experiencing problems that require live service intervention")
               audit(transactionName = auditUpdateSubscriptionTxName, detail = auditMap ++ Map("FailureReason" -> "Internal Server Error"), eventType = eventTypeFailure)
               InternalServerError(updatedData.body)
+            case UNPROCESSABLE_ENTITY =>
+              extractHipErrorCode(updatedData.body) match {
+                case Some("002") =>
+                  metrics.incrementFailedCounter(ApiType.API6UpdateSubscription)
+                  warn(s"[$auditAPI6TxName - $awrsRefNo ] - The remote endpoint has indicated that no data can be found")
+                  audit(transactionName = auditUpdateSubscriptionTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Not Found"), eventType = eventTypeFailure)
+                  NotFound(updatedData.body)
+
+                case Some("003") | Some("004") | Some("008") =>
+                  metrics.incrementFailedCounter(ApiType.API6UpdateSubscription)
+                  warn(s"[$auditAPI6TxName - $awrsRefNo ] - Bad Request: ${updatedData.body}")
+                  audit(transactionName = auditUpdateSubscriptionTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Bad Request", "EtmpJson" -> convertedEtmpJson.toString()), eventType = eventTypeFailure)
+                  BadRequest(updatedData.body)
+
+                case Some("999") =>
+                  metrics.incrementFailedCounter(ApiType.API6UpdateSubscription)
+                  warn(s"[$auditAPI6TxName - $awrsRefNo ] - HIP is currently experiencing problems that require live service intervention: ${updatedData.body}")
+                  audit(transactionName = auditUpdateSubscriptionTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY,Internal Server Error"), eventType = eventTypeFailure)
+                  InternalServerError(f"Unsuccessful return of data. Status code: ${updatedData.status} with ${updatedData.body}")
+
+                case status@_ =>
+                  metrics.incrementFailedCounter(ApiType.API6UpdateSubscription)
+                  warn(s"[$auditAPI6TxName - $awrsRefNo ] - Unsuccessful return of data. Status code: $status")
+                  audit(transactionName = auditUpdateSubscriptionTxName, detail = auditMap ++ Map("FailureReason" -> "UNPROCESSABLE_ENTITY, Other Error"), eventType = eventTypeFailure)
+                  InternalServerError(f"Unsuccessful return of data. Status code: $status with ${updatedData.body}")
+              }
             case status@_ =>
               metrics.incrementFailedCounter(ApiType.API6UpdateSubscription)
               warn(s"[$auditAPI6TxName - $awrsRefNo ] - Unsuccessful return of data")
@@ -182,6 +237,28 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
               metrics.incrementFailedCounter(ApiType.API5LookupSubscription)
               warn(s"[$auditAPI5TxName  - $awrsRef ] - WSO2 is currently experiencing problems that require live service intervention")
               InternalServerError(result.body)
+            case UNPROCESSABLE_ENTITY =>
+              extractHipErrorCode(result.body) match {
+                case Some("002") =>
+                  metrics.incrementFailedCounter(ApiType.API5LookupSubscription)
+                  warn(s"[$auditAPI5TxName - $awrsRef ] - The remote endpoint has indicated that no data can be found")
+                  NotFound(result.body)
+
+                case Some("003") | Some("005") | Some("006") =>
+                  metrics.incrementFailedCounter(ApiType.API5LookupSubscription)
+                  warn(s"[$auditAPI5TxName - $awrsRef ] - Bad Request: ${result.body}")
+                  BadRequest(result.body)
+
+                case Some("999") =>
+                  metrics.incrementFailedCounter(ApiType.API5LookupSubscription)
+                  warn(s"[$auditAPI5TxName - $awrsRef ] - HIP is currently experiencing problems that require live service intervention: ${result.body}")
+                  InternalServerError(f"Unsuccessful return of data. Status code: ${result.status} with ${result.body}")
+
+                case status@_ =>
+                  metrics.incrementFailedCounter(ApiType.API5LookupSubscription)
+                  warn(s"[$auditAPI5TxName - $awrsRef ] - Unsuccessful return of data. Status code: $status")
+                  InternalServerError(f"Unsuccessful return of data. Status code: $status with ${result.body}")
+              }
             case status@_ =>
               metrics.incrementFailedCounter(ApiType.API5LookupSubscription)
               warn(s"[$auditAPI5TxName  - $awrsRef ] - Unsuccessful return of data")
@@ -218,6 +295,23 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
               metrics.incrementFailedCounter(ApiType.API9UpdateSubscription)
               warn(s"[$auditAPI9TxName - $awrsRef ] - WSO2 is currently experiencing problems that require live service intervention")
               InternalServerError(result.body)
+            case UNPROCESSABLE_ENTITY =>
+              extractHipErrorCode(result.body) match {
+                case Some("002") =>
+                  metrics.incrementFailedCounter(ApiType.API9UpdateSubscription)
+                  warn(s"[$auditAPI9TxName - $awrsRef ] - The remote endpoint has indicated that no data can be found")
+                  NotFound(result.body)
+
+                case Some("999") =>
+                  metrics.incrementFailedCounter(ApiType.API9UpdateSubscription)
+                  warn(s"[$auditAPI9TxName - $awrsRef ] - HIP is currently experiencing problems that require live service intervention: ${result.body}")
+                  InternalServerError(f"Unsuccessful return of data. Status code: ${result.status} with ${result.body}")
+
+                case status@_ =>
+                  metrics.incrementFailedCounter(ApiType.API9UpdateSubscription)
+                  warn(s"[$auditAPI9TxName - $awrsRef ] - Unsuccessful return of data. Status code: $status")
+                  InternalServerError(f"Unsuccessful return of data. Status code: $status with ${result.body}")
+              }
             case status@_ =>
               metrics.incrementFailedCounter(ApiType.API9UpdateSubscription)
               warn(s"[$auditAPI9TxName - $awrsRef ] - Unsuccessful return of data")
