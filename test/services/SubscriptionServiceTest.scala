@@ -378,19 +378,19 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
 
   "subscriptionService.subscribe" when {
     "feature flag is on and hip connector is enabled" must {
-      "return OK when valid json is passed" in {
+      "return CREATED when valid json is passed" in {
         FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
         when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-          .thenReturn(Future.successful(HttpResponse(OK, hipSuccessfulResponse, Map.empty[String, Seq[String]])))
+          .thenReturn(Future.successful(HttpResponse(CREATED, hipSuccessfulResponse, Map.empty[String, Seq[String]])))
         when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(
-            Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty[String, Seq[String]]))
+            Future.successful(HttpResponse(CREATED, ggEnrolResponse, Map.empty[String, Seq[String]]))
           )
 
         val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
         val response = await(result)
-        response.status shouldBe OK
+        response.status shouldBe CREATED
         response.json shouldBe successResponse
       }
 

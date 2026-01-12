@@ -49,6 +49,10 @@ class SubscriptionService @Inject()(
           timer.stop()
           metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
           submitResponse
+        case (CREATED, NO_CONTENT) =>
+          timer.stop()
+          metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
+          submitResponse
         case _ =>
           timer.stop()
           metrics.incrementFailedCounter(ApiType.API4AddKnownFacts)
