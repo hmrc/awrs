@@ -97,10 +97,14 @@ class HipConnector @Inject() (http: HttpClientV2,
   }
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    //    The below log message have to be removed and should not be deployed to production
+    logger.warn(s"Create Request: $registerData")
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$subscriptionCreateURI/$safeId""", registerData)
   }
 
   def updateSubscription(updateData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+    //    The below log message have to be removed and should not be deployed to production
+    logger.warn(s"Update Request: $updateData")
     cPUT(s"""$serviceURL$baseURI$subscriptionURI$updateURI/$awrsRefNo""", updateData)
   }
 }
