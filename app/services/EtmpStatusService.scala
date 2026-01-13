@@ -24,9 +24,11 @@ import play.api.libs.json.Json
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{AWRSFeatureSwitches, Utility}
 
-class EtmpStatusService @Inject()(etmpConnector: EtmpConnector, hipConnector: HipConnector) extends Logging {
+class EtmpStatusService @Inject()(etmpConnector: EtmpConnector, hipConnector: HipConnector)
+                                 (implicit config: ServicesConfig) extends Logging {
 
   def checkStatus(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] =
     if (AWRSFeatureSwitches.hipSwitch().enabled) {

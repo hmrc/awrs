@@ -23,6 +23,7 @@ import play.api.http.Status._
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.utils.{IntegrationData, Stubs}
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{AWRSFeatureSwitches, FeatureSwitch}
 
 import scala.concurrent.duration.FiniteDuration
@@ -32,6 +33,8 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
   val secondsToWait: Int = 20
 
   val controllerUrl = "/awrs/send-data"
+
+  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   "subscribe()" should {
     "return 200" when {

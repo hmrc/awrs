@@ -16,6 +16,8 @@
 
 package utils
 
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import java.time.format.DateTimeFormatter
 import java.time.{ZoneId, ZonedDateTime}
 import scala.util.matching.Regex
@@ -54,19 +56,18 @@ object FeatureSwitch {
   val dateFormat: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
 
-  private[utils] def getProperty(name: String): FeatureSwitch = {
+  private[utils] def getProperty(name: String)(implicit config: ServicesConfig): FeatureSwitch = {
     val value = sys.props.get(systemPropertyName(name))
-
     value match {
       case Some("true") => BooleanFeatureSwitch(name, enabled = true)
       case Some(DisabledIntervalExtractor(start, end)) => DisabledTimedFeatureSwitch(name, toDate(start), toDate(end), ZonedDateTime.now(ZoneId.of("UTC")))
       case Some(EnabledIntervalExtractor(start, end)) => EnabledTimedFeatureSwitch(name, toDate(start), toDate(end), ZonedDateTime.now(ZoneId.of("UTC")))
 
-      case _ => BooleanFeatureSwitch(name, enabled = false)
+      case _ => BooleanFeatureSwitch(name, enabled = config.getBoolean(s"feature.$name"))
     }
   }
 
-  private[utils] def setProperty(name: String, value: String): FeatureSwitch = {
+  private[utils] def setProperty(name: String, value: String)(implicit config: ServicesConfig): FeatureSwitch = {
     sys.props += ((systemPropertyName(name), value))
     getProperty(name)
   }
@@ -81,10 +82,10 @@ object FeatureSwitch {
 
   private[utils] def systemPropertyName(name: String) = s"feature.$name"
 
-  def enable(fs: FeatureSwitch): FeatureSwitch = setProperty(fs.name, "true")
-  def disable(fs: FeatureSwitch): FeatureSwitch = setProperty(fs.name, "false")
+  def enable(fs: FeatureSwitch)(implicit config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "true")
+  def disable(fs: FeatureSwitch)(implicit config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "false")
 
-  def apply(name: String, enabled: Boolean = false): FeatureSwitch = getProperty(name)
+  def apply(name: String, enabled: Boolean = false)(implicit config: ServicesConfig): FeatureSwitch = getProperty(name)
   def unapply(fs: FeatureSwitch): Option[(String, Boolean)] = Some(fs.name -> fs.enabled)
 }
 
@@ -92,10 +93,10 @@ object AWRSFeatureSwitches extends AWRSFeatureSwitches
 
 trait AWRSFeatureSwitches {
 
-  def regimeCheck(): FeatureSwitch = FeatureSwitch.getProperty("regimeCheck")
-  def hipSwitch(): FeatureSwitch = FeatureSwitch.getProperty("hipSwitch")
+  def regimeCheck()(implicit config: ServicesConfig): FeatureSwitch = FeatureSwitch.getProperty("regimeCheck")
+  def hipSwitch()(implicit config: ServicesConfig): FeatureSwitch = FeatureSwitch.getProperty("hipSwitch")
 
-  def apply(name: String): Option[FeatureSwitch] = name match {
+  def apply(name: String)(implicit config: ServicesConfig): Option[FeatureSwitch] = name match {
     case "regimeCheck" => Some(regimeCheck())
     case "hipSwitch" => Some(hipSwitch())
     case _ => None

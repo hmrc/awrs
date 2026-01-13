@@ -25,6 +25,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisedFunctions, User}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{AWRSFeatureSwitches, HipHelpers, Utility}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -33,7 +34,8 @@ import scala.util.{Failure, Success, Try}
 class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
                                   hipConnector: HipConnector,
                                   val enrolmentStoreConnector: EnrolmentStoreConnector,
-                                  val authConnector: AuthConnector) extends AuthorisedFunctions
+                                  val authConnector: AuthConnector)
+                                 (implicit config: ServicesConfig) extends AuthorisedFunctions
                                   with NonSelfHealStatus
                                   with Logging {
 

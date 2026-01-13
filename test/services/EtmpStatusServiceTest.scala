@@ -24,6 +24,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
 
 import java.util.UUID
@@ -33,6 +34,7 @@ class EtmpStatusServiceTest extends BaseSpec with AnyWordSpecLike {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
