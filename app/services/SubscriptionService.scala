@@ -65,7 +65,7 @@ class SubscriptionService @Inject()(
             modifiedSubmitResponse = {
 //              This Log message have to be removed while deploying HIP
               logger.warn(s"[SubscriptionService][createSubscription] Failure response from HIP endpoint: status=${submitResponse.status}, body=${submitResponse.body}")
-              HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
+              HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode), submitResponse.headers)
             }
             enrolmentResponse <- addKnownFacts(modifiedSubmitResponse, safeId, utr, businessType, postcode)
           } yield handleSubscriptionResponse(modifiedSubmitResponse, enrolmentResponse)
@@ -151,7 +151,8 @@ class SubscriptionService @Inject()(
   }
 
   def updateRequestForHip(requestJson: JsValue): JsResult[JsObject] = {
-    requestJson.validate[JsObject].map { requestJsObject =>
+    val updatedRequest = Utility.mapCrnForHipRequest(requestJson)
+    updatedRequest.validate[JsObject].map { requestJsObject =>
       requestJsObject - acknowledgmentReference
     }
   }

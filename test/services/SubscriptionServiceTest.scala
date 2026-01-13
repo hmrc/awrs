@@ -48,7 +48,9 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
   val inputJson: JsValue = api4EtmpLTDJson
   val inputJsonUpdate: JsValue = api6RequestUpdateJsonWithAck
   val inputJsonWithAckRemovedUpdate: JsValue = ackRemovedJson
-  val hipInputJson: JsValue = api4hipLTDNewBusinessJson
+  val hipApi4InputLTDNewBusinessJson: JsValue = api4hipLTDNewBusinessJson
+  val hipApi4InputSoleTraderNewBusinessJson: JsValue = api4hipSoleTraderNewBusinessJson
+  val hipApi4InputCorporateBodyNewBusinessJson: JsValue = api4hipCorporateBodyNewBusinessJson
   val hipSuccessfulResponse: JsValue = api4hipSuccessfulResponseJson
 
   val safeId = "XA0001234567890"
@@ -308,6 +310,52 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
         response.status shouldBe OK
       }
 
+      "respond with ok when valid update subscription json is supplied (Sole Trader)" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockHipConnector.updateSubscription(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                OK,
+                api6SuccessResponseHipJson,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result =
+          testSubscriptionService.updateSubscription(hipApi4InputSoleTraderNewBusinessJson, testRefNo)
+        val response = await(result)
+        response.status shouldBe OK
+      }
+
+      "repond with ok when valid update subscription json is supplied (Corporate Body)" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+        when(
+          mockHipConnector.updateSubscription(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any()
+          )(ArgumentMatchers.any())
+        )
+          .thenReturn(
+            Future.successful(
+              HttpResponse(
+                OK,
+                api6SuccessResponseHipJson,
+                Map.empty[String, Seq[String]]
+              )
+            )
+          )
+        val result =
+          testSubscriptionService.updateSubscription(hipApi4InputCorporateBodyNewBusinessJson, testRefNo)
+        val response = await(result)
+        response.status shouldBe OK
+      }
+
       "respond with BadRequest when response status from Hip is BAD_REQUEST" in {
         FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         when(
@@ -398,14 +446,43 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
         FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
-        val result = testSubscriptionService.subscribe(hipInputJson, safeId, Some(testUtr), "LTD", "postcode")
+        val result = testSubscriptionService.subscribe(hipApi4InputLTDNewBusinessJson, safeId, Some(testUtr), "LTD", "postcode")
         val response = await(result)
         response.status shouldBe BAD_REQUEST
         response.json shouldBe failureResponse
       }
+
+      "return success when creating new sole trader business" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(Future.successful(HttpResponse(OK, hipSuccessfulResponse, Map.empty)))
+
+        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty)))
+
+        val result = testSubscriptionService.subscribe(hipApi4InputSoleTraderNewBusinessJson, safeId, Some(testUtr), "SOP", "postcode")
+        val response = await(result)
+
+        response.status shouldBe OK
+      }
+
+      "return success when creating new corporate body business" in {
+        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(Future.successful(HttpResponse(OK, hipSuccessfulResponse, Map.empty)))
+
+        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+          .thenReturn(Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty)))
+
+        val result = testSubscriptionService.subscribe(hipApi4InputCorporateBodyNewBusinessJson, safeId, Some(testUtr), "CRN", "postcode")
+        val response = await(result)
+
+        response.status shouldBe OK
+      }
     }
   }
-
   "subscriptionService.updateRequestForHip" must {
     "remove the acknowledgementReference field from the request json" in {
       val resultJson =
