@@ -17,7 +17,7 @@
 package utils
 
 import play.api.Logger
-import play.api.libs.json.{JsLookupResult, JsObject, JsValue}
+import play.api.libs.json._
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -58,8 +58,53 @@ object Utility {
       hipResponsePayload.as[JsObject]
     }
   }
+  val desCrnKey = "companyRegNumber"
+  val hipCrnKey = "companyRegistrationNumber"
+
+  def mapCrnForHipRequest(input: JsValue): JsValue = {
+    renameCompanyRegNumber(input, fromKey = desCrnKey, toKey = hipCrnKey)
+  }
+
+  def mapCrnForDesResponse(input: JsValue): JsValue = {
+    renameCompanyRegNumber(input, fromKey = hipCrnKey, toKey = desCrnKey)
+  }
+
+
+  def renameCompanyRegNumber(input: JsValue, fromKey: String, toKey: String): JsValue = {
+    // Create and Update APIs, it should be the request body that have to be modified from companyRegNumber -> companyRegistrationNumber
+
+
+      def loopThroughObject(value: JsValue): JsValue = value match {
+        case currentObject: JsObject =>
+          // loop runs through the nested fields of the object
+          // if we are certain on the path of the field, we can directly access it instead of looping
+          val objectWithUpdatedKey = JsObject(currentObject.fields.map { case (fieldName, fieldValue) => fieldName -> loopThroughObject(fieldValue) })
+
+          val isCorpNumbersWithCrnType = (objectWithUpdatedKey \ "doYouHaveCRN").isDefined
+
+          if (isCorpNumbersWithCrnType) {
+            (objectWithUpdatedKey \ fromKey).toOption match {
+              case Some(crnValue) if (objectWithUpdatedKey \ toKey).isEmpty =>
+                objectWithUpdatedKey + (toKey -> crnValue) - fromKey
+              case _ =>
+                objectWithUpdatedKey
+            }
+          } else {
+            objectWithUpdatedKey
+          }
+
+        case JsArray(values) =>
+          JsArray(values.map(loopThroughObject))
+
+        case other =>
+          other
+      }
+
+      loopThroughObject(input)
+    }
 
 }
+
 case class Bool(b: Boolean) {
   def ?[X](t: => X) = new {def | (f: => X) = if(b) t else f
   }

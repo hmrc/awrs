@@ -25,7 +25,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
-import utils.AwrsTestJson.testRefNo
+import utils.AwrsTestJson._
 import utils.FeatureSwitch.disable
 import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
 
@@ -39,6 +39,9 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
+
+  val etmpApi4SoleTrader: JsValue = api4EtmpSoleTraderJson
+  val etmpApi4CorporateBody: JsValue = api4EtmpCorporateBodyJson
 
   override def beforeEach(): Unit = {
     disable(AWRSFeatureSwitches.hipSwitch())
@@ -212,6 +215,30 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
       val result = await(TestLookupService.lookupApplication(testRefNo))
       result.status shouldBe Status.OK
       Json.parse(result.body) shouldBe (responseJson \ "success").get
+    }
+
+    "successfully lookup application when passed a valid reference number (Sole Trader)" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+      val responseJson: JsValue = etmpApi4SoleTrader
+
+      when(mockHipConnector.lookup(any())(any()))
+        .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
+
+      val result = await(TestLookupService.lookupApplication(testRefNo))
+      result.status shouldBe Status.OK
+    }
+
+    "successfully lookup application when passed a valid reference number (Corporate Body)" in {
+      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
+      val responseJson: JsValue = etmpApi4CorporateBody
+
+      when(mockHipConnector.lookup(any())(any()))
+        .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
+
+      val result = await(TestLookupService.lookupApplication(testRefNo))
+      result.status shouldBe Status.OK
     }
 
     "respond the caller with appropriate failure status code for a validation failures in lookup request" in {

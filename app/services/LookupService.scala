@@ -20,7 +20,7 @@ import connectors.{EtmpConnector, HipConnector}
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.Utility.logger
+import utils.Utility.{logger, mapCrnForDesResponse}
 import utils.{AWRSFeatureSwitches, Utility}
 
 import javax.inject.Inject
@@ -37,9 +37,10 @@ class LookupService @Inject()(etmpConnector: EtmpConnector,
         response: HttpResponse =>
           response.status match {
             case Status.OK =>
+              val responseBody = Utility.mapCrnForDesResponse(response.json)
               HttpResponse(
                 status = Status.OK,
-                body = Json.stringify(Utility.stripSuccessNode(Json.parse(response.body))),
+                body = Json.stringify(Utility.stripSuccessNode(responseBody)),
                 headers = response.headers
               )
 
