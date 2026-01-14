@@ -45,11 +45,7 @@ class SubscriptionService @Inject()(
 
     def handleSubscriptionResponse(submitResponse: HttpResponse, enrolmentResponse: HttpResponse) = {
       (submitResponse.status, enrolmentResponse.status) match {
-        case (OK, NO_CONTENT) =>
-          timer.stop()
-          metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
-          submitResponse
-        case (CREATED, NO_CONTENT) =>
+        case (OK, NO_CONTENT) | (CREATED, NO_CONTENT) =>
           timer.stop()
           metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
           submitResponse
