@@ -64,18 +64,18 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
           Future.successful(Ok(registerData.body))
         case NOT_FOUND =>
           metrics.incrementFailedCounter(ApiType.API4Subscribe)
-          warn(s"[$auditAPI4TxName - $safeId ] - The remote endpoint has indicated that no data can be found")
+          warn(s"[$auditAPI4TxName - $safeId ] - The remote endpoint has indicated that no data can be found. Status code: ${registerData.status}, body=${registerData.body}")
           audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Not Found"), eventType = eventTypeFailure)
           Future.successful(NotFound(registerData.body))
         case BAD_REQUEST =>
           regimeService.checkETMPApi(businesssCustomerDetails, businessType) map {
             case Some(etmpRegistrationDetails) =>
-              warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] Self Heal - API4 Response from DES/GG  ## " + registerData.status)
+              warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] Self Heal - API4 Response from DES/GG  ## " + registerData.status + registerData.body)
               val responseJson = Json.obj("regimeRefNumber" -> etmpRegistrationDetails.regimeRefNumber)
               Accepted(responseJson)
             case _ =>
               metrics.incrementFailedCounter(ApiType.API4Subscribe)
-              warn(s"[$auditAPI4TxName - $safeId ] - Bad Request")
+              warn(s"[$auditAPI4TxName - $safeId ] - Bad Request. Status code: ${registerData.status}, body=${registerData.body}")
               val failureReason: String = if (registerData.body.contains("Reason")) (registerData.json \ "Reason").as[String] else "Bad Request"
               audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> failureReason, "EtmpJson" -> convertedEtmpJson.toString()), eventType = eventTypeFailure)
               BadRequest(registerData.body)
@@ -120,9 +120,9 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
           )
         case status@_ =>
           metrics.incrementFailedCounter(ApiType.API4Subscribe)
-          warn(s"[$auditAPI4TxName - $safeId ] - Unsuccessful return of data")
+          warn(s"[$auditAPI4TxName - $safeId ] - Unsuccessful return of data. Status code: $status, body=${registerData.body}")
           audit(transactionName = auditSubscribeTxName, detail = auditMap ++ Map("FailureReason" -> "Other Error"), eventType = eventTypeFailure)
-          Future.successful(InternalServerError(f"Unsuccessful return of data. Status code: $status, body=${registerData.body}"))
+          Future.successful(InternalServerError(f"Unsuccessful return of data. Status code: $status"))
       }
     }
   }
