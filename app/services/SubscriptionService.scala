@@ -45,7 +45,7 @@ class SubscriptionService @Inject()(
 
     def handleSubscriptionResponse(submitResponse: HttpResponse, enrolmentResponse: HttpResponse) = {
       (submitResponse.status, enrolmentResponse.status) match {
-        case (OK, NO_CONTENT) =>
+        case (OK, NO_CONTENT) | (CREATED, NO_CONTENT) =>
           timer.stop()
           metrics.incrementSuccessCounter(ApiType.API4AddKnownFacts)
           submitResponse
@@ -62,7 +62,11 @@ class SubscriptionService @Inject()(
           for {
             submitResponse <- hipConnector.subscribe(updatedInputJson, safeId)
             jsonWithoutSuccessNode = Utility.stripSuccessNode(submitResponse.json)
-            modifiedSubmitResponse = HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
+            modifiedSubmitResponse = {
+//              This Log message have to be removed while deploying HIP
+              logger.warn(s"[SubscriptionService][createSubscription] Failure response from HIP endpoint: status=${submitResponse.status}, body=${submitResponse.body}")
+              HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
+            }
             enrolmentResponse <- addKnownFacts(modifiedSubmitResponse, safeId, utr, businessType, postcode)
           } yield handleSubscriptionResponse(modifiedSubmitResponse, enrolmentResponse)
         case JsError(errors) =>
