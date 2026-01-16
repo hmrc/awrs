@@ -56,7 +56,7 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
 
     subscriptionService.subscribe(convertedEtmpJson, safeId, utr, businessType, postcode).flatMap {
       registerData => registerData.status match {
-        case OK =>
+        case OK | CREATED =>
           warn(s"[$auditAPI4TxName - $userOrBusinessName, $legalEntityType ] - API4 Response from DES/GG  ## " + registerData.status)
           val successfulSubscriptionResponse = registerData.json.as[SuccessfulSubscriptionResponse]
           metrics.incrementSuccessCounter(ApiType.API4Subscribe)
