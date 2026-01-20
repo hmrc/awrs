@@ -69,38 +69,31 @@ object Utility {
     renameCompanyRegNumber(input, fromKey = hipCrnKey, toKey = desCrnKey)
   }
 
-
   def renameCompanyRegNumber(input: JsValue, fromKey: String, toKey: String): JsValue = {
-    // Create and Update APIs, it should be the request body that have to be modified from companyRegNumber -> companyRegistrationNumber
 
-
-      def loopThroughObject(value: JsValue): JsValue = value match {
-        case currentObject: JsObject =>
-          // loop runs through the nested fields of the object
-          // if we are certain on the path of the field, we can directly access it instead of looping
-          val objectWithUpdatedKey = JsObject(currentObject.fields.map { case (fieldName, fieldValue) => fieldName -> loopThroughObject(fieldValue) })
-
-          val isCorpNumbersWithCrnType = (objectWithUpdatedKey \ "doYouHaveCRN").isDefined
-
-          if (isCorpNumbersWithCrnType) {
-            (objectWithUpdatedKey \ fromKey).toOption match {
-              case Some(crnValue) if (objectWithUpdatedKey \ toKey).isEmpty =>
-                objectWithUpdatedKey + (toKey -> crnValue) - fromKey
-              case _ =>
-                objectWithUpdatedKey
-            }
-          } else {
-            objectWithUpdatedKey
-          }
-
+    val companyRegTransformer = __.json.update(
+      (__ \ toKey).json.copyFrom((__ \ fromKey).json.pick)
+    ) andThen (__ \ fromKey).json.prune
+    
+    def recursivelyReplaceKey(value: JsValue): JsValue = value match {
+      case currentObject: JsObject =>
+        
+        if ((currentObject.as[JsValue] \\ fromKey).isEmpty) {
+          currentObject
+        } else if ((currentObject \ fromKey).isDefined && (currentObject \ "doYouHaveCRN").isDefined) {
+          currentObject.transform(companyRegTransformer).get
+        } else {
+          JsObject(currentObject.fields.map { case (fieldName, fieldValue) => fieldName -> recursivelyReplaceKey(fieldValue) })
+        }
+        
         case JsArray(values) =>
-          JsArray(values.map(loopThroughObject))
+          JsArray(values.map(recursivelyReplaceKey))
 
         case other =>
           other
       }
 
-      loopThroughObject(input)
+      recursivelyReplaceKey(input)
     }
 
 }
