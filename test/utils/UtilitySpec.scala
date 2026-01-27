@@ -21,9 +21,15 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
+import utils.AwrsTestJson._
 import utils.Utility._
 
 class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
+
+  val hipApi4InputSoleTraderNewBusinessJson: JsValue = api4hipSoleTraderNewBusinessJson
+  val hipApi4InputCorporateBodyNewBusinessJson: JsValue = api4hipCorporateBodyNewBusinessJson
+  val etmpApi4SoleTrader: JsValue = api4EtmpSoleTraderJson
+  val etmpApi4CorporateBody: JsValue = api4EtmpCorporateBodyJson
 
   "UtilitySpec" must {
 
@@ -71,6 +77,178 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
 
       stripSuccessNode(hipResponsePayload) shouldBe hipResponsePayload
     }
+
+    "companyRegistrationNumber be substituted with companyRegNumber if key is present (Sole Trader)" in {
+      val requestJson = etmpApi4SoleTrader
+      val expectedJson = hipApi4InputSoleTraderNewBusinessJson
+
+      val editedRequestBody = Utility.mapCrnForHipRequest(requestJson)
+      editedRequestBody.toString contains("companyRegNumber") shouldBe false
+      (editedRequestBody \\ "companyRegNumber").isEmpty shouldBe true
+      (editedRequestBody \\ "companyRegistrationNumber").nonEmpty shouldBe true
+      editedRequestBody shouldBe expectedJson
+    }
+
+    "companyRegistrationNumber be substituted with companyRegNumber if key is present (Corporate Body)" in {
+      val requestJson = etmpApi4CorporateBody
+      val expectedJson = hipApi4InputCorporateBodyNewBusinessJson
+
+
+      val editedRequestBody = Utility.mapCrnForHipRequest(requestJson)
+      editedRequestBody.toString contains("companyRegNumber") shouldBe false
+      (editedRequestBody \\ "companyRegNumber").isEmpty shouldBe true
+      (editedRequestBody \\ "companyRegistrationNumber").nonEmpty shouldBe true
+      editedRequestBody shouldBe expectedJson
+    }
+
+    "companyRegNumber be substituted with companyRegistrationNumber if key is present (Sole Trader)" in {
+      val responseJson = hipApi4InputSoleTraderNewBusinessJson
+      val expectedJson = etmpApi4SoleTrader
+
+      val editedResponseBody = Utility.mapCrnForDesResponse(responseJson)
+      (editedResponseBody \\ "companyRegNumber").nonEmpty shouldBe true
+      editedResponseBody shouldBe expectedJson
+    }
+
+    "companyRegNumber be substituted with companyRegistrationNumber if key is present (Corporate Body)" in {
+      val responseJson = hipApi4InputCorporateBodyNewBusinessJson
+      val expectedJson = etmpApi4CorporateBody
+
+      val editedResponseBody = Utility.mapCrnForDesResponse(responseJson)
+      (editedResponseBody \\ "companyRegNumber").nonEmpty shouldBe true
+      editedResponseBody shouldBe expectedJson
+    }
+  }
+
+  "Response must be unchanged if companyRegistrationNumber key is not present as identification" in {
+
+    val response = """{
+                     |  "subscriptionType": {
+                     |    "legalEntity": "Sole Trader",
+                     |    "newAWBusiness": false,
+                     |    "businessDetails": {
+                     |      "soleProprietor": {
+                     |        "tradingName": "Trading name",
+                     |        "identification": {
+                     |          "doYouHaveVRN": true,
+                     |          "vrn": "123456789",
+                     |          "doYouHaveUTR": false,
+                     |          "doYouHaveNino": false
+                     |        }
+                     |      }
+                     |    },
+                     |    "businessAddressForAwrs": {
+                     |      "currentAddress": {
+                     |        "addressLine1": "102, Sutton Street",
+                     |        "addressLine2": "Wokingham",
+                     |        "postalCode": "DH1 4DJ",
+                     |        "countryCode": "GB"
+                     |      },
+                     |      "communicationDetails": {
+                     |        "telephone": "07123456789",
+                     |        "mobileNo": "07123456789",
+                     |        "email": "John@sky.com"
+                     |      },
+                     |      "operatingDuration": "over 10 years",
+                     |      "differentOperatingAddresslnLast3Years": true
+                     |    },
+                     |    "contactDetails": {
+                     |      "name": {
+                     |        "firstName": "John",
+                     |        "lastName": "Clark"
+                     |      },
+                     |      "useAlternateContactAddress": false,
+                     |      "communicationDetails": {
+                     |        "email": "John@googlemail.com"
+                     |      }
+                     |    },
+                     |    "additionalBusinessInfo": {
+                     |      "all": {
+                     |        "typeOfWholesaler": {
+                     |          "cashAndCarry": true,
+                     |          "offTradeSupplierOnly": true,
+                     |          "onTradeSupplierOnly": true,
+                     |          "all": true,
+                     |          "other": false
+                     |        },
+                     |        "typeOfAlcoholOrders": {
+                     |          "onlineOnly": true,
+                     |          "onlineAndTel": true,
+                     |          "onlineTelAndPhysical": true,
+                     |          "all": true,
+                     |          "other": false
+                     |        },
+                     |        "typeOfCustomers": {
+                     |          "pubs": true,
+                     |          "nightClubs": true,
+                     |          "privateClubs": true,
+                     |          "hotels": true,
+                     |          "hospitalityCatering": true,
+                     |          "restaurants": true,
+                     |          "indepRetailers": true,
+                     |          "nationalRetailers": true,
+                     |          "public": true,
+                     |          "otherWholesalers": true,
+                     |          "all": true,
+                     |          "other": false
+                     |        },
+                     |        "productsSold": {
+                     |          "beer": true,
+                     |          "wine": true,
+                     |          "spirits": true,
+                     |          "cider": true,
+                     |          "perry": true,
+                     |          "all": true,
+                     |          "other": false
+                     |        },
+                     |        "numberOfPremises": "1",
+                     |        "premiseAddress": [
+                     |          {
+                     |            "address": {
+                     |              "addressLine1": "100, Sutton Street",
+                     |              "addressLine2": "Wokingham",
+                     |              "postalCode": "DH1 4EJ",
+                     |              "countryCode": "GB"
+                     |            }
+                     |          }
+                     |        ],
+                     |        "thirdPartyStorageUsed": false,
+                     |        "suppliers": {
+                     |          "supplier": [
+                     |            {
+                     |              "name": "Clare",
+                     |              "isSupplierVatRegistered": true,
+                     |              "vrn": "123456789",
+                     |              "address": {
+                     |                "addressLine1": "101, Sutton Street",
+                     |                "addressLine2": "Wokingham",
+                     |                "postalCode": "DH1 4BJ",
+                     |                "countryCode": "GB"
+                     |              }
+                     |            }
+                     |          ]
+                     |        },
+                     |        "alcoholGoodsExported": true,
+                     |        "euDispatches": true,
+                     |        "alcoholGoodsImported": true
+                     |      }
+                     |    },
+                     |    "declaration": {
+                     |      "nameOfPerson": "Lee Hawks",
+                     |      "statusOfPerson": "Authorised Signatory",
+                     |      "informationIsAccurateAndComplete": true
+                     |    }
+                     |  }
+                     |}
+                     |""".stripMargin
+
+
+    val editedResponseBody = Utility.mapCrnForDesResponse(Json.parse(response))
+    editedResponseBody.toString contains("companyRegNumber") shouldBe false
+    editedResponseBody.toString contains("companyRegistrationNumber") shouldBe false
+    (editedResponseBody \\ "companyRegNumber").isEmpty shouldBe true
+    (editedResponseBody \\ "companyRegistrationNumber").isEmpty shouldBe true
+    editedResponseBody shouldBe Json.parse(response)
   }
 }
 

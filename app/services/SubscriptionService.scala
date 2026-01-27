@@ -151,7 +151,8 @@ class SubscriptionService @Inject()(
   }
 
   def updateRequestForHip(requestJson: JsValue): JsResult[JsObject] = {
-    requestJson.validate[JsObject].map { requestJsObject =>
+    val updatedRequest = Utility.mapCrnForHipRequest(requestJson)
+    updatedRequest.validate[JsObject].map { requestJsObject =>
       requestJsObject - acknowledgmentReference
     }
   }
