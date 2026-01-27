@@ -1,0 +1,176 @@
+{
+  "subscriptionType": {
+    "legalEntity": "Corporate Body",
+    "newAWBusiness": true,
+    "proposedStartDate": "2017-07-31",
+    "llpCorporateBody": {
+      "creatingAGroup": false,
+      "groupRepConfirmation": false
+    },
+    "businessDetails": {
+      "nonProprietor": {
+        "tradingName": "ACME Ltd",
+        "identification": {
+          "doYouHaveVRN": true,
+          "vrn": "123456789",
+          "doYouHaveUTR": true,
+          "utr": "9991231114"
+        }
+      },
+      "llpCorporateBody": {
+        "incorporationDetails": {
+          "isBusinessIncorporated": true,
+          "companyRegistrationNumber": "12345678",
+          "dateOfIncorporation": "2010-10-30"
+        }
+      }
+    },
+    "businessAddressForAwrs": {
+      "currentAddress": {
+        "postalCode": "BQ70LL",
+        "addressLine1": "25, THE HIGH STREET,",
+        "addressLine2": "FULHAM-UNDER-WATER",
+        "addressLine3": "MUCH PETRIFYING",
+        "countryCode": "GB"
+      },
+      "communicationDetails": {
+        "email": "test@test.com",
+        "telephone": "0947823456"
+      },
+      "operatingDuration": "0 to 2 years",
+      "differentOperatingAddresslnLast3Years": true,
+      "previousAddress": {
+        "postalCode": "FX1A7GA",
+        "addressLine1": "Last Contact Address line 1",
+        "addressLine2": "Last Contact Address line 2",
+        "countryCode": "GB"
+      }
+    },
+    "contactDetails": {
+      "name": {
+        "firstName": "FirstName",
+        "lastName": "LastName"
+      },
+      "useAlternateContactAddress": false,
+      "communicationDetails": {
+        "email": "test@test.com",
+        "telephone": "0947823456"
+      }
+    },
+    "additionalBusinessInfo": {
+      "partnerCorporateBody": {
+        "numberOfCoOfficials": "2",
+        "coOfficialDetails": {
+          "coOfficial": [
+            {
+              "individual": {
+                "status": "Director",
+                "name": {
+                  "firstName": "First Name",
+                  "lastName": "Last Name"
+                },
+                "identification": {
+                  "passportNumber": "JS916545D"
+                }
+              }
+            },
+            {
+              "company": {
+                "status": "Director",
+                "names": {
+                  "companyName": "Business Name",
+                  "tradingName": "Trading Name"
+                },
+                "identification": {
+                  "doYouHaveVRN": true,
+                  "vrn": "111111111",
+                  "doYouHaveUTR": true,
+                  "utr": "9991231114",
+                  "doYouHaveCRN": true,
+                  "companyRegNumber": "12345678"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "all": {
+        "typeOfWholesaler": {
+          "cashAndCarry": true,
+          "offTradeSupplierOnly": false,
+          "onTradeSupplierOnly": false,
+          "all": false,
+          "other": false
+        },
+        "typeOfAlcoholOrders": {
+          "onlineOnly": false,
+          "onlineAndTel": false,
+          "onlineTelAndPhysical": false,
+          "all": false,
+          "other": true,
+          "typeOfOrderOther": "Exporter"
+        },
+        "typeOfCustomers": {
+          "pubs": false,
+          "nightClubs": false,
+          "privateClubs": false,
+          "hotels": false,
+          "hospitalityCatering": false,
+          "restaurants": false,
+          "indepRetailers": false,
+          "nationalRetailers": false,
+          "public": false,
+          "otherWholesalers": false,
+          "all": false,
+          "other": true,
+          "typeOfCustomerOther": "Private Parties"
+        },
+        "productsSold": {
+          "beer": false,
+          "wine": false,
+          "spirits": false,
+          "cider": false,
+          "perry": false,
+          "all": false,
+          "other": true,
+          "typeOfProductOther": "Cigars"
+        },
+        "numberOfPremises": "1",
+        "premiseAddress": [
+          {
+            "address": {
+              "postalCode": "BQ70LL",
+              "addressLine1": "25, THE HIGH STREET,",
+              "addressLine2": "FULHAM-UNDER-WATER",
+              "addressLine3": "MUCH PETRIFYING",
+              "countryCode": "GB"
+            }
+          }
+        ],
+        "thirdPartyStorageUsed": true,
+        "alcoholGoodsExported": false,
+        "euDispatches": false,
+        "suppliers": {
+          "supplier": [
+            {
+              "name": "Boozers Ltd",
+              "isSupplierVatRegistered": false,
+              "address": {
+                "postalCode": "AA11AA",
+                "addressLine1": "Address Line One",
+                "addressLine2": "Address Line Two",
+                "countryCode": "GB"
+              }
+            }
+          ]
+        },
+        "alcoholGoodsImported": true
+      }
+    },
+    "declaration": {
+      "nameOfPerson": "Mr LTD1",
+      "statusOfPerson": "Director",
+      "informationIsAccurateAndComplete": true
+    }
+  }
+}

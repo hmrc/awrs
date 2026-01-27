@@ -17,7 +17,7 @@
 package utils
 
 import play.api.Logger
-import play.api.libs.json.{JsLookupResult, JsObject, JsValue}
+import play.api.libs.json._
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -58,8 +58,46 @@ object Utility {
       hipResponsePayload.as[JsObject]
     }
   }
+  val desCrnKey = "companyRegNumber"
+  val hipCrnKey = "companyRegistrationNumber"
+
+  def mapCrnForHipRequest(input: JsValue): JsValue = {
+    renameCompanyRegNumber(input, fromKey = desCrnKey, toKey = hipCrnKey)
+  }
+
+  def mapCrnForDesResponse(input: JsValue): JsValue = {
+    renameCompanyRegNumber(input, fromKey = hipCrnKey, toKey = desCrnKey)
+  }
+
+  def renameCompanyRegNumber(input: JsValue, fromKey: String, toKey: String): JsValue = {
+
+    val companyRegTransformer = __.json.update(
+      (__ \ toKey).json.copyFrom((__ \ fromKey).json.pick)
+    ) andThen (__ \ fromKey).json.prune
+    
+    def recursivelyReplaceKey(value: JsValue): JsValue = value match {
+      case currentObject: JsObject =>
+        
+        if ((currentObject.as[JsValue] \\ fromKey).isEmpty) {
+          currentObject
+        } else if ((currentObject \ fromKey).isDefined && (currentObject \ "doYouHaveCRN").isDefined) {
+          currentObject.transform(companyRegTransformer).get
+        } else {
+          JsObject(currentObject.fields.map { case (fieldName, fieldValue) => fieldName -> recursivelyReplaceKey(fieldValue) })
+        }
+        
+        case JsArray(values) =>
+          JsArray(values.map(recursivelyReplaceKey))
+
+        case other =>
+          other
+      }
+
+      recursivelyReplaceKey(input)
+    }
 
 }
+
 case class Bool(b: Boolean) {
   def ?[X](t: => X) = new {def | (f: => X) = if(b) t else f
   }

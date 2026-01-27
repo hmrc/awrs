@@ -93,8 +93,12 @@ trait AwrsTestJson extends AwrsPathConstants {
   lazy val api4EtmpLLPGRPJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpLLPGRP)
   lazy val api4EtmpLTDNewBusinessJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpLTDNewBusiness)
   lazy val api4EtmpSOPJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpSOP)
+  lazy val api4EtmpSoleTraderJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpSoleTrader)
+  lazy val api4EtmpCorporateBodyJson: JsValue = loadAndParseJsonWithDummyData(api4EtmpCorporateBody)
 
   lazy val api4hipLTDNewBusinessJson: JsValue = loadAndParseJsonWithDummyData(api4hipLTDNewBusiness)
+  lazy val api4hipSoleTraderNewBusinessJson: JsValue = loadAndParseJsonWithDummyData(api4hipSoleTraderNewBusiness)
+  lazy val api4hipCorporateBodyNewBusinessJson: JsValue = loadAndParseJsonWithDummyData(api4hipCorporateBodyNewBusiness)
   lazy val api4hipSuccessfulResponseJson: JsValue = loadAndParseJsonWithDummyData(api4hipSuccessfulResponse)
 
   lazy val api5EtmpLPJson: JsValue = loadAndParseJsonWithDummyData(api5EtmpLP)
