@@ -385,7 +385,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
           .thenReturn(Future.successful(HttpResponse(CREATED, hipSuccessfulResponse, Map.empty[String, Seq[String]])))
         when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(
-            Future.successful(HttpResponse(OK, ggEnrolResponse, Map.empty[String, Seq[String]]))
+            Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty[String, Seq[String]]))
           )
 
         val result = testSubscriptionService.subscribe(inputJson, safeId, Some(testUtr), "SOP", "postcode")
