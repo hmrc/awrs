@@ -64,8 +64,8 @@ class SubscriptionService @Inject()(
             jsonWithoutSuccessNode = Utility.stripSuccessNode(submitResponse.json)
             modifiedSubmitResponse = {
 //              This Log message have to be removed while deploying HIP
-              logger.warn(s"[SubscriptionService][createSubscription] Failure response from HIP endpoint: status=${submitResponse.status}, body=${submitResponse.body}")
-              HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode), submitResponse.headers)
+              logger.warn(s"[SubscriptionService][createSubscription] Response from HIP endpoint: status=${submitResponse.status}, body=${submitResponse.body}")
+              HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
             }
             enrolmentResponse <- addKnownFacts(modifiedSubmitResponse, safeId, utr, businessType, postcode)
           } yield handleSubscriptionResponse(modifiedSubmitResponse, enrolmentResponse)
@@ -120,7 +120,7 @@ class SubscriptionService @Inject()(
 
   private def addKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String, postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
     response.status match {
-      case OK =>
+      case OK | CREATED =>
         val json = response.json
         val awrsRegistrationNumber = (json \ "awrsRegistrationNumber").as[String]
         val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRegistrationNumber"
