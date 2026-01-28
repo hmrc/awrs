@@ -22,7 +22,6 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.BaseSpec
 
@@ -32,11 +31,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   trait Setup extends ConnectorTest {
-    object TestHipConnector extends HipConnector (mockHttpClient, mockAuditConnector, config)
+    object TestHipConnector extends HipConnector (mockHttpClient, config)
     val awrsRefNo = "XAAW0000010001"
     implicit val hc: HeaderCarrier = HeaderCarrier()
   }

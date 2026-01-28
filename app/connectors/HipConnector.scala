@@ -16,11 +16,9 @@
 
 package connectors
 
-import play.api.Logging
 import play.api.libs.json.{JsValue, Json, Writes}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time.format.DateTimeFormatter
@@ -30,10 +28,9 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class HipConnector @Inject() (http: HttpClientV2,
-                              val auditConnector: AuditConnector,
                               config: ServicesConfig)
                              (implicit ec: ExecutionContext)
-  extends RawResponseReads  with Logging {
+  extends RawResponseReads {
 
   lazy val serviceURL: String = config.baseUrl("hip")
   val baseURI: String = "/etmp/RESTAdapter/awrs"
@@ -68,8 +65,6 @@ class HipConnector @Inject() (http: HttpClientV2,
     http.get(url"$url").setHeader(headers: _*).execute[A]
 
   @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
-    //For debugging purpose only. Remove this before deploying to production
-    logger.warn(s"[cPOST] Headers being sent: ${headers.mkString(", ")}")
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
   }
 
@@ -77,14 +72,10 @@ class HipConnector @Inject() (http: HttpClientV2,
     http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
   def deRegister(awrsRefNo: String, deRegDetails: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-//    The below log message have to be removed and should not be deployed to production
-    logger.warn(s"Deregistration Request: $deRegDetails")
     cPOST(s"""$serviceURL$baseURI$subscriptionURI$deRegistrationURI/$awrsRefNo""", deRegDetails)
   }
 
   def withdrawal(awrsRefNo: String, withdrawalData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    //    The below log message have to be removed and should not be deployed to production
-    logger.warn(s"Withdrawal Request: $withdrawalData")
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$withdrawalURI/$awrsRefNo""", withdrawalData)
   }
 
@@ -97,14 +88,10 @@ class HipConnector @Inject() (http: HttpClientV2,
   }
 
   def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    //    The below log message have to be removed and should not be deployed to production
-    logger.warn(s"Create Request: $registerData")
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$subscriptionCreateURI/$safeId""", registerData)
   }
 
   def updateSubscription(updateData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    //    The below log message have to be removed and should not be deployed to production
-    logger.warn(s"Update Request: $updateData")
     cPUT(s"""$serviceURL$baseURI$subscriptionURI$updateURI/$awrsRefNo""", updateData)
   }
 }
