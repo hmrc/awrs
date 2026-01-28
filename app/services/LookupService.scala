@@ -20,7 +20,7 @@ import connectors.{EtmpConnector, HipConnector}
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import utils.Utility.{logger, mapCrnForDesResponse}
+import utils.Utility.logger
 import utils.{AWRSFeatureSwitches, Utility}
 
 import javax.inject.Inject

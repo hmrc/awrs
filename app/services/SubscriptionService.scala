@@ -63,8 +63,6 @@ class SubscriptionService @Inject()(
             submitResponse <- hipConnector.subscribe(updatedInputJson, safeId)
             jsonWithoutSuccessNode = Utility.stripSuccessNode(submitResponse.json)
             modifiedSubmitResponse = {
-//              This Log message have to be removed while deploying HIP
-              logger.warn(s"[SubscriptionService][createSubscription] Response from HIP endpoint: status=${submitResponse.status}, body=${submitResponse.body}")
               HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
             }
             enrolmentResponse <- addKnownFacts(modifiedSubmitResponse, safeId, utr, businessType, postcode)
