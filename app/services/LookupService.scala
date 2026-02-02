@@ -20,6 +20,7 @@ import connectors.{EtmpConnector, HipConnector}
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.Utility.logger
 import utils.{AWRSFeatureSwitches, Utility}
 
@@ -28,7 +29,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class LookupService @Inject()(etmpConnector: EtmpConnector,
                               hipConnector: HipConnector)
-                             (implicit ec: ExecutionContext) {
+                             (implicit ec: ExecutionContext,
+                              config: ServicesConfig) {
 
   def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 

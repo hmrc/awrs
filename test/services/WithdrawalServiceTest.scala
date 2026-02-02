@@ -25,6 +25,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson.testRefNo
 import utils._
 
@@ -37,6 +38,7 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
   val requestJson: JsValue = api8ValidRequestJson
   val ackReference: String = SessionUtils.getUniqueAckNo
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   object TestWithdrawalService extends WithdrawalService(app.injector.instanceOf[AwrsMetrics], mockEtmpConnector, mockHipConnector)
 

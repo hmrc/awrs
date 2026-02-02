@@ -22,6 +22,7 @@ import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
@@ -32,6 +33,7 @@ class EtmpStatusInfoServiceTest extends BaseSpec with AnyWordSpecLike {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
 

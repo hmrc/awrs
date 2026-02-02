@@ -24,6 +24,7 @@ import play.api.libs.json.{JsObject, JsResult, JsValue, Json}
 import play.api.test.Helpers.{OK, await, defaultAwaitTimeout}
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson.testRefNo
 import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
 
@@ -34,10 +35,11 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   object TestLookupService$ extends LookupService(mockEtmpConnector, mockHipConnector)
 
-  val testDeRegistrationService: DeRegistrationService = new DeRegistrationService(mockEtmpConnector, mockHipConnector)(ec)
+  val testDeRegistrationService: DeRegistrationService = new DeRegistrationService(mockEtmpConnector, mockHipConnector)(ec, config)
 
   val groupEndedJson: JsValue = api10RequestJson
   val otherReason: JsValue = api10OtherReasonRequestJson

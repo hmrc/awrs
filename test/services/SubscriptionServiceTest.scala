@@ -38,12 +38,12 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
 
   implicit val ec: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
+  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
   val mockEnrolmentStoreConnector: EnrolmentStoreConnector =
     mock[EnrolmentStoreConnector]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
-  val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   val inputJson: JsValue = api4EtmpLTDJson
   val inputJsonUpdate: JsValue = api6RequestUpdateJsonWithAck

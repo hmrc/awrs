@@ -27,10 +27,12 @@ import play.api.libs.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{AWRSFeatureSwitches, Utility}
 
 class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConnector, hipConnector: HipConnector)
-                                 (implicit ec: ExecutionContext) extends Logging {
+                                 (implicit ec: ExecutionContext,
+                                  config: ServicesConfig) extends Logging {
 
   def withdrawal(withdrawalData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     if (AWRSFeatureSwitches.hipSwitch().enabled) {

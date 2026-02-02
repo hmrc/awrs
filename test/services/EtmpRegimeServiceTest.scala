@@ -27,6 +27,7 @@ import play.api.test.Helpers
 import play.api.test.Helpers.{await, _}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.FeatureSwitch.disable
 import utils.{AWRSFeatureSwitches, AwrsTestJson, BaseSpec, FeatureSwitch}
 
@@ -37,6 +38,7 @@ import scala.concurrent.Future
 class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfterEach with BeforeAndAfterAll {
 
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]

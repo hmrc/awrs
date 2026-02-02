@@ -23,6 +23,7 @@ import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsObject, JsResult, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{AWRSFeatureSwitches, SessionUtils, Utility}
 
 import javax.inject.Inject
@@ -33,7 +34,7 @@ class SubscriptionService @Inject()(
                                      val enrolmentStoreConnector: EnrolmentStoreConnector,
                                      val etmpConnector: EtmpConnector,
                                      val hipConnector: HipConnector
-                                   )(implicit ec: ExecutionContext) extends Logging {
+                                   )(implicit ec: ExecutionContext, config: ServicesConfig) extends Logging {
 
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   private val acknowledgmentReference: String = "acknowledgmentReference"
