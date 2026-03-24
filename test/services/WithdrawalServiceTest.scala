@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{EtmpConnector, HipConnector}
+import connectors.HipConnector
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -33,41 +33,19 @@ import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
-  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
   val requestJson: JsValue = api8ValidRequestJson
   val ackReference: String = SessionUtils.getUniqueAckNo
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-  object TestWithdrawalService extends WithdrawalService(app.injector.instanceOf[AwrsMetrics], mockEtmpConnector, mockHipConnector)
+  object TestWithdrawalService extends WithdrawalService(app.injector.instanceOf[AwrsMetrics], mockHipConnector)
 
   "Withdrawal Service" must {
     val awrsRefNo = "XAAW0000010001"
     implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
-    "DES connector: returns OK when feature flag is off and request is valid" in {
-      FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
-      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
-      val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
-      val response = await(result)
-      response.status shouldBe OK
-      response.json shouldBe api8SuccessfulResponseJson
-      verify(mockEtmpConnector, times(1)).withdrawal(ArgumentMatchers.eq(awrsRefNo), ArgumentMatchers.any())(ArgumentMatchers.any())
-      verify(mockHipConnector, never).withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())
-    }
-
-    "DES connector: returns BAD_REQUEST when feature flag is off and request is invalid" in {
-      FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
-      when(mockEtmpConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
-      val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
-      val response = await(result)
-      response.status shouldBe BAD_REQUEST
-      response.json shouldBe api8FailureResponseJson
-    }
-
-    "DES connector: returns OK when feature flag is on and request is valid" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+    "HIP connector: returns OK when feature flag is on and request is valid" in {
       when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
@@ -76,7 +54,6 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "HIP connector: returns BAD_REQUEST when feature flag is on and request is invalid" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
       when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
@@ -85,7 +62,6 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "successfully process the withdrawal request" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = Json.parse(
         """
@@ -112,7 +88,6 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "respond with appropriate failure status code for a withdrawal request" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson = Json.parse(
         """
@@ -137,7 +112,7 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "return BAD_REQUEST when JSON transformation fails" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
       val invalidJson = Json.parse("""["invalid","json"]""")
 
       val result = TestWithdrawalService.withdrawal(invalidJson, awrsRefNo)
@@ -146,13 +121,12 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
       response.status shouldBe Status.BAD_REQUEST
       response.body should include("JSON transformation failed")
     }
-
   }
 
   "updateRequestForHip" must {
 
     "transform standard withdrawal reason correctly" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
+
       val expectedJson = Json.parse(
         """
           |{
@@ -163,7 +137,6 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
 
       val result = TestWithdrawalService.updateRequestForHip(requestJson).get
       result mustBe expectedJson
-
     }
   }
 }

@@ -58,15 +58,16 @@ object Utility {
       hipResponsePayload.as[JsObject]
     }
   }
-  val desCrnKey = "companyRegNumber"
+
+  val modelCrnKey = "companyRegNumber"
   val hipCrnKey = "companyRegistrationNumber"
 
   def mapCrnForHipRequest(input: JsValue): JsValue = {
-    renameCompanyRegNumber(input, fromKey = desCrnKey, toKey = hipCrnKey)
+    renameCompanyRegNumber(input, fromKey = modelCrnKey, toKey = hipCrnKey)
   }
 
-  def mapCrnForDesResponse(input: JsValue): JsValue = {
-    renameCompanyRegNumber(input, fromKey = hipCrnKey, toKey = desCrnKey)
+  def mapCrnForResponseModel(input: JsValue): JsValue = {
+    renameCompanyRegNumber(input, fromKey = hipCrnKey, toKey = modelCrnKey)
   }
 
   def renameCompanyRegNumber(input: JsValue, fromKey: String, toKey: String): JsValue = {

@@ -21,9 +21,10 @@ import play.api.libs.json.{JsValue, Json}
 trait IntegrationData {
 
   val safeId: String = "XE0001234567890"
-  val baseURI = "/alcohol-wholesaler-register"
+  val baseURI = "/etmp/RESTAdapter/awrs"
   val subscriptionURI = "/subscription/"
-  val statusURI = "/status"
+  val subscriptionCreateURI = "/subscription/create/"
+  val statusURI = "status/"
   val enrolmentRef = "XAAW00000123456"
   val enrolmentKey = s"HMRC-AWRS-ORG~AWRSRefNumber~$enrolmentRef"
   val regimeURI = "/registration/details"
@@ -405,10 +406,11 @@ trait IntegrationData {
 
   val subscriptionSuccessResponse: String =
     """{
+      |"success": {
       |"processingDate":"2015-12-17T09:30:47Z",
       |"etmpFormBundleNumber":"123456789012345",
       |"awrsRegistrationNumber": "XAAW00000123456"
-      |}""".stripMargin
+      |}}""".stripMargin
 
   val checkEtmpPostDataOrg: JsValue = Json.parse(
     """{

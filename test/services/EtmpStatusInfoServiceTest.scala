@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.EtmpConnector
+import connectors.DesConnector
 import org.mockito.ArgumentMatchers
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -35,16 +35,16 @@ class EtmpStatusInfoServiceTest extends BaseSpec with AnyWordSpecLike {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
+  val mockDesConnector: DesConnector = mock[DesConnector]
 
-  object TestEtmpStatusInfoService extends EtmpStatusInfoService(mockEtmpConnector)
+  object TestEtmpStatusInfoService extends EtmpStatusInfoService(mockDesConnector)
 
   "TestEtmpStatusInfoService " must {
 
     "successfully lookup status info when passed a valid reference number and contact number" in {
       val awrsRefNo = testRefNo
       val contactNumber = "0123456789"
-      when(mockEtmpConnector.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "", Map.empty[String, Seq[String]])))
+      when(mockDesConnector.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, "", Map.empty[String, Seq[String]])))
       val result = TestEtmpStatusInfoService.getStatusInfo(awrsRefNo, contactNumber)
       await(result).status shouldBe 200
     }
@@ -52,7 +52,7 @@ class EtmpStatusInfoServiceTest extends BaseSpec with AnyWordSpecLike {
     "return Bad Request when passed an invalid reference number and contact number" in {
       val invalidAwrsRefNo = "AAW00000123456"
       val contactNumber = "0123456789"
-      when(mockEtmpConnector.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "", Map.empty[String, Seq[String]])))
+      when(mockDesConnector.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "", Map.empty[String, Seq[String]])))
       val result = TestEtmpStatusInfoService.getStatusInfo(invalidAwrsRefNo, contactNumber)
       await(result).status shouldBe 400
     }

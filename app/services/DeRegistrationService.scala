@@ -16,20 +16,18 @@
 
 package services
 
-import connectors.{EtmpConnector, HipConnector}
+import connectors.HipConnector
 import play.api.Logging
 import play.api.http.Status
 import play.api.libs.json._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.{AWRSFeatureSwitches, Utility}
+import utils.Utility
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
-                                      hipConnector: HipConnector)
-                                     (implicit ec: ExecutionContext, config: ServicesConfig)
+class DeRegistrationService @Inject()(hipConnector: HipConnector)
+                                     (implicit ec: ExecutionContext)
   extends Logging {
 
   private val acknowledgementReference: String = "acknowledgementReference"
@@ -38,42 +36,33 @@ class DeRegistrationService @Inject()(etmpConnector: EtmpConnector,
                      deRegistration: JsValue)
                     (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
-    if (AWRSFeatureSwitches.hipSwitch().enabled) {
-      val hipRequestJson: JsResult[JsValue] = updateRequestForHip(deRegistration)
-      hipRequestJson match {
-        case JsSuccess(transformedRequestJson, _) =>
-          hipConnector.deRegister(awrsRefNo, transformedRequestJson) map {
-            response =>
-              response.status match {
-                case Status.CREATED =>
-                  HttpResponse(
-                    status = Status.OK,
-                    body = Json.stringify(Utility.stripSuccessNode(Json.parse(response.body))),
-                    headers = response.headers
-                  )
+    val hipRequestJson: JsResult[JsValue] = updateRequestForHip(deRegistration)
+    hipRequestJson match {
+      case JsSuccess(transformedRequestJson, _) =>
+        hipConnector.deRegister(awrsRefNo, transformedRequestJson) map {
+          response =>
+            response.status match {
+              case Status.CREATED =>
+                HttpResponse(
+                  status = Status.OK,
+                  body = Json.stringify(Utility.stripSuccessNode(Json.parse(response.body))),
+                  headers = response.headers
+                )
 
-                case failedStatusCode =>
-                  logger.error(s"[DeRegistrationService][deRegistration] Failure response from HIP endpoint: $failedStatusCode, body=${response.body}")
-                  HttpResponse(
-                    status = failedStatusCode,
-                    body = response.body,
-                    headers = response.headers
-                  )
-              }
-          }
-        case JsError(errors) =>
-          Future.successful(HttpResponse(
-            status = Status.BAD_REQUEST,
-            body = s"JSON transformation failed: ${JsError.toJson(errors)}"
-          ))
-      }
-    } else {
-      etmpConnector.deRegister(awrsRefNo, deRegistration) map {
-        response =>
-          response.status match {
-            case _ => response
-          }
-      }
+              case failedStatusCode =>
+                logger.error(s"[DeRegistrationService][deRegistration] Failure response from HIP endpoint: $failedStatusCode, body=${response.body}")
+                HttpResponse(
+                  status = failedStatusCode,
+                  body = response.body,
+                  headers = response.headers
+                )
+            }
+        }
+      case JsError(errors) =>
+        Future.successful(HttpResponse(
+          status = Status.BAD_REQUEST,
+          body = s"JSON transformation failed: ${JsError.toJson(errors)}"
+        ))
     }
   }
 

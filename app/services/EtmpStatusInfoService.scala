@@ -16,16 +16,16 @@
 
 package services
 
-import connectors.EtmpConnector
+import connectors.DesConnector
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-class EtmpStatusInfoService @Inject()(etmpConnector: EtmpConnector)(implicit ec: ExecutionContext) {
+class EtmpStatusInfoService @Inject()(desConnector: DesConnector)(implicit ec: ExecutionContext) {
 
   def getStatusInfo(awrsRefNo: String, contactNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
-    etmpConnector.getStatusInfo(awrsRefNo, contactNumber) map {
+    desConnector.getStatusInfo(awrsRefNo, contactNumber) map {
       response =>
         response.status match {
           case _ => response

@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{EnrolmentStoreConnector, EtmpConnector, HipConnector}
+import connectors.{EnrolmentStoreConnector, DesConnector, HipConnector}
 import models._
 import org.mockito.ArgumentMatchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
@@ -24,11 +24,10 @@ import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers
-import play.api.test.Helpers.{await, _}
+import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.FeatureSwitch.disable
 import utils.{AWRSFeatureSwitches, AwrsTestJson, BaseSpec, FeatureSwitch}
 
 import java.util.UUID
@@ -40,27 +39,19 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
   implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
   implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
+  val mockDesConnector: DesConnector = mock[DesConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
   val mockAuthConnector: AuthConnector = mock[AuthConnector]
   val mockEnrolmentStore: EnrolmentStoreConnector = mock[EnrolmentStoreConnector]
   val safeId: String = "XE0001234567890"
   val regime: String = "AWRS"
 
-  override def beforeEach(): Unit = {
-    disable(AWRSFeatureSwitches.hipSwitch())
-  }
-
-  override def afterAll(): Unit = {
-    disable(AWRSFeatureSwitches.hipSwitch())
-  }
-
-  object TestEtmpRegimeService extends EtmpRegimeService(mockEtmpConnector, mockHipConnector, mockEnrolmentStore, mockAuthConnector)
+  object TestEtmpRegimeService extends EtmpRegimeService(mockDesConnector, mockHipConnector, mockEnrolmentStore, mockAuthConnector)
 
   "getEtmpBusinessDetails" must {
 
     "successfully return a regimeRefNumber" in {
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
       val result = TestEtmpRegimeService.getEtmpBusinessDetails(safeId)
 
@@ -74,7 +65,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
     "successfully return an empty ref when only regimeName is present" in {
       val json: JsObject = Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime).as[JsObject].-("regimeIdentifiers")
 
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, json, Map.empty[String, Seq[String]])))
       val result = TestEtmpRegimeService.getEtmpBusinessDetails(safeId)
 
@@ -88,7 +79,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
       when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
       when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT, " ")))
@@ -99,7 +90,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
         "groupBusinessPartner" -> false
       )
 
-      when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
@@ -117,11 +108,11 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
       when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
       when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT, " ")))
-      when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
 
       val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
@@ -144,7 +135,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
         when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(
           ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-        when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
         when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(NO_CONTENT, "")))
@@ -155,7 +146,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
           "groupBusinessPartner" -> false
         )
 
-        when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")
@@ -170,7 +161,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
     "fail to return a regimeRefNumber when the feature switch is enabled but there are no regimeIdentifiers" in {
       FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Json.parse(
           """
             |{}
@@ -199,7 +190,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
       when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-      when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
       when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.failed(new RuntimeException("failure to return registration details")))
@@ -504,7 +495,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
           "groupBusinessPartner" -> false
         )
 
-        when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
         Helpers.await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some(Rejected.name)
@@ -514,7 +505,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
     "provide no status" when {
       "the AWRS subscription cannot be found" in {
-        when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(NOT_FOUND, "")))
 
         Helpers.await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe None
@@ -527,7 +518,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
           "groupBusinessPartner" -> false
         )
 
-        when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, resp, Map.empty[String, Seq[String]])))
 
         await(TestEtmpRegimeService.fetchETMPStatus("testRef")) shouldBe Some("not found")
@@ -536,7 +527,7 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
     "throw an exception" when {
       "a server error status is received" in {
-        when(mockEtmpConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.checkStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, "")))
 
         intercept[RuntimeException](await(TestEtmpRegimeService.fetchETMPStatus("testRef")))
@@ -571,16 +562,15 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
     }
 
     "checkETMPApi against HIP API" must {
-      reset(mockEtmpConnector)
+      reset(mockDesConnector)
 
       "successfully return a regimeRefNumber when the regime feature switch is enabled" in {
 
         FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
-        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
         when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-        when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
         when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(NO_CONTENT, " ")))
@@ -612,12 +602,11 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
       "successfully return a regimeRefNumber when the feature switch is enabled and SOP Business type" in {
 
-        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
         when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-        when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
         when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(NO_CONTENT, " ")))
@@ -636,12 +625,11 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
       "successfully return a regimeRefNumber when the feature switch is enabled and SOP Business type (and ID not found from HIP)" in {
 
-        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
         when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-        when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
         when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(NO_CONTENT, " ")))
@@ -677,12 +665,11 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
         s"fail when a status of $status is received (no self heal)" in {
 
-          FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
           FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
           when(mockAuthConnector.authorise[Option[AffinityGroup]](ArgumentMatchers.any(), ArgumentMatchers.any())(
             ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(AffinityGroup.Organisation)))
-          when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+          when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
             .thenReturn(Future.successful(HttpResponse(OK, Json.parse(AwrsTestJson.getRegDetailsOrgWithRegime), Map.empty[String, Seq[String]])))
           when(mockEnrolmentStore.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
             .thenReturn(Future.successful(HttpResponse(NO_CONTENT, "")))
@@ -707,17 +694,14 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
           val result = TestEtmpRegimeService.checkETMPApi(businessCustomerDetails, "")
 
           await(result) shouldBe None
-
         }
-
       }
 
       "fail to return a regimeRefNumber when the feature switch is enabled but there are no regimeIdentifiers" in {
 
-        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
 
-        when(mockEtmpConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockDesConnector.awrsRegime(ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(OK, Json.parse(
             """
               |{}
@@ -733,7 +717,6 @@ class EtmpRegimeServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAnd
 
       "fail to return a regimeRefNumber when the feature switch is disabled" in {
 
-        FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
         FeatureSwitch.disable(AWRSFeatureSwitches.regimeCheck())
 
         val businessAddress = BCAddress("1 LS House", "LS Way", Some("LS"), Some("Line 4"), Some("Postcode"), "GB")

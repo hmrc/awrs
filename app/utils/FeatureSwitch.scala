@@ -53,8 +53,6 @@ object FeatureSwitch {
   val DisabledIntervalExtractor: Regex = """!(\S+)_(\S+)""".r
   val EnabledIntervalExtractor: Regex = """(\S+)_(\S+)""".r
   val UNSPECIFIED = "X"
-  val dateFormat: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-
 
   private[utils] def getProperty(name: String)(implicit config: ServicesConfig): FeatureSwitch = {
     val value = sys.props.get(systemPropertyName(name))
@@ -84,9 +82,6 @@ object FeatureSwitch {
 
   def enable(fs: FeatureSwitch)(implicit config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "true")
   def disable(fs: FeatureSwitch)(implicit config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "false")
-
-  def apply(name: String, enabled: Boolean = false)(implicit config: ServicesConfig): FeatureSwitch = getProperty(name)
-  def unapply(fs: FeatureSwitch): Option[(String, Boolean)] = Some(fs.name -> fs.enabled)
 }
 
 object AWRSFeatureSwitches extends AWRSFeatureSwitches
@@ -94,11 +89,9 @@ object AWRSFeatureSwitches extends AWRSFeatureSwitches
 trait AWRSFeatureSwitches {
 
   def regimeCheck()(implicit config: ServicesConfig): FeatureSwitch = FeatureSwitch.getProperty("regimeCheck")
-  def hipSwitch()(implicit config: ServicesConfig): FeatureSwitch = FeatureSwitch.getProperty("hipSwitch")
 
   def apply(name: String)(implicit config: ServicesConfig): Option[FeatureSwitch] = name match {
     case "regimeCheck" => Some(regimeCheck())
-    case "hipSwitch" => Some(hipSwitch())
     case _ => None
   }
 

@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{EtmpConnector, HipConnector}
+import connectors.HipConnector
 
 import javax.inject.Inject
 import metrics.AwrsMetrics
@@ -27,55 +27,47 @@ import play.api.libs.json._
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.{AWRSFeatureSwitches, Utility}
+import utils.Utility
 
-class WithdrawalService @Inject()(metrics: AwrsMetrics, etmpConnector: EtmpConnector, hipConnector: HipConnector)
-                                 (implicit ec: ExecutionContext,
-                                  config: ServicesConfig) extends Logging {
+class WithdrawalService @Inject()(metrics: AwrsMetrics, hipConnector: HipConnector)
+                                 (implicit ec: ExecutionContext) extends Logging {
 
   def withdrawal(withdrawalData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
-    if (AWRSFeatureSwitches.hipSwitch().enabled) {
-      metrics.startTimer(ApiType.API8Withdrawal)
-      val hipRequestJson: JsResult[JsValue] = updateRequestForHip(withdrawalData)
+    metrics.startTimer(ApiType.API8Withdrawal)
+    val hipRequestJson: JsResult[JsValue] = updateRequestForHip(withdrawalData)
 
-      hipRequestJson match {
-        case JsSuccess(updatedRequestJson, _) =>
-          hipConnector.withdrawal(awrsRefNo, updatedRequestJson) map {
-            response =>
-              response.status match {
-                case Status.CREATED =>
-                  HttpResponse(
-                    status = Status.OK,
-                    body = Json.stringify(Utility.stripSuccessNode(Json.parse(response.body))),
-                    headers = response.headers
-                  )
-
-                case failedStatusCode =>
-                  logger.error(s"[WithdrawalService][withdrawal] Failure response from HIP endpoint: $failedStatusCode,  body=${response.body}")
-                  HttpResponse(
-                    status = failedStatusCode,
-                    body = response.body,
-                    headers = response.headers
-                  )
-              }
-          }
-        case JsError(errors) =>
-          Future.successful(HttpResponse(
-            status = Status.BAD_REQUEST,
-            body = s"JSON transformation failed: ${JsError.toJson(errors)}"
-          ))
-      }
-    } else {
-      metrics.startTimer(ApiType.API8Withdrawal)
-      etmpConnector.withdrawal(awrsRefNo, withdrawalData)
+    hipRequestJson match {
+      case JsSuccess(updatedRequestJson, _) =>
+        hipConnector.withdrawal(awrsRefNo, updatedRequestJson) map {
+          response =>
+            response.status match {
+              case Status.CREATED =>
+                HttpResponse(
+                  status = Status.OK,
+                  body = Json.stringify(Utility.stripSuccessNode(Json.parse(response.body))),
+                  headers = response.headers
+                )
+              case failedStatusCode =>
+                logger.error(s"[WithdrawalService][withdrawal] Failure response from HIP endpoint: $failedStatusCode,  body=${response.body}")
+                HttpResponse(
+                  status = failedStatusCode,
+                  body = response.body,
+                  headers = response.headers
+                )
+            }
+        }
+      case JsError(errors) =>
+        Future.successful(HttpResponse(
+          status = Status.BAD_REQUEST,
+          body = s"JSON transformation failed: ${JsError.toJson(errors)}"
+        ))
     }
   }
 
   def updateRequestForHip(withdrawalData: JsValue): JsResult[JsObject] = {
-      withdrawalData.validate[JsObject].map { requestJsObject =>
-        val updatedRequest: JsObject = requestJsObject - "acknowledgmentReference"
-        updatedRequest
-      }
+    withdrawalData.validate[JsObject].map { requestJsObject =>
+      val updatedRequest: JsObject = requestJsObject - "acknowledgmentReference"
+      updatedRequest
     }
+  }
 }

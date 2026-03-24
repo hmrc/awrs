@@ -105,7 +105,7 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
       val responseJson = hipApi4InputSoleTraderNewBusinessJson
       val expectedJson = etmpApi4SoleTrader
 
-      val editedResponseBody = Utility.mapCrnForDesResponse(responseJson)
+      val editedResponseBody = Utility.mapCrnForResponseModel(responseJson)
       (editedResponseBody \\ "companyRegNumber").nonEmpty shouldBe true
       editedResponseBody shouldBe expectedJson
     }
@@ -114,7 +114,7 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
       val responseJson = hipApi4InputCorporateBodyNewBusinessJson
       val expectedJson = etmpApi4CorporateBody
 
-      val editedResponseBody = Utility.mapCrnForDesResponse(responseJson)
+      val editedResponseBody = Utility.mapCrnForResponseModel(responseJson)
       (editedResponseBody \\ "companyRegNumber").nonEmpty shouldBe true
       editedResponseBody shouldBe expectedJson
     }
@@ -243,7 +243,7 @@ class UtilitySpec extends MockitoSugar with ScalaFutures with AnyWordSpecLike {
                      |""".stripMargin
 
 
-    val editedResponseBody = Utility.mapCrnForDesResponse(Json.parse(response))
+    val editedResponseBody = Utility.mapCrnForResponseModel(Json.parse(response))
     editedResponseBody.toString contains("companyRegNumber") shouldBe false
     editedResponseBody.toString contains("companyRegistrationNumber") shouldBe false
     (editedResponseBody \\ "companyRegNumber").isEmpty shouldBe true

@@ -46,7 +46,7 @@ trait Stubs extends IntegrationSpec with IntegrationData {
   }
 
   def stubAwrsSubscriptionResponse(status: Int, body: Option[String] = None): StubMapping = {
-    stubbedPost(s"$baseURI$subscriptionURI$safeId", status, body.getOrElse(""))
+    stubbedPost(s"$baseURI$subscriptionCreateURI$safeId", status, body.getOrElse(""))
   }
 
   def stubGetSubscriptionStatus(status: Int, awrsStatus: Option[String] = None): StubMapping = {
@@ -57,7 +57,7 @@ trait Stubs extends IntegrationSpec with IntegrationData {
       "groupBusinessPartner" -> false
       ).toString
     }
-    stubbedGet(s"""$baseURI$subscriptionURI$enrolmentRef$statusURI""", status, responseBody)
+    stubbedGet(s"""$baseURI$subscriptionURI$statusURI$enrolmentRef""", status, responseBody)
   }
 
   def stubUpsertAwrsEnrolment(status: Int): StubMapping = {
