@@ -23,10 +23,10 @@ object AppDependencies {
   private val json4sJacksonVersion = "4.0.7"
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val json4sNativeVersion = "4.0.7"
-  private val mockitoScalatestVersion = "2.0.0"
-  private val microserviceBootstrapVersion = "10.5.0"
-  private val jsoupVersion = "1.21.2"
-  private val jacksonModuleVersion = "2.20.1"
+  private val mockitoScalatestVersion = "2.1.0"
+  private val microserviceBootstrapVersion = "10.7.0"
+  private val jsoupVersion = "1.22.1"
+  private val jacksonModuleVersion = "2.21.2"
 
   val compile: Seq[ModuleID] = Seq(
     ws,

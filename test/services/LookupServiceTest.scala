@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{EtmpConnector, HipConnector}
+import connectors.HipConnector
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
@@ -27,9 +27,7 @@ import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson.testRefNo
-import utils.AwrsTestJson._
-import utils.FeatureSwitch.disable
-import utils.{AWRSFeatureSwitches, BaseSpec, FeatureSwitch}
+import utils.BaseSpec
 
 import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,51 +38,17 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
-  val mockEtmpConnector: EtmpConnector = mock[EtmpConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
 
   val etmpApi4SoleTrader: JsValue = api4EtmpSoleTraderJson
   val etmpApi4CorporateBody: JsValue = api4EtmpCorporateBodyJson
 
-  override def beforeEach(): Unit = {
-    disable(AWRSFeatureSwitches.hipSwitch())
-  }
-
-  override def afterAll(): Unit = {
-    disable(AWRSFeatureSwitches.hipSwitch())
-  }
-
-  object TestLookupService extends LookupService(mockEtmpConnector, mockHipConnector)
+  object TestLookupService extends LookupService(mockHipConnector)
 
 
   "LookupService " must {
 
-    "successfully lookup application when passed a valid reference number" in {
-      FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
-
-      val awrsRefNo = testRefNo
-
-      when(mockEtmpConnector.lookup(any())(any()))
-        .thenReturn(Future.successful(HttpResponse(OK, "", Map.empty[String, Seq[String]])))
-
-      val result = TestLookupService.lookupApplication(awrsRefNo)
-      await(result).status shouldBe OK
-    }
-
-    "return Bad Request when passed an invalid reference number" in {
-      FeatureSwitch.disable(AWRSFeatureSwitches.hipSwitch())
-
-      val invalidAwrsRefNo = "AAW00000123456"
-
-      when(mockEtmpConnector.lookup(any())(any()))
-        .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "", Map.empty[String, Seq[String]])))
-
-      val result = TestLookupService.lookupApplication(invalidAwrsRefNo)
-      await(result).status shouldBe BAD_REQUEST
-    }
-
     "successfully lookup application when passed a valid reference number v1" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = Json.parse(
         """
@@ -221,7 +185,6 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
     }
 
     "successfully lookup application when passed a valid reference number (Sole Trader)" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = etmpApi4SoleTrader
 
@@ -233,7 +196,6 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
     }
 
     "successfully lookup application when passed a valid reference number (Corporate Body)" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = etmpApi4CorporateBody
 
@@ -245,7 +207,6 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
     }
 
     "respond the caller with appropriate failure status code for a validation failures in lookup request" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val responseJson: JsValue = Json.parse(
         """
@@ -267,7 +228,6 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
     }
 
     "respond the caller with BAD_REQUEST if invalid JSON is send" in {
-      FeatureSwitch.enable(AWRSFeatureSwitches.hipSwitch())
 
       val response: String =
         """inavalid JSON""".stripMargin

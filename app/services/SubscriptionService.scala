@@ -16,25 +16,23 @@
 
 package services
 
-import connectors.{EnrolmentStoreConnector, EtmpConnector, HipConnector}
+import connectors.{EnrolmentStoreConnector, DesConnector, HipConnector}
 import metrics.AwrsMetrics
 import models._
 import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsObject, JsResult, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.{AWRSFeatureSwitches, SessionUtils, Utility}
+import utils.{SessionUtils, Utility}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SubscriptionService @Inject()(
-                                     metrics: AwrsMetrics,
-                                     val enrolmentStoreConnector: EnrolmentStoreConnector,
-                                     val etmpConnector: EtmpConnector,
-                                     val hipConnector: HipConnector
-                                   )(implicit ec: ExecutionContext, config: ServicesConfig) extends Logging {
+class SubscriptionService @Inject()(metrics: AwrsMetrics,
+                                    enrolmentStoreConnector: EnrolmentStoreConnector,
+                                    desConnector: DesConnector,
+                                    hipConnector: HipConnector)
+                                   (implicit ec: ExecutionContext) extends Logging {
 
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   private val acknowledgmentReference: String = "acknowledgmentReference"
@@ -63,9 +61,7 @@ class SubscriptionService @Inject()(
           for {
             submitResponse <- hipConnector.subscribe(updatedInputJson, safeId)
             jsonWithoutSuccessNode = Utility.stripSuccessNode(submitResponse.json)
-            modifiedSubmitResponse = {
-              HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
-            }
+            modifiedSubmitResponse = HttpResponse(submitResponse.status, Json.stringify(jsonWithoutSuccessNode))
             enrolmentResponse <- addKnownFacts(modifiedSubmitResponse, safeId, utr, businessType, postcode)
           } yield handleSubscriptionResponse(modifiedSubmitResponse, enrolmentResponse)
         case JsError(errors) =>
@@ -75,45 +71,28 @@ class SubscriptionService @Inject()(
         ))
       }
     }
-
-    def processDesData(): Future[HttpResponse] = {
-      for {
-        submitResponse <- etmpConnector.subscribe(inputJson, safeId)
-        enrolmentResponse <- addKnownFacts(submitResponse, safeId, utr, businessType, postcode)
-      } yield handleSubscriptionResponse(submitResponse, enrolmentResponse)
-    }
-
-    if (AWRSFeatureSwitches.hipSwitch().enabled) {
-      processHipData()
-    } else {
-      processDesData()
-    }
+    processHipData()
   }
 
-  def updateSubscription(inputJson: JsValue, awrsRefNo: String)(implicit
-                                                                headerCarrier: HeaderCarrier
-  ): Future[HttpResponse] = {
-    if (AWRSFeatureSwitches.hipSwitch().enabled) {
-      val hipRequestJson: JsResult[JsValue] = updateRequestForHip(inputJson)
-      hipRequestJson match {
-        case JsSuccess(hipRequest, _) =>
-          hipConnector.updateSubscription(hipRequest, awrsRefNo).map { response =>
-            response.status match {
-              case OK =>
-                val strippedSuccessBody = Utility.stripSuccessNode(response.json)
-                HttpResponse(response.status, strippedSuccessBody.toString(), response.headers)
-              case status@_ =>
-                logger.error(s"[SubscriptionService][updateSubscription] Failure response from HIP endpoint : $status, body=${response.body}")
-                response
-            }
+  def updateSubscription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+
+    val hipRequestJson: JsResult[JsValue] = updateRequestForHip(inputJson)
+    hipRequestJson match {
+      case JsSuccess(hipRequest, _) =>
+        hipConnector.updateSubscription(hipRequest, awrsRefNo).map { response =>
+          response.status match {
+            case OK =>
+              val strippedSuccessBody = Utility.stripSuccessNode(response.json)
+              HttpResponse(response.status, strippedSuccessBody.toString(), response.headers)
+            case status@_ =>
+              logger.error(s"[SubscriptionService][updateSubscription] Failure response from HIP endpoint : $status, body=${response.body}")
+              response
           }
-        case JsError(errors) => Future.successful(HttpResponse(
-          status = BAD_REQUEST,
-          body = s"JSON transformation failed: ${JsError.toJson(errors)}"
-        ))
-      }
-    } else {
-      etmpConnector.updateSubscription(inputJson, awrsRefNo)
+        }
+      case JsError(errors) => Future.successful(HttpResponse(
+        status = BAD_REQUEST,
+        body = s"JSON transformation failed: ${JsError.toJson(errors)}"
+      ))
     }
   }
 
@@ -146,7 +125,7 @@ class SubscriptionService @Inject()(
     val request = updateData.copy(acknowledgementReference =
       Some(SessionUtils.getUniqueAckNo)
     )
-    etmpConnector.updateGrpRepRegistrationDetails(safeId, Json.toJson(request))
+    desConnector.updateGrpRepRegistrationDetails(safeId, Json.toJson(request))
   }
 
   def updateRequestForHip(requestJson: JsValue): JsResult[JsObject] = {

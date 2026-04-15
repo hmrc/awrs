@@ -16,7 +16,7 @@
 
 package services
 
-import connectors.{EnrolmentStoreConnector, EtmpConnector, HipConnector}
+import connectors.{EnrolmentStoreConnector, DesConnector, HipConnector}
 
 import javax.inject.Inject
 import models._
@@ -31,7 +31,7 @@ import utils.{AWRSFeatureSwitches, HipHelpers, Utility}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
+class EtmpRegimeService @Inject()(desConnector: DesConnector,
                                   hipConnector: HipConnector,
                                   val enrolmentStoreConnector: EnrolmentStoreConnector,
                                   val authConnector: AuthConnector)
@@ -42,7 +42,7 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
   private val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
 
   def getEtmpBusinessDetails(safeId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
-    etmpConnector.awrsRegime(safeId).map { response =>
+    desConnector.awrsRegime(safeId).map { response =>
       Try(EtmpRegistrationDetails.etmpReader.reads(response.json)) match {
         case Success(value) => value.asOpt
         case Failure(e) =>
@@ -88,30 +88,16 @@ class EtmpRegimeService @Inject()(etmpConnector: EtmpConnector,
 
   def fetchETMPStatus(refNoNumber: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[String]] = {
 
-    if (AWRSFeatureSwitches.hipSwitch().enabled) {
-      hipConnector.checkStatus(refNoNumber) map { response =>
-        response.status match {
-          case OK =>
-            val statusType = Utility.stripSuccessNode(response.json).as[SubscriptionStatusType](SubscriptionStatusType.reader)
-            Some(statusType.formBundleStatus.name)
-          case NOT_FOUND => None
-          case UNPROCESSABLE_ENTITY if HipHelpers.extractHipErrorCode(response.body) == Some("002") => None
-          case status =>
-            logger.warn(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status ${response.body}")
-            throw new RuntimeException(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status ${response.body}")
-        }
-      }
-    } else {
-      etmpConnector.checkStatus(refNoNumber) map { response =>
-        response.status match {
-          case OK =>
-            val statusType = response.json.as[SubscriptionStatusType](SubscriptionStatusType.reader)
-            Some(statusType.formBundleStatus.name)
-          case NOT_FOUND => None
-          case status =>
-            logger.warn(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status")
-            throw new RuntimeException(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status")
-        }
+    hipConnector.checkStatus(refNoNumber) map { response =>
+      response.status match {
+        case OK =>
+          val statusType = Utility.stripSuccessNode(response.json).as[SubscriptionStatusType](SubscriptionStatusType.reader)
+          Some(statusType.formBundleStatus.name)
+        case NOT_FOUND => None
+        case UNPROCESSABLE_ENTITY if HipHelpers.extractHipErrorCode(response.body) == Some("002") => None
+        case status =>
+          logger.warn(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status ${response.body}")
+          throw new RuntimeException(s"[EtmpRegimeService][fetchETMPStatus] Failed to check ETMP API9 status: $status ${response.body}")
       }
     }
   }

@@ -16,52 +16,40 @@
 
 package services
 
-import connectors.{EtmpConnector, HipConnector}
+import connectors.HipConnector
 import play.api.http.Status
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.Utility.logger
-import utils.{AWRSFeatureSwitches, Utility}
+import utils.Utility
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class LookupService @Inject()(etmpConnector: EtmpConnector,
-                              hipConnector: HipConnector)
-                             (implicit ec: ExecutionContext,
-                              config: ServicesConfig) {
+class LookupService @Inject()(hipConnector: HipConnector)
+                             (implicit ec: ExecutionContext) {
 
   def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
-    if (AWRSFeatureSwitches.hipSwitch().enabled) {
-      hipConnector.lookup(awrsRefNo) map {
-        response: HttpResponse =>
-          response.status match {
-            case Status.OK =>
-              val responseBody = Utility.mapCrnForDesResponse(response.json)
-              HttpResponse(
-                status = Status.OK,
-                body = Json.stringify(Utility.stripSuccessNode(responseBody)),
-                headers = response.headers
-              )
+    hipConnector.lookup(awrsRefNo) map {
+      response: HttpResponse =>
+        response.status match {
+          case Status.OK =>
+            val responseBody = Utility.mapCrnForResponseModel(response.json)
+            HttpResponse(
+              status = Status.OK,
+              body = Json.stringify(Utility.stripSuccessNode(responseBody)),
+              headers = response.headers
+            )
 
-            case failedStatusCode =>
-              logger.error(s"[LookupService][lookupApplication] Failure response from HIP endpoint: $failedStatusCode, body=${response.body}")
-              HttpResponse(
-                status = failedStatusCode,
-                body = response.body,
-                headers = response.headers
-              )
-          }
-      }
-    } else {
-      etmpConnector.lookup(awrsRefNo) map {
-        response =>
-          response.status match {
-            case _ => response
-          }
-      }
+          case failedStatusCode =>
+            logger.error(s"[LookupService][lookupApplication] Failure response from HIP endpoint: $failedStatusCode, body=${response.body}")
+            HttpResponse(
+              status = failedStatusCode,
+              body = response.body,
+              headers = response.headers
+            )
+        }
     }
   }
 }

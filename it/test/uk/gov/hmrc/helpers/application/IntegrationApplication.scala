@@ -33,15 +33,17 @@ trait IntegrationApplication extends GuiceOneServerPerSuite with WireMockConfig 
 
   @nowarn
   def appConfig(extraConfig: (String,String)*): Map[String, Any] = Map(
-    "play.http.router"                    -> "testOnlyDoNotUseInAppConf.Routes",
-    "microservice.services.auth.host"       -> wireMockHost,
-    "microservice.services.auth.port"       -> wireMockPort,
-    "auditing.consumer.baseUri.host"        -> wireMockHost,
-    "auditing.consumer.baseUri.port"        -> wireMockPort,
-    "microservice.services.etmp-hod.host" -> wireMockHost,
-    "microservice.services.etmp-hod.port" -> wireMockPort,
-    "microservice.services.enrolment-store-proxy.host" -> wireMockHost,
-    "microservice.services.enrolment-store-proxy.port" -> wireMockPort
+    "play.http.router"                                  -> "testOnlyDoNotUseInAppConf.Routes",
+    "microservice.services.auth.host"                   -> wireMockHost,
+    "microservice.services.auth.port"                   -> wireMockPort,
+    "auditing.consumer.baseUri.host"                    -> wireMockHost,
+    "auditing.consumer.baseUri.port"                    -> wireMockPort,
+    "microservice.services.etmp-hod.host"               -> wireMockHost,
+    "microservice.services.etmp-hod.port"               -> wireMockPort,
+    "microservice.services.hip.host"                    -> wireMockHost,
+    "microservice.services.hip.port"                    -> wireMockPort,
+    "microservice.services.enrolment-store-proxy.host"  -> wireMockHost,
+    "microservice.services.enrolment-store-proxy.port"  -> wireMockPort
 
   ) ++ extraConfig
 

@@ -46,7 +46,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
               FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
               stubShowAndRedirectExternalCalls("Organisation")
               stubAuditPosts
-              stubAwrsSubscriptionResponse(OK, Some(subscriptionSuccessResponse))
+              stubAwrsSubscriptionResponse(CREATED, Some(subscriptionSuccessResponse))
               stubUpsertAwrsEnrolment(NO_CONTENT)
 
               val resp: WSResponse = await(authorisedClient(controllerUrl).post(awrsSubscriptionDataOrg))
@@ -60,7 +60,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
               FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
               stubShowAndRedirectExternalCalls("Individual")
               stubAuditPosts
-              stubAwrsSubscriptionResponse(OK, Some(subscriptionSuccessResponse))
+              stubAwrsSubscriptionResponse(CREATED, Some(subscriptionSuccessResponse))
               stubUpsertAwrsEnrolment(NO_CONTENT)
 
               val resp: WSResponse = await(client(controllerUrl).post(awrsSubscriptionDataInd))
@@ -79,7 +79,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
             FeatureSwitch.enable(AWRSFeatureSwitches.regimeCheck())
             stubShowAndRedirectExternalCalls("Organisation")
             stubAuditPosts
-            stubAwrsSubscriptionResponse(BAD_REQUEST)
+            stubAwrsSubscriptionResponse(BAD_REQUEST, Some("{\"errorJson\":\"errorMessage\"}"))
             stubEtmpRegistrationResponse(OK, etmpRegistrationResultOrg)
             stubGetSubscriptionStatus(OK, Some(Approved.name))
             stubUpsertAwrsEnrolment(NO_CONTENT)
@@ -95,7 +95,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
             stubAuditPosts
             stubEtmpRegistrationResponse(OK, etmpRegistrationResultInd)
             stubGetSubscriptionStatus(OK, Some(Approved.name))
-            stubAwrsSubscriptionResponse(BAD_REQUEST)
+            stubAwrsSubscriptionResponse(BAD_REQUEST, Some("{\"errorJson\":\"errorMessage\"}"))
             stubUpsertAwrsEnrolment(NO_CONTENT)
 
             val resp: WSResponse = await(authorisedClient(controllerUrl).post(awrsSubscriptionDataInd))
@@ -112,7 +112,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
 
           FeatureSwitch.disable(AWRSFeatureSwitches.regimeCheck())
           stubAuditPosts
-          stubAwrsSubscriptionResponse(BAD_REQUEST)
+          stubAwrsSubscriptionResponse(BAD_REQUEST, Some("{\"errorJson\":\"errorMessage\"}"))
 
           val resp: WSResponse = await(client(controllerUrl).post(awrsSubscriptionDataOrg))
           resp.status mustBe 400
@@ -129,7 +129,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
             stubShowAndRedirectExternalCalls("Organisation")
             stubAuditPosts
             stubEtmpRegistrationResponse(OK, modifiedRegistrationResult)
-            stubAwrsSubscriptionResponse(BAD_REQUEST)
+            stubAwrsSubscriptionResponse(BAD_REQUEST, Some("{\"errorJson\":\"errorMessage\"}"))
             stubGetSubscriptionStatus(OK, Some(Approved.name))
             stubUpsertAwrsEnrolment(NO_CONTENT)
 
@@ -146,7 +146,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
             stubShowAndRedirectExternalCalls("Individual")
             stubAuditPosts
             stubEtmpRegistrationResponse(OK, modifiedRegistrationResult)
-            stubAwrsSubscriptionResponse(BAD_REQUEST)
+            stubAwrsSubscriptionResponse(BAD_REQUEST, Some("{\"errorJson\":\"errorMessage\"}"))
             stubGetSubscriptionStatus(OK, Some(Approved.name))
             stubUpsertAwrsEnrolment(NO_CONTENT)
 
