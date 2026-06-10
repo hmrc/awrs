@@ -397,10 +397,53 @@ class EtmpModelHelperSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLik
       val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
       etmpJson should include("currentAddress")
       etmpJson should include("communicationDetails")
-      etmpJson should include("differentOperatingAddresslnLast3Years")
+      etmpJson should include("\"differentOperatingAddresslnLast3Years\":false")
       etmpJson should include("\"operatingDuration\":\"2 to 5 years")
     }
+
+    "transform to correct JSON element when placeOfBusinessLast3Years is No and operatingDuration is less than 2 years where previous address is present" in {
+      val baseJson = api4FrontendSOPJson//.as[AWRSFEModel]
+
+      val addressJson = Json.obj(
+        "addressLine1" ->"Previous Street",
+        "addressLine2" -> "Previous View",
+        "addressLine3" -> "Previous Town",
+        "AddressLine4" -> "Previous County",
+        "postcode" -> "AA1 1AA",
+        "addressCountryCode" -> "GB"
+      )
+
+      val jsonTransformer = __.json.update((__ \ "subscriptionTypeFrontEnd" \ "placeOfBusiness" \ "placeOfBusinessAddressLast3Years").json.put(addressJson)) andThen
+        __.json.update((__ \ "subscriptionTypeFrontEnd" \ "placeOfBusiness" \ "operatingDuration").json.put(JsString("Less than 2 years"))) andThen
+        __.json.update((__ \ "subscriptionTypeFrontEnd" \ "placeOfBusiness" \ "placeOfBusinessLast3Years").json.put(JsString("No")))
+
+      val awrsModel = baseJson.transform(jsonTransformer).get.as[AWRSFEModel]
+      val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
+
+      etmpJson should include("currentAddress")
+      etmpJson should include("communicationDetails")
+      etmpJson should include("\"differentOperatingAddresslnLast3Years\":true")
+      etmpJson should include("\"operatingDuration\":\"0 to 2 years")
+      etmpJson should include("previousAddress")
+    }
+
+    "transform to correct JSON element when placeOfBusinessLast3Years is No and operatingDuration is less than 2 years where previous address not present" in {
+      val baseJson = api4FrontendSOPJson//.as[AWRSFEModel]
+
+      val jsonTransformer = __.json.update((__ \ "subscriptionTypeFrontEnd" \ "placeOfBusiness" \ "operatingDuration").json.put(JsString("Less than 2 years"))) andThen
+        __.json.update((__ \ "subscriptionTypeFrontEnd" \ "placeOfBusiness" \ "placeOfBusinessLast3Years").json.put(JsString("No")))
+
+      val awrsModel = baseJson.transform(jsonTransformer).get.as[AWRSFEModel]
+      val etmpJson = TestEtmpModelHelper.toEtmpBusinessAddressForAwrs(awrsModel.subscriptionTypeFrontEnd).toString()
+
+      etmpJson should include("currentAddress")
+      etmpJson should include("communicationDetails")
+      etmpJson should include("\"differentOperatingAddresslnLast3Years\":false")
+      etmpJson should include("\"operatingDuration\":\"0 to 2 years")
+      etmpJson should not include("previousAddress")
+    }
   }
+
   "toEtmpTypeOfAlcoholOrders method of EtmpModelHelper " must {
     "transform to correct JSON element for typeOfAlcoholOrders" in {
       val awrsModel = api4FrontendSOPJson.as[AWRSFEModel]
