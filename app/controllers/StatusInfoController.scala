@@ -21,8 +21,8 @@ import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
 import models.{ApiType, StatusInfoType}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import services._
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
+import services.*
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.LoggingUtils
@@ -35,10 +35,11 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
                                      val etmpRegimeService: EtmpRegimeService,
                                      val enrolmentService: EnrolmentService,
                                      cc: ControllerComponents,
-                                     @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
+                                     @Named("appName") val appName: String)(using ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
 
   def getStatusInfo(awrsRef: String, contactNumber: String): Action[AnyContent] = Action.async {
-    implicit request =>
+    request =>
+      given Request[AnyContent] = request
       info(s"[$auditAPI11TxName - $awrsRef ] - hit getStatusInfo controller ")
       val apiType: ApiType.Value = ApiType.API11GetStatusInfo
       val timer = metrics.startTimer(apiType)
@@ -83,7 +84,8 @@ class StatusInfoController @Inject()(val auditConnector: AuditConnector,
       }
   }
 
-  def enrolledUsers(safeID: String): Action[AnyContent] = Action.async { implicit request =>
+  def enrolledUsers(safeID: String): Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     etmpRegimeService.getEtmpBusinessDetails(safeID).flatMap {
       case Some(details) =>
         enrolmentService.awrsUsers(details.regimeRefNumber).map {

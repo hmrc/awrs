@@ -17,6 +17,7 @@
 package connectors
 
 import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -29,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class HipConnector @Inject() (http: HttpClientV2,
                               config: ServicesConfig)
-                             (implicit ec: ExecutionContext)
+                             (using ec: ExecutionContext)
   extends RawResponseReads {
 
   lazy val serviceURL: String = config.baseUrl("hip")
@@ -61,37 +62,37 @@ class HipConnector @Inject() (http: HttpClientV2,
     formatter.format(ZonedDateTime.now(ZoneId.of("UTC")))
   }
 
-  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
+  @inline def cGET[A](url: String)(using rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
     http.get(url"$url").setHeader(headers: _*).execute[A]
 
-  @inline def cPOST[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
+  @inline def cPOST[I, O](url: String, body: I)(using wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] = {
     http.post(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
   }
 
-  @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
+  @inline def cPUT[I, O](url: String, body: I)(using wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
     http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
-  def deRegister(awrsRefNo: String, deRegDetails: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def deRegister(awrsRefNo: String, deRegDetails: JsValue)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST(s"""$serviceURL$baseURI$subscriptionURI$deRegistrationURI/$awrsRefNo""", deRegDetails)
   }
 
-  def withdrawal(awrsRefNo: String, withdrawalData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def withdrawal(awrsRefNo: String, withdrawalData: JsValue)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$withdrawalURI/$awrsRefNo""", withdrawalData)
   }
 
-  def checkStatus(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def checkStatus(awrsRef: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET( s"""$serviceURL$baseURI$subscriptionURI$statusURI/$awrsRef""")
   }
 
-  def lookup(awrsRef: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def lookup(awrsRef: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET( s"""$serviceURL$baseURI$subscriptionURI$displayURI/$awrsRef""")
   }
 
-  def subscribe(registerData: JsValue, safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def subscribe(registerData: JsValue, safeId: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPOST( s"""$serviceURL$baseURI$subscriptionURI$subscriptionCreateURI/$safeId""", registerData)
   }
 
-  def updateSubscription(updateData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def updateSubscription(updateData: JsValue, awrsRefNo: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPUT(s"""$serviceURL$baseURI$subscriptionURI$updateURI/$awrsRefNo""", updateData)
   }
 }

@@ -19,10 +19,10 @@ package services
 import connectors.HipConnector
 import org.mockito.ArgumentMatchers.any
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+  import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -30,13 +30,13 @@ import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfterEach with BeforeAndAfterAll {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   val mockHipConnector: HipConnector = mock[HipConnector]
 
@@ -176,7 +176,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.lookup(any())(any()))
+      when(mockHipConnector.lookup(any())(using any()))
         .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
 
       val result = await(TestLookupService.lookupApplication(testRefNo))
@@ -188,7 +188,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
 
       val responseJson: JsValue = etmpApi4SoleTrader
 
-      when(mockHipConnector.lookup(any())(any()))
+      when(mockHipConnector.lookup(any())(using any()))
         .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
 
       val result = await(TestLookupService.lookupApplication(testRefNo))
@@ -199,7 +199,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
 
       val responseJson: JsValue = etmpApi4CorporateBody
 
-      when(mockHipConnector.lookup(any())(any()))
+      when(mockHipConnector.lookup(any())(using any()))
         .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
 
       val result = await(TestLookupService.lookupApplication(testRefNo))
@@ -219,7 +219,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.lookup(any())(any()))
+      when(mockHipConnector.lookup(any())(using any()))
         .thenReturn(Future.successful(HttpResponse(Status.UNPROCESSABLE_ENTITY, responseJson, Map.empty[String, Seq[String]])))
 
       val result = await(TestLookupService.lookupApplication(testRefNo))
@@ -232,7 +232,7 @@ class LookupServiceTest extends BaseSpec with AnyWordSpecLike with BeforeAndAfte
       val response: String =
         """inavalid JSON""".stripMargin
 
-      when(mockHipConnector.lookup(any())(any()))
+      when(mockHipConnector.lookup(any())(using any()))
         .thenReturn(Future.successful(HttpResponse(Status.BAD_REQUEST, response, Map.empty[String, Seq[String]])))
 
       val result = await(TestLookupService.lookupApplication(testRefNo))

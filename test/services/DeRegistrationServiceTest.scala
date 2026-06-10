@@ -18,7 +18,7 @@ package services
 
 import connectors.HipConnector
 import org.mockito.ArgumentMatchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsObject, JsResult, JsValue, Json}
 import play.api.test.Helpers.{await, defaultAwaitTimeout}
@@ -28,23 +28,23 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
 
   val mockHipConnector: HipConnector = mock[HipConnector]
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  given config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   object TestLookupService$ extends LookupService(mockHipConnector)
 
-  val testDeRegistrationService: DeRegistrationService = new DeRegistrationService(mockHipConnector)(ec)
+  val testDeRegistrationService: DeRegistrationService = new DeRegistrationService(mockHipConnector)
 
   val groupEndedJson: JsValue = api10RequestJson
   val otherReason: JsValue = api10OtherReasonRequestJson
   val successResponse: JsValue = api10SuccessfulResponseJson
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given hc: HeaderCarrier = HeaderCarrier()
 
   "Deregistration service: deRegistration" must {
 
@@ -59,7 +59,7 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.CREATED, responseJson, Map.empty[String, Seq[String]])))
 
       val result = testDeRegistrationService.deRegistration(testRefNo, groupEndedJson)
@@ -79,7 +79,7 @@ class DeRegistrationServiceTest extends BaseSpec with AnyWordSpecLike{
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.deRegister(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.SERVICE_UNAVAILABLE, responseJson, Map.empty[String, Seq[String]])))
 
       val result = testDeRegistrationService.deRegistration(testRefNo, groupEndedJson)

@@ -18,20 +18,20 @@ package controllers
 
 import models.EtmpRegistrationDetails
 import org.mockito.ArgumentMatchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.EtmpRegimeService
 import utils.BaseSpec
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
-
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  
   val mockEtmpRegimeService: EtmpRegimeService = mock[EtmpRegimeService]
   val cc: ControllerComponents = app.injector.instanceOf[ControllerComponents]
 
@@ -49,7 +49,7 @@ class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
           None
         )
 
-          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckOrganisationString)))
@@ -67,7 +67,7 @@ class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
           None
         )
 
-          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+          when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
             .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckIndividualString)))
@@ -87,7 +87,7 @@ class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
           None
         )
 
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckIndividualInvalidString)))
@@ -104,7 +104,7 @@ class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
           None
         )
 
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(etmpRegistrationDetails)))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckOrganisationInvalidString)))
@@ -112,7 +112,7 @@ class EtmpCheckControllerTest extends BaseSpec with AnyWordSpecLike {
       }
 
       "there is a regime model and there aren't any ETMP registration details for an organisation" in {
-        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockEtmpRegimeService.checkETMPApi(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(None))
 
         val result = TestEtmpCheckController.checkEtmp().apply(FakeRequest().withJsonBody(Json.parse(etmpCheckOrganisationString)))

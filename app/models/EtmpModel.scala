@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json._
+import play.api.libs.json.*
 import utils.SessionUtils
 
 object StatusOfPerson {
@@ -92,7 +92,7 @@ object LegalEntityType {
 case class SuccessfulSubscriptionResponse(processingDate: String, awrsRegistrationNumber: String, etmpFormBundleNumber: String)
 
 object SuccessfulSubscriptionResponse {
-  implicit val formats: OFormat[SuccessfulSubscriptionResponse] = Json.format[SuccessfulSubscriptionResponse]
+  given formats: OFormat[SuccessfulSubscriptionResponse] = Json.format[SuccessfulSubscriptionResponse]
 }
 
 case class AWRSFEModel(subscriptionTypeFrontEnd: SubscriptionTypeFrontEnd)
@@ -112,17 +112,16 @@ object AWRSFEModel extends EtmpModelHelper {
       case _ => Json.obj()
     }
 
-  implicit val etmpWriter: Writes[AWRSFEModel] = new Writes[AWRSFEModel] {
+  given etmpWriter: Writes[AWRSFEModel] = new Writes[AWRSFEModel] {
 
     def writes(feModel: AWRSFEModel): JsValue = {
 
       val subscriptionTypeFE = feModel.subscriptionTypeFrontEnd
 
       val changeIndicators =
-        subscriptionTypeFE.changeIndicators match {
-          case Some(indicators) => Json.obj("changeIndicators" -> toEtmpChangeIndicators(subscriptionTypeFE))
-          case _ => Json.obj()
-        }
+        subscriptionTypeFE.changeIndicators
+          .map(_ => Json.obj("changeIndicators" -> toEtmpChangeIndicators(subscriptionTypeFE)))
+          .getOrElse(Json.obj())
 
       val subscriptionType =
         Json.obj(
@@ -156,6 +155,6 @@ object AWRSFEModel extends EtmpModelHelper {
 
   }
 
-  implicit val formats: OFormat[AWRSFEModel] = Json.format[AWRSFEModel]
+  given formats: OFormat[AWRSFEModel] = Json.format[AWRSFEModel]
 
 }

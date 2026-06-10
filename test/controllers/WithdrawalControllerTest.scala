@@ -19,12 +19,12 @@ package controllers
 import audit.TestAudit
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.WithdrawalService
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -32,11 +32,10 @@ import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
-import scala.concurrent.{ExecutionContext, Future}
-
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
-
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  
   val mockWithdrawalService: WithdrawalService = mock[WithdrawalService]
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
   val awrsMetrics: AwrsMetrics = app.injector.instanceOf[AwrsMetrics]
@@ -49,7 +48,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
   "For API 8, Withdrawal Controller " must {
 
     "check success response is transported correctly" in {
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe OK
       await(result)
@@ -57,7 +56,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "check failure response is transported correctly" in {
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe OK
       await(result)
@@ -65,28 +64,28 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe BAD_REQUEST
       contentAsJson(result) shouldBe api8FailureResponseJson
     }
 
     "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe NOT_FOUND
       contentAsJson(result) shouldBe api8FailureResponseJson
     }
 
     "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe SERVICE_UNAVAILABLE
       contentAsJson(result) shouldBe api8FailureResponseJson
     }
 
     "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
       contentAsJson(result) shouldBe api8FailureResponseJson
@@ -102,7 +101,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
                     |  }
                     |}
                     |  """.stripMargin
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error002, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe NOT_FOUND
@@ -120,7 +119,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
                     |}
                     |  """.stripMargin
 
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error003, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe BAD_REQUEST
@@ -138,7 +137,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
                     |}
                     |  """.stripMargin
 
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error004, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe BAD_REQUEST
@@ -156,7 +155,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
                     |}
                     |  """.stripMargin
 
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error005, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe BAD_REQUEST
@@ -174,7 +173,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
                     |}
                     |  """.stripMargin
 
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error999, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR
@@ -192,7 +191,7 @@ class WithdrawalControllerTest extends BaseSpec with AnyWordSpecLike {
                     |}
                     |  """.stripMargin
 
-      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockWithdrawalService.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(UNPROCESSABLE_ENTITY, error, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalController.withdrawal(testRefNo).apply(FakeRequest().withJsonBody(api8RequestJson))
       status(result) shouldBe INTERNAL_SERVER_ERROR

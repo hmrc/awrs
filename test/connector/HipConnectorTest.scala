@@ -26,17 +26,17 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.BaseSpec
 
 import java.net.URI
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   trait Setup extends ConnectorTest {
     object TestHipConnector extends HipConnector (mockHttpClient, config)
     val awrsRefNo = "XAAW0000010001"
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
   }
 
   "HipConnector" must {

@@ -20,12 +20,12 @@ import audit.TestAudit
 import metrics.AwrsMetrics
 import models.{AwrsUsers, EtmpRegistrationDetails}
 import org.mockito.ArgumentMatchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.Json
 import play.api.mvc.ControllerComponents
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.{EnrolmentService, EtmpRegimeService, EtmpStatusInfoService}
 import uk.gov.hmrc.http.HttpResponse
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -33,12 +33,11 @@ import uk.gov.hmrc.play.audit.model.Audit
 import utils.AwrsTestJson.testRefNo
 import utils.BaseSpec
 
-import scala.concurrent.{ExecutionContext, Future}
-
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
 
- implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val mockEtmpStatusInfoService: EtmpStatusInfoService = mock[EtmpStatusInfoService]
   val mockEnrolementService: EnrolmentService = mock[EnrolmentService]
   val mockRegimeService: EtmpRegimeService = mock[EtmpRegimeService]
@@ -57,8 +56,8 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
         Some("testOrganisation"), "test123", "safe123",
         Some(true), "regime-ref-number-123", Some("agent-ref-number-123"), Some("testFirstName"), Some("testLastName"))
       val awrsUsers = AwrsUsers(List("awrs-user", "principal-user-two"), List("delegated-user-one", "delegated-user-two"))
-      when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testBusinessDetails)))
-      when(mockEnrolementService.awrsUsers(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Right(awrsUsers)))
+      when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(testBusinessDetails)))
+      when(mockEnrolementService.awrsUsers(ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(Right(awrsUsers)))
 
       val result = TestStatusInfoControllerTest.enrolledUsers(testSafeId).apply(FakeRequest())
       status(result) shouldBe OK
@@ -68,7 +67,7 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
 
     "return None if a reference number doesnt exist" in {
       val testSafeId = "safeId123"
-      when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockRegimeService.getEtmpBusinessDetails(ArgumentMatchers.any())(using ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       val result = TestStatusInfoControllerTest.enrolledUsers(testSafeId).apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
@@ -78,7 +77,7 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
   "For API 11, Status Info Controller " must {
 
     "check success response is transported correctly" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api11SuccessfulCDATAEncodedResponseJson, Map.empty[String, Seq[String]])))
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api11SuccessfulCDATAEncodedResponseJson, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
       status(result) shouldBe OK
       await(result)
@@ -87,7 +86,7 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "check failure response is transported correctly" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api11FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api11FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
       status(result) shouldBe OK
       await(result)
@@ -97,7 +96,7 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
 
     "check corrupt etmp response is not passed as OK" in {
       val failureResponse = Json.parse("false")
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, failureResponse, Map.empty[String, Seq[String]])))
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, failureResponse, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
       await(result)
@@ -106,25 +105,25 @@ class StatusInfoControllerTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "return BAD REQUEST error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api11FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api11FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
       status(result) shouldBe BAD_REQUEST
     }
 
     "return NOT FOUND error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, api11FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(NOT_FOUND, api11FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
       status(result) shouldBe NOT_FOUND
     }
 
     "return SERVICE UNAVAILABLE error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, api11FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(SERVICE_UNAVAILABLE, api11FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
       status(result) shouldBe SERVICE_UNAVAILABLE
     }
 
     "return INTERNAL SERVER ERROR error from HODS when passed an invalid awrs reference" in {
-      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, api11FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockEtmpStatusInfoService.getStatusInfo(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(INTERNAL_SERVER_ERROR, api11FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestStatusInfoControllerTest.getStatusInfo(testRefNo, "01234567890").apply(FakeRequest())
       status(result) shouldBe INTERNAL_SERVER_ERROR
     }

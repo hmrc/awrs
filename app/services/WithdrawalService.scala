@@ -23,16 +23,16 @@ import metrics.AwrsMetrics
 import models.ApiType
 import play.api.Logging
 import play.api.http.Status
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.Utility
 
 class WithdrawalService @Inject()(metrics: AwrsMetrics, hipConnector: HipConnector)
-                                 (implicit ec: ExecutionContext) extends Logging {
+                                 (using ec: ExecutionContext) extends Logging {
 
-  def withdrawal(withdrawalData: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def withdrawal(withdrawalData: JsValue, awrsRefNo: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     metrics.startTimer(ApiType.API8Withdrawal)
     val hipRequestJson: JsResult[JsValue] = updateRequestForHip(withdrawalData)
 
