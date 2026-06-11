@@ -18,9 +18,9 @@ package services
 
 import connectors.{EnrolmentStoreConnector, DesConnector, HipConnector}
 import metrics.AwrsMetrics
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{JsError, JsObject, JsResult, JsSuccess, JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.{SessionUtils, Utility}
@@ -32,14 +32,14 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
                                     enrolmentStoreConnector: EnrolmentStoreConnector,
                                     desConnector: DesConnector,
                                     hipConnector: HipConnector)
-                                   (implicit ec: ExecutionContext) extends Logging {
+                                   (using ec: ExecutionContext) extends Logging {
 
   val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
   private val acknowledgmentReference: String = "acknowledgmentReference"
 
 
   def subscribe(inputJson: JsValue, safeId: String, utr: Option[String], businessType: String, postcode: String)
-               (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+               (using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val timer = metrics.startTimer(ApiType.API4Subscribe)
 
     def handleSubscriptionResponse(submitResponse: HttpResponse, enrolmentResponse: HttpResponse) = {
@@ -74,7 +74,7 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
     processHipData()
   }
 
-  def updateSubscription(inputJson: JsValue, awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def updateSubscription(inputJson: JsValue, awrsRefNo: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
     val hipRequestJson: JsResult[JsValue] = updateRequestForHip(inputJson)
     hipRequestJson match {
@@ -96,7 +96,7 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
     }
   }
 
-  private def addKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String, postcode: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  private def addKnownFacts(response: HttpResponse, safeId: String, utr: Option[String], businessType: String, postcode: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] =
     response.status match {
       case OK | CREATED =>
         val json = response.json
@@ -121,7 +121,7 @@ class SubscriptionService @Inject()(metrics: AwrsMetrics,
   }
 
   def updateGrpRepRegistrationDetails(safeId: String, updateData: UpdateRegistrationDetailsRequest
-                                     )(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+                                     )(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     val request = updateData.copy(acknowledgementReference =
       Some(SessionUtils.getUniqueAckNo)
     )

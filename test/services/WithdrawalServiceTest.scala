@@ -19,34 +19,34 @@ package services
 import connectors.HipConnector
 import metrics.AwrsMetrics
 import org.mockito.ArgumentMatchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+  import org.scalatest.matchers.should.Matchers.{should, shouldBe}
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.AwrsTestJson.testRefNo
-import utils._
+import utils.*
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
   val mockHipConnector: HipConnector = mock[HipConnector]
   val requestJson: JsValue = api8ValidRequestJson
   val ackReference: String = SessionUtils.getUniqueAckNo
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  given config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   object TestWithdrawalService extends WithdrawalService(app.injector.instanceOf[AwrsMetrics], mockHipConnector)
 
   "Withdrawal Service" must {
     val awrsRefNo = "XAAW0000010001"
-    implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+    given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
     "HIP connector: returns OK when feature flag is on and request is valid" in {
-      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
+      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(OK, api8SuccessfulResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe OK
@@ -54,7 +54,7 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
     }
 
     "HIP connector: returns BAD_REQUEST when feature flag is on and request is invalid" in {
-      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
+      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST, api8FailureResponseJson, Map.empty[String, Seq[String]])))
       val result = TestWithdrawalService.withdrawal(api8RequestJson, awrsRefNo)
       val response = await(result)
       response.status shouldBe BAD_REQUEST
@@ -79,7 +79,7 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(Status.CREATED, responseJson, Map.empty[String, Seq[String]])))
 
       val result = await(TestWithdrawalService.withdrawal(requestJson, testRefNo))
@@ -102,7 +102,7 @@ class WithdrawalServiceTest extends BaseSpec with AnyWordSpecLike {
 
       val mockResponse = HttpResponse(Status.INTERNAL_SERVER_ERROR, responseJson, Map("correlationid" -> Seq("123e4567-e89b-12d3-a456-426614174000")))
 
-      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHipConnector.withdrawal(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(mockResponse))
 
       val result = await(TestWithdrawalService.withdrawal(requestJson, testRefNo))

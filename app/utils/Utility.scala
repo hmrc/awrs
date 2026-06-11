@@ -17,7 +17,7 @@
 package utils
 
 import play.api.Logger
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -85,13 +85,13 @@ object Utility {
           currentObject.transform(companyRegTransformer).get
         } else {
           JsObject(currentObject.fields.map { case (fieldName, fieldValue) => fieldName -> recursivelyReplaceKey(fieldValue) })
-        }
-        
-        case JsArray(values) =>
-          JsArray(values.map(recursivelyReplaceKey))
+        } 
+      
+      case JsArray(values) =>
+        JsArray(values.map(recursivelyReplaceKey))
 
-        case other =>
-          other
+      case other =>
+        other
       }
 
       recursivelyReplaceKey(input)
@@ -100,10 +100,10 @@ object Utility {
 }
 
 case class Bool(b: Boolean) {
-  def ?[X](t: => X) = new {def | (f: => X) = if(b) t else f
-  }
+  def ?[X](t: => X): Option[X] = if (b) Some(t) else None
 }
 
 object Bool {
-  implicit def BooleanBool(b: Boolean): Bool = Bool(b)
+  given booleanBool: Conversion[Boolean, Bool] with
+    def apply(b: Boolean): Bool = Bool(b)
 }

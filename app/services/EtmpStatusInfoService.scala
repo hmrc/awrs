@@ -22,9 +22,9 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-class EtmpStatusInfoService @Inject()(desConnector: DesConnector)(implicit ec: ExecutionContext) {
+class EtmpStatusInfoService @Inject()(desConnector: DesConnector)(using ec: ExecutionContext) {
 
-  def getStatusInfo(awrsRefNo: String, contactNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] =
+  def getStatusInfo(awrsRefNo: String, contactNumber: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] =
     desConnector.getStatusInfo(awrsRefNo, contactNumber) map {
       response =>
         response.status match {

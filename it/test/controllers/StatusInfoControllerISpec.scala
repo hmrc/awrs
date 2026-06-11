@@ -19,8 +19,10 @@ package controllers
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.AwrsUsers
 import org.scalatest.matchers.must.Matchers
-import play.api.http.Status._
+import play.api.http.Status.*
+
 import play.api.libs.json.Json
+import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import play.api.libs.ws.WSResponse
 import uk.gov.hmrc.helpers.utils.Stubs
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
@@ -53,7 +55,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe OK
-      resp.body mustBe usersJson
+      resp.body[String] mustBe usersJson
     }
     "return a 204 containing false when the user does not have an AWRS account" in {
       stubAuditPosts
@@ -62,7 +64,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe OK
-      resp.body mustBe emptyUsersJson
+      resp.body[String] mustBe emptyUsersJson
     }
     "return a BAD_REQUEST when check AWRS users enrolment returns a BAD REQUEST" in {
       stubAuditPosts
@@ -71,7 +73,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe BAD_REQUEST
-      resp.body mustBe s"""Error when checking enrolment store for $enrolmentRef"""
+      resp.body[String] mustBe s"""Error when checking enrolment store for $enrolmentRef"""
     }
     "return a NOT_FOUND when no business details are found" in {
       stubAuditPosts
@@ -79,7 +81,7 @@ class StatusInfoControllerISpec extends IntegrationSpec with AuthHelpers with Ma
 
       val resp: WSResponse = await(authorisedClient(controllerUrl).get())
       resp.status mustBe NOT_FOUND
-      resp.body mustBe s"""AWRS enrolled Business Details not found for $testSafeId"""
+      resp.body[String] mustBe s"""AWRS enrolled Business Details not found for $testSafeId"""
     }
   }
 }

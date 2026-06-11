@@ -19,8 +19,8 @@ package utils
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.fge.jackson.JsonLoader
 import com.github.fge.jsonschema.main.JsonSchemaFactory
-import play.api.libs.json._
-import utils.AwrsTestJson._
+import play.api.libs.json.*
+import utils.AwrsTestJson.*
 
 import scala.io.Source
 

@@ -17,7 +17,7 @@
 package models
 
 import java.time.LocalDate
-import play.api.libs.json._
+import play.api.libs.json.*
 import utils.{EtmpConstants, Utility}
 
 object EtmpModelHelper extends EtmpModelHelper
@@ -33,19 +33,19 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def identificationIndividualIdNumbersType(identification: IndividualIdNumbersType): JsObject =
-    Json.obj("doYouHaveNino" -> yestoTrue(identification.doYouHaveNino().fold("")(x => x)))
+    Json.obj("doYouHaveNino" -> yestoTrue(identification.doYouHaveNino.fold("")(x => x)))
       .++(identification.nino.fold(Json.obj())(x => Json.obj("nino" -> x)))
       .++(identificationCorpNumbersType(identification)) // this adds the vrn and utr
 
   def identificationCorpNumbersType(identification: CorpNumbersType): JsObject =
-    Json.obj("doYouHaveVRN" -> yestoTrue(identification.doYouHaveVRN().fold("")(x => x)))
+    Json.obj("doYouHaveVRN" -> yestoTrue(identification.doYouHaveVRN.fold("")(x => x)))
       .++(identification.vrn.fold(Json.obj())(x => Json.obj("vrn" -> removeVrnPrefix(x))))
-      .++(Json.obj("doYouHaveUTR" -> yestoTrue(identification.doYouHaveUTR().fold("")(x => x))))
+      .++(Json.obj("doYouHaveUTR" -> yestoTrue(identification.doYouHaveUTR.fold("")(x => x))))
       .++(identification.utr.fold(Json.obj())(x => Json.obj("utr" -> x)))
 
   def identificationCorpNumbersWithCRNType(identification: CorpNumbersWithCRNType): JsObject =
     identificationCorpNumbersType(identification) // this adds the vrn and utr
-      .++(Json.obj("doYouHaveCRN" -> yestoTrue(identification.doYouHaveCRN().fold("")(x => x))))
+      .++(Json.obj("doYouHaveCRN" -> yestoTrue(identification.doYouHaveCRN.fold("")(x => x))))
       .++(identification.companyRegNumber.fold(Json.obj()) {companyRegNo =>
         Json.obj("companyRegNumber" -> padCRN(companyRegNo))
       })
@@ -53,12 +53,12 @@ trait EtmpModelHelper extends EtmpConstants {
   def identificationIncorporationDetails(identification: IncorporationDetails): JsObject =
     identification.isBusinessIncorporated match {
       case Some("Yes") =>
-        val crn = identification.companyRegDetails.reduceLeft((x, y) => x).companyRegistrationNumber.toUpperCase
+        val crn = identification.companyRegDetails.reduceLeft((x, _) => x).companyRegistrationNumber.toUpperCase
 
         Json.obj(
           "isBusinessIncorporated" -> true,
           "companyRegistrationNumber" -> padCRN(crn),
-          "dateOfIncorporation" -> Utility.awrsToEtmpDateFormatter(identification.companyRegDetails.reduceLeft((x, y) => x).dateOfIncorporation)
+          "dateOfIncorporation" -> Utility.awrsToEtmpDateFormatter(identification.companyRegDetails.reduceLeft((x, _) => x).dateOfIncorporation)
         )
       case _ => Json.obj("isBusinessIncorporated" -> false)
     }
@@ -70,7 +70,7 @@ trait EtmpModelHelper extends EtmpConstants {
     }
 
   def toEtmpLegalEntity(st: SubscriptionTypeFrontEnd): JsValue = {
-    val legalEntity = st.legalEntity.reduceLeft((x, y) => x).legalEntity
+    val legalEntity = st.legalEntity.reduceLeft((x, _) => x).legalEntity
 
     JsString(legalEntity match {
       case Some("LTD") | Some("LTD_GRP") => LegalEntityType.CORPORATE_BODY
@@ -81,7 +81,7 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def toEtmpBusinessDetails(st: SubscriptionTypeFrontEnd): JsValue =
-    st.legalEntity.reduceLeft((x, y) => x).legalEntity match {
+    st.legalEntity.reduceLeft((x, _) => x).legalEntity match {
       case Some("SOP") => toEtmpSoleTraderBusinessDetails(st)
       case _ => toEtmpBaseBusinessDetails(st)
     }
@@ -124,10 +124,10 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def createLLPCorporateBody(st: SubscriptionTypeFrontEnd): JsObject =
-    st.legalEntity.reduceLeft((x, y) => x).legalEntity match {
+    st.legalEntity.reduceLeft((x, _) => x).legalEntity match {
       case Some("Partnership") => Json.obj()
       case _ =>
-        val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, y) => x)
+        val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, _) => x)
         val incorporationDetails = identificationIncorporationDetails(businessRegistrationDetails)
         val llpCorporateBody = Json.obj("incorporationDetails" -> incorporationDetails).++(createDateGroupRepresantativeJoined(st))
 
@@ -135,8 +135,8 @@ trait EtmpModelHelper extends EtmpConstants {
     }
 
   def toEtmpSoleTraderBusinessDetails(st: SubscriptionTypeFrontEnd): JsValue = {
-    val soleTraderBusinessDetails = st.businessDetails.reduceLeft((x, y) => x)
-    val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, y) => x)
+    val soleTraderBusinessDetails = st.businessDetails.reduceLeft((x, _) => x)
+    val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, _) => x)
     val identification = identificationIndividualIdNumbersType(businessRegistrationDetails)
     val soleTrader =
       ifExistsThenPopulate("tradingName", soleTraderBusinessDetails.tradingName) ++
@@ -147,8 +147,8 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def toEtmpBaseBusinessDetails(st: SubscriptionTypeFrontEnd): JsValue = {
-    val businessDetails = st.businessDetails.reduceLeft((x, y) => x)
-    val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, y) => x)
+    val businessDetails = st.businessDetails.reduceLeft((x, _) => x)
+    val businessRegistrationDetails = st.businessRegistrationDetails.reduceLeft((x, _) => x)
     val identification = identificationCorpNumbersType(businessRegistrationDetails)
     val partnership =
       st.legalEntity match {
@@ -173,14 +173,14 @@ trait EtmpModelHelper extends EtmpConstants {
     }
 
   def toEtmpGroupMemberDetails(st: SubscriptionTypeFrontEnd): JsValue = {
-    val groupMembers = st.groupMembers.reduceLeft((x, y) => x)
+    val groupMembers = st.groupMembers.reduceLeft((x, _) => x)
 
     Json.obj("numberOfGrpMembers" -> groupMembers.members.size.toString)
       .++(toEtmpGroupMembers(st))
   }
 
   def toEtmpGroupMembers(st: SubscriptionTypeFrontEnd): JsObject = {
-    val groupMembers = st.groupMembers.reduceLeft((x, y) => x)
+    val groupMembers = st.groupMembers.reduceLeft((x, _) => x)
     val x =
       for {
         groupMembers <- groupMembers.members
@@ -202,29 +202,28 @@ trait EtmpModelHelper extends EtmpConstants {
       "names" -> names,
       "incorporationDetails" -> incorporationDetails,
       "groupJoiningDate" -> LocalDate.now(),
-      "address" -> toEtmpAddress(groupMember.address.reduceLeft((x, y) => y)),
+      "address" -> toEtmpAddress(groupMember.address.reduceLeft((x, _) => x)),
       "identification" -> identification)
   }
 
   def copyBusinessAddressToMainAddress(st: SubscriptionTypeFrontEnd): Address = {
 
-    val placeOfBusiness = st.placeOfBusiness.reduceLeft((x, y) => x)
-    yestoTrue(placeOfBusiness.mainPlaceOfBusiness.fold("")(x => x)) match {
-      case true =>
-        val businessAndAddress = st.businessCustomerDetails.reduceLeft((x, y) => x).businessAddress
+    val placeOfBusiness = st.placeOfBusiness.reduceLeft((x, _) => x)
+    if (yestoTrue(placeOfBusiness.mainPlaceOfBusiness.fold("")(x => x))) {
+      val businessAndAddress = st.businessCustomerDetails.reduceLeft((x, _) => x).businessAddress
 
-        placeOfBusiness.copy(mainAddress = Some(Address(postcode = businessAndAddress.postcode,
-          addressLine1 = businessAndAddress.line_1,
-          addressLine2 = businessAndAddress.line_2,
-          addressLine3 = businessAndAddress.line_3,
-          addressLine4 = businessAndAddress.line_4))).mainAddress.reduceLeft((x, y) => y)
-      case false => placeOfBusiness.mainAddress.reduceLeft((x, y) => y)
+      placeOfBusiness.copy(mainAddress = Some(Address(postcode = businessAndAddress.postcode,
+        addressLine1 = businessAndAddress.line_1,
+        addressLine2 = businessAndAddress.line_2,
+        addressLine3 = businessAndAddress.line_3,
+        addressLine4 = businessAndAddress.line_4))).mainAddress.reduceLeft((x, _) => x)
+    } else {
+        placeOfBusiness.mainAddress.reduceLeft((x, _) => x)
     }
-
   }
 
   def toEtmpCommunicationDetails(st: SubscriptionTypeFrontEnd): JsValue = {
-    val businessContacts = st.businessContacts.reduceLeft((x, y) => x)
+    val businessContacts = st.businessContacts.reduceLeft((x, _) => x)
     val preTelephoneNumberRegex = "^[+]".r
     val preTelephoneNumber = "00"
 
@@ -240,7 +239,7 @@ trait EtmpModelHelper extends EtmpConstants {
     }
 
   def toEtmpBusinessAddressForAwrs(st: SubscriptionTypeFrontEnd): JsValue = {
-    val placeOfBusiness = st.placeOfBusiness.reduceLeft((x, y) => x)
+    val placeOfBusiness = st.placeOfBusiness.reduceLeft((x, _) => x)
     val (differentOperatingAddresslnLast3Years, previousAddress) =
       getPlaceOfBusinessLast3Years(placeOfBusiness.placeOfBusinessLast3Years.fold("")(x => x), placeOfBusiness.placeOfBusinessAddressLast3Years)
 
@@ -287,7 +286,7 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def toEtmpName(st: SubscriptionTypeFrontEnd): JsValue = {
-    val businessDetails = st.businessContacts.reduceLeft((x, y) => x)
+    val businessDetails = st.businessContacts.reduceLeft((x, _) => x)
 
     Json.obj(
       "firstName" -> businessDetails.contactFirstName,
@@ -304,9 +303,9 @@ trait EtmpModelHelper extends EtmpConstants {
       .++(Json.obj("countryCode" -> address.addressCountryCode.fold("GB")(x => x)))
 
   def toEtmpContactDetails(st: SubscriptionTypeFrontEnd): JsValue = {
-    val businessDetails = st.businessContacts.reduceLeft((x, y) => x)
+    val businessDetails = st.businessContacts.reduceLeft((x, _) => x)
     val address = businessDetails.contactAddressSame match {
-      case Some("No") => Json.obj("address" -> toEtmpAddress(businessDetails.contactAddress.reduceLeft((x, y) => y)))
+      case Some("No") => Json.obj("address" -> toEtmpAddress(businessDetails.contactAddress.reduceLeft((x, _) => x)))
       case _ => Json.obj()
     }
 
@@ -318,7 +317,7 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def toEtmpPremises(st: SubscriptionTypeFrontEnd): JsValue = {
-    val additionalPremises = st.additionalPremises.reduceLeft((x, y) => x)
+    val additionalPremises = st.additionalPremises.reduceLeft((x, _) => x)
     val premiseAddressList = additionalPremises.premises.flatMap(x => x.additionalPremises match {
       case Some("Yes") => x.additionalAddress
       case _ => None
@@ -340,11 +339,11 @@ trait EtmpModelHelper extends EtmpConstants {
       "name" -> sp.supplierName,
       "isSupplierVatRegistered" -> yestoTrue(sp.vatRegistered.fold("No")(x => x)))
       .++(ifExistsThenPopulate("vrn", removeVrnPrefix(sp.vatNumber)))
-      .++(Json.obj("address" -> toEtmpAddress(sp.supplierAddress.reduceLeft((x, y) => y))))
+      .++(Json.obj("address" -> toEtmpAddress(sp.supplierAddress.reduceLeft((x, _) => x))))
 
 
   def toEtmpSupplier(st: SubscriptionTypeFrontEnd): JsValue = {
-    val suppliers = st.suppliers.reduceLeft((x, y) => x)
+    val suppliers = st.suppliers.reduceLeft((x, _) => x)
 
     val suppliersJson =
       for {
@@ -357,9 +356,9 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def toEtmpAdditionalBusinessInfo(st: SubscriptionTypeFrontEnd): JsValue = {
-    val tradingActivity = st.tradingActivity.reduceLeft((x, y) => x)
-    val products = st.products.reduceLeft((x, y) => x)
-    val premises = st.additionalPremises.reduceLeft((x, y) => x)
+    val tradingActivity = st.tradingActivity.reduceLeft((x, _) => x)
+    val products = st.products.reduceLeft((x, _) => x)
+    val premises = st.additionalPremises.reduceLeft((x, _) => x)
 
     def ifOtherThen(hasOther: Boolean, otherFieldKey: => String, otherFieldValue: => Option[String]) =
       if (hasOther) {
@@ -476,7 +475,7 @@ trait EtmpModelHelper extends EtmpConstants {
       case None => Json.obj("numberOfPartners" -> "0")
       case _ =>
         Json.obj(
-          "numberOfPartners" -> partners.reduceLeft((x, y) => x).partners.size.toString,
+          "numberOfPartners" -> partners.reduceLeft((x, _) => x).partners.size.toString,
           "partnerDetails" -> toEtmpPartnerDetail(partners.get.partners))
     }
   }
@@ -502,7 +501,7 @@ trait EtmpModelHelper extends EtmpConstants {
 
     Json.obj(
       "entityType" -> partnerDetail.entityType,
-      "partnerAddress" -> toEtmpAddress(partnerDetail.partnerAddress.reduceLeft((x, y) => y)),
+      "partnerAddress" -> toEtmpAddress(partnerDetail.partnerAddress.reduceLeft((x, _) => x)),
       "individual" -> individual)
   }
 
@@ -514,7 +513,7 @@ trait EtmpModelHelper extends EtmpConstants {
 
     Json.obj(
       "entityType" -> partnerDetail.entityType,
-      "partnerAddress" -> toEtmpAddress(partnerDetail.partnerAddress.reduceLeft((x, y) => y)),
+      "partnerAddress" -> toEtmpAddress(partnerDetail.partnerAddress.reduceLeft((x, _) => x)),
       "names" -> names,
       "identification" -> identification,
       "incorporationDetails" -> incorporationDetails)
@@ -533,7 +532,7 @@ trait EtmpModelHelper extends EtmpConstants {
 
     Json.obj(
       "entityType" -> partnerDetail.entityType,
-      "partnerAddress" -> toEtmpAddress(partnerDetail.partnerAddress.reduceLeft((x, y) => y)),
+      "partnerAddress" -> toEtmpAddress(partnerDetail.partnerAddress.reduceLeft((x, _) => x)),
       "soleProprietor" -> soleProprietor)
   }
 
@@ -610,7 +609,7 @@ trait EtmpModelHelper extends EtmpConstants {
       case _ =>
         val partnerCorporateBody =
           Json.obj(
-            "numberOfCoOfficials" -> businessDirectors.reduceLeft((x, y) => x).directors.size.toString,
+            "numberOfCoOfficials" -> businessDirectors.reduceLeft((x, _) => x).directors.size.toString,
             "coOfficialDetails" -> toEtmpBusinessDirectors(businessDirectors.get))
 
         Json.obj("partnerCorporateBody" -> partnerCorporateBody)
@@ -618,7 +617,7 @@ trait EtmpModelHelper extends EtmpConstants {
   }
 
   def toEtmpChangeIndicators(st: SubscriptionTypeFrontEnd): JsObject = {
-    val changeIndicator = st.changeIndicators.reduceLeft((x, y) => x)
+    val changeIndicator = st.changeIndicators.reduceLeft((x, _) => x)
 
     Json.obj(
       "additionalBusinessInfoChanged" -> changeIndicator.additionalBusinessInfoChanged,

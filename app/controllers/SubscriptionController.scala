@@ -18,15 +18,16 @@ package controllers
 
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
-import models._
+import models.*
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, Request}
 import services.{EtmpRegimeService, EtmpStatusService, LookupService, SubscriptionService}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import utils.HipHelpers.extractHipErrorCode
 import utils.LoggingUtils
 
+import scala.annotation.unused
 import scala.concurrent.{ExecutionContext, Future}
 
 class SubscriptionController @Inject()(val auditConnector: AuditConnector,
@@ -36,11 +37,12 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
                                        val statusService: EtmpStatusService,
                                        val regimeService: EtmpRegimeService,
                                        cc: ControllerComponents,
-                                       @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
+                                       @Named("appName") val appName: String)(using ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 
-  def subscribe(): Action[AnyContent] = Action.async { implicit request =>
+  def subscribe(): Action[AnyContent] = Action.async { request =>
+    given Request[AnyContent] = request
     val feJson = request.body.asJson.get
     val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
     val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
@@ -129,8 +131,8 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
 
 
   def updateSubscription(awrsRefNo: String): Action[AnyContent] = Action.async {
-    implicit request =>
-
+    request =>
+      given Request[AnyContent] = request
       val feJson = request.body.asJson.get
       val awrsModel = Json.parse(feJson.toString()).as[AWRSFEModel]
       val convertedEtmpJson = Json.toJson(awrsModel)(AWRSFEModel.etmpWriter)
@@ -208,7 +210,8 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
   }
 
   def lookupApplication(awrsRef: String): Action[AnyContent] = Action.async {
-    implicit request =>
+    request =>
+      given Request[AnyContent] = request
       val timer = metrics.startTimer(ApiType.API5LookupSubscription)
       lookupService.lookupApplication(awrsRef) map {
         result =>
@@ -268,7 +271,8 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
   }
 
   def checkStatus(awrsRef: String): Action[AnyContent] = Action.async {
-    implicit request =>
+    request =>
+      given Request[AnyContent] = request
       val timer = metrics.startTimer(ApiType.API9UpdateSubscription)
       statusService.checkStatus(awrsRef) map {
         result =>
@@ -320,8 +324,9 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
       }
   }
 
-  def updateGrpRegistrationDetails(awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
-    implicit request =>
+  def updateGrpRegistrationDetails(@unused awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
+    request =>
+      given Request[JsValue] = request
       val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
       subscriptionService.updateGrpRepRegistrationDetails(safeId, updatedData) map {
         responseReceived =>

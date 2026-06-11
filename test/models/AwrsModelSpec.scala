@@ -17,12 +17,12 @@
 package models
 
 
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+  import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsObject, JsPath, Json}
-import utils.AwrsTestJson._
-import utils.TestUtil._
+import utils.AwrsTestJson.*
+import utils.TestUtil.*
 import utils.{AwrsTestJson, TestUtil}
 
 class AwrsModelSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {

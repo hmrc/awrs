@@ -17,6 +17,7 @@
 package connectors
 
 import play.api.libs.json.{JsValue, Json, Writes}
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse, StringContextOps}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
@@ -29,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class DesConnector @Inject()(http: HttpClientV2,
                              val auditConnector: AuditConnector,
                              config: ServicesConfig,
-                             @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends RawResponseReads with LoggingUtils {
+                             @Named("appName") val appName: String)(using ec: ExecutionContext) extends RawResponseReads with LoggingUtils {
 
   lazy val serviceURL: String = config.baseUrl("etmp-hod")
   val baseURI = "/alcohol-wholesaler-register"
@@ -46,21 +47,21 @@ class DesConnector @Inject()(http: HttpClientV2,
     "Authorization" -> urlHeaderAuthorization
   )
 
-  @inline def cGET[A](url: String)(implicit rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
+  @inline def cGET[A](url: String)(using rds: HttpReads[A], hc: HeaderCarrier): Future[A] =
   http.get(url"$url").setHeader(headers: _*).execute[A]
 
-  @inline def cPUT[I, O](url: String, body: I)(implicit wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
+  @inline def cPUT[I, O](url: String, body: I)(using wts: Writes[I], rds: HttpReads[O], hc: HeaderCarrier): Future[O] =
   http.put(url"$url").withBody(Json.toJson(body)).setHeader(headers: _*).execute[O]
 
-  def awrsRegime(safeId: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def awrsRegime(safeId: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cGET(s"""$serviceURL$regimeURI?safeid=$safeId&regime=AWRS""")
   }
 
-  def updateGrpRepRegistrationDetails(safeId: String, updateData: JsValue)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def updateGrpRepRegistrationDetails(safeId: String, updateData: JsValue)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     cPUT(s"""$serviceURL$UpdateGrpRepRegistrationURI$safeId""", updateData)
   }
 
-  def getStatusInfo(awrsRef: String, contactNumber: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def getStatusInfo(awrsRef: String, contactNumber: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
     debug(f"getStatusInfo: $awrsRef - $contactNumber")
     cGET( s"""$serviceURL$baseURI$secureCommsURI$regNumberURI$awrsRef$contactNumberURI$contactNumber""")
   }

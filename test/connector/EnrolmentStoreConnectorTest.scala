@@ -18,24 +18,25 @@ package connector
 
 import connectors.EnrolmentStoreConnector
 import models.AwrsUsers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.should
 import org.scalatest.wordspec.AnyWordSpecLike
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
-import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.*
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.BaseSpec
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-
   val mockAuditConnector: AuditConnector = mock[AuditConnector]
 
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  
   trait Setup extends ConnectorTest {
     object TestEnrolmentStoreConnector extends EnrolmentStoreConnector(mockAuditConnector, mockHttpClient, config, "awrs")
   }
@@ -44,37 +45,34 @@ class EnrolmentStoreConnectorTest extends BaseSpec with AnyWordSpecLike {
 
   "Enrolment store connector" must {
     "Return a list of userIDs when given an awrs reference" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "XAAW00000120001"
       val testAwrsUsers: AwrsUsers = AwrsUsers(List("api10"), Nil)
 
       when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
         .thenReturn(Future.successful(HttpResponse(OK, Json.toJson(testAwrsUsers), Map.empty[String, Seq[String]])))
 
-      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
+      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)
       await(result) should be(Right(testAwrsUsers))
     }
 
     "Return no content when given an awrs enrolment and there are no users in enrolment store" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "NO-CONTENT-AWRS-REF"
       val testEmptyAwrsUsers: AwrsUsers = AwrsUsers(Nil, Nil)
 
       when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
         .thenReturn(Future.successful(HttpResponse(NO_CONTENT, Json.toJson(testEmptyAwrsUsers), Map.empty[String, Seq[String]])))
 
-      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
+      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)
       await(result) should be(Right(testEmptyAwrsUsers))
     }
 
     "Return an error when given an invalid enrolment key" in new Setup {
-      implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
       val awrsRef = "ERROR-AWRS-REF"
 
       when(executeGet[HttpResponse](s"""HMRC-AWRS-ORG~AWRSRefNumber~$awrsRef"""))
         .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, "Some Bad Json", Map.empty[String, Seq[String]])))
 
-      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)(hc)
+      val result: Future[Either[Int, AwrsUsers]] = TestEnrolmentStoreConnector.getAWRSUsers(awrsRef)
       await(result) should be(Left(BAD_REQUEST))
     }
   }

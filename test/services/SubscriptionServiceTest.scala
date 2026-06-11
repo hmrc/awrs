@@ -18,27 +18,26 @@ package services
 
 import connectors.{EnrolmentStoreConnector, DesConnector, HipConnector}
 import metrics.AwrsMetrics
-import models._
+import models.*
 import org.mockito.ArgumentMatchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+  import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsSuccess, JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.AwrsTestJson._
+import utils.AwrsTestJson.*
 import utils.BaseSpec
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
-
-  implicit val ec: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
-  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  
+  given config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
   val mockDesConnector: DesConnector = mock[DesConnector]
   val mockHipConnector: HipConnector = mock[HipConnector]
   val mockEnrolmentStoreConnector: EnrolmentStoreConnector =
@@ -71,8 +70,8 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
     false,
     false
   )
-  implicit val hc: HeaderCarrier =
-    HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
 
   val testSubscriptionService: SubscriptionService = new SubscriptionService(
     app.injector.instanceOf[AwrsMetrics],
@@ -89,7 +88,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
           mockHipConnector.updateSubscription(
             ArgumentMatchers.any(),
             ArgumentMatchers.any()
-          )(ArgumentMatchers.any())
+          )(using ArgumentMatchers.any())
         )
           .thenReturn(
             Future.successful(
@@ -111,7 +110,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
           mockHipConnector.updateSubscription(
             ArgumentMatchers.any(),
             ArgumentMatchers.any()
-          )(ArgumentMatchers.any())
+          )(using ArgumentMatchers.any())
         )
           .thenReturn(
             Future.successful(
@@ -133,7 +132,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
           mockHipConnector.updateSubscription(
             ArgumentMatchers.any(),
             ArgumentMatchers.any()
-          )(ArgumentMatchers.any())
+          )(using ArgumentMatchers.any())
         )
           .thenReturn(
             Future.successful(
@@ -155,7 +154,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
           mockHipConnector.updateSubscription(
             ArgumentMatchers.any(),
             ArgumentMatchers.any()
-          )(ArgumentMatchers.any())
+          )(using ArgumentMatchers.any())
         )
           .thenReturn(
             Future.successful(
@@ -182,7 +181,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
         response.body should include("JSON transformation failed")
       }
 
-    "respond with appropriate failure status code for an update request" in {
+      "respond with appropriate failure status code for an update request" in {
 
         val errorStatusMap = Map(
           400 -> "Bad Request",
@@ -198,7 +197,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
             mockHipConnector.updateSubscription(
               ArgumentMatchers.any(),
               ArgumentMatchers.any()
-            )(ArgumentMatchers.any())
+            )(using ArgumentMatchers.any())
           )
             .thenReturn(
               Future.successful(
@@ -220,9 +219,9 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
     "feature flag is on and hip connector is enabled" must {
       "return CREATED when valid json is passed" in {
 
-        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(CREATED, hipSuccessfulResponse, Map.empty[String, Seq[String]])))
-        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(
             Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty[String, Seq[String]]))
           )
@@ -234,7 +233,7 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
       }
 
       "return BAD_REQUEST when invalid json is passed with feature flag on" in {
-        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(BAD_REQUEST, failureResponse, Map.empty[String, Seq[String]])))
         val result = testSubscriptionService.subscribe(hipApi4InputLTDNewBusinessJson, safeId, Some(testUtr), "LTD", "postcode")
         val response = await(result)
@@ -243,10 +242,10 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
       }
 
       "return success when creating new sole trader business" in {
-        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(CREATED, hipSuccessfulResponse, Map.empty)))
 
-        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty)))
 
         val result = testSubscriptionService.subscribe(hipApi4InputSoleTraderNewBusinessJson, safeId, Some(testUtr), "SOP", "postcode")
@@ -256,10 +255,10 @@ class SubscriptionServiceTest extends BaseSpec with AnyWordSpecLike {
       }
 
       "return success when creating new corporate body business" in {
-        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockHipConnector.subscribe(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(CREATED, hipSuccessfulResponse, Map.empty)))
 
-        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        when(mockEnrolmentStoreConnector.upsertEnrolment(ArgumentMatchers.any(), ArgumentMatchers.any())(using ArgumentMatchers.any()))
           .thenReturn(Future.successful(HttpResponse(NO_CONTENT, ggEnrolResponse, Map.empty)))
 
         val result = testSubscriptionService.subscribe(hipApi4InputCorporateBodyNewBusinessJson, safeId, Some(testUtr), "CRN", "postcode")

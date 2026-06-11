@@ -17,7 +17,7 @@
 package uk.gov.hmrc.helpers
 
 import org.apache.pekko.util.Timeout
-import org.scalatest._
+import org.scalatest.*
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.ws.WSRequest
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
@@ -26,7 +26,7 @@ import uk.gov.hmrc.helpers.http.StubbedBasicHttpCalls
 import uk.gov.hmrc.helpers.wiremock.WireMockSetup
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 trait IntegrationSpec
   extends AnyWordSpecLike
@@ -39,9 +39,9 @@ trait IntegrationSpec
     with WireMockSetup
     with StubbedBasicHttpCalls {
 
-  override implicit def defaultAwaitTimeout: Timeout = 5.seconds
+  override given defaultAwaitTimeout: Timeout = 5.seconds
 
-  implicit val hc: HeaderCarrier = HeaderCarrier()
+  given hc: HeaderCarrier = HeaderCarrier()
 
   def client(path: String): WSRequest = ws.url(s"http://localhost:$port$path")
     .withFollowRedirects(false)

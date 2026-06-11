@@ -18,23 +18,23 @@ package services
 
 import connectors.HipConnector
 import org.mockito.ArgumentMatchers
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+  import org.scalatest.matchers.should.Matchers.shouldBe
 import org.scalatest.wordspec.AnyWordSpecLike
 import play.api.libs.json.{JsValue, Json}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.mvc.Http.Status
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, SessionId}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.BaseSpec
 
 import java.util.UUID
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class EtmpStatusServiceTest extends BaseSpec with AnyWordSpecLike {
 
-  implicit val hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  given hc: HeaderCarrier = HeaderCarrier(sessionId = Some(SessionId(s"session-${UUID.randomUUID}")))
+  given config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   val mockHipConnector: HipConnector = mock[HipConnector]
 
@@ -58,7 +58,7 @@ class EtmpStatusServiceTest extends BaseSpec with AnyWordSpecLike {
           |}
           |""".stripMargin)
 
-      when(mockHipConnector.checkStatus(ArgumentMatchers.eq(awrsRefNo))(ArgumentMatchers.any()))
+      when(mockHipConnector.checkStatus(ArgumentMatchers.eq(awrsRefNo))(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK, responseJson, Map.empty[String, Seq[String]])))
 
       val result = TestEtmpStatusService.checkStatus(awrsRefNo)
@@ -80,7 +80,7 @@ class EtmpStatusServiceTest extends BaseSpec with AnyWordSpecLike {
 
       val mockResponse = HttpResponse(Status.INTERNAL_SERVER_ERROR, responseJson, Map("correlationid" -> Seq("123e4567-e89b-12d3-a456-426614174000")))
 
-      when(mockHipConnector.checkStatus(ArgumentMatchers.eq(awrsRefNo))(ArgumentMatchers.any()))
+      when(mockHipConnector.checkStatus(ArgumentMatchers.eq(awrsRefNo))(using ArgumentMatchers.any()))
         .thenReturn(Future.successful(mockResponse))
 
       val result = await(TestEtmpStatusService.checkStatus(awrsRefNo))

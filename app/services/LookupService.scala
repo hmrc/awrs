@@ -27,12 +27,12 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class LookupService @Inject()(hipConnector: HipConnector)
-                             (implicit ec: ExecutionContext) {
+                             (using ec: ExecutionContext) {
 
-  def lookupApplication(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+  def lookupApplication(awrsRefNo: String)(using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
     hipConnector.lookup(awrsRefNo) map {
-      response: HttpResponse =>
+      response =>
         response.status match {
           case Status.OK =>
             val responseBody = Utility.mapCrnForResponseModel(response.json)

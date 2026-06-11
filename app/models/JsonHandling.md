@@ -17,8 +17,8 @@ i.e. if an `implicit` formatter is declared then calls to the reader/writer must
 e.g.in the below example
 ```scala
 object Demo{
-    implicit val reader = new Reads[Demo] {...}
-    implicit val formatter = Json.format[Demo]
+    given reader = new Reads[Demo] {...}
+    given formatter = Json.format[Demo]
 }
 ```
 Despite being explicitly defined and specified as implicit, the reader is ignored unless called explicitly. 

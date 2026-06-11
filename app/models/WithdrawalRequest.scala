@@ -17,27 +17,28 @@
 package models
 
 import java.time.LocalDate
-import play.api.libs.json._
-import utils._
+import play.api.libs.json.*
+import utils.*
 
 import java.time.format.DateTimeFormatter
 
 case class WithdrawalRequest(reason: Option[String], reasonOther: Option[String])
 
-  object WithdrawalRequest {
+object WithdrawalRequest {
 
-    implicit val writer: Writes[WithdrawalRequest] = new Writes[WithdrawalRequest] {
+  given writer: Writes[WithdrawalRequest] = new Writes[WithdrawalRequest] {
 
-      def writes(feModel: WithdrawalRequest): JsValue = {
-        val returnJson =
-          Json.obj()
-            .++(Json.obj("acknowledgmentReference" -> SessionUtils.getUniqueAckNo))
-            .++(Json.obj("withdrawalDate" -> LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
-            .++(feModel.reason.fold(Json.obj())(x => Json.obj("withdrawalReason" -> feModel.reason)))
-            .++(feModel.reasonOther.fold(Json.obj())(x => Json.obj("withdrawalReasonOthers" -> feModel.reasonOther)))
+    def writes(feModel: WithdrawalRequest): JsValue = {
+      val returnJson =
+        Json.obj()
+          .++(Json.obj("acknowledgmentReference" -> SessionUtils.getUniqueAckNo))
+          .++(Json.obj("withdrawalDate" -> LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
+          .++(feModel.reason.fold(Json.obj())(_ => Json.obj("withdrawalReason" -> feModel.reason)))
+          .++(feModel.reasonOther.fold(Json.obj())(_ => Json.obj("withdrawalReasonOthers" -> feModel.reasonOther)))
 
-        returnJson
-      }
+      returnJson
     }
-    implicit val reader: Reads[WithdrawalRequest] = Json.reads[WithdrawalRequest]
   }
+  
+  given reader: Reads[WithdrawalRequest] = Json.reads[WithdrawalRequest]
+}

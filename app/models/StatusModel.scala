@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Reads._
+import play.api.libs.json.Reads.*
 import play.api.libs.json.{Json, _}
 
 case class SubscriptionStatusType(processingDate: String,
@@ -50,7 +50,7 @@ object SubscriptionStatusType {
       }
     }
   }
-  implicit val formats: OFormat[SubscriptionStatusType] = Json.format[SubscriptionStatusType]
+  given formats: OFormat[SubscriptionStatusType] = Json.format[SubscriptionStatusType]
 }
 
 sealed trait FormBundleStatus {
@@ -63,7 +63,7 @@ sealed trait FormBundleStatus {
 
 object FormBundleStatus {
 
-  implicit val reader: Reads[FormBundleStatus] = new Reads[FormBundleStatus] {
+  given reader: Reads[FormBundleStatus] = new Reads[FormBundleStatus] {
     def reads(json: JsValue): JsResult[FormBundleStatus] =
       JsSuccess(json match {
         case JsString(codeorName) => apply(codeorName)
@@ -71,7 +71,7 @@ object FormBundleStatus {
       })
   }
 
-  implicit val writer: Writes[FormBundleStatus] = new Writes[FormBundleStatus] {
+  given writer: Writes[FormBundleStatus] = new Writes[FormBundleStatus] {
     def writes(v: FormBundleStatus): JsValue = JsString(v.code)
   }
 

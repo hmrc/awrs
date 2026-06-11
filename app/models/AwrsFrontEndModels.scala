@@ -16,38 +16,38 @@
 
 package models
 
-import play.api.libs.json.Reads._
+import play.api.libs.json.Reads.*
 import play.api.libs.json.{Format, Json, _}
-import utils.Bool._
+import utils.Bool.booleanBool
 import utils.EtmpConstants
-import utils.Utility._
+import utils.Utility.*
 
 import scala.language.reflectiveCalls
 import scala.language.implicitConversions
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 trait ModelVersionControl {
   def modelVersion: String
 }
 
 sealed trait CorpNumbersType {
-  def doYouHaveVRN(): Option[String]
+  def doYouHaveVRN: Option[String]
 
   def vrn: Option[String]
 
-  def doYouHaveUTR(): Option[String]
+  def doYouHaveUTR: Option[String]
 
   def utr: Option[String]
 }
 
 sealed trait IndividualIdNumbersType extends CorpNumbersType {
-  def doYouHaveNino(): Option[String]
+  def doYouHaveNino: Option[String]
 
   def nino: Option[String]
 }
 
 sealed trait CorpNumbersWithCRNType extends CorpNumbersType {
-  def doYouHaveCRN(): Option[String]
+  def doYouHaveCRN: Option[String]
 
   def companyRegNumber: Option[String]
 }
@@ -207,7 +207,7 @@ object BCAddress {
 
   }
 
-  implicit val formats: OFormat[BCAddress] = Json.format[BCAddress]
+  given formats: OFormat[BCAddress] = Json.format[BCAddress]
 
 }
 
@@ -276,7 +276,7 @@ object BusinessCustomerDetails {
 
   }
 
-  implicit val formats: OFormat[BusinessCustomerDetails] = Json.format[BusinessCustomerDetails]
+  given formats: OFormat[BusinessCustomerDetails] = Json.format[BusinessCustomerDetails]
 
 }
 
@@ -293,7 +293,7 @@ object EtmpAddress {
 
   }
 
-  implicit val formats: OFormat[Address] = Json.format[Address]
+  given formats: OFormat[Address] = Json.format[Address]
 
 }
 
@@ -316,7 +316,7 @@ object Address {
 
   }
 
-  implicit val formats: OFormat[Address] = Json.format[Address]
+  given formats: OFormat[Address] = Json.format[Address]
 
 }
 
@@ -340,7 +340,7 @@ object NewAWBusiness {
 
   }
 
-  implicit val formats: OFormat[NewAWBusiness] = Json.format[NewAWBusiness]
+  given formats: OFormat[NewAWBusiness] = Json.format[NewAWBusiness]
 
 }
 
@@ -358,7 +358,7 @@ object CompanyRegDetails {
 
   }
 
-  implicit val formats: OFormat[CompanyRegDetails] = Json.format[CompanyRegDetails]
+  given formats: OFormat[CompanyRegDetails] = Json.format[CompanyRegDetails]
 }
 
 object BusinessRegistrationDetails {
@@ -420,7 +420,7 @@ object BusinessRegistrationDetails {
 
   }
 
-  implicit val formats: OFormat[BusinessRegistrationDetails] = Json.format[BusinessRegistrationDetails]
+  given formats: OFormat[BusinessRegistrationDetails] = Json.format[BusinessRegistrationDetails]
 
 }
 
@@ -445,9 +445,9 @@ object CompanyNames {
 
   }
 
-  implicit val formats: OFormat[CompanyNames] = Json.format[CompanyNames]
+  given formats: OFormat[CompanyNames] = Json.format[CompanyNames]
 
-  implicit class CompanyNamesGetUtil(companyNames: Option[CompanyNames]) {
+  extension (companyNames: Option[CompanyNames]) {
     def businessName: Option[String] = companyNames.fold(None: Option[String])(_.businessName)
 
     def tradingName: Option[String] = companyNames.fold(None: Option[String])(_.tradingName)
@@ -504,7 +504,7 @@ object GroupMember {
         names <- (js \ "names").validate[CompanyNames](CompanyNames.reader)
         isBusinessIncorporated <- JsSuccess((js \ "incorporationDetails" \ "isBusinessIncorporated").asOpt[Boolean])
         companyRegDetails <- JsSuccess((js \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
-        groupJoiningDate <- (js \ "groupJoiningDate").validate[String]
+        _ <- (js \ "groupJoiningDate").validate[String]
         address <- JsSuccess((js \ "address").asOpt[Address](Address.reader))
         doYouHaveVRN <- JsSuccess((js \ "identification" \ "doYouHaveVRN").asOpt[Boolean])
         vrn <- JsSuccess((js \ "identification" \ "vrn").asOpt[String])
@@ -527,7 +527,7 @@ object GroupMember {
 
   }
 
-  implicit val formats: OFormat[GroupMember] = Json.format[GroupMember]
+  given formats: OFormat[GroupMember] = Json.format[GroupMember]
 
 }
 
@@ -547,10 +547,10 @@ object GroupMembers {
   def addAnotherGroupMember(members: List[GroupMember]): List[GroupMember] =
     members.zipWithIndex.map {
       case (x, i) if i == (members.size - 1) => x.copy(addAnotherGrpMember = Some("No"))
-      case (x, i) => x
+      case (x, _) => x
     }
 
-  implicit val formats: OFormat[GroupMembers] = Json.format[GroupMembers]
+  given formats: OFormat[GroupMembers] = Json.format[GroupMembers]
 
 }
 
@@ -567,7 +567,7 @@ object GroupDeclaration {
 
   }
 
-  implicit val formats: OFormat[GroupDeclaration] = Json.format[GroupDeclaration]
+  given formats: OFormat[GroupDeclaration] = Json.format[GroupDeclaration]
 
 }
 
@@ -588,7 +588,7 @@ object AdditionalBusinessPremises {
 
   }
 
-  implicit val formats: OFormat[AdditionalBusinessPremises] = Json.format[AdditionalBusinessPremises]
+  given formats: OFormat[AdditionalBusinessPremises] = Json.format[AdditionalBusinessPremises]
 
 }
 
@@ -608,15 +608,15 @@ object AdditionalBusinessPremisesList {
 
   def isAdditionalPremises(premises: List[AdditionalBusinessPremises]): List[AdditionalBusinessPremises] =
     (premises: @unchecked) match {
-      case h :: xt if premises.size == 1 => List(h, AdditionalBusinessPremises(additionalPremises = Some("No"), None, None))
-      case h :: t =>
+      case h :: _ if premises.size == 1 => List(h, AdditionalBusinessPremises(additionalPremises = Some("No"), None, None))
+      case _ =>
         premises.zipWithIndex.map {
           case (x, i) if i == (premises.size - 1) => x.copy(addAnother = Some("No"))
-          case (x, i) => x
+          case (x, _) => x
         }
     }
 
-  implicit val formats: OFormat[AdditionalBusinessPremisesList] = Json.format[AdditionalBusinessPremisesList]
+  given formats: OFormat[AdditionalBusinessPremisesList] = Json.format[AdditionalBusinessPremisesList]
 
 }
 
@@ -672,7 +672,7 @@ object Partner {
         utr <- JsSuccess((js \ "identification" \ "utr").asOpt[String])
         isBusinessIncorporated <- JsSuccess((js \ "incorporationDetails" \ "isBusinessIncorporated").asOpt[Boolean])
         companyRegDetails <- JsSuccess((js \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
-        dateOfIncorporation <- JsSuccess((js \ "incorporationDetails" \ "dateOfIncorporation").asOpt[String])
+        _ <- JsSuccess((js \ "incorporationDetails" \ "dateOfIncorporation").asOpt[String])
         solTradingName <- JsSuccess((js \ "soleProprietor" \ "tradingName").asOpt[String])
         solFirstName <- JsSuccess((js \ "soleProprietor" \ "name" \ "firstName").asOpt[String])
         solLastName <- JsSuccess((js \ "soleProprietor" \ "name" \ "lastName").asOpt[String])
@@ -697,7 +697,7 @@ object Partner {
 
   }
 
-  implicit val formats: Format[Partner] = Json.format[Partner]
+  given formats: Format[Partner] = Json.format[Partner]
 
 }
 
@@ -751,7 +751,7 @@ object BusinessDirector {
 
   }
 
-  implicit val formats: Format[BusinessDirector] = Json.format[BusinessDirector]
+  given formats: Format[BusinessDirector] = Json.format[BusinessDirector]
 
 }
 
@@ -771,7 +771,7 @@ object BusinessDirectors {
 
   }
 
-  implicit val formats: OFormat[BusinessDirectors] = Json.format[BusinessDirectors]
+  given formats: OFormat[BusinessDirectors] = Json.format[BusinessDirectors]
 
 }
 
@@ -799,7 +799,7 @@ object Supplier {
 
   }
 
-  implicit val formats: OFormat[Supplier] = Json.format[Supplier]
+  given formats: OFormat[Supplier] = Json.format[Supplier]
 
 }
 
@@ -819,10 +819,10 @@ object Suppliers {
   def isAdditionalSupplier(suppliers: List[Supplier]): List[Supplier] =
     suppliers.zipWithIndex.map {
       case (x, i) if i == (suppliers.size - 1) => x.copy(additionalSupplier = Some("No"))
-      case (x, i) => x
+      case (x, _) => x
     }
 
-  implicit val formats: OFormat[Suppliers] = Json.format[Suppliers]
+  given formats: OFormat[Suppliers] = Json.format[Suppliers]
 
 }
 
@@ -840,7 +840,7 @@ object ApplicationDeclaration {
 
   }
 
-  implicit val formats: OFormat[ApplicationDeclaration] = Json.format[ApplicationDeclaration]
+  given formats: OFormat[ApplicationDeclaration] = Json.format[ApplicationDeclaration]
 
 }
 
@@ -871,7 +871,7 @@ object BusinessType {
       case _ => throw new Exception("")
     }
 
-  implicit val formats: OFormat[BusinessType] = Json.format[BusinessType]
+  given formats: OFormat[BusinessType] = Json.format[BusinessType]
 
 }
 
@@ -897,19 +897,19 @@ object Partners {
   def isAdditionalPartner(partnerDetails: List[Partner]): List[Partner] =
     partnerDetails.zipWithIndex.map {
       case (x, i) if i == (partnerDetails.size - 1) => x.copy(otherPartners = Some("No"))
-      case (x, i) => x
+      case (x, _) => x
     }
 
   val writer: Writes[Partners] = new Writes[Partners] {
     def writes(partners: Partners): JsValue = Json.obj("partners" -> Json.toJson(partners.partners))
   }
 
-  implicit val formats: OFormat[Partners] = Json.format[Partners]
+  given formats: OFormat[Partners] = Json.format[Partners]
 
 }
 
 object ChangeIndicators {
-  implicit val formats: OFormat[ChangeIndicators] = Json.format[ChangeIndicators]
+  given formats: OFormat[ChangeIndicators] = Json.format[ChangeIndicators]
 }
 
 object BusinessDetailsEntityTypes extends Enumeration {
@@ -923,22 +923,22 @@ object BusinessDetailsEntityTypes extends Enumeration {
 
     def reads(js: JsValue): JsResult[BusinessDetailsEntityTypes.Value] = js match {
       case JsString(s) =>
-        Try(BusinessDetailsEntityTypes.withName(s)) match {
-          case Success(value) => JsSuccess(value)
-          case Failure(e) => JsError(s"Enumeration expected of type: '${BusinessDetailsEntityTypes.getClass}', but it does not appear to contain the value: '$s'")
-        }
+        Try(BusinessDetailsEntityTypes.withName(s))
+          .map(value => JsSuccess(value))
+          .getOrElse(JsError(s"Enumeration expected of type: '${BusinessDetailsEntityTypes.getClass}', but it does not appear to contain the value: '$s'"))
       case _ => JsError("String value expected")
     }
 
   }
 
-  implicit val writer: Writes[BusinessDetailsEntityTypes.Value] = new Writes[BusinessDetailsEntityTypes.Value] {
+  given writer: Writes[BusinessDetailsEntityTypes.Value] = new Writes[BusinessDetailsEntityTypes.Value] {
 
     def writes(entityType: BusinessDetailsEntityTypes.Value): JsValue = Json.toJson(entityType.toString)
 
   }
 
-  implicit def autoToString(businessEntityType: BusinessDetailsEntityTypes.Value): String = businessEntityType.toString
+  given autoToString: Conversion[BusinessDetailsEntityTypes.Value, String] with
+   def apply(businessEntityType: BusinessDetailsEntityTypes.Value): String = businessEntityType.toString
 
 }
 
@@ -992,7 +992,7 @@ case class CheckRegimeModel(businessCustomerDetails: BusinessCustomerDetails,
                             legalEntity: String)
 
 object CheckRegimeModel {
-  implicit val formats: Format[CheckRegimeModel] = Json.format[CheckRegimeModel]
+  given formats: Format[CheckRegimeModel] = Json.format[CheckRegimeModel]
 }
 
 case class SubscriptionTypeFrontEnd(
@@ -1039,7 +1039,7 @@ object BusinessDetails {
 
   }
 
-  implicit val formats: Format[BusinessDetails] = Json.format[BusinessDetails]
+  given formats: Format[BusinessDetails] = Json.format[BusinessDetails]
 
 }
 
@@ -1071,7 +1071,7 @@ object BusinessContacts {
 
   }
 
-  implicit val formats: Format[BusinessContacts] = Json.format[BusinessContacts]
+  given formats: Format[BusinessContacts] = Json.format[BusinessContacts]
 
 }
 
@@ -1084,7 +1084,7 @@ object PlaceOfBusiness extends EtmpConstants {
     def reads(js: JsValue): JsResult[PlaceOfBusiness] =
       for {
         mainAddress <- JsSuccess((js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").asOpt[Address](Address.reader))
-        premiseFirstAddress <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
+        _ <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
         placeOfBusinessLast3Years <- JsSuccess((js \ "subscriptionType" \ "businessAddressForAwrs" \ "differentOperatingAddresslnLast3Years").asOpt[Boolean])
         placeOfBusinessAddressLast3Years <- JsSuccess((js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").asOpt[Address](Address.reader))
         operatingDuration <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "operatingDuration").validate[String]
@@ -1100,7 +1100,7 @@ object PlaceOfBusiness extends EtmpConstants {
 
   }
 
-  implicit val formats: Format[PlaceOfBusiness] = Json.format[PlaceOfBusiness]
+  given formats: Format[PlaceOfBusiness] = Json.format[PlaceOfBusiness]
 
 }
 
@@ -1172,11 +1172,11 @@ object TradingActivity {
       all <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "all").validate[Boolean]
       other <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfWholesaler" \ "other").validate[Boolean]
     } yield {
-      List(cashAndCarry ? WholesalerType.cashAndCarry | "",
-        offTradeSupplierOnly ? WholesalerType.offTradeSupplierOnly | "",
-        onTradeSupplierOnly ? WholesalerType.onTradeSupplierOnly | "",
-        all ? WholesalerType.all | "",
-        other ? WholesalerType.other | "").filter(_ != "")
+      List(cashAndCarry ? WholesalerType.cashAndCarry,
+        offTradeSupplierOnly ? WholesalerType.offTradeSupplierOnly,
+        onTradeSupplierOnly ? WholesalerType.onTradeSupplierOnly,
+        all ? WholesalerType.all,
+        other ? WholesalerType.other).flatten
     }
 
   def typeOfAlcoholOrders(js: JsValue): JsResult[List[String]] =
@@ -1187,11 +1187,11 @@ object TradingActivity {
       all <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "all").validate[Boolean]
       other <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfAlcoholOrders" \ "other").validate[Boolean]
     } yield {
-      List(onlineOnly ? AlcoholOrdersType.internet | "",
-        onlineAndTel ? AlcoholOrdersType.telephoneFax | "",
-        onlineTelAndPhysical ? AlcoholOrdersType.faceToface | "",
-        all ? AlcoholOrdersType.all | "",
-        other ? AlcoholOrdersType.other | "").filter(_ != "")
+      List(onlineOnly ? AlcoholOrdersType.internet,
+        onlineAndTel ? AlcoholOrdersType.telephoneFax,
+        onlineTelAndPhysical ? AlcoholOrdersType.faceToface,
+        all ? AlcoholOrdersType.all,
+        other ? AlcoholOrdersType.other).flatten
     }
 
   def typeOfCustomers(js: JsValue): JsResult[List[String]] =
@@ -1209,21 +1209,21 @@ object TradingActivity {
       all <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "all").validate[Boolean]
       other <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "other").validate[Boolean]
     } yield {
-      List(pubs ? TypeOfCustomers.pubs | "",
-        nightClubs ? TypeOfCustomers.nightClubs | "",
-        privateClubs ? TypeOfCustomers.privateClubs | "",
-        hotels ? TypeOfCustomers.hotels | "",
-        hospitality ? TypeOfCustomers.hospitalityCatering | "",
-        restaurants ? TypeOfCustomers.restaurants | "",
-        indepRetailers ? TypeOfCustomers.indepRetailers | "",
-        nationalRetailers ? TypeOfCustomers.nationalRetailers | "",
-        public ? TypeOfCustomers.public | "",
-        otherWholesalers ? TypeOfCustomers.otherWholesalers | "",
-        all ? TypeOfCustomers.all | "",
-        other ? TypeOfCustomers.other | "").filter(_ != "")
+      List(pubs ? TypeOfCustomers.pubs,
+        nightClubs ? TypeOfCustomers.nightClubs,
+        privateClubs ? TypeOfCustomers.privateClubs,
+        hotels ? TypeOfCustomers.hotels,
+        hospitality ? TypeOfCustomers.hospitalityCatering,
+        restaurants ? TypeOfCustomers.restaurants,
+        indepRetailers ? TypeOfCustomers.indepRetailers,
+        nationalRetailers ? TypeOfCustomers.nationalRetailers,
+        public ? TypeOfCustomers.public,
+        otherWholesalers ? TypeOfCustomers.otherWholesalers,
+        all ? TypeOfCustomers.all,
+        other ? TypeOfCustomers.other).flatten
     }
 
-  implicit val formats: OFormat[TradingActivity] = Json.format[TradingActivity]
+  given formats: OFormat[TradingActivity] = Json.format[TradingActivity]
 
 }
 
@@ -1263,18 +1263,18 @@ object Products {
       all <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "all").validate[Boolean]
       other <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "typeOfCustomers" \ "other").validate[Boolean]
     } yield {
-      List(pubs ? TypeOfCustomers.pubs | "",
-        nightClubs ? TypeOfCustomers.nightClubs | "",
-        privateClubs ? TypeOfCustomers.privateClubs | "",
-        hotels ? TypeOfCustomers.hotels | "",
-        hospitality ? TypeOfCustomers.hospitalityCatering | "",
-        restaurants ? TypeOfCustomers.restaurants | "",
-        indepRetailers ? TypeOfCustomers.indepRetailers | "",
-        nationalRetailers ? TypeOfCustomers.nationalRetailers | "",
-        public ? TypeOfCustomers.public | "",
-        otherWholesalers ? TypeOfCustomers.otherWholesalers | "",
-        all ? TypeOfCustomers.all | "",
-        other ? TypeOfCustomers.other | "").filter(_ != "")
+      List(pubs ? TypeOfCustomers.pubs,
+        nightClubs ? TypeOfCustomers.nightClubs,
+        privateClubs ? TypeOfCustomers.privateClubs,
+        hotels ? TypeOfCustomers.hotels,
+        hospitality ? TypeOfCustomers.hospitalityCatering,
+        restaurants ? TypeOfCustomers.restaurants,
+        indepRetailers ? TypeOfCustomers.indepRetailers,
+        nationalRetailers ? TypeOfCustomers.nationalRetailers,
+        public ? TypeOfCustomers.public,
+        otherWholesalers ? TypeOfCustomers.otherWholesalers,
+        all ? TypeOfCustomers.all,
+        other ? TypeOfCustomers.other).flatten
     }
 
   def typeOfProduct(js: JsValue): JsResult[List[String]] =
@@ -1287,16 +1287,16 @@ object Products {
       all <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "all").validate[Boolean]
       other <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "productsSold" \ "other").validate[Boolean]
     } yield {
-      List(beer ? ProductsSold.beer | "",
-        wine ? ProductsSold.wine | "",
-        spirits ? ProductsSold.spirits | "",
-        cider ? ProductsSold.cider | "",
-        perry ? ProductsSold.perry | "",
-        all ? ProductsSold.all | "",
-        other ? ProductsSold.other | "").filter(_ != "")
+      List(beer ? ProductsSold.beer,
+        wine ? ProductsSold.wine,
+        spirits ? ProductsSold.spirits,
+        cider ? ProductsSold.cider,
+        perry ? ProductsSold.perry,
+        all ? ProductsSold.all,
+        other ? ProductsSold.other).flatten
     }
 
-  implicit val formats: OFormat[Products] = Json.format[Products]
+  given formats: OFormat[Products] = Json.format[Products]
 
 }
 
@@ -1344,7 +1344,7 @@ object SubscriptionTypeFrontEnd {
           partnership = partnership,
           additionalPremises = additionalPremises,
           businessDirectors = legalEntity.get.legalEntity match {
-            case Some("LTD" | "LTD_GRP") => Some(amendLastDirector(businessDirectors.reduce((x, y) => x)))
+            case Some("LTD" | "LTD_GRP") => Some(amendLastDirector(businessDirectors.reduce((x, _) => x)))
             case _ => None
           },
           tradingActivity = tradingActivity,
@@ -1361,7 +1361,7 @@ object SubscriptionTypeFrontEnd {
   def amendLastDirector(businessDirectors: BusinessDirectors): BusinessDirectors =
     BusinessDirectors(businessDirectors.directors.zipWithIndex.map {
       case (x, i) if i == (businessDirectors.directors.size - 1) => x.copy(otherDirectors = Some("No"))
-      case (x, i) => x
+      case (x, _) => x
     })
 
   def hasSupplier(suppliers: Option[Suppliers]): Option[Suppliers] =
@@ -1370,6 +1370,6 @@ object SubscriptionTypeFrontEnd {
       case _ => Some(Suppliers(List(Supplier(alcoholSuppliers = Some("No"), None, None, None, None, None, None))))
     }
 
-  implicit val formats: OFormat[SubscriptionTypeFrontEnd] = Json.format[SubscriptionTypeFrontEnd]
+  given formats: OFormat[SubscriptionTypeFrontEnd] = Json.format[SubscriptionTypeFrontEnd]
 
 }
