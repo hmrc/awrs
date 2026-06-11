@@ -234,7 +234,7 @@ trait EtmpModelHelper extends EtmpConstants {
 
   val getPlaceOfBusinessLast3Years: (String, Option[Address]) => (Boolean, JsObject) = (placeOfBusinessLast3Years: String, placeOfBusinessAddressLast3Years: Option[Address]) =>
     placeOfBusinessLast3Years match {
-      case "No" => (true, Json.obj("previousAddress" -> toEtmpAddress(placeOfBusinessAddressLast3Years.reduceLeft((x, _) => x))))
+      case "No" => placeOfBusinessAddressLast3Years.map(address => (true, Json.obj("previousAddress" -> toEtmpAddress(address)))).getOrElse((false, Json.obj()))
       case _ => (false, Json.obj())
     }
 
