@@ -17,12 +17,12 @@
 package models
 
 import java.time.LocalDate
-import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import org.scalatest.matchers.should.Matchers.*
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.scalatestplus.play.PlaySpec
-import play.api.libs.json._
+import play.api.libs.json.*
 import utils.AwrsTestJson.testNino
-import utils.TestUtil._
+import utils.TestUtil.*
 import utils.{AwrsTestJson, TestUtil}
 
 class EtmpModelHelperSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLike {

@@ -21,7 +21,7 @@ import metrics.AwrsMetrics
 import models.{ApiType, DeRegistration, DeRegistrationType}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents, Result}
-import services._
+import services.*
 import uk.gov.hmrc.http.{HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -35,7 +35,7 @@ class DeRegistrationController @Inject()(val auditConnector: AuditConnector,
                                          metrics: AwrsMetrics,
                                          deRegistrationService: DeRegistrationService,
                                          cc: ControllerComponents,
-                                         @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
+                                         @Named("appName") val appName: String)(using ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
 
   def deRegistration(awrsRef: String): Action[AnyContent] = Action.async {
     implicit request =>
@@ -91,7 +91,7 @@ class DeRegistrationController @Inject()(val auditConnector: AuditConnector,
       }
   }
 
-  private def handle422(awrsRef: String, result: HttpResponse, deregistrationJsValue: JsValue)(implicit hc: HeaderCarrier): Result = {
+  private def handle422(awrsRef: String, result: HttpResponse, deregistrationJsValue: JsValue)(using hc: HeaderCarrier): Result = {
 
     val auditMap: Map[String, String] = Map("AWRS Reference No" -> awrsRef)
 

@@ -28,7 +28,7 @@ import utils.Utility
 
 class EtmpStatusService @Inject()(hipConnector: HipConnector) extends Logging {
 
-  def checkStatus(awrsRefNo: String)(implicit headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] =
+  def checkStatus(awrsRefNo: String)(using headerCarrier: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] =
     hipConnector.checkStatus(awrsRefNo) map {
       response =>
         response.status match {

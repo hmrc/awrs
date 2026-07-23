@@ -19,9 +19,9 @@ package services
 import connectors.{EnrolmentStoreConnector, DesConnector, HipConnector}
 
 import javax.inject.Inject
-import models._
+import models.*
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisedFunctions, User}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -35,13 +35,13 @@ class EtmpRegimeService @Inject()(desConnector: DesConnector,
                                   hipConnector: HipConnector,
                                   val enrolmentStoreConnector: EnrolmentStoreConnector,
                                   val authConnector: AuthConnector)
-                                 (implicit config: ServicesConfig) extends AuthorisedFunctions
+                                 (using config: ServicesConfig) extends AuthorisedFunctions
                                   with NonSelfHealStatus
                                   with Logging {
 
   private val AWRS_SERVICE_NAME = "HMRC-AWRS-ORG"
 
-  def getEtmpBusinessDetails(safeId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
+  def getEtmpBusinessDetails(safeId: String)(using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
     desConnector.awrsRegime(safeId).map { response =>
       Try(EtmpRegistrationDetails.etmpReader.reads(response.json)) match {
         case Success(value) => value.asOpt
@@ -54,7 +54,7 @@ class EtmpRegimeService @Inject()(desConnector: DesConnector,
 
   def handleDuplicateSubscription(etmpRegistrationDetails: EtmpRegistrationDetails,
                                   businessCustomerDetails: BusinessCustomerDetails)
-                                 (implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
+                                 (using hc: HeaderCarrier, ec: ExecutionContext): Future[Option[EtmpRegistrationDetails]] = {
     authorised(User).retrieve(Retrievals.affinityGroup) { affGroup =>
       Future(getEtmpRegistrationDetails(affGroup, businessCustomerDetails, etmpRegistrationDetails))
     } recover {
@@ -80,13 +80,13 @@ class EtmpRegimeService @Inject()(desConnector: DesConnector,
                           utr: Option[String],
                           businessType: String,
                           postcode: String,
-                          awrsRefNumber: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+                          awrsRefNumber: String)(using hc: HeaderCarrier): Future[HttpResponse] = {
     val enrolmentKey = s"$AWRS_SERVICE_NAME~AWRSRefNumber~$awrsRefNumber"
     val enrolmentVerifiers = createVerifiers(safeId, utr, businessType, postcode)
     enrolmentStoreConnector.upsertEnrolment(enrolmentKey, enrolmentVerifiers)
   }
 
-  def fetchETMPStatus(refNoNumber: String)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[String]] = {
+  def fetchETMPStatus(refNoNumber: String)(using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[String]] = {
 
     hipConnector.checkStatus(refNoNumber) map { response =>
       response.status match {
@@ -103,7 +103,7 @@ class EtmpRegimeService @Inject()(desConnector: DesConnector,
   }
 
   private def trySelfHealOnValidCase(bcd: BusinessCustomerDetails, etmpRegDetails: EtmpRegistrationDetails, legalEntity: String)
-                                    (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
+                                    (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
     val postcode = bcd.businessAddress.postcode.getOrElse("").replaceAll("\\s+", "")
 
     handleDuplicateSubscription(etmpRegDetails, bcd) flatMap {
@@ -128,7 +128,7 @@ class EtmpRegimeService @Inject()(desConnector: DesConnector,
   }
 
   def checkETMPApi(businessCustomerDetails: BusinessCustomerDetails, legalEntity: String)
-                  (implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
+                  (using ec: ExecutionContext, hc: HeaderCarrier): Future[Option[EtmpRegistrationDetails]] = {
 
     val safeId = businessCustomerDetails.safeId
 

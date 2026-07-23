@@ -18,8 +18,8 @@ package utils
 
 import java.time.LocalDate
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.domain._
-import utils.TestUtil._
+import uk.gov.hmrc.domain.*
+import utils.TestUtil.*
 
 object AwrsTestJson extends AwrsTestJson {
   // We only want one test nino and utr throughout, therefore assign a value in the object declaration

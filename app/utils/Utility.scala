@@ -17,7 +17,7 @@
 package utils
 
 import play.api.Logger
-import play.api.libs.json._
+import play.api.libs.json.*
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -75,10 +75,9 @@ object Utility {
     val companyRegTransformer = __.json.update(
       (__ \ toKey).json.copyFrom((__ \ fromKey).json.pick)
     ) andThen (__ \ fromKey).json.prune
-    
+
     def recursivelyReplaceKey(value: JsValue): JsValue = value match {
-      case currentObject: JsObject =>
-        
+      case currentObject: JsObject => {
         if ((currentObject.as[JsValue] \\ fromKey).isEmpty) {
           currentObject
         } else if ((currentObject \ fromKey).isDefined && (currentObject \ "doYouHaveCRN").isDefined) {
@@ -86,24 +85,15 @@ object Utility {
         } else {
           JsObject(currentObject.fields.map { case (fieldName, fieldValue) => fieldName -> recursivelyReplaceKey(fieldValue) })
         }
-        
-        case JsArray(values) =>
-          JsArray(values.map(recursivelyReplaceKey))
-
-        case other =>
-          other
       }
+      case JsArray(values) =>
+        JsArray(values.map(recursivelyReplaceKey))
 
-      recursivelyReplaceKey(input)
+      case other =>
+        other
     }
 
-}
-
-case class Bool(b: Boolean) {
-  def ?[X](t: => X) = new {def | (f: => X) = if(b) t else f
+    recursivelyReplaceKey(input)
   }
-}
 
-object Bool {
-  implicit def BooleanBool(b: Boolean): Bool = Bool(b)
 }

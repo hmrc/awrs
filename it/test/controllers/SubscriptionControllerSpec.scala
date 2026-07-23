@@ -19,8 +19,9 @@ package controllers
 import org.apache.pekko.util.Timeout
 import models.Approved
 import org.scalatest.matchers.must.Matchers
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.ws.WSResponse
+import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.helpers.utils.{IntegrationData, Stubs}
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -34,7 +35,7 @@ class SubscriptionControllerSpec extends IntegrationSpec with AuthHelpers with M
 
   val controllerUrl = "/awrs/send-data"
 
-  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  given config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   "subscribe()" should {
     "return 200" when {
