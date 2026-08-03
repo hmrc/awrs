@@ -19,9 +19,10 @@ package controllers
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.AwrsUsers
 import org.scalatest.matchers.must.Matchers
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
+import play.api.libs.ws.DefaultBodyReadables.readableAsString
 import uk.gov.hmrc.helpers.utils.Stubs
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 

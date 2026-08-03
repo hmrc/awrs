@@ -21,7 +21,7 @@ import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
 val appName: String = "awrs"
 
 ThisBuild / majorVersion := 2
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.3.7"
 
 lazy val appDependencies : Seq[ModuleID] = AppDependencies()
 lazy val plugins : Seq[Plugins] = Seq(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
@@ -47,7 +47,12 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies ++= appDependencies,
     Test / parallelExecution := false,
     retrieveManaged := true,
-    scalacOptions ++= Seq("-feature", "-Wconf:src=routes/.*:s"),
+    scalacOptions ++= Seq(
+      "-feature",
+      "-Wconf:src=routes/.*:s",
+      "-Wconf:msg=unused explicit parameter:s",
+      "-Wconf:msg=unused pattern variable:s"
+    ),
   )
   .disablePlugins(JUnitXmlReportPlugin)
 

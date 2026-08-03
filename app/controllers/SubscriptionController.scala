@@ -18,7 +18,7 @@ package controllers
 
 import javax.inject.{Inject, Named}
 import metrics.AwrsMetrics
-import models._
+import models.*
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 import services.{EtmpRegimeService, EtmpStatusService, LookupService, SubscriptionService}
@@ -36,7 +36,7 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
                                        val statusService: EtmpStatusService,
                                        val regimeService: EtmpRegimeService,
                                        cc: ControllerComponents,
-                                       @Named("appName") val appName: String)(implicit ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
+                                       @Named("appName") val appName: String)(using ec: ExecutionContext) extends BackendController(cc) with LoggingUtils {
 
   private final val subscriptionTypeJSPath = "subscriptionTypeFrontEnd"
 
@@ -320,7 +320,7 @@ class SubscriptionController @Inject()(val auditConnector: AuditConnector,
       }
   }
 
-  def updateGrpRegistrationDetails(awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
+  def updateGrpRegistrationDetails(@annotation.unused awrsRefNo: String, safeId: String): Action[JsValue] = Action.async(parse.json) {
     implicit request =>
       val updatedData = request.body.as[UpdateRegistrationDetailsRequest]
       subscriptionService.updateGrpRepRegistrationDetails(safeId, updatedData) map {

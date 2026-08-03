@@ -54,7 +54,7 @@ object FeatureSwitch {
   val EnabledIntervalExtractor: Regex = """(\S+)_(\S+)""".r
   val UNSPECIFIED = "X"
 
-  private[utils] def getProperty(name: String)(implicit config: ServicesConfig): FeatureSwitch = {
+  private[utils] def getProperty(name: String)(using config: ServicesConfig): FeatureSwitch = {
     val value = sys.props.get(systemPropertyName(name))
     value match {
       case Some("true") => BooleanFeatureSwitch(name, enabled = true)
@@ -65,7 +65,7 @@ object FeatureSwitch {
     }
   }
 
-  private[utils] def setProperty(name: String, value: String)(implicit config: ServicesConfig): FeatureSwitch = {
+  private[utils] def setProperty(name: String, value: String)(using config: ServicesConfig): FeatureSwitch = {
     sys.props += ((systemPropertyName(name), value))
     getProperty(name)
   }
@@ -80,17 +80,17 @@ object FeatureSwitch {
 
   private[utils] def systemPropertyName(name: String) = s"feature.$name"
 
-  def enable(fs: FeatureSwitch)(implicit config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "true")
-  def disable(fs: FeatureSwitch)(implicit config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "false")
+  def enable(fs: FeatureSwitch)(using config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "true")
+  def disable(fs: FeatureSwitch)(using config: ServicesConfig): FeatureSwitch = setProperty(fs.name, "false")
 }
 
 object AWRSFeatureSwitches extends AWRSFeatureSwitches
 
 trait AWRSFeatureSwitches {
 
-  def regimeCheck()(implicit config: ServicesConfig): FeatureSwitch = FeatureSwitch.getProperty("regimeCheck")
+  def regimeCheck()(using config: ServicesConfig): FeatureSwitch = FeatureSwitch.getProperty("regimeCheck")
 
-  def apply(name: String)(implicit config: ServicesConfig): Option[FeatureSwitch] = name match {
+  def apply(name: String)(using config: ServicesConfig): Option[FeatureSwitch] = name match {
     case "regimeCheck" => Some(regimeCheck())
     case _ => None
   }

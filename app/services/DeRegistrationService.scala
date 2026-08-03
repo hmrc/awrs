@@ -19,7 +19,7 @@ package services
 import connectors.HipConnector
 import play.api.Logging
 import play.api.http.Status
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import utils.Utility
 
@@ -27,14 +27,14 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class DeRegistrationService @Inject()(hipConnector: HipConnector)
-                                     (implicit ec: ExecutionContext)
+                                     (using ec: ExecutionContext)
   extends Logging {
 
   private val acknowledgementReference: String = "acknowledgementReference"
 
   def deRegistration(awrsRefNo: String,
                      deRegistration: JsValue)
-                    (implicit headerCarrier: HeaderCarrier): Future[HttpResponse] = {
+                    (using headerCarrier: HeaderCarrier): Future[HttpResponse] = {
 
     val hipRequestJson: JsResult[JsValue] = updateRequestForHip(deRegistration)
     hipRequestJson match {

@@ -20,6 +20,7 @@ import models.{Approved, Rejected}
 import org.scalatest.matchers.must.Matchers
 import play.api.http.Status.{NOT_FOUND, NO_CONTENT, OK}
 import play.api.libs.ws.WSResponse
+import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.helpers.utils.Stubs
 import uk.gov.hmrc.helpers.{AuthHelpers, IntegrationSpec}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -28,7 +29,7 @@ import utils.{AWRSFeatureSwitches, FeatureSwitch}
 class EtmpCheckControllerSpec extends IntegrationSpec with AuthHelpers with Matchers with Stubs {
 
   val controllerUrl: String = routes.EtmpCheckController.checkEtmp().url
-  implicit val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
+  given config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   "checkEtmp()" should {
 

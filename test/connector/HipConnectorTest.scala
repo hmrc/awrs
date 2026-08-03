@@ -29,14 +29,14 @@ import java.net.URI
 import scala.concurrent.{ExecutionContext, Future}
 
 class HipConnectorTest extends BaseSpec with AnyWordSpecLike {
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  given ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
   val config: ServicesConfig = app.injector.instanceOf[ServicesConfig]
 
   trait Setup extends ConnectorTest {
     object TestHipConnector extends HipConnector (mockHttpClient, config)
     val awrsRefNo = "XAAW0000010001"
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
   }
 
   "HipConnector" must {
