@@ -502,7 +502,7 @@ object GroupMember {
         names <- (js \ "names").validate[CompanyNames](CompanyNames.reader)
         isBusinessIncorporated <- JsSuccess((js \ "incorporationDetails" \ "isBusinessIncorporated").asOpt[Boolean])
         companyRegDetails <- JsSuccess((js \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
-        groupJoiningDate <- (js \ "groupJoiningDate").validate[String]
+        _ <- (js \ "groupJoiningDate").validate[String]
         address <- JsSuccess((js \ "address").asOpt[Address](Address.reader))
         doYouHaveVRN <- JsSuccess((js \ "identification" \ "doYouHaveVRN").asOpt[Boolean])
         vrn <- JsSuccess((js \ "identification" \ "vrn").asOpt[String])
@@ -670,7 +670,7 @@ object Partner {
         utr <- JsSuccess((js \ "identification" \ "utr").asOpt[String])
         isBusinessIncorporated <- JsSuccess((js \ "incorporationDetails" \ "isBusinessIncorporated").asOpt[Boolean])
         companyRegDetails <- JsSuccess((js \ "incorporationDetails").asOpt[CompanyRegDetails](CompanyRegDetails.reader))
-        dateOfIncorporation <- JsSuccess((js \ "incorporationDetails" \ "dateOfIncorporation").asOpt[String])
+        _ <- JsSuccess((js \ "incorporationDetails" \ "dateOfIncorporation").asOpt[String])
         solTradingName <- JsSuccess((js \ "soleProprietor" \ "tradingName").asOpt[String])
         solFirstName <- JsSuccess((js \ "soleProprietor" \ "name" \ "firstName").asOpt[String])
         solLastName <- JsSuccess((js \ "soleProprietor" \ "name" \ "lastName").asOpt[String])
@@ -1082,7 +1082,7 @@ object PlaceOfBusiness extends EtmpConstants {
     def reads(js: JsValue): JsResult[PlaceOfBusiness] =
       for {
         mainAddress <- JsSuccess((js \ "subscriptionType" \ "businessAddressForAwrs" \ "currentAddress").asOpt[Address](Address.reader))
-        premiseFirstAddress <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
+        _ <- (js \ "subscriptionType" \ "additionalBusinessInfo" \ "all" \ "premiseAddress") (0).validate[EtmpAddress](EtmpAddress.reader)
         placeOfBusinessLast3Years <- JsSuccess((js \ "subscriptionType" \ "businessAddressForAwrs" \ "differentOperatingAddresslnLast3Years").asOpt[Boolean])
         placeOfBusinessAddressLast3Years <- JsSuccess((js \ "subscriptionType" \ "businessAddressForAwrs" \ "previousAddress").asOpt[Address](Address.reader))
         operatingDuration <- (js \ "subscriptionType" \ "businessAddressForAwrs" \ "operatingDuration").validate[String]

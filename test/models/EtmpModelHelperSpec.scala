@@ -85,8 +85,8 @@ class EtmpModelHelperSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLik
     "transform correct address JSON element " in {
 
       val awrsModel = api4FrontendSOPJson.as[AWRSFEModel]
-      val etmpJson = TestEtmpModelHelper.toEtmpAddress(awrsModel.subscriptionTypeFrontEnd.suppliers.reduceLeft((x, y) => x).
-        suppliers.head.supplierAddress.reduceLeft((p, q) => p)).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpAddress(awrsModel.subscriptionTypeFrontEnd.suppliers.reduceLeft((x, _) => x).
+        suppliers.head.supplierAddress.reduceLeft((p, _) => p)).toString()
       etmpJson should include("postalCode")
       etmpJson should include("addressLine1")
       etmpJson should include("addressLine2")
@@ -112,8 +112,8 @@ class EtmpModelHelperSpec extends PlaySpec with AwrsTestJson with AnyWordSpecLik
         api4FrontendSOPString)
       val awrsModel = Json.parse(updatedJson).as[AWRSFEModel]
 
-      val etmpJson = TestEtmpModelHelper.toEtmpAddress(awrsModel.subscriptionTypeFrontEnd.suppliers.reduceLeft((x, y) => x).
-        suppliers.head.supplierAddress.reduceLeft((p, q) => p)).toString()
+      val etmpJson = TestEtmpModelHelper.toEtmpAddress(awrsModel.subscriptionTypeFrontEnd.suppliers.reduceLeft((x, _) => x).
+        suppliers.head.supplierAddress.reduceLeft((p, _) => p)).toString()
       etmpJson should not include "postalCode"
       etmpJson should include("addressLine1")
       etmpJson should include("addressLine2")
