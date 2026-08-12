@@ -67,11 +67,7 @@ class SubscriptionControllerTest extends BaseSpec with AnyWordSpecLike {
     cc,
     "awrs"
   ) {
-    override val appName: String = "awrs"
     override val audit: Audit = new TestAudit(mockAuditConnector)
-    override val metrics: AwrsMetrics = awrsMetrics
-    override val regimeService: EtmpRegimeService = mockEtmpRegimeService
-    override val auditConnector: AuditConnector = mockAuditConnector
   }
 
   "SubscriptionController" must {

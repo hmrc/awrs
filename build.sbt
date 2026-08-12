@@ -49,10 +49,10 @@ lazy val microservice = Project(appName, file("."))
     retrieveManaged := true,
     scalacOptions ++= Seq(
       "-feature",
-      "-Wconf:src=routes/.*:s",
-      "-Wconf:msg=unused explicit parameter:s",
-      "-Wconf:msg=unused pattern variable:s"
+      "-Wconf:src=target/.*:s",
+      "-Wconf:src=.*routes.*:s"
     ),
+    scalacOptions ~= (_.distinct)
   )
   .disablePlugins(JUnitXmlReportPlugin)
 
