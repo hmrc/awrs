@@ -18,13 +18,13 @@ package utils
 
 import java.time.LocalDate
 import play.api.libs.json.JsValue
-import uk.gov.hmrc.domain.*
 import utils.TestUtil.*
 
 object AwrsTestJson extends AwrsTestJson {
   // We only want one test nino and utr throughout, therefore assign a value in the object declaration
-  lazy val testNino: String = new Generator().nextNino.nino
-  lazy val testUtr: String = new SaUtrGenerator().nextSaUtr.utr
+  lazy val testNino: String = "GG397779C"
+  lazy val testUtr: String = "2000063094"
+
   lazy val testGrpJoinDate: String = LocalDate.now().toString
   lazy val testRefNo = "DummmyRef"
   lazy val testSafeId = "DummmyRef"
