@@ -19,7 +19,7 @@ import sbt.*
 object AppDependencies {
   import play.sbt.PlayImport.*
 
-  private val domainVersion = "11.0.0"
+
   private val json4sJacksonVersion = "4.0.7"
   private val jsonSchemaValidatorVersion = "2.2.14"
   private val json4sNativeVersion = "4.0.7"
@@ -31,7 +31,6 @@ object AppDependencies {
   val compile: Seq[ModuleID] = Seq(
     ws,
     "uk.gov.hmrc"                  %% "bootstrap-backend-play-30" % microserviceBootstrapVersion,
-    "uk.gov.hmrc"                  %% "domain-play-30"            % domainVersion,
     "org.json4s"                   %% "json4s-jackson"            % json4sJacksonVersion,
     "org.json4s"                   %% "json4s-native"             % json4sNativeVersion,
     "com.fasterxml.jackson.module" %% "jackson-module-scala"      % jacksonModuleVersion
